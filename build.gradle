@@ -22,6 +22,8 @@ dependencies {
     implementation "org.lwjgl:lwjgl-stb:${project.lwjgl_version}"
     // joml
     implementation "org.joml:joml:${project.joml_version}"
+    // fastutil
+    implementation "it.unimi.dsi:fastutil:${project.fastutil_version}"
     // lwjgl natives
     runtimeOnly "org.lwjgl:lwjgl:${project.lwjgl_version}:${project.natives}"
     runtimeOnly "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}:${project.natives}"

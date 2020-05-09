@@ -24,7 +24,8 @@ public class Client2fc implements Runnable {
 
 	@Override
 	public void run() {
-		init();
+		Tests.testModernSystem(this.window);
+		/*init();
 
 		while (this.window.isOpen()) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -33,7 +34,7 @@ public class Client2fc implements Runnable {
 			glfwPollEvents();
 		}
 
-		this.window.destroy();
+		this.window.destroy();*/
 	}
 
 	public void init() {

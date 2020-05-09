@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.client;
 
+import tk.valoeghese.fc0.client.system.Model;
 import tk.valoeghese.fc0.client.system.Window;
 
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
@@ -61,5 +62,32 @@ public class Tests {
 		}
 
 		window.destroy();
+	}
+
+	public static void testModernSystem(Window window) {
+		Model test = new TestModel();
+
+		while (window.isOpen()) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			test.render();
+			window.swapBuffers();
+			glfwPollEvents();
+		}
+
+		window.destroy();
+	}
+
+	private static class TestModel extends Model {
+		private TestModel() {
+			super(GL_STATIC_DRAW);
+
+			this.vertex(0.0f, 1.0f, 0.0f);
+			this.vertex(0.0f, 0.0f, 0.0f);
+			this.vertex(1.0f, 0.0f, 0.0f);
+			this.vertex(1.0f, 1.0f, 0.0f);
+			this.tri(0, 1, 2);
+			this.tri(0, 2, 3);
+			this.generateBuffers();
+		}
 	}
 }
