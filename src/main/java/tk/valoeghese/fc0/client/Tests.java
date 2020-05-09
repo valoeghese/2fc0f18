@@ -14,8 +14,6 @@ import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public class Tests {
 	public static void runLegacyTest(Window window) {
-		glClearColor(0,0,0,255);
-
 		while (window.isOpen()) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glBegin(GL_QUADS);
@@ -52,7 +50,6 @@ public class Tests {
 		glVertexAttribPointer(0,2,GL_FLOAT,false,0,NULL);
 		glEnableVertexAttribArray(0);
 		glBindVertexArray(0);
-		glClearColor(0,0,0,255);
 
 		while (window.isOpen()) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

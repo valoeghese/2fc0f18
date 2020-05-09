@@ -14,9 +14,14 @@ public class Window {
 		glfwMakeContextCurrent(this.glWindow);
 		glfwSwapInterval(1); // vsync
 		glfwShowWindow(this.glWindow);
+
+		this.width = width;
+		this.height = height;
 	}
 
 	private final long glWindow;
+	public final int width;
+	public final int height;
 
 	public boolean isOpen() {
 		return !glfwWindowShouldClose(this.glWindow);
