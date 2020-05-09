@@ -1,0 +1,9 @@
+bin
+out
+*.launch
+.classpath
+.project
+.gradle
+.idea
+*.log
+.settings

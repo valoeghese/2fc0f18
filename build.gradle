@@ -1,0 +1,34 @@
+plugins {
+    id 'application'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // lwjgl
+    implementation "org.lwjgl:lwjgl:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}"
+    //implementation "org.lwjgl:lwjgl-jawt:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-opengl:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-glfw:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-openal:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-stb:${project.lwjgl_version}"
+    // joml
+    implementation "org.joml:joml:${project.joml_version}"
+    // lwjgl natives
+    runtimeOnly "org.lwjgl:lwjgl:${project.lwjgl_version}:${project.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}:${project.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${project.lwjgl_version}:${project.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${project.lwjgl_version}:${project.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${project.lwjgl_version}:${project.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-stb:${project.lwjgl_version}:${project.natives}"
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
