@@ -4,6 +4,9 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import org.joml.Matrix4f;
+
+import javax.annotation.Nullable;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -13,8 +16,9 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public abstract class Model {
-	protected Model(int mode) {
+	protected Model(int mode, @Nullable Shader shader) {
 		this.mode = mode;
+		this.shader = shader;
 	}
 
 	private FloatList vTemp = new FloatArrayList();
@@ -28,6 +32,8 @@ public abstract class Model {
 	private final int mode;
 	private int attribIndex;
 	private static int currentAttribindex = 0;
+	@Nullable
+	private final Shader shader;
 
 	protected int vertex(float x, float y, float z) {
 		vTemp.add(x);
@@ -59,19 +65,29 @@ public abstract class Model {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indices, this.mode);
 
-		glVertexAttribPointer(this.attribIndex, 3,GL_FLOAT,false,0,NULL);
+		glVertexAttribPointer(this.attribIndex, 3, GL_FLOAT, false,0,NULL);
 		glEnableVertexAttribArray(this.attribIndex);
 		glBindVertexArray(0);
 	}
 
-	public final void render() {
+	public final void render(Matrix4f transform) {
 		this.bind();
+
+		if (this.shader != null) {
+			this.shader.uniformMat4f("transform", transform);
+		}
+
 		glDrawElements(GL_TRIANGLES, this.indices.length, GL_UNSIGNED_INT,NULL);
-		Model.unbind();
+		unbind();
 	}
 
 	public final void bind() {
 		glBindVertexArray(this.vao);
+	}
+
+	@Nullable
+	public Shader getShader() {
+		return this.shader;
 	}
 
 	public static final void unbind() {

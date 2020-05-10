@@ -69,7 +69,7 @@ public class Tests {
 
 		while (window.isOpen()) {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			test.render();
+			test.render(null); // no shader so null is fine
 			window.swapBuffers();
 			glfwPollEvents();
 		}
@@ -79,7 +79,7 @@ public class Tests {
 
 	private static class TestModel extends Model {
 		private TestModel() {
-			super(GL_STATIC_DRAW);
+			super(GL_STATIC_DRAW, null);
 
 			this.vertex(0.0f, 1.0f, 0.0f);
 			this.vertex(0.0f, 0.0f, 0.0f);
