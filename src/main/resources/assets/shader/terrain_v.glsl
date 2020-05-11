@@ -9,6 +9,7 @@ uniform mat4 projection;
 uniform vec3 colour;
 
 void main() {
+    //gl_Position = vec4(rawPos,1.0);
     gl_Position = projection * view * transform * vec4(rawPos, 1.0);// set the final vertex position based on the raw position
     colourPass = colour;
 }

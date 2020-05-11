@@ -21,7 +21,7 @@ public class Window {
 		this.aspect = (float) width / (float) height;
 	}
 
-	private final long glWindow;
+	public final long glWindow;
 	public final int width;
 	public final int height;
 	public final float aspect;

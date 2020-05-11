@@ -2,9 +2,10 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 import tk.valoeghese.fc0.client.system.*;
 
-import static org.lwjgl.glfw.GLFW.glfwPollEvents;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -37,7 +38,7 @@ public class Client2fc implements Runnable {
 			glfwPollEvents();
 		}
 
-		this.window.destroy();
+		this.window.destroy();//*/
 	}
 
 	public void init() {
@@ -47,16 +48,21 @@ public class Client2fc implements Runnable {
 
 		this.model = new CubeModel(GL_STATIC_DRAW, this.terrain);
 		this.camera = new Camera();
-		this.camera.translate(new Vector3f(0.0f, 0.0f, 1.0f));
+		this.camera.translate(new Vector3f(0.0f, 0.0f, -1.5f));
 	}
 
 	public void render() {
+		if (GLFW.glfwGetKey(this.window.glWindow, GLFW_KEY_S) > 0) {
+			this.camera.translate(new Vector3f(0.0f, 0.0f, -0.1f));
+		} else if (GLFW.glfwGetKey(this.window.glWindow, GLFW_KEY_W) > 0) {
+			this.camera.translate(new Vector3f(0.0f, 0.0f, 0.1f));
+		}
 		// bind shader
 		this.terrain.bind();
 		// projection
 		this.terrain.uniformMat4f("projection", this.projection);
 		// render
-		Vector3f colour = new Vector3f(1.0f, 1.0f, 1.0f);
+		Vector3f colour = new Vector3f(1.0f, 0.0f, 1.0f);
 		this.terrain.uniformVec3f("colour", colour);
 		GraphicsSystem.render(this.camera, this.model, new Matrix4f());
 		// unbind shader
