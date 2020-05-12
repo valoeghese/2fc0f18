@@ -15,7 +15,7 @@ public class PlaneModel extends Model {
 		this.tri(0, 2, 3);
 
 		try {
-			BufferedImage image = ImageIO.read(Resources.loadURL("assets/texture/misaka.png"));
+			BufferedImage image = ImageIO.read(Resources.loadURL("assets/texture/test.png"));
 			this.generateBuffers(TextureLoader.textureARGB(image));
 		} catch (IOException | RuntimeException e) {
 			throw new RuntimeException("Error loading image!", e);
