@@ -70,11 +70,9 @@ public class Client2fc implements Runnable {
 		// projection
 		this.terrain.uniformMat4f("projection", this.projection);
 		// render
-		Vector3f colour = new Vector3f(1.0f, 0.0f, 1.0f);
-		this.terrain.uniformVec3f("colour", colour);
 		this.camera.render(this.model, new Matrix4f());
 		// unbind shader
-		//Shader.unbind();
+		Shader.unbind();
 	}
 
 	private final Window window;

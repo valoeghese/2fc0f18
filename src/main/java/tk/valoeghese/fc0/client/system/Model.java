@@ -86,6 +86,7 @@ public abstract class Model {
 			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, NULL);
 		}
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		unbind();
 	}
 
