@@ -10,7 +10,6 @@ import tk.valoeghese.fc0.client.system.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class Client2fc implements Runnable {
 	public Client2fc() {
