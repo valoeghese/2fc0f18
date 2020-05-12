@@ -10,4 +10,6 @@ public final class Keybinds {
 	public static final Keybind MOVE_LEFT = new Keybind("move_left", GLFW_KEY_A, false);
 	public static final Keybind MOVE_RIGHT = new Keybind("move_right", GLFW_KEY_D, false);
 	public static final Keybind ESCAPE = new Keybind("escape", GLFW_KEY_ESCAPE, false);
+	public static final Keybind JUMP = new Keybind("jump", GLFW_KEY_SPACE, false);
+	public static final Keybind FLY_DOWN = new Keybind("fly_down", GLFW_KEY_LEFT_SHIFT, false);
 }

@@ -1,10 +1,11 @@
 package tk.valoeghese.fc0.client;
 
+import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.glfw.GLFW;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
-import tk.valoeghese.fc0.client.model.ChunkMesh;
 import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.TileFaceModel;
 import tk.valoeghese.fc0.client.system.*;
@@ -52,23 +53,32 @@ public class Client2fc implements Runnable {
 
 	public void init() {
 		glEnable(GL_DEPTH_TEST);
+		//glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 		this.camera = new Camera();
-		this.camera.translate(new Vector3f(0.0f, 0.0f, -1.5f));
+		this.camera.translateScene(new Vector3f(0.0f, 0.0f, -1.5f));
+		this.camera.rotateScene(new AxisAngle4f(0.2f, 1.0f, 0.0f, 0.0f));
 	}
 
 	public void render() {
 		long time = System.nanoTime();
+		glfwSetCursorPos(this.window, this.window.width, this.window.height)
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
-			this.camera.translate(new Vector3f(0.0f, 0.0f, -0.1f));
+			this.camera.translateScene(new Vector3f(0.0f, 0.0f, -0.1f));
 		} else if (Keybinds.MOVE_FOWARDS.isPressed()) {
-			this.camera.translate(new Vector3f(0.0f, 0.0f, 0.1f));
+			this.camera.translateScene(new Vector3f(0.0f, 0.0f, 0.1f));
 		}
 
 		if (Keybinds.MOVE_LEFT.isPressed()) {
-			this.camera.translate(new Vector3f(0.1f, 0.0f, 0.0f));
+			this.camera.translateScene(new Vector3f(0.1f, 0.0f, 0.0f));
 		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
-			this.camera.translate(new Vector3f(-0.1f, 0.0f, 0.0f));
+			this.camera.translateScene(new Vector3f(-0.1f, 0.0f, 0.0f));
+		}
+
+		if (Keybinds.JUMP.isPressed()) {
+			this.camera.translateScene(new Vector3f(0.0f, -0.1f, 0.0f));
+		} else if (Keybinds.FLY_DOWN.isPressed()) {
+			this.camera.translateScene(new Vector3f(0.0f, 0.1f, 0.0f));
 		}
 		// bind shader
 		Shaders.terrain.bind();
@@ -77,6 +87,7 @@ public class Client2fc implements Runnable {
 		// render
 		//this.camera.render(this.model, new Matrix4f());
 		this.chunk.getOrCreateMesh().render(this.camera);
+		this.camera.render(model, new Matrix4f());
 		// unbind shader
 		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;

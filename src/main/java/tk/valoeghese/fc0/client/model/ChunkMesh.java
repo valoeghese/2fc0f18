@@ -46,8 +46,8 @@ public class ChunkMesh {
 						Tile tileNorth = z == 15 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
 						if (!tileUp.isOpaque()) {
-							this.mesh.add(new RenderedTileFace(new Vector3f(x, z, y + 0.5f),
-									new AxisAngle4f((float) Math.toRadians(90.0), 1.0f, 0.0f, 0.0f),
+							this.mesh.add(new RenderedTileFace(new Vector3f(x + 0.5f, y, z),
+									new AxisAngle4f((float) Math.toRadians(-90.0), 1.0f, 0.0f, 0.0f),
 									instance, this.x, this.z));
 						}
 					}

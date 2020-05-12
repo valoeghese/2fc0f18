@@ -8,11 +8,11 @@ import org.joml.Vector3f;
 public class Camera {
 	private Matrix4f view = new Matrix4f();
 
-	public void translate(Vector3f translate) {
+	public void translateScene(Vector3f translate) {
 		this.view = this.view.translate(translate);
 	}
 
-	public void rotate(AxisAngle4f rotation) {
+	public void rotateScene(AxisAngle4f rotation) {
 		this.view = this.view.rotate(rotation);
 	}
 
