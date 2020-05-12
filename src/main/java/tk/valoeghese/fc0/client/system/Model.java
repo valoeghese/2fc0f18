@@ -30,7 +30,6 @@ public abstract class Model {
 	private IntList iTemp = new IntArrayList();
 	private List<VertexArray> vaos = new ArrayList<>();
 	private final int mode;
-	private int attribIndex;
 	@Nullable
 	private final Shader shader;
 
@@ -49,7 +48,7 @@ public abstract class Model {
 		this.iTemp.add(i2);
 	}
 
-	protected void generateBuffers() {
+	protected void generateBuffers(int texture) {
 		float[] vertices = this.vTemp.toFloatArray();
 		int[] indices = this.iTemp.toIntArray();
 		this.vTemp = new FloatArrayList();
@@ -73,7 +72,7 @@ public abstract class Model {
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 
-		this.vaos.add(new VertexArray(vao, indices.length));
+		this.vaos.add(new VertexArray(vao, indices.length, texture));
 	}
 
 	public final void render(Matrix4f transform) {
@@ -83,6 +82,7 @@ public abstract class Model {
 
 		for (VertexArray array : this.vaos) {
 			glBindVertexArray(array.vao);
+			glBindTexture(GL_TEXTURE_2D, array.texture);
 			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, NULL);
 		}
 
@@ -99,12 +99,14 @@ public abstract class Model {
 	}
 
 	private static class VertexArray {
-		private VertexArray(int vao, int elementCount) {
+		private VertexArray(int vao, int elementCount, int texture) {
 			this.vao = vao;
 			this.elementCount = elementCount;
+			this.texture = texture;
 		}
 
 		private final int vao;
 		private final int elementCount;
+		private final int texture;
 	}
 }

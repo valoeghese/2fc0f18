@@ -3,6 +3,7 @@ layout (location = 0) in vec3 rawPos;
 layout (location = 1) in vec2 rawUV;
 
 out vec3 colourPass;
+out vec2 uvPass;
 
 uniform mat4 transform;
 uniform mat4 view;

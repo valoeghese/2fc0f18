@@ -8,15 +8,13 @@ import tk.valoeghese.fc0.client.system.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class Client2fc implements Runnable {
 	public Client2fc() {
 		GraphicsSystem.initGLFW();
-		this.window = new Window(600, 400);
-		GraphicsSystem.initGL();
+		this.window = new Window(640, 360);
+		GraphicsSystem.initGL(this.window);
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(45), this.window.aspect, 0.01f, 100.0f);
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
@@ -36,6 +34,10 @@ public class Client2fc implements Runnable {
 			this.render();
 			this.window.swapBuffers();
 			glfwPollEvents();
+
+			if (Keybinds.ESCAPE.hasBeenPressed()) {
+				glfwSetWindowShouldClose(this.window.glWindow, true);
+			}
 		}
 
 		this.window.destroy();//*/

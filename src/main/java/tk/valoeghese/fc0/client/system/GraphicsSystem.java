@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.system;
 
 import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -11,10 +12,12 @@ public final class GraphicsSystem {
 		}
 	}
 
-	public static void initGL() {
+	public static void initGL(Window window) {
 		createCapabilities();
 		glClearColor(0, 0, 0, 255);
 		glShadeModel(GL_FLAT);
+		glViewport(0, 0,window.width, window.height);
+		glfwSetFramebufferSizeCallback(window.glWindow, (w, width, height) -> glViewport(0, 0, width, height));
 	}
 
 	public static final int NULL = 0;

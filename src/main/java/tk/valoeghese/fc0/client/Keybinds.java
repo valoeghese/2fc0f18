@@ -9,4 +9,5 @@ public final class Keybinds {
 	public static final Keybind MOVE_BACKWARDS = new Keybind("move_backwards", GLFW_KEY_S, false);
 	public static final Keybind MOVE_LEFT = new Keybind("move_left", GLFW_KEY_A, false);
 	public static final Keybind MOVE_RIGHT = new Keybind("move_right", GLFW_KEY_D, false);
+	public static final Keybind ESCAPE = new Keybind("escape", GLFW_KEY_ESCAPE, false);
 }
