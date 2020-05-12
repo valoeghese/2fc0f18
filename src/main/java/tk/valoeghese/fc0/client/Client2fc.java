@@ -2,8 +2,6 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.glfw.GLFW;
-import tk.valoeghese.fc0.client.keybind.Keybind;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.system.*;
@@ -48,22 +46,22 @@ public class Client2fc implements Runnable {
 		this.terrain.bind();
 		glEnable(GL_DEPTH_TEST);
 
-		this.model = new CubeModel(GL_STATIC_DRAW, this.terrain);
+		this.model = new PlaneModel(GL_STATIC_DRAW, this.terrain);
 		this.camera = new Camera();
 		this.camera.translate(new Vector3f(0.0f, 0.0f, -1.5f));
 	}
 
 	public void render() {
-		if (Keybinds.MOVE_FOWARDS.isPressed()) {
+		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			this.camera.translate(new Vector3f(0.0f, 0.0f, -0.1f));
-		} else if (Keybinds.MOVE_BACKWARDS.isPressed()) {
+		} else if (Keybinds.MOVE_FOWARDS.isPressed()) {
 			this.camera.translate(new Vector3f(0.0f, 0.0f, 0.1f));
 		}
 
 		if (Keybinds.MOVE_LEFT.isPressed()) {
-			this.camera.translate(new Vector3f(-0.1f, 0.0f, 0.0f));
-		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
 			this.camera.translate(new Vector3f(0.1f, 0.0f, 0.0f));
+		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
+			this.camera.translate(new Vector3f(-0.1f, 0.0f, 0.0f));
 		}
 		// bind shader
 		this.terrain.bind();

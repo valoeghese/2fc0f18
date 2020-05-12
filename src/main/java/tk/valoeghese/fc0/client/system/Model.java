@@ -5,8 +5,12 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -24,65 +28,65 @@ public abstract class Model {
 	private FloatList vTemp = new FloatArrayList();
 	private int vTempIndex = 0;
 	private IntList iTemp = new IntArrayList();
-	private float[] vertices;
-	private int[] indices;
-	private int vbo;
-	private int ebo;
-	protected int vao;
+	private List<VertexArray> vaos = new ArrayList<>();
 	private final int mode;
 	private int attribIndex;
-	private static int currentAttribindex = 0;
 	@Nullable
 	private final Shader shader;
 
-	protected int vertex(float x, float y, float z) {
-		vTemp.add(x);
-		vTemp.add(y);
-		vTemp.add(z);
-		return vTempIndex++;
+	protected int vertex(float x, float y, float z, float u, float v) {
+		this.vTemp.add(x);
+		this.vTemp.add(y);
+		this.vTemp.add(z);
+		this.vTemp.add(u);
+		this.vTemp.add(v);
+		return this.vTempIndex++;
 	}
 
 	protected void tri(int i0, int i1, int i2) {
-		iTemp.add(i0);
-		iTemp.add(i1);
-		iTemp.add(i2);
+		this.iTemp.add(i0);
+		this.iTemp.add(i1);
+		this.iTemp.add(i2);
 	}
 
 	protected void generateBuffers() {
-		this.vertices = vTemp.toFloatArray();
-		this.indices = iTemp.toIntArray();
-		this.attribIndex = currentAttribindex++;
+		float[] vertices = this.vTemp.toFloatArray();
+		int[] indices = this.iTemp.toIntArray();
+		this.vTemp = new FloatArrayList();
+		this.iTemp = new IntArrayList();
 
-		this.vbo = glGenBuffers();
-		this.ebo = glGenBuffers();
-		this.vao = glGenVertexArrays();
+		int vbo = glGenBuffers();
+		int ebo = glGenBuffers();
+		int vao = glGenVertexArrays();
 
-		glBindVertexArray(this.vao);
+		glBindVertexArray(vao);
 
-		glBindBuffer(GL_ARRAY_BUFFER, this.vbo);
-		glBufferData(GL_ARRAY_BUFFER, this.vertices, this.mode);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, vertices, this.mode);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this.ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, this.indices, this.mode);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, this.mode);
 
-		glVertexAttribPointer(this.attribIndex, 3, GL_FLOAT, false,0,NULL);
-		glEnableVertexAttribArray(this.attribIndex);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false,4 * 5, 4 * 0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * 5, 4 * 3);
+		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
+
+		this.vaos.add(new VertexArray(vao, indices.length));
 	}
 
 	public final void render(Matrix4f transform) {
-		this.bind();
-
 		if (this.shader != null) {
 			this.shader.uniformMat4f("transform", transform);
 		}
 
-		glDrawElements(GL_TRIANGLES, this.indices.length, GL_UNSIGNED_INT,NULL);
-		unbind();
-	}
+		for (VertexArray array : this.vaos) {
+			glBindVertexArray(array.vao);
+			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, NULL);
+		}
 
-	public final void bind() {
-		glBindVertexArray(this.vao);
+		unbind();
 	}
 
 	@Nullable
@@ -92,5 +96,15 @@ public abstract class Model {
 
 	public static final void unbind() {
 		glBindVertexArray(0);
+	}
+
+	private static class VertexArray {
+		private VertexArray(int vao, int elementCount) {
+			this.vao = vao;
+			this.elementCount = elementCount;
+		}
+
+		private final int vao;
+		private final int elementCount;
 	}
 }

@@ -81,10 +81,10 @@ public class Tests {
 		private TestModel() {
 			super(GL_STATIC_DRAW, null);
 
-			this.vertex(0.0f, 1.0f, 0.0f);
-			this.vertex(0.0f, 0.0f, 0.0f);
-			this.vertex(1.0f, 0.0f, 0.0f);
-			this.vertex(1.0f, 1.0f, 0.0f);
+			this.vertex(0.0f, 1.0f, 0.0f, 0.0f, 0.0f);
+			this.vertex(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			this.vertex(1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			this.vertex(1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 			this.tri(0, 1, 2);
 			this.tri(0, 2, 3);
 			this.generateBuffers();
