@@ -3,6 +3,8 @@ package tk.valoeghese.fc0.client;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
+import tk.valoeghese.fc0.client.keybinds.KeybindManager;
+import tk.valoeghese.fc0.client.keybinds.MousebindManager;
 import tk.valoeghese.fc0.client.system.*;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -20,6 +22,8 @@ public class Client2fc implements Runnable {
 		this.window = new Window(600, 400);
 		GraphicsSystem.initGL();
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(45), this.window.aspect, 0.01f, 100.0f);
+		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
+		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 	}
 
 	private Shader terrain;
@@ -64,7 +68,7 @@ public class Client2fc implements Runnable {
 		// render
 		Vector3f colour = new Vector3f(1.0f, 0.0f, 1.0f);
 		this.terrain.uniformVec3f("colour", colour);
-		GraphicsSystem.render(this.camera, this.model, new Matrix4f());
+		this.camera.render(this.model, new Matrix4f());
 		// unbind shader
 		//Shader.unbind();
 	}

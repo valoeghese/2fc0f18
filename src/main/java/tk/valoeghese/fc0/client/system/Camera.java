@@ -11,8 +11,8 @@ public class Camera {
 		this.view = this.view.translate(translate);
 	}
 
-	public void rotate(Quaternionf rotate) {
-		this.view = this.view.rotate( rotate);
+	public void rotate(Quaternionf rotation) {
+		this.view = this.view.rotate(rotation);
 	}
 
 	public void scale(Vector3f scale) {
