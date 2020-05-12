@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.client.system;
 
+import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -11,7 +12,7 @@ public class Camera {
 		this.view = this.view.translate(translate);
 	}
 
-	public void rotate(Quaternionf rotation) {
+	public void rotate(AxisAngle4f rotation) {
 		this.view = this.view.rotate(rotation);
 	}
 
