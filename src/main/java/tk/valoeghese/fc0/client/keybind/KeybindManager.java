@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.keybinds;
+package tk.valoeghese.fc0.client.keybind;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -15,7 +15,7 @@ public enum KeybindManager implements GLFWKeyCallbackI {
 
 	@Override
 	public void invoke(long window, int key, int scancode, int action, int mods) {
-		if (key < GLFW_KEY_LAST) { // yes this can happen. Volume button.
+		if (key <= GLFW_KEY_LAST) { // yes this can happen. Volume button.
 			if (keybinds.containsKey(key)) {
 				for (Keybind k : keybinds.get(key)) {
 					k.update(action);

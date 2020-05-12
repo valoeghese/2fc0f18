@@ -3,18 +3,16 @@ package tk.valoeghese.fc0.client;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
-import tk.valoeghese.fc0.client.keybinds.KeybindManager;
-import tk.valoeghese.fc0.client.keybinds.MousebindManager;
+import tk.valoeghese.fc0.client.keybind.Keybind;
+import tk.valoeghese.fc0.client.keybind.KeybindManager;
+import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.system.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
-import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public class Client2fc implements Runnable {
 	public Client2fc() {
@@ -56,10 +54,16 @@ public class Client2fc implements Runnable {
 	}
 
 	public void render() {
-		if (GLFW.glfwGetKey(this.window.glWindow, GLFW_KEY_S) > 0) {
+		if (Keybinds.MOVE_FOWARDS.isPressed()) {
 			this.camera.translate(new Vector3f(0.0f, 0.0f, -0.1f));
-		} else if (GLFW.glfwGetKey(this.window.glWindow, GLFW_KEY_W) > 0) {
+		} else if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			this.camera.translate(new Vector3f(0.0f, 0.0f, 0.1f));
+		}
+
+		if (Keybinds.MOVE_LEFT.isPressed()) {
+			this.camera.translate(new Vector3f(-0.1f, 0.0f, 0.0f));
+		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
+			this.camera.translate(new Vector3f(0.1f, 0.0f, 0.0f));
 		}
 		// bind shader
 		this.terrain.bind();

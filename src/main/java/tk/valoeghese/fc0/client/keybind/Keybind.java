@@ -1,12 +1,12 @@
-package tk.valoeghese.fc0.client.keybinds;
+package tk.valoeghese.fc0.client.keybind;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
-import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
+import static org.lwjgl.glfw.GLFW.*;
 
 public final class Keybind {
-	public Keybind(int key, boolean mouse) {
+	public Keybind(String name, int key, boolean mouse) {
+		this.name = name;
 		this.bind(key, mouse);
 	}
 
@@ -14,6 +14,7 @@ public final class Keybind {
 	private boolean hasBeenPressed = false;
 	private int key;
 	private boolean mouse;
+	private final String name;
 
 	void update(int action) {
 		isPressed = action != GLFW_RELEASE;
@@ -28,11 +29,11 @@ public final class Keybind {
 		this.mouse = mouse;
 
 		if (mouse) {
-			KeybindManager.keybinds
+			MousebindManager.mousebinds
 					.computeIfAbsent(key, i -> new ArrayList<>())
 					.add(this);
 		} else {
-			MousebindManager.mousebinds
+			KeybindManager.keybinds
 					.computeIfAbsent(key, i -> new ArrayList<>())
 					.add(this);
 		}
@@ -59,5 +60,10 @@ public final class Keybind {
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "keybind." + this.name;
 	}
 }
