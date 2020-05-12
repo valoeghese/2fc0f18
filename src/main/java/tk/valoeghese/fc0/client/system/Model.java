@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 
@@ -28,7 +27,7 @@ public abstract class Model {
 	private FloatList vTemp = new FloatArrayList();
 	private int vTempIndex = 0;
 	private IntList iTemp = new IntArrayList();
-	private List<VertexArray> vaos = new ArrayList<>();
+	private List<VertexArray> vertexArrays = new ArrayList<>();
 	private final int mode;
 	@Nullable
 	private final Shader shader;
@@ -72,7 +71,7 @@ public abstract class Model {
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 
-		this.vaos.add(new VertexArray(vao, indices.length, texture));
+		this.vertexArrays.add(new VertexArray(vao, indices.length, texture));
 	}
 
 	public final void render(Matrix4f transform) {
@@ -80,9 +79,9 @@ public abstract class Model {
 			this.shader.uniformMat4f("transform", transform);
 		}
 
-		for (VertexArray array : this.vaos) {
-			glBindVertexArray(array.vao);
+		for (VertexArray array : this.vertexArrays) {
 			glBindTexture(GL_TEXTURE_2D, array.texture);
+			glBindVertexArray(array.vao);
 			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, NULL);
 		}
 

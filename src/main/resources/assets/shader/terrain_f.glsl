@@ -7,7 +7,7 @@ out vec4 fragmentColour;
 uniform sampler2D textureSampler;
 
 void main() {
-    vec4 textureColour = texture(textureSampler, uvPass);
+    vec4 textureColour = texture(textureSampler, vec2(uvPass.x, 1.0 - uvPass.y));
     if (textureColour.a < 0.1) {
         discard;
     }
