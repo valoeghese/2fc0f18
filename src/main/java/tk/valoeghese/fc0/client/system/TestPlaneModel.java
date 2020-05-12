@@ -4,8 +4,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-public class PlaneModel extends Model {
-	public PlaneModel(int mode, Shader shader) {
+public class TestPlaneModel extends Model {
+	public TestPlaneModel(int mode, Shader shader) {
 		super(mode, shader);
 		this.vertex(-0.5f, 0.5f, -0.5f, 0.0f, 1.0f); // tl
 		this.vertex(-0.5f, -0.5f, -0.5f, 0.0f, 0.0f); // bl

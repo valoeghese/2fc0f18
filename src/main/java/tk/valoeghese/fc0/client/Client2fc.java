@@ -4,6 +4,8 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
+import tk.valoeghese.fc0.client.model.Shaders;
+import tk.valoeghese.fc0.client.model.TileFaceModel;
 import tk.valoeghese.fc0.client.system.*;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -18,9 +20,10 @@ public class Client2fc implements Runnable {
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(45), this.window.aspect, 0.01f, 100.0f);
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
+		Shaders.loadShaders();
+		this.model = new TileFaceModel(0, 1);
 	}
 
-	private Shader terrain;
 	private Model model;
 	private final Matrix4f projection;
 	private Camera camera;
@@ -40,15 +43,12 @@ public class Client2fc implements Runnable {
 			}
 		}
 
-		this.window.destroy();//*/
+		this.window.destroy();
 	}
 
 	public void init() {
-		this.terrain = new Shader("assets/shader/terrain_v.glsl", "assets/shader/terrain_f.glsl");
-		this.terrain.bind();
 		glEnable(GL_DEPTH_TEST);
 
-		this.model = new PlaneModel(GL_STATIC_DRAW, this.terrain);
 		this.camera = new Camera();
 		this.camera.translate(new Vector3f(0.0f, 0.0f, -1.5f));
 	}
@@ -66,9 +66,9 @@ public class Client2fc implements Runnable {
 			this.camera.translate(new Vector3f(-0.1f, 0.0f, 0.0f));
 		}
 		// bind shader
-		this.terrain.bind();
+		Shaders.terrain.bind();
 		// projection
-		this.terrain.uniformMat4f("projection", this.projection);
+		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// render
 		this.camera.render(this.model, new Matrix4f());
 		// unbind shader
