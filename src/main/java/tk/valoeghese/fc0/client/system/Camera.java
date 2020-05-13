@@ -7,17 +7,30 @@ import org.joml.Vector3f;
 
 public class Camera {
 	private Matrix4f view = new Matrix4f();
+	private Vector3f pos = new Vector3f();
+	private float pitch = 0.0f;
+	private float yaw = 0.0f;
 
 	public void translateScene(Vector3f translate) {
-		this.view = this.view.translate(translate);
+		this.pos = this.pos.add(translate);
+		this.rebuildView();
 	}
 
-	public void rotateScene(AxisAngle4f rotation) {
-		this.view = this.view.rotate(rotation);
+	public void setRotateYaw(float yaw) {
+		this.yaw = yaw;
+		this.rebuildView();
 	}
 
-	public void scale(Vector3f scale) {
-		this.view = this.view.scale(scale);
+	public void setRotatePitch(float pitch) {
+		this.pitch = pitch;
+		this.rebuildView();
+	}
+
+	private void rebuildView() {
+		this.view = new Matrix4f();
+		this.view.rotate(new AxisAngle4f(this.yaw, 0.0f, 1.0f, 0.0f));
+		this.view.rotate(new AxisAngle4f(this.pitch, 1.0f, 0.0f, 0.0f));
+		this.view.translate(this.pos);
 	}
 
 	public void render(Model model, Matrix4f transform) {

@@ -4,6 +4,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
@@ -15,7 +16,7 @@ import tk.valoeghese.fc0.world.WorldGen;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
-public class Client2fc implements Runnable {
+public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
 		GraphicsSystem.initGLFW();
 		this.window = new Window(640, 360);
@@ -53,16 +54,16 @@ public class Client2fc implements Runnable {
 
 	public void init() {
 		glEnable(GL_DEPTH_TEST);
-		//glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetCursorPosCallback(this.window.glWindow, this);
 
 		this.camera = new Camera();
 		this.camera.translateScene(new Vector3f(0.0f, 0.0f, -1.5f));
-		this.camera.rotateScene(new AxisAngle4f(0.2f, 1.0f, 0.0f, 0.0f));
 	}
 
 	public void render() {
 		long time = System.nanoTime();
-		glfwSetCursorPos(this.window, this.window.width, this.window.height)
+
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			this.camera.translateScene(new Vector3f(0.0f, 0.0f, -0.1f));
 		} else if (Keybinds.MOVE_FOWARDS.isPressed()) {
@@ -98,4 +99,12 @@ public class Client2fc implements Runnable {
 	}
 
 	private final Window window;
+
+	@Override
+	public void invoke(long window, double xpos, double ypos) {
+		xpos -= this.window.width / 2;
+		ypos -= this.window.height / 2;
+		//this.camera.setRotateYaw((float) xpos / 800.0f);
+		this.camera.setRotatePitch((float) Math.sin(ypos / 80000.0) * 180 - 90);
+	}
 }

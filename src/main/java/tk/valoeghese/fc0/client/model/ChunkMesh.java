@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.client.model;
 
+import javafx.scene.chart.Axis;
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -46,9 +47,23 @@ public class ChunkMesh {
 						Tile tileNorth = z == 15 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
 						if (!tileUp.isOpaque()) {
-							this.mesh.add(new RenderedTileFace(new Vector3f(x + 0.5f, y, z),
-									new AxisAngle4f((float) Math.toRadians(-90.0), 1.0f, 0.0f, 0.0f),
-									instance, this.x, this.z));
+							AxisAngle4f angle = new AxisAngle4f((float) Math.toRadians(-90.0), 1.0f, 0.0f, 0.0f);
+							this.mesh.add(new RenderedTileFace(
+									new Vector3f(x, y + 0.5f, z).rotate(new Quaternionf(angle)),
+									angle,
+									instance,
+									this.x,
+									this.z));
+						}
+
+						if (!tileNorth.isOpaque()) {
+							AxisAngle4f angle = new AxisAngle4f((float) Math.toRadians(-90.0), 0.0f, 1.0f, 0.0f);
+							this.mesh.add(new RenderedTileFace(
+									new Vector3f(x + 0.5f, y, z).rotate(new Quaternionf(angle)),
+									angle,
+									instance,
+									this.x,
+									this.z));
 						}
 					}
 				}
@@ -67,12 +82,11 @@ public class ChunkMesh {
 	}
 
 	private static class RenderedTileFace {
-		RenderedTileFace(Vector3f offset, AxisAngle4f rotation, Tile tile, float cxo, float czo) {
+		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float cxo, float czo) {
 			this.transform = new Matrix4f()
-					.rotate(rotation)
 					.translate(offset)
 					.translate(new Vector3f(cxo, 0, czo));
-			this.model = new TileFaceModel(tile.u, tile.v);
+			this.model = new TileFaceModel(tile.u, tile.v, faceAxis);
 		}
 
 		private final Matrix4f transform;
