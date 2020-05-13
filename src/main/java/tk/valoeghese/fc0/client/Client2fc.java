@@ -63,23 +63,24 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void updateMovement() {
 		float yaw = this.player.getCamera().getYaw();
+		final float slowness = 15;
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
-			this.player.move(-sin(yaw ), 0.0f, cos(yaw));
+			this.player.move(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
 		} else if (Keybinds.MOVE_FOWARDS.isPressed()) {
-			this.player.move(-sin(yaw - PI), 0.0f, cos(yaw - PI));
+			this.player.move(-sin(yaw - PI) / slowness, 0.0f, cos(yaw - PI) / slowness);
 		}
 
 		if (Keybinds.MOVE_LEFT.isPressed()) {
-			this.player.move(-sin(yaw + HALF_PI) * 0.5f, 0.0f, cos(yaw + HALF_PI) * 0.5f);
+			this.player.move(-sin(yaw + HALF_PI) / slowness, 0.0f, cos(yaw + HALF_PI) / slowness);
 		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
-			this.player.move(-sin(yaw - HALF_PI) * 0.5f, 0.0f, cos(yaw - HALF_PI) * 0.5f);
+			this.player.move(-sin(yaw - HALF_PI) / slowness, 0.0f, cos(yaw - HALF_PI) / slowness);
 		}
 
 		if (Keybinds.JUMP.isPressed()) {
-			this.player.move(0.0f, 0.3f, 0.0f);
+			this.player.move(0.0f, 0.1f, 0.0f);
 		} else if (Keybinds.FLY_DOWN.isPressed()) {
-			this.player.move(0.0f, -0.3f, 0.0f);
+			this.player.move(0.0f, -0.1f, 0.0f);
 		}
 	}
 
