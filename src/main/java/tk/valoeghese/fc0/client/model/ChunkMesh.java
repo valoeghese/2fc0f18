@@ -55,10 +55,46 @@ public class ChunkMesh {
 									this.z));
 						}
 
+						if (!tileDown.isOpaque()) {
+							this.mesh.add(new RenderedTileFace(
+									new Vector3f(x, y - 0.5f, z),
+									1,
+									instance,
+									this.x,
+									this.z));
+						}
+
 						if (!tileNorth.isOpaque()) {
 							this.mesh.add(new RenderedTileFace(
 									new Vector3f(x, y, z + 0.5f),
 									2,
+									instance,
+									this.x,
+									this.z));
+						}
+
+						if (!tileSouth.isOpaque()) {
+							this.mesh.add(new RenderedTileFace(
+									new Vector3f(x, y, z - 0.5f),
+									2,
+									instance,
+									this.x,
+									this.z));
+						}
+
+						if (!tileEast.isOpaque()) {
+							this.mesh.add(new RenderedTileFace(
+									new Vector3f(x + 0.5f, y, z),
+									0,
+									instance,
+									this.x,
+									this.z));
+						}
+
+						if (!tileWest.isOpaque()) {
+							this.mesh.add(new RenderedTileFace(
+									new Vector3f(x - 0.5f, y, z),
+									0,
 									instance,
 									this.x,
 									this.z));

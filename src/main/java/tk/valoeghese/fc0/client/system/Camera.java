@@ -46,5 +46,13 @@ public class Camera {
 		model.render(transform);
 	}
 
+	public float getYaw() {
+		return this.yaw;
+	}
+
+	public float getPitch() {
+		return this.pitch;
+	}
+
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 }

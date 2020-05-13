@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.client.system;
 
+import org.lwjgl.glfw.GLFWVidMode;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
@@ -13,8 +15,10 @@ public class Window {
 
 		glfwMakeContextCurrent(this.glWindow);
 		glfwSwapInterval(1); // vsync
-		glfwShowWindow(this.glWindow);
+		GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		glfwSetWindowPos(this.glWindow, (vidMode.width() - width) / 2, (vidMode.height() - height) / 2);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		glfwShowWindow(this.glWindow);
 
 		this.width = width;
 		this.height = height;
