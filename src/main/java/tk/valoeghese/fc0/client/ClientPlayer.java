@@ -6,10 +6,10 @@ import tk.valoeghese.fc0.util.MutablePos;
 import tk.valoeghese.fc0.util.Pos;
 import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.Tile;
-import tk.valoeghese.fc0.world.TileAccess;
+import tk.valoeghese.fc0.world.World;
 
 public class ClientPlayer {
-	public ClientPlayer(Camera camera, TileAccess world) {
+	public ClientPlayer(Camera camera, World world) {
 		this.pos = new MutablePos(0, 0, 0);
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.25f, 0)); // 2 blocks tall, camera at head
@@ -19,7 +19,7 @@ public class ClientPlayer {
 
 	private final MutablePos pos;
 	private final Camera camera;
-	private final TileAccess world;
+	private final World world;
 
 	public Camera getCamera() {
 		return this.camera;
@@ -29,7 +29,7 @@ public class ClientPlayer {
 		Pos next = this.pos.ofAdded(x, y, z);
 		TilePos tilePos = new TilePos(next);
 
-		if (tilePos.isValidForChunk()) {
+		if (this.world.isInWorld(tilePos)) {
 			if (Tile.BY_ID[this.world.readTile(tilePos)].isOpaque()) {
 				return;
 			}

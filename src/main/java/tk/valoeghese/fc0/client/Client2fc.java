@@ -10,6 +10,7 @@ import tk.valoeghese.fc0.client.system.GraphicsSystem;
 import tk.valoeghese.fc0.client.system.Shader;
 import tk.valoeghese.fc0.client.system.Window;
 import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.WorldGen;
 
 import static org.joml.Math.cos;
@@ -26,10 +27,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.chunk = WorldGen.generateChunk(0, 0);
+		this.world = new ChunkSelection(0L);
 	}
 
-	private Chunk chunk;
+	private ChunkSelection world;
 	private final Matrix4f projection;
 	private ClientPlayer player;
 
@@ -56,7 +57,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
-		this.player = new ClientPlayer(new Camera(), this.chunk);
+		this.player = new ClientPlayer(new Camera(), this.world);
 		this.prevYPos = this.window.height / 2;
 		this.prevXPos = this.window.width / 2;
 	}
@@ -93,7 +94,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// render
-		this.chunk.getOrCreateMesh().render(this.player.getCamera());
+		for (Chunk chunk : this.world.getChunks()) {
+			chunk.getOrCreateMesh().render(this.player.getCamera());
+		}
 		// unbind shader
 		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;

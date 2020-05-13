@@ -3,9 +3,8 @@ package tk.valoeghese.fc0.world;
 import java.util.Random;
 
 public final class WorldGen {
-	public static Chunk generateChunk(int chunkX, int chunkZ) {
+	public static Chunk generateChunk(int chunkX, int chunkZ, Random rand) {
 		byte[] tiles = new byte[16 * 16 * 128];
-		Random rand = new Random();
 
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
