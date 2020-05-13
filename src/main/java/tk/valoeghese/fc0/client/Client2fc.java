@@ -25,7 +25,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.model = new TileFaceModel(0, 1);
+		this.model = new TileFaceModel(0, 1, 0);
 		this.chunk = WorldGen.generateChunk(0, 0);
 	}
 
@@ -58,7 +58,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
 		this.camera = new Camera();
-		this.camera.translateScene(new Vector3f(0.0f, 0.0f, -1.5f));
+		this.camera.translateScene(new Vector3f(0.0f, -60.0f, -1.5f));
+		this.prevYPos = this.window.height / 2;
+		this.prevXPos = this.window.width / 2;
 	}
 
 	public void render() {
@@ -100,11 +102,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private final Window window;
 
+	private double prevYPos = 0;
+	private double prevXPos = 0;
+
 	@Override
 	public void invoke(long window, double xpos, double ypos) {
-		xpos -= this.window.width / 2;
-		ypos -= this.window.height / 2;
-		//this.camera.setRotateYaw((float) xpos / 800.0f);
-		this.camera.setRotatePitch((float) Math.sin(ypos / 80000.0) * 180 - 90);
+		this.camera.rotateYaw((float) (xpos - this.prevXPos) / 80.0f);
+		this.camera.rotatePitch((float) (ypos - this.prevYPos) / 40.0f);
+		this.prevYPos = ypos;
+		this.prevXPos = xpos;
 	}
 }

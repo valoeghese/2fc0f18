@@ -2,8 +2,10 @@ package tk.valoeghese.fc0.client.system;
 
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
+
+import static org.joml.Math.cos;
+import static org.joml.Math.sin;
 
 public class Camera {
 	private Matrix4f view = new Matrix4f();
@@ -16,20 +18,26 @@ public class Camera {
 		this.rebuildView();
 	}
 
-	public void setRotateYaw(float yaw) {
-		this.yaw = yaw;
+	public void rotateYaw(float yaw) {
+		this.yaw += yaw;
 		this.rebuildView();
 	}
 
-	public void setRotatePitch(float pitch) {
-		this.pitch = pitch;
+	public void rotatePitch(float pitch) {
+		this.pitch += pitch;
+
+		if (this.pitch < -NINETY_DEGREES) {
+			this.pitch = -NINETY_DEGREES;
+		} else if (this.pitch > NINETY_DEGREES) {
+			this.pitch = NINETY_DEGREES;
+		}
 		this.rebuildView();
 	}
 
 	private void rebuildView() {
 		this.view = new Matrix4f();
 		this.view.rotate(new AxisAngle4f(this.yaw, 0.0f, 1.0f, 0.0f));
-		this.view.rotate(new AxisAngle4f(this.pitch, 1.0f, 0.0f, 0.0f));
+		this.view.rotate(new AxisAngle4f(this.pitch, -sin(this.yaw - NINETY_DEGREES), 0.0f, cos(this.yaw - NINETY_DEGREES)));
 		this.view.translate(this.pos);
 	}
 
@@ -37,4 +45,6 @@ public class Camera {
 		model.getShader().uniformMat4f("view", this.view);
 		model.render(transform);
 	}
+
+	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 }
