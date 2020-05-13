@@ -20,5 +20,9 @@ public final class GraphicsSystem {
 		glfwSetFramebufferSizeCallback(window.glWindow, (w, width, height) -> glViewport(0, 0, width, height));
 	}
 
+	public static void bindTexture(int texture) {
+		glBindTexture(GL_TEXTURE_2D, texture);
+	}
+
 	public static final int NULL = 0;
 }

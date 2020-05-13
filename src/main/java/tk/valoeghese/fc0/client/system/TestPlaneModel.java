@@ -13,10 +13,15 @@ public class TestPlaneModel extends Model {
 		this.vertex(0.5f, -0.5f, -0.5f, 1.0f, 0.0f); // br
 		this.tri(0, 1, 3);
 		this.tri(0, 2, 3);
+		this.generateBuffers();
+	}
 
+	public static final int TEXTURE_TO_USE;
+
+	static {
 		try {
 			BufferedImage image = ImageIO.read(Resources.loadURL("assets/texture/misaka.png"));
-			this.generateBuffers(TextureLoader.textureARGB(image));
+			TEXTURE_TO_USE = TextureLoader.textureARGB(image);
 		} catch (IOException | RuntimeException e) {
 			throw new RuntimeException("Error loading image!", e);
 		}

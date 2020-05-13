@@ -11,12 +11,12 @@ import tk.valoeghese.fc0.client.system.Shader;
 import tk.valoeghese.fc0.client.system.Window;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
-import tk.valoeghese.fc0.world.WorldGen;
 
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static tk.valoeghese.fc0.client.model.TileFaceModel.TILE_ATLAS;
 
 public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
@@ -94,10 +94,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// render
+		GraphicsSystem.bindTexture(TILE_ATLAS);
 		for (Chunk chunk : this.world.getChunks()) {
 			chunk.getOrCreateMesh().render(this.player.getCamera());
 		}
 		// unbind shader
+		GraphicsSystem.bindTexture(0);
 		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;
 

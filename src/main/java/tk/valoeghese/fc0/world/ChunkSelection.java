@@ -50,5 +50,5 @@ public class ChunkSelection implements World {
 		return pos.x >= this.minBound && pos.x < this.maxBound && pos.z >= this.minBound && pos.z < this.maxBound && pos.y >= 0 && pos.y < 128;
 	}
 
-	private static final int SIZE = 2;
+	private static final int SIZE = 2; // any larger than this and it's slow
 }

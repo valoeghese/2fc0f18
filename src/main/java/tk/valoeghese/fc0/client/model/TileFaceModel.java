@@ -12,7 +12,7 @@ import java.io.UncheckedIOException;
 import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 
 public class TileFaceModel extends Model {
-	private static final int TILE_ATLAS;
+	public static final int TILE_ATLAS;
 
 	public TileFaceModel(int uIndex, int vIndex, int faceAxis) {
 		super(GL_DYNAMIC_DRAW, Shaders.terrain);
@@ -46,7 +46,7 @@ public class TileFaceModel extends Model {
 		this.tri(0, 1, 3);
 		this.tri(0, 2, 3);
 
-		this.generateBuffers(TILE_ATLAS);
+		this.generateBuffers();
 	}
 
 	static {

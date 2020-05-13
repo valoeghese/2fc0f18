@@ -87,7 +87,7 @@ public class Tests {
 			this.vertex(1.0f, 1.0f, 0.0f, 0.0f, 0.0f);
 			this.tri(0, 1, 2);
 			this.tri(0, 2, 3);
-			this.generateBuffers(0);
+			this.generateBuffers();
 		}
 	}
 }
