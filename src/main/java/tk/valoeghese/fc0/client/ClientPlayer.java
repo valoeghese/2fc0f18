@@ -22,6 +22,7 @@ public class ClientPlayer {
 	private final Camera camera;
 	private final World world;
 	private final MutablePos velocity;
+	private boolean falling = false;
 
 	public Camera getCamera() {
 		return this.camera;
@@ -59,6 +60,10 @@ public class ClientPlayer {
 	}
 
 	public boolean isOnGround() {
+		if (this.falling) {
+			return false;
+		}
+
 		TilePos check = new TilePos(this.pos).down();
 
 		if (this.world.isInWorld(check)) {
@@ -71,12 +76,17 @@ public class ClientPlayer {
 	}
 
 	public void tick() {
-		this.velocity.offsetY(-0.05f);
+		this.velocity.offsetY(-0.03f);
 		this.velocity.mul(0.85, 0.9, 0.85);
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
+		if (Math.abs(this.velocity.getY()) > 0.03) {
+			this.falling = true;
+		}
+
 		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
+			this.falling = false;
 			this.velocity.setY(0.0);
 		}
 	}
