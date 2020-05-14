@@ -92,7 +92,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		if (Keybinds.JUMP.isPressed()) {
-			if (!this.player.isOnGround()) {
+			if (this.player.isOnGround()) {
 				this.player.addVelocity(0.0f, 0.3f, 0.0f);
 			}
 		} /*else if (Keybinds.FLY_DOWN.isPressed()) {
