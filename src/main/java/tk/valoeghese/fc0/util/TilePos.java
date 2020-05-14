@@ -18,4 +18,8 @@ public class TilePos {
 	public boolean isValidForChunk() {
 		return this.x >= 0 && this.x < 16 && this.z >= 0 && this.z < 16 && this.y >= 0 && this.y < 128;
 	}
+
+	public TilePos up() {
+		return new TilePos(this.x, this.y + 1, this.z);
+	}
 }

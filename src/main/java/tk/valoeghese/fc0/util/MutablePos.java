@@ -36,9 +36,31 @@ public class MutablePos extends Pos {
 	}
 
 	public MutablePos set(Pos other) {
-		this.x = other.x;
-		this.y = other.y;
-		this.z = other.z;
+		return this.set(other.x, other.y, other.z);
+	}
+
+	public MutablePos set(double x, double y, double z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
+
+	public MutablePos offset(Pos pos) {
+		return this.offset(pos.x, pos.y, pos.z);
+	}
+
+	public MutablePos offset(double x, double y, double z) {
+		this.x += x;
+		this.y += y;
+		this.z += z;
+		return this;
+	}
+
+	public MutablePos mul(double x, double y, double z) {
+		this.x *= x;
+		this.y *= y;
+		this.z *= z;
 		return this;
 	}
 }

@@ -77,22 +77,22 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void updateMovement() {
 		float yaw = this.player.getCamera().getYaw();
-		final float slowness = 7;
+		final float slowness = 10;
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
-			this.player.move(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
+			this.player.addVelocity(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
 		} else if (Keybinds.MOVE_FOWARDS.isPressed()) {
-			this.player.move(-sin(yaw - PI) / slowness, 0.0f, cos(yaw - PI) / slowness);
+			this.player.addVelocity(-sin(yaw - PI) / slowness, 0.0f, cos(yaw - PI) / slowness);
 		}
 
 		if (Keybinds.MOVE_LEFT.isPressed()) {
-			this.player.move(-sin(yaw + HALF_PI) / slowness, 0.0f, cos(yaw + HALF_PI) / slowness);
+			this.player.addVelocity(-sin(yaw + HALF_PI) / slowness, 0.0f, cos(yaw + HALF_PI) / slowness);
 		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
-			this.player.move(-sin(yaw - HALF_PI) / slowness, 0.0f, cos(yaw - HALF_PI) / slowness);
+			this.player.addVelocity(-sin(yaw - HALF_PI) / slowness, 0.0f, cos(yaw - HALF_PI) / slowness);
 		}
 
 		if (Keybinds.JUMP.isPressed()) {
-			this.player.move(0.0f, 0.1f, 0.0f);
+			this.player.addVelocity(0.0f, 0.3f, 0.0f);
 		} else if (Keybinds.FLY_DOWN.isPressed()) {
 			this.player.move(0.0f, -0.1f, 0.0f);
 		}
@@ -119,7 +119,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;
 
-		if (elapsed > /*80*/250) {
+		if (elapsed > 180) {
 			System.out.println("[Render/Warn] Unusually long time! Rendering took: " + elapsed + "ms. Note that this is normal if it merely happens on startup.");
 		}
 	}
