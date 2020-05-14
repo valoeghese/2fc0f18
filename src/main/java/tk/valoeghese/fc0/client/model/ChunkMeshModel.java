@@ -23,7 +23,7 @@ public final class ChunkMeshModel extends Model implements ExternallyEditableMod
 	}
 
 	@Override
-	public int addVertex(float x, float y, float z, float u, float v) {
-		return this.vertex(x, y, z, u, v);
+	public int addVertex(float x, float y, float z, float u, float v, float light) {
+		return this.vertex(x, y, z, u, v, light);
 	}
 }
