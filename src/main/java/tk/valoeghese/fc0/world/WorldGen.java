@@ -19,7 +19,7 @@ public final class WorldGen {
 
 			for (int z = 0; z < 16; ++z) {
 				int totalZ = z + blockZ;
-				int height = (int) noise.sample(totalX / 24.0, totalZ / 24.0);
+				int height = (int) (3.0 * noise.sample(totalX / 24.0, totalZ / 24.0)) + 50;
 
 				for (int y = 0; y < height; ++y) {
 					tiles[Chunk.index(x, y, z)] = Tile.STONE.id;
