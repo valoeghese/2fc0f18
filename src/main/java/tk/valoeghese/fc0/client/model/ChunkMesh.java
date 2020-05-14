@@ -128,6 +128,8 @@ public class ChunkMesh {
 		private int f;
 		private float l;
 
+		static final float SIZE = 0.5f;
+		
 		public void addTo(ExternallyEditableModel model) {
 			final float startU = (this.u / 16.0f);
 			final float startV = (this.v / 16.0f);
@@ -139,22 +141,22 @@ public class ChunkMesh {
 			switch (this.f) {
 				case 0:
 				default:
-					i = model.addVertex(this.pos.x, 0.5f + this.pos.y, -0.5f + this.pos.z, startU, endV, this.l); // tl
-					model.addVertex(this.pos.x, -0.5f + this.pos.y, -0.5f + this.pos.z, startU, startV, this.l); // bl
-					model.addVertex(this.pos.x, 0.5f + this.pos.y, 0.5f + this.pos.z, endU, endV, this.l); // tr
-					model.addVertex(this.pos.x, -0.5f + this.pos.y, 0.5f + this.pos.z, endU, startV, this.l); // br
+					i = model.addVertex(this.pos.x, SIZE + this.pos.y, -SIZE + this.pos.z, startU, endV, this.l); // tl
+					model.addVertex(this.pos.x, -SIZE + this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
+					model.addVertex(this.pos.x, SIZE + this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
+					model.addVertex(this.pos.x, -SIZE + this.pos.y, SIZE + this.pos.z, endU, startV, this.l); // br
 					break;
 				case 1:
-					i = model.addVertex(-0.5f + this.pos.x, this.pos.y, 0.5f + this.pos.z, startU, endV , this.l); // tl
-					model.addVertex(-0.5f + this.pos.x, this.pos.y, -0.5f + this.pos.z, startU, startV, this.l); // bl
-					model.addVertex(0.5f + this.pos.x, this.pos.y, 0.5f + this.pos.z, endU, endV, this.l); // tr
-					model.addVertex(0.5f + this.pos.x, this.pos.y, -0.5f + this.pos.z, endU, startV, this.l); // br
+					i = model.addVertex(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, startU, endV , this.l); // tl
+					model.addVertex(-SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
+					model.addVertex(SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
+					model.addVertex(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, endU, startV, this.l); // br
 					break;
 				case 2:
-					i = model.addVertex(-0.5f + this.pos.x, 0.5f + this.pos.y, this.pos.z, startU, endV, l); // tl
-					model.addVertex(-0.5f + this.pos.x, -0.5f + this.pos.y, this.pos.z, startU, startV, l); // bl
-					model.addVertex(0.5f + this.pos.x, 0.5f + this.pos.y, this.pos.z, endU, endV, l); // tr
-					model.addVertex(0.5f + this.pos.x, -0.5f + this.pos.y, this.pos.z, endU, startV, l); // br
+					i = model.addVertex(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, l); // tl
+					model.addVertex(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, l); // bl
+					model.addVertex(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, endU, endV, l); // tr
+					model.addVertex(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, endU, startV, l); // br
 					break;
 			}
 
