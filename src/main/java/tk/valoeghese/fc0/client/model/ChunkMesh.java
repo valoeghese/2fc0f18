@@ -1,9 +1,6 @@
 package tk.valoeghese.fc0.client.model;
 
-import javafx.scene.chart.Axis;
-import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.world.Chunk;
@@ -16,6 +13,7 @@ public class ChunkMesh {
 	public ChunkMesh(Chunk chunk, byte[] tiles, int x, int z) {
 		this.x = x << 4;
 		this.z = z << 4;
+		this.transform = new Matrix4f().translate(this.x, 0, this.z);
 		this.tiles = tiles;
 		this.chunk = chunk;
 		this.buildMesh();
@@ -23,9 +21,10 @@ public class ChunkMesh {
 
 	private final int x;
 	private final int z;
+	private final Matrix4f transform;
 	private final byte[] tiles;
 	private final Chunk chunk;
-	private List<RenderedTileFace> mesh;
+	private ChunkMeshModel mesh;
 
 	public void updateTile(int index, byte tile) {
 		this.tiles[index] = tile;
@@ -33,7 +32,7 @@ public class ChunkMesh {
 	}
 
 	private void buildMesh() {
-		this.mesh = new ArrayList<>();
+		List<RenderedTileFace> faces = new ArrayList<>();
 
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
@@ -51,84 +50,108 @@ public class ChunkMesh {
 							Tile tileNorth = z == 15 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
 							if (!tileUp.isOpaque()) {
-								this.mesh.add(new RenderedTileFace(
+								faces.add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z),
 										1,
-										instance,
-										this.x,
-										this.z));
+										instance));
 							}
 
 							if (!tileDown.isOpaque()) {
-								this.mesh.add(new RenderedTileFace(
+								faces.add(new RenderedTileFace(
 										new Vector3f(x, y - 0.5f, z),
 										1,
-										instance,
-										this.x,
-										this.z));
+										instance));
 							}
 
 							if (!tileNorth.isOpaque()) {
-								this.mesh.add(new RenderedTileFace(
+								faces.add(new RenderedTileFace(
 										new Vector3f(x, y, z + 0.5f),
 										2,
-										instance,
-										this.x,
-										this.z));
+										instance));
 							}
 
 							if (!tileSouth.isOpaque()) {
-								this.mesh.add(new RenderedTileFace(
+								faces.add(new RenderedTileFace(
 										new Vector3f(x, y, z - 0.5f),
 										2,
-										instance,
-										this.x,
-										this.z));
+										instance));
 							}
 
 							if (!tileEast.isOpaque()) {
-								this.mesh.add(new RenderedTileFace(
+								faces.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y, z),
 										0,
-										instance,
-										this.x,
-										this.z));
+										instance));
 							}
 
 							if (!tileWest.isOpaque()) {
-								this.mesh.add(new RenderedTileFace(
+								faces.add(new RenderedTileFace(
 										new Vector3f(x - 0.5f, y, z),
 										0,
-										instance,
-										this.x,
-										this.z));
+										instance));
 							}
 						}
 					}
 				}
 			}
 		}
+
+		this.mesh = new ChunkMeshModel(faces);
 	}
 
 	public void render(Camera camera) {
-		for (RenderedTileFace face : this.mesh) {
-			camera.render(face.model, face.transform);
-		}
+		camera.render(this.mesh, this.transform);
 	}
 
 	private static int index(int x, int y, int z) { // @see Chunk.index
 		return (x << 11) | (z << 7) | y;
 	}
 
-	private static class RenderedTileFace {
-		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float cxo, float czo) {
-			this.transform = new Matrix4f()
-					.translate(offset)
-					.translate(new Vector3f(cxo, 0, czo));
-			this.model = new TileFaceModel(tile.u, tile.v, faceAxis);
+	static class RenderedTileFace {
+		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile) {
+			this.pos = offset;
+			this.u = tile.u;
+			this.v = tile.v;
+			this.f = faceAxis;
 		}
 
-		private final Matrix4f transform;
-		private final TileFaceModel model;
+		private final Vector3f pos;
+		private int u;
+		private int v;
+		private int f;
+
+		public void addTo(ExternallyEditableModel model) {
+			final float startU = (this.u / 16.0f);
+			final float startV = (this.v / 16.0f);
+			final float endU = startU + 0.0625f;
+			final float endV = startV + 0.0625f;
+
+			int i = 0;
+
+			switch (this.f) {
+				case 0:
+				default:
+					i = model.addVertex(this.pos.x, 0.5f + this.pos.y, -0.5f + this.pos.z, startU, endV); // tl
+					model.addVertex(this.pos.x, -0.5f + this.pos.y, -0.5f + this.pos.z, startU, startV); // bl
+					model.addVertex(this.pos.x, 0.5f + this.pos.y, 0.5f + this.pos.z, endU, endV); // tr
+					model.addVertex(this.pos.x, -0.5f + this.pos.y, 0.5f + this.pos.z, endU, startV); // br
+					break;
+				case 1:
+					i = model.addVertex(-0.5f + this.pos.x, this.pos.y, 0.5f + this.pos.z, startU, endV); // tl
+					model.addVertex(-0.5f + this.pos.x, this.pos.y, -0.5f + this.pos.z, startU, startV); // bl
+					model.addVertex(0.5f + this.pos.x, this.pos.y, 0.5f + this.pos.z, endU, endV); // tr
+					model.addVertex(0.5f + this.pos.x, this.pos.y, -0.5f + this.pos.z, endU, startV); // br
+					break;
+				case 2:
+					i = model.addVertex(-0.5f + this.pos.x, 0.5f + this.pos.y, this.pos.z, startU, endV); // tl
+					model.addVertex(-0.5f + this.pos.x, -0.5f + this.pos.y, this.pos.z, startU, startV); // bl
+					model.addVertex(0.5f + this.pos.x, 0.5f + this.pos.y, this.pos.z, endU, endV); // tr
+					model.addVertex(0.5f + this.pos.x, -0.5f + this.pos.y, this.pos.z, endU, startV); // br
+					break;
+			}
+
+			model.addTriangle(i, i + 1, i + 3);
+			model.addTriangle(i, i + 2, i + 3);
+		}
 	}
 }

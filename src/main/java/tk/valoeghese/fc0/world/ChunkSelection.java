@@ -18,7 +18,7 @@ public class ChunkSelection implements World {
 		}
 
 		this.minBound = (-SIZE + 1) << 4;
-		this.maxBound = ((SIZE - 1) << 4) + 16;
+		this.maxBound = SIZE << 4;
 	}
 
 	private final int offset;
@@ -28,7 +28,7 @@ public class ChunkSelection implements World {
 	private final Chunk[] chunks;
 
 	public Chunk getChunk(int x, int z) {
-		return this.chunks[(x + this.offset) * this.diameter + z];
+		return this.chunks[(x + this.offset) * this.diameter + z + this.offset];
 	}
 
 	public Chunk[] getChunks() {
@@ -50,5 +50,5 @@ public class ChunkSelection implements World {
 		return pos.x >= this.minBound && pos.x < this.maxBound && pos.z >= this.minBound && pos.z < this.maxBound && pos.y >= 0 && pos.y < 128;
 	}
 
-	private static final int SIZE = 2; // any larger than this and it's slow
+	private static final int SIZE = 6;
 }

@@ -16,7 +16,7 @@ import static org.joml.Math.cos;
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static tk.valoeghese.fc0.client.model.TileFaceModel.TILE_ATLAS;
+import static tk.valoeghese.fc0.client.model.Textures.TILE_ATLAS;
 
 public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
@@ -33,12 +33,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private ChunkSelection world;
 	private final Matrix4f projection;
 	private ClientPlayer player;
+	private long nextUpdate = 0;
 
 	@Override
 	public void run() {
 		init();
 
 		while (this.window.isOpen()) {
+			long timeMillis = System.currentTimeMillis();
+
+			if (timeMillis > this.nextUpdate) {
+				this.nextUpdate = timeMillis + TICK_DELTA;
+				this.tick();
+			}
+
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this.render();
 			this.window.swapBuffers();
@@ -50,6 +58,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		this.window.destroy();
+	}
+
+	private void tick() {
+		this.player.tick();
 	}
 
 	private void init() {
@@ -132,4 +144,5 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private static final float PI = (float) Math.PI;
 	private static final float HALF_PI = PI / 2;
+	private static final int TICK_DELTA = 1000 / 20;
 }
