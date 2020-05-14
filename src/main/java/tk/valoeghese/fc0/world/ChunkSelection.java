@@ -13,7 +13,7 @@ public class ChunkSelection implements World {
 
 		for (int x = -SIZE + 1; x < SIZE; ++x) {
 			for (int z = -SIZE + 1; z < SIZE; ++z) {
-				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = WorldGen.generateChunk(x, z, rand);
+				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = WorldGen.generateChunk(x, z, seed, rand);
 			}
 		}
 
