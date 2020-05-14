@@ -22,4 +22,8 @@ public class TilePos {
 	public TilePos up() {
 		return new TilePos(this.x, this.y + 1, this.z);
 	}
+
+	public TilePos down() {
+		return new TilePos(this.x, this.y - 1, this.z);
+	}
 }

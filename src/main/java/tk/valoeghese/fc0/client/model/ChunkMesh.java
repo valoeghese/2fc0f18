@@ -136,7 +136,7 @@ public class ChunkMesh {
 			final float endU = startU + 0.0625f;
 			final float endV = startV + 0.0625f;
 
-			int i = 0;
+			int i;
 
 			switch (this.f) {
 				case 0:

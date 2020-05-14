@@ -77,7 +77,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void updateMovement() {
 		float yaw = this.player.getCamera().getYaw();
-		final float slowness = 10;
+		final float slowness = 20;
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			this.player.addVelocity(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
@@ -92,10 +92,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		if (Keybinds.JUMP.isPressed()) {
-			this.player.addVelocity(0.0f, 0.3f, 0.0f);
-		} else if (Keybinds.FLY_DOWN.isPressed()) {
+			if (!this.player.isOnGround()) {
+				this.player.addVelocity(0.0f, 0.3f, 0.0f);
+			}
+		} /*else if (Keybinds.FLY_DOWN.isPressed()) {
 			this.player.move(0.0f, -0.1f, 0.0f);
-		}
+		}*/
 
 		if (Keybinds.INTERACT.isPressed()) {
 			System.out.println(this.player.getX() + ", " + this.player.getZ());

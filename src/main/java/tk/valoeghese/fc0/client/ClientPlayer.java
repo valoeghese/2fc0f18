@@ -58,6 +58,18 @@ public class ClientPlayer {
 		return true;
 	}
 
+	public boolean isOnGround() {
+		TilePos check = new TilePos(this.pos).down();
+
+		if (this.world.isInWorld(check)) {
+			if (Tile.BY_ID[this.world.readTile(check)].isOpaque()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public void tick() {
 		this.velocity.offsetY(-0.05f);
 		this.velocity.mul(0.85, 0.9, 0.85);
