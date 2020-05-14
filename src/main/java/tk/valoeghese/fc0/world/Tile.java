@@ -36,4 +36,5 @@ public class Tile {
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile(0, 0, 0).dontRender();
 	public static final Tile STONE = new Tile(1, 0, 1);
+	public static final Tile GRASS = new Tile(2, 1, 0);
 }

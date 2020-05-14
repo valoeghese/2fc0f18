@@ -22,7 +22,7 @@ public final class WorldGen {
 				int height = (int) (3.0 * noise.sample(totalX / 24.0, totalZ / 24.0)) + 50;
 
 				for (int y = 0; y < height; ++y) {
-					tiles[Chunk.index(x, y, z)] = Tile.STONE.id;
+					tiles[Chunk.index(x, y, z)] = chunkX >= 0 ? Tile.GRASS.id : Tile.STONE.id;
 				}
 			}
 		}

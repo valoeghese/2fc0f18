@@ -25,6 +25,14 @@ public class ClientPlayer {
 		return this.camera;
 	}
 
+	public int getX() {
+		return new TilePos(this.pos).x;
+	}
+
+	public int getZ() {
+		return new TilePos(this.pos).z;
+	}
+
 	public void move(double x, double y, double z) {
 		Pos next = this.pos.ofAdded(x, y, z);
 		TilePos tilePos = new TilePos(next);

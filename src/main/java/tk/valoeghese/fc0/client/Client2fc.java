@@ -42,7 +42,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
-			if (timeMillis > this.nextUpdate) {
+			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
 				this.tick();
 			}
@@ -61,6 +61,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
+		this.updateMovement();
 		this.player.tick();
 	}
 
@@ -76,7 +77,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void updateMovement() {
 		float yaw = this.player.getCamera().getYaw();
-		final float slowness = 15;
+		final float slowness = 7;
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			this.player.move(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
@@ -95,12 +96,15 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		} else if (Keybinds.FLY_DOWN.isPressed()) {
 			this.player.move(0.0f, -0.1f, 0.0f);
 		}
+
+		if (Keybinds.INTERACT.isPressed()) {
+			System.out.println(this.player.getX() + ", " + this.player.getZ());
+		}
 	}
 
 	private void render() {
 		long time = System.nanoTime();
 
-		this.updateMovement();
 		// bind shader
 		Shaders.terrain.bind();
 		// projection
@@ -144,5 +148,5 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private static final float PI = (float) Math.PI;
 	private static final float HALF_PI = PI / 2;
-	private static final int TICK_DELTA = 1000 / 20;
+	private static final int TICK_DELTA = 100 / 20;
 }

@@ -8,7 +8,7 @@ public class TilePos {
 	}
 
 	public TilePos(Pos pos) {
-		this((int) (pos.x + 1.5), (int) (pos.y + 0.5), (int) (pos.z + 1.5));
+		this((int) Math.floor(pos.x + 0.5), (int) Math.floor(pos.y + 0.5), (int) Math.floor(pos.z + 0.5));
 	}
 
 	public final int x;
