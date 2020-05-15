@@ -9,6 +9,7 @@ import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.client.system.GraphicsSystem;
 import tk.valoeghese.fc0.client.system.Shader;
 import tk.valoeghese.fc0.client.system.Window;
+import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
@@ -102,11 +103,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			this.player.move(0.0f, -0.1f, 0.0f);
 		}*/
 
+		if (Keybinds.DESTROY.isPressed()) {
+			TilePos pos = new TilePos(this.player.rayCast(10.0).pos);
+
+			if (this.world.isInWorld(pos)) {
+				this.world.writeTile(pos, Tile.AIR.id);
+			}
+		}
+
 		if (Keybinds.INTERACT.isPressed()) {
-			// TODO steal raycast alg bc mine is broken
-			TilePos p = new TilePos(this.player.rayCast(20.0));//this.player.getTilePos().down();
-			if (this.world.isInWorld(p)) {
-				this.world.writeTile(p, Tile.STONE.id);
+			RaycastResult result = this.player.rayCast(10.0);
+			TilePos pos = result.face.apply(new TilePos(result.pos));
+
+			if (this.world.isInWorld(pos)) {
+				this.world.writeTile(pos, Tile.STONE.id);
 			}
 		}
 	}

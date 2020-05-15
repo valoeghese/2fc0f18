@@ -2,10 +2,7 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
-import tk.valoeghese.fc0.util.MathsUtils;
-import tk.valoeghese.fc0.util.MutablePos;
-import tk.valoeghese.fc0.util.Pos;
-import tk.valoeghese.fc0.util.TilePos;
+import tk.valoeghese.fc0.util.*;
 import tk.valoeghese.fc0.world.Tile;
 import tk.valoeghese.fc0.world.World;
 
@@ -55,6 +52,14 @@ public class ClientPlayer {
 			}
 		}
 
+		tilePos = tilePos.up();
+
+		if (this.world.isInWorld(tilePos)) {
+			if (Tile.BY_ID[this.world.readTile(tilePos)].isOpaque()) {
+				return false;
+			}
+		}
+
 		this.pos.set(next);
 		this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
 		return true;
@@ -80,29 +85,67 @@ public class ClientPlayer {
 		return new TilePos(this.pos);
 	}
 
-	public Pos rayCast(double maxDistance) {
+	public RaycastResult rayCast(double maxDistance) {
 		maxDistance *= maxDistance;
-		double yaw = this.getCamera().getYaw();
-		//double pitch = this.getCamera().getPitch(); TODO add vertical
+		double yaw = this.getCamera().getYaw() + Math.PI;
+		double pitch = this.getCamera().getPitch();
 		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
 
-		int sx = MathsUtils.sign(toUse.getX());
-		int sz = MathsUtils.sign(toUse.getZ());
-		double dx = initialDir(sx, -Math.sin(yaw));
-		double dz = initialDir(sz, Math.cos(yaw));
+		double dxCalc = -Math.sin(yaw);
+		double dyCalc = -Math.tan(pitch);
+		double dzCalc = Math.cos(yaw);
+
+		int sx = MathsUtils.sign(dxCalc);
+		int sy = MathsUtils.sign(dyCalc);
+		int sz = MathsUtils.sign(dzCalc);
+
+		double dx = initialDir(toUse.getX(), sx);
+		double dy = initialDir(toUse.getY(), sy);
+		double dz = initialDir(toUse.getZ(), sz);
+
+		double epsilonX = -sx * 0.001;
+		double epsilonZ = -sz * 0.001;
+		double epsilonY = -sy * 0.001;
 
 		final MutablePos result = new MutablePos(0, 0, 0);
 
 		double d;
+		Face face = null;
 
 		do {
-			if (dx < dz) {
-				dz = -dx / Math.tan(yaw);
+			if (Math.abs(dx) < Math.abs(dz)) {
+				if (Math.abs(dx) < Math.abs(dy)) {
+					face = sx < 0 ? Face.EAST : Face.WEST;
+					dz = -dx / Math.tan(yaw);
+
+					double adxc = Math.abs(dx); // abs dx for calculation
+					double adzc = Math.abs(dz);
+					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
+					dy = hdist * dyCalc;
+				} else {
+					face = sy < 0 ? Face.UP : Face.DOWN;
+					double hdist = dy / dyCalc;
+					dz = hdist * dzCalc;
+					dx = hdist * dxCalc;
+				}
 			} else {
-				dx = -(dz * Math.tan(yaw));
+				if (Math.abs(dz) < Math.abs(dy)) {
+					face = sz < 0 ? Face.NORTH : Face.SOUTH;
+					dx = -(dz * Math.tan(yaw));
+
+					double adxc = Math.abs(dx); // abs dx for calculation
+					double adzc = Math.abs(dz);
+					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
+					dy = hdist * dyCalc;
+				} else {
+					face = sy < 0 ? Face.UP : Face.DOWN;
+					double hdist = dy / dyCalc;
+					dz = hdist * dzCalc;
+					dx = hdist * dxCalc;
+				}
 			}
 
-			result.set(toUse.getX() + dx, toUse.getY(), toUse.getZ() + dz);
+			result.set(toUse.getX() + dx + epsilonX, toUse.getY() + dy + epsilonY, toUse.getZ() + dz + epsilonZ);
 			TilePos tilePos = new TilePos(result);
 
 			if (this.world.isInWorld(tilePos)) {
@@ -112,17 +155,19 @@ public class ClientPlayer {
 			}
 
 			double adx = Math.abs(dx);
+			double ady = Math.abs(dy);
 			double adz = Math.abs(dz);
 
-			d = adx * adx + adz * adz;
+			d = adx * adx + ady * ady * adz * adz;
 			dx += sx;
+			dy += sy;
 			dz += sz;
 		} while (d < maxDistance);
 
-		return result;
+		return new RaycastResult(result, face);
 	}
 
-	private double initialDir(int direction, double n) {
+	private double initialDir(double n, double direction) {
 		if (direction == 0) {
 			return 0.0;
 		} else if (direction > 0) {

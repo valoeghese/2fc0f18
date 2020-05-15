@@ -26,4 +26,8 @@ public class TilePos {
 	public TilePos down() {
 		return new TilePos(this.x, this.y - 1, this.z);
 	}
+
+	public TilePos ofAdded(int x, int y, int z) {
+		return new TilePos(this.x + x, this.y + y, this.z + z);
+	}
 }

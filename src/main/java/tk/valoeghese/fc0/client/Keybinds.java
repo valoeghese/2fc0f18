@@ -12,5 +12,6 @@ public final class Keybinds {
 	public static final Keybind ESCAPE = new Keybind("escape", GLFW_KEY_ESCAPE, false);
 	public static final Keybind JUMP = new Keybind("jump", GLFW_KEY_SPACE, false);
 	public static final Keybind FLY_DOWN = new Keybind("fly_down", GLFW_KEY_LEFT_SHIFT, false);
-	public static final Keybind INTERACT = new Keybind("interace", GLFW_MOUSE_BUTTON_1, true);
+	public static final Keybind DESTROY = new Keybind("destroy", GLFW_MOUSE_BUTTON_1, true);
+	public static final Keybind INTERACT = new Keybind("interact", GLFW_MOUSE_BUTTON_2, true);
 }
