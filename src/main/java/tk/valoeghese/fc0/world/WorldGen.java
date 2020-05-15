@@ -22,8 +22,12 @@ public final class WorldGen {
 			for (int z = 0; z < 16; ++z) {
 				int totalZ = z + blockZ;
 				int height = (int) (3.0 * noise.sample(totalX / 24.0, totalZ / 24.0))
-						+ (int) (8.5 * ridges.sample(totalX / 70.0, totalZ / 70.0))
+						+ (int) (9.5 * ridges.sample(totalX / 75.0, totalZ / 75.0))
 						+ 50;
+
+				if (noise.sample(totalX / 86.0, totalZ / 86.0) > noise.sample((totalX + 121) / 66.5, (totalZ + 121) / 66.5)) {
+					height += 3;
+				}
 
 				for (int y = 0; y < height; ++y) {
 					tiles[Chunk.index(x, y, z)] = y == height - 1 ? Tile.GRASS.id : Tile.STONE.id;
