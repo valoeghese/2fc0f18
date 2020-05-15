@@ -103,7 +103,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			this.player.move(0.0f, -0.1f, 0.0f);
 		}*/
 
-		if (Keybinds.DESTROY.isPressed()) {
+		if (Keybinds.DESTROY.hasBeenPressed()) {
 			TilePos pos = new TilePos(this.player.rayCast(10.0).pos);
 
 			if (this.world.isInWorld(pos)) {
@@ -111,7 +111,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 		}
 
-		if (Keybinds.INTERACT.isPressed()) {
+		if (Keybinds.INTERACT.hasBeenPressed()) {
 			RaycastResult result = this.player.rayCast(10.0);
 			TilePos pos = result.face.apply(new TilePos(result.pos));
 

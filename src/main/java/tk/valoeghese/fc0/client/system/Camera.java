@@ -54,5 +54,16 @@ public class Camera {
 		return this.pitch;
 	}
 
+	public void wrapYaw() {
+		double twopi = 2 * Math.PI;
+
+		while (this.yaw > twopi) {
+			this.yaw -= twopi;
+		}
+
+		while (this.yaw < 0) {
+			this.yaw += twopi;
+		}
+	}
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 }

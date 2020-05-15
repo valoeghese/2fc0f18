@@ -110,12 +110,12 @@ public class ClientPlayer {
 		final MutablePos result = new MutablePos(0, 0, 0);
 
 		double d;
-		Face face = null;
+		int resultMode = 0;
 
 		do {
 			if (dx < dz) {
 				if (dx < dy) {
-					face = sx < 0 ? Face.EAST : Face.WEST;
+					resultMode = 0;
 					dz = -dx / Math.tan(yaw);
 
 					double adxc = Math.abs(dx); // abs dx for calculation
@@ -123,14 +123,14 @@ public class ClientPlayer {
 					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
 					dy = hdist * dyCalc;
 				} else {
-					face = sy < 0 ? Face.UP : Face.DOWN;
+					resultMode = 1;
 					double hdist = dy / dyCalc;
 					dz = hdist * dzCalc;
 					dx = hdist * dxCalc;
 				}
 			} else {
-				if (Math.abs(dz) < Math.abs(dy)) {
-					face = sz < 0 ? Face.NORTH : Face.SOUTH;
+				if (dz < dy) {
+					resultMode = 2;
 					dx = -(dz * Math.tan(yaw));
 
 					double adxc = Math.abs(dx); // abs dx for calculation
@@ -138,7 +138,7 @@ public class ClientPlayer {
 					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
 					dy = hdist * dyCalc;
 				} else {
-					face = sy < 0 ? Face.UP : Face.DOWN;
+					resultMode = 1;
 					double hdist = dy / dyCalc;
 					dz = hdist * dzCalc;
 					dx = hdist * dxCalc;
@@ -164,7 +164,14 @@ public class ClientPlayer {
 			dz += sz;
 		} while (d < maxDistance);
 
-		return new RaycastResult(result, face);
+		switch (resultMode) {
+			case 0:
+				return new RaycastResult(result, yaw < Math.PI ? Face.EAST : Face.WEST);
+			case 1: default:
+				return new RaycastResult(result, pitch < 0 ? Face.DOWN : Face.UP);
+			case 2:
+				return new RaycastResult(result, yaw > HALF_PI && yaw < THREE_HALF_PI ? Face.NORTH : Face.SOUTH);
+		}
 	}
 
 	private double initialDir(double n, double direction) {
@@ -191,5 +198,10 @@ public class ClientPlayer {
 			this.falling = false;
 			this.velocity.setY(0.0);
 		}
+
+		this.camera.wrapYaw();
 	}
+
+	private static double HALF_PI = Math.PI / 2;
+	private static double THREE_HALF_PI = 3 * Math.PI / 2;
 }
