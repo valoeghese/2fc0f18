@@ -129,7 +129,7 @@ public class ChunkMesh {
 		private float l;
 
 		static final float SIZE = 0.5f;
-		
+
 		public void addTo(ExternallyEditableModel model) {
 			final float startU = (this.u / 16.0f);
 			final float startV = (this.v / 16.0f);

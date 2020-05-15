@@ -99,9 +99,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			if (this.player.isOnGround()) {
 				this.player.addVelocity(0.0f, 12.0f / slowness, 0.0f);
 			}
-		} /*else if (Keybinds.FLY_DOWN.isPressed()) { // TODO readd fly mode
-			this.player.move(0.0f, -0.1f, 0.0f);
-		}*/
+		}
 
 		if (Keybinds.DESTROY.hasBeenPressed()) {
 			TilePos pos = new TilePos(this.player.rayCast(10.0).pos);
