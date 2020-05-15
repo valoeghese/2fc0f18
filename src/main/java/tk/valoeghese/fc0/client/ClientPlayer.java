@@ -171,11 +171,11 @@ public class ClientPlayer {
 
 		switch (resultMode) {
 			case 0:
-				return new RaycastResult(result, yaw < Math.PI ? Face.EAST : Face.WEST);
+				return new RaycastResult(new TilePos(result), yaw < Math.PI ? Face.EAST : Face.WEST);
 			case 1: default:
-				return new RaycastResult(result, pitch < 0 ? Face.DOWN : Face.UP);
+				return new RaycastResult(new TilePos(result), pitch < 0 ? Face.DOWN : Face.UP);
 			case 2:
-				return new RaycastResult(result, yaw > HALF_PI && yaw < THREE_HALF_PI ? Face.NORTH : Face.SOUTH);
+				return new RaycastResult(new TilePos(result), yaw > HALF_PI && yaw < THREE_HALF_PI ? Face.NORTH : Face.SOUTH);
 		}
 	}
 

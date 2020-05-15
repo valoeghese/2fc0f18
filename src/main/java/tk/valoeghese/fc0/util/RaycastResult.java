@@ -1,11 +1,11 @@
 package tk.valoeghese.fc0.util;
 
 public class RaycastResult {
-	public RaycastResult(Pos pos, Face face) {
+	public RaycastResult(TilePos pos, Face face) {
 		this.pos = pos;
 		this.face = face;
 	}
 
-	public final Pos pos;
+	public final TilePos pos;
 	public final Face face;
 }
