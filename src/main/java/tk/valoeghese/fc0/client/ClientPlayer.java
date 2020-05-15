@@ -113,8 +113,8 @@ public class ClientPlayer {
 		Face face = null;
 
 		do {
-			if (Math.abs(dx) < Math.abs(dz)) {
-				if (Math.abs(dx) < Math.abs(dy)) {
+			if (dx < dz) {
+				if (dx < dy) {
 					face = sx < 0 ? Face.EAST : Face.WEST;
 					dz = -dx / Math.tan(yaw);
 
