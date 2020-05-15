@@ -18,9 +18,10 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public abstract class GUI {
-	protected GUI() {
+	protected GUI(int texture) {
 		this.mode = GL_STATIC_DRAW;
 		this.shader = Shaders.gui;
+		this.texture = texture;
 	}
 
 	private FloatList vTemp = new FloatArrayList();
@@ -29,6 +30,7 @@ public abstract class GUI {
 	private List<VertexArray> vertexArrays = new ArrayList<>();
 	private final int mode;
 	private final Shader shader;
+	private final int texture;
 
 	protected int vertex(float x, float y, float u, float v) {
 		this.vTemp.add(x);
@@ -72,11 +74,14 @@ public abstract class GUI {
 	}
 
 	public final void render() {
+		glBindTexture(GL_TEXTURE_2D, texture);
+
 		for (VertexArray array : this.vertexArrays) {
 			glBindVertexArray(array.vao);
 			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, NULL);
 		}
 
+		glBindTexture(GL_TEXTURE_2D, 0);
 		unbind();
 	}
 

@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.util.Noise;
+import tk.valoeghese.fc0.util.RidgedNoise;
 
 import java.util.Random;
 
@@ -8,6 +9,7 @@ public final class WorldGen {
 	public static Chunk generateChunk(int chunkX, int chunkZ, long seed, Random rand) {
 		if (noise == null || seed != cachedSeed) {
 			noise = new Noise(new Random(seed));
+			ridges = new RidgedNoise(new Random(seed + 12));
 		}
 
 		byte[] tiles = new byte[16 * 16 * 128];
@@ -20,7 +22,7 @@ public final class WorldGen {
 			for (int z = 0; z < 16; ++z) {
 				int totalZ = z + blockZ;
 				int height = (int) (3.0 * noise.sample(totalX / 24.0, totalZ / 24.0))
-						+ (int) (7.5 * noise.sample(totalX / 70.0, totalZ / 70.0))
+						+ (int) (8.5 * ridges.sample(totalX / 70.0, totalZ / 70.0))
 						+ 50;
 
 				for (int y = 0; y < height; ++y) {
@@ -33,5 +35,6 @@ public final class WorldGen {
 	}
 
 	private static Noise noise;
+	private static Noise ridges;
 	private static long cachedSeed = 0;
 }

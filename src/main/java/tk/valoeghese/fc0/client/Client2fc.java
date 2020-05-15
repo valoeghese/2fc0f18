@@ -2,6 +2,8 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+import tk.valoeghese.fc0.client.gui.Crosshair;
+import tk.valoeghese.fc0.client.gui.GUI;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
@@ -16,6 +18,8 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.Tile;
 
+import java.util.Random;
+
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
@@ -28,16 +32,19 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.window = new Window(640 * 2, 360 * 2);
 		GraphicsSystem.initGL(this.window);
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(45), this.window.aspect, 0.01f, 250.0f);
+		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.world = new ChunkSelection(0L);
+		this.world = new ChunkSelection(new Random().nextLong());
 	}
 
 	private ChunkSelection world;
 	private final Matrix4f projection;
+	private final Matrix4f guiProjection;
 	private ClientPlayer player;
 	private long nextUpdate = 0;
+	private GUI crosshair;
 
 	@Override
 	public void run() {
@@ -78,6 +85,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.player = new ClientPlayer(new Camera(), this.world);
 		this.prevYPos = this.window.height / 2;
 		this.prevXPos = this.window.width / 2;
+		this.crosshair = new Crosshair();
 	}
 
 	private void updateMovement() {
@@ -128,11 +136,18 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		long time = System.nanoTime();
 
 		// bind shader
+		Shaders.gui.bind();
+		// projection
+		Shaders.gui.uniformMat4f("projection", this.guiProjection);
+		// render gui
+		this.crosshair.render();
+		// bind shader
 		Shaders.terrain.bind();
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
-		// render
+		// render world
 		GraphicsSystem.bindTexture(TILE_ATLAS);
+
 		for (Chunk chunk : this.world.getChunks()) {
 			chunk.getOrCreateMesh().render(this.player.getCamera());
 		}
