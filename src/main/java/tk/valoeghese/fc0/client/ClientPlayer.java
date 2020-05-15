@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
+import tk.valoeghese.fc0.util.MathsUtils;
 import tk.valoeghese.fc0.util.MutablePos;
 import tk.valoeghese.fc0.util.Pos;
 import tk.valoeghese.fc0.util.TilePos;
@@ -73,6 +74,62 @@ public class ClientPlayer {
 		}
 
 		return false;
+	}
+
+	public TilePos getTilePos() {
+		return new TilePos(this.pos);
+	}
+
+	public Pos rayCast(double maxDistance) {
+		maxDistance *= maxDistance;
+		double yaw = this.getCamera().getYaw();
+		//double pitch = this.getCamera().getPitch(); TODO add vertical
+		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
+
+		int sx = MathsUtils.sign(toUse.getX());
+		int sz = MathsUtils.sign(toUse.getZ());
+		double dx = initialDir(sx, -Math.sin(yaw));
+		double dz = initialDir(sz, Math.cos(yaw));
+
+		final MutablePos result = new MutablePos(0, 0, 0);
+
+		double d;
+
+		do {
+			if (dx < dz) {
+				dz = -dx / Math.tan(yaw);
+			} else {
+				dx = -(dz * Math.tan(yaw));
+			}
+
+			result.set(toUse.getX() + dx, toUse.getY(), toUse.getZ() + dz);
+			TilePos tilePos = new TilePos(result);
+
+			if (this.world.isInWorld(tilePos)) {
+				if (Tile.BY_ID[this.world.readTile(tilePos)].isOpaque()) {
+					break;
+				}
+			}
+
+			double adx = Math.abs(dx);
+			double adz = Math.abs(dz);
+
+			d = adx * adx + adz * adz;
+			dx += sx;
+			dz += sz;
+		} while (d < maxDistance);
+
+		return result;
+	}
+
+	private double initialDir(int direction, double n) {
+		if (direction == 0) {
+			return 0.0;
+		} else if (direction > 0) {
+			return Math.ceil(n) - n;
+		} else {
+			return Math.floor(n) - n;
+		}
 	}
 
 	public void tick() {

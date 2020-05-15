@@ -9,8 +9,10 @@ import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.client.system.GraphicsSystem;
 import tk.valoeghese.fc0.client.system.Shader;
 import tk.valoeghese.fc0.client.system.Window;
+import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
+import tk.valoeghese.fc0.world.Tile;
 
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
@@ -67,6 +69,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void init() {
 		glEnable(GL_DEPTH_TEST);
+		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
@@ -100,7 +103,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}*/
 
 		if (Keybinds.INTERACT.isPressed()) {
-			System.out.println(this.player.getX() + ", " + this.player.getZ());
+			// TODO steal raycast alg bc mine is broken
+			TilePos p = new TilePos(this.player.rayCast(20.0));//this.player.getTilePos().down();
+			if (this.world.isInWorld(p)) {
+				this.world.writeTile(p, Tile.STONE.id);
+			}
 		}
 	}
 

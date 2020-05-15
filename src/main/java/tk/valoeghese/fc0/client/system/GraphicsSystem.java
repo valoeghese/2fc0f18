@@ -14,8 +14,7 @@ public final class GraphicsSystem {
 
 	public static void initGL(Window window) {
 		createCapabilities();
-		glClearColor(0, 0, 0, 255);
-		glShadeModel(GL_FLAT);
+		glShadeModel(GL_SMOOTH);
 		glViewport(0, 0,window.width, window.height);
 		glfwSetFramebufferSizeCallback(window.glWindow, (w, width, height) -> glViewport(0, 0, width, height));
 	}
