@@ -116,8 +116,8 @@ public class ChunkMesh {
 	static class RenderedTileFace {
 		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light) {
 			this.pos = offset;
-			this.u = tile.u;
-			this.v = tile.v;
+			this.u = tile.getU(faceAxis);
+			this.v = tile.getV(faceAxis);
 			this.f = faceAxis;
 			this.l = light;
 		}

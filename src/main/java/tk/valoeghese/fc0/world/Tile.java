@@ -9,10 +9,18 @@ public class Tile {
 	}
 
 	public final byte id;
-	public final int u;
-	public final int v;
+	protected final int u;
+	protected final int v;
 	private boolean opaque = true;
 	private boolean render = true;
+
+	public int getU(int faceAxis) {
+		return this.u;
+	}
+
+	public int getV(int faceAxis) {
+		return this.v;
+	}
 
 	protected Tile dontRender() {
 		this.render = false;
@@ -36,5 +44,5 @@ public class Tile {
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile(0, 0, 0).dontRender();
 	public static final Tile STONE = new Tile(1, 0, 1);
-	public static final Tile GRASS = new Tile(2, 1, 0);
+	public static final Tile GRASS = new GrassTile(2);
 }
