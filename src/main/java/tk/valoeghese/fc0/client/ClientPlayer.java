@@ -13,7 +13,7 @@ public class ClientPlayer {
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.8f, 0)); // 2 blocks tall, camera at head
 		this.world = world;
-		this.move(0, 51.6, 0);
+		this.move(0, 60, 0);
 	}
 
 	private final MutablePos pos;
@@ -40,6 +40,11 @@ public class ClientPlayer {
 
 	public void move(Pos pos) {
 		this.move(pos.getX(), pos.getY(), pos.getZ());
+	}
+
+	public void setPos(Pos pos) {
+		this.pos.set(pos);
+		this.camera.setPos((float) pos.getX(), (float) -pos.getY() - 1.8f, (float) pos.getZ());
 	}
 
 	public boolean move(double x, double y, double z) {
@@ -103,9 +108,9 @@ public class ClientPlayer {
 		double dy = initialDir(toUse.getY(), sy);
 		double dz = initialDir(toUse.getZ(), sz);
 
-		double epsilonX = -sx * 0.001;
-		double epsilonZ = -sz * 0.001;
-		double epsilonY = -sy * 0.001;
+		double epsilonX = sx * 0.0001;
+		double epsilonZ = sz * 0.0001;
+		double epsilonY = sy * 0.0001;
 
 		final MutablePos result = new MutablePos(0, 0, 0);
 

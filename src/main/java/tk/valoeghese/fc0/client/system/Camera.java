@@ -54,6 +54,11 @@ public class Camera {
 		return this.pitch;
 	}
 
+	public void setPos(float x, float y, float z) {
+		this.pos = new Vector3f(x, y, z);
+		this.rebuildView();
+	}
+
 	public void wrapYaw() {
 		double twopi = 2 * Math.PI;
 

@@ -9,6 +9,7 @@ import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.client.system.GraphicsSystem;
 import tk.valoeghese.fc0.client.system.Shader;
 import tk.valoeghese.fc0.client.system.Window;
+import tk.valoeghese.fc0.util.Pos;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
@@ -116,6 +117,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			if (this.world.isInWorld(pos)) {
 				this.world.writeTile(pos, Tile.STONE.id);
 			}
+		}
+
+		if (Keybinds.FLY_DOWN.hasBeenPressed()) {
+			player.setPos(new Pos(0, 60, 0));
 		}
 	}
 
