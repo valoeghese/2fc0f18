@@ -1,16 +1,21 @@
 package tk.valoeghese.fc0.world.tile;
 
 public class Tile {
-	public Tile(int id, int u, int v) {
+	public Tile(int id, int u, int v, float iota, float kappa) {
 		BY_ID[id] = this;
 		this.id = (byte) id;
 		this.u = u;
 		this.v = v;
+		this.iota = iota;
+		this.kappa = kappa;
 	}
 
 	public final byte id;
 	protected final int u;
 	protected final int v;
+	// TODO use these in epic stuff
+	public final float iota;
+	public final float kappa;
 	private boolean opaque = true;
 	private boolean render = true;
 
@@ -42,7 +47,7 @@ public class Tile {
 	}
 
 	public static final Tile[] BY_ID = new Tile[256];
-	public static final Tile AIR = new Tile(0, 0, 0).dontRender();
-	public static final Tile STONE = new Tile(1, 0, 1);
-	public static final Tile GRASS = new GrassTile(2);
+	public static final Tile AIR = new Tile(0, 0, 0, 0.0f, 0.02f).dontRender();
+	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f);
+	public static final Tile GRASS = new GrassTile(2, 0.01f, 0.03f);
 }
