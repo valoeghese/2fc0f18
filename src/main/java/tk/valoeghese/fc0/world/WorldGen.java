@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.util.Noise;
 import tk.valoeghese.fc0.util.RidgedNoise;
+import tk.valoeghese.fc0.world.generator.Generator;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -38,6 +39,12 @@ public final class WorldGen {
 		}
 
 		return new Chunk(chunkX, chunkZ, tiles);
+	}
+
+	public static void populateChunk(World world, Chunk chunk, Random rand) {
+		for (Generator generator : Generator.GENERATORS) {
+			generator.generate(chunk.x << 4, chunk.z << 4, rand, world);
+		}
 	}
 
 	private static Noise noise;

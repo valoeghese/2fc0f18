@@ -86,6 +86,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.prevYPos = this.window.height / 2;
 		this.prevXPos = this.window.width / 2;
 		this.crosshair = new Crosshair();
+		this.world.populateChunks();
 	}
 
 	private void updateMovement() {

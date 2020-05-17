@@ -11,7 +11,12 @@ public interface World {
 		this.writeTile(pos.x, pos.y, pos.z, tile);
 	}
 
+	default boolean isInWorld(TilePos pos) {
+		return this.isInWorld(pos.x, pos.y, pos.z);
+	}
+
 	byte readTile(int x, int y, int z);
 	void writeTile(int x, int y, int z, byte tile);
-	boolean isInWorld(TilePos pos);
+	boolean isInWorld(int x, int y, int z);
+	int getHeight(int x, int z);
 }

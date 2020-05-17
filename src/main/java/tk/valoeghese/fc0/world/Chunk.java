@@ -83,6 +83,24 @@ public class Chunk implements World {
 		return pos.isValidForChunk();
 	}
 
+	@Override
+	public boolean isInWorld(int x, int y, int z) {
+		return this.isInWorld(new TilePos(x, y, z));
+	}
+
+	@Override
+	public int getHeight(int x, int z) {
+		for (int y = 127; y >= 0; --y) {
+			if (this.heightsToRender.contains(y)) {
+				if (Tile.BY_ID[this.readTile(x, y, z)].shouldRender()) {
+					return y;
+				}
+			}
+		}
+
+		return 0;
+	}
+
 	static int index(int x, int y, int z) {
 		return (x << 11) | (z << 7) | y;
 	}

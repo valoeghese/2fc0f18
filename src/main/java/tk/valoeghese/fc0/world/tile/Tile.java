@@ -50,4 +50,6 @@ public class Tile {
 	public static final Tile AIR = new Tile(0, 0, 0, 0.0f, 0.02f).dontRender();
 	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f);
 	public static final Tile GRASS = new GrassTile(2, 0.01f, 0.03f);
+	public static final Tile LEAVES = new Tile(3, 2, 1, 0.02f, 0.1f);
+	public static final Tile LOG = new LogTile(4, 2, 0, 0.04f, 0.04f);
 }
