@@ -154,7 +154,7 @@ public class ClientPlayer {
 			TilePos tilePos = new TilePos(result);
 
 			if (this.world.isInWorld(tilePos)) {
-				if (Tile.BY_ID[this.world.readTile(tilePos)].isOpaque()) {
+				if (Tile.BY_ID[this.world.readTile(tilePos)].shouldRender()) {
 					break;
 				}
 			}
