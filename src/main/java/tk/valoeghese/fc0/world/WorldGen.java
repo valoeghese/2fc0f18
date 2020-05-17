@@ -47,6 +47,10 @@ public final class WorldGen {
 		}
 	}
 
+	public static double sampleNoise(double x, double y) {
+		return noise.sample(x, y);
+	}
+
 	private static Noise noise;
 	private static Noise ridges;
 	private static long cachedSeed = 0;
