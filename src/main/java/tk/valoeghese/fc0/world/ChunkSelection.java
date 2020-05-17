@@ -1,8 +1,9 @@
 package tk.valoeghese.fc0.world;
 
+import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.TilePos;
 
-import java.util.Random;
+import java.util.*;
 
 public class ChunkSelection implements World {
 	public ChunkSelection(long seed) {
@@ -13,13 +14,27 @@ public class ChunkSelection implements World {
 		this.chunks = new Chunk[this.diameter * this.diameter];
 		Random rand = new Random(seed);
 
+		OrderedList<Chunk> orderedChunks = new OrderedList<>(c -> (float) (Math.abs(c.x) + Math.abs(c.z)));
+
 		for (int x = -SIZE + 1; x < SIZE; ++x) {
 			for (int z = -SIZE + 1; z < SIZE; ++z) {
-				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = WorldGen.generateChunk(x, z, seed, rand);
+				Chunk chunk = WorldGen.generateChunk(x, z, seed, rand);
+				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
+				orderedChunks.add(chunk);
 			}
 		}
 
 		System.out.println("Generated World in " + (System.currentTimeMillis() - time) + "ms.");
+
+		// add to render queue
+		int i = 0;
+		for (Chunk chunk : orderedChunks) {
+			if (i++ < 8) {
+				this.chunksForRendering.add(chunk);
+			} else {
+				this.toAddForRendering.add(chunk);
+			}
+		}
 
 		this.minBound = (-SIZE + 1) << 4;
 		this.maxBound = SIZE << 4;
@@ -30,13 +45,19 @@ public class ChunkSelection implements World {
 	private final int minBound;
 	private final int maxBound;
 	private final Chunk[] chunks;
+	private final Queue<Chunk> toAddForRendering = new LinkedList<>();
+	private final List<Chunk> chunksForRendering = new ArrayList<>();
 
 	public Chunk getChunk(int x, int z) {
 		return this.chunks[(x + this.offset) * this.diameter + z + this.offset];
 	}
 
-	public Chunk[] getChunks() {
-		return this.chunks;
+	public List<Chunk> getChunksForRendering() {
+		if (!this.toAddForRendering.isEmpty()) {
+			this.chunksForRendering.add(this.toAddForRendering.remove());
+		}
+
+		return this.chunksForRendering;
 	}
 
 	@Override

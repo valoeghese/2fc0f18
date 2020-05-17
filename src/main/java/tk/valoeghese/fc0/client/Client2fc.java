@@ -148,7 +148,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// render world
 		GraphicsSystem.bindTexture(TILE_ATLAS);
 
-		for (Chunk chunk : this.world.getChunks()) {
+		for (Chunk chunk : this.world.getChunksForRendering()) {
 			chunk.getOrCreateMesh().render(this.player.getCamera());
 		}
 		// unbind shader
