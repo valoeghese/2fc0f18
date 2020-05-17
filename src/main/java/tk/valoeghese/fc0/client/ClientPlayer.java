@@ -207,6 +207,14 @@ public class ClientPlayer {
 		this.camera.wrapYaw();
 	}
 
+	public float getHorizontalSlowness() {
+		return 40.0f;
+	}
+
+	public double getJumpStrength() {
+		return 12.0 / 30.0;
+	}
+
 	private static double HALF_PI = Math.PI / 2;
 	private static double THREE_HALF_PI = 3 * Math.PI / 2;
 }

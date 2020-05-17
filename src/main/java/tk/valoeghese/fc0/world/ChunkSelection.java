@@ -8,6 +8,8 @@ public class ChunkSelection implements World {
 	public ChunkSelection(long seed) {
 		this.offset = SIZE - 1;
 		this.diameter = 1 + this.offset * 2;
+		long time = System.currentTimeMillis();
+		System.out.println("Generating World.");
 		this.chunks = new Chunk[this.diameter * this.diameter];
 		Random rand = new Random(seed);
 
@@ -16,6 +18,8 @@ public class ChunkSelection implements World {
 				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = WorldGen.generateChunk(x, z, seed, rand);
 			}
 		}
+
+		System.out.println("Generated World in " + (System.currentTimeMillis() - time) + "ms.");
 
 		this.minBound = (-SIZE + 1) << 4;
 		this.maxBound = SIZE << 4;
@@ -50,5 +54,5 @@ public class ChunkSelection implements World {
 		return pos.x >= this.minBound && pos.x < this.maxBound && pos.z >= this.minBound && pos.z < this.maxBound && pos.y >= 0 && pos.y < 128;
 	}
 
-	private static final int SIZE = 7;
+	private static final int SIZE = 9;
 }
