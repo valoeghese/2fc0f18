@@ -47,6 +47,7 @@ public class ChunkSelection implements World {
 	private final Queue<Chunk> toAddForRendering = new LinkedList<>();
 	private final List<Chunk> chunksForRendering = new ArrayList<>();
 	private final Random genRand;
+	private boolean ncTick = false;
 
 	public void populateChunks() {
 		long time = System.currentTimeMillis();
@@ -65,7 +66,11 @@ public class ChunkSelection implements World {
 
 	public List<Chunk> getChunksForRendering() {
 		if (!this.toAddForRendering.isEmpty()) {
-			this.chunksForRendering.add(this.toAddForRendering.remove());
+			ncTick = !ncTick;
+
+			if (ncTick) {
+				this.chunksForRendering.add(this.toAddForRendering.remove());
+			}
 		}
 
 		return this.chunksForRendering;
