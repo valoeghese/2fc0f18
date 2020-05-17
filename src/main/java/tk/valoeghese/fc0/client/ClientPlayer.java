@@ -108,9 +108,9 @@ public class ClientPlayer {
 		double dy = initialDir(toUse.getY(), sy);
 		double dz = initialDir(toUse.getZ(), sz);
 
-		double epsilonX = sx * 0.0001;
-		double epsilonZ = sz * 0.0001;
-		double epsilonY = sy * 0.0001;
+		double epsilonX = 0;//sx * 0.0001;
+		double epsilonZ = 0;//sz * 0.0001;
+		double epsilonY = 0;//sy * 0.0001;
 
 		final MutablePos result = new MutablePos(0, 0, 0);
 
@@ -169,6 +169,7 @@ public class ClientPlayer {
 			dz += sz;
 		} while (d < maxDistance);
 
+		// I probably got some of these around the wrong way but the algorithm is f***ed anyway
 		switch (resultMode) {
 			case 0:
 				return new RaycastResult(new TilePos(result), yaw < Math.PI ? Face.EAST : Face.WEST);
