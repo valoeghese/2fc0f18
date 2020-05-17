@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.tile;
 
 public class Tile {
 	public Tile(int id, int u, int v) {

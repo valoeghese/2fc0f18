@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.tile;
 
 public class GrassTile extends Tile {
 	public GrassTile(int id) {

@@ -16,7 +16,7 @@ import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
-import tk.valoeghese.fc0.world.Tile;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
 

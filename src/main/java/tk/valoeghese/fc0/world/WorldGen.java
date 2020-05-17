@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.util.Noise;
 import tk.valoeghese.fc0.util.RidgedNoise;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
 

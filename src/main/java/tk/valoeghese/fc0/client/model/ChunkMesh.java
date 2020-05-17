@@ -4,7 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.Tile;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
