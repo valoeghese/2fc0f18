@@ -170,6 +170,8 @@ public class ClientPlayer {
 		} while (d < maxDistance);
 
 		// I probably got some of these around the wrong way but the algorithm is f***ed anyway
+		// Edit: I tried reversing n/s and e/w and it was still broken. I need a new alg lol.
+		// sometimes it places blocks up when I right click on the side, etc.
 		switch (resultMode) {
 			case 0:
 				return new RaycastResult(new TilePos(result), yaw < Math.PI ? Face.EAST : Face.WEST);
