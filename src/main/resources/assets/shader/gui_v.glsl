@@ -7,6 +7,6 @@ out vec2 uvPass;
 uniform mat4 projection;
 
 void main() {
-    gl_Position = projection * vec4(rawPos, -0.9, 1.0);
+    gl_Position = projection * vec4(rawPos, 0.999, 1.0);
     uvPass = rawUV;
 }

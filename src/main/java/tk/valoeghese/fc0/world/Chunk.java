@@ -9,6 +9,7 @@ import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 public class Chunk implements World {
 	public Chunk(int x, int z, byte[] tiles) {
@@ -94,10 +95,10 @@ public class Chunk implements World {
 	}
 
 	@Override
-	public int getHeight(int x, int z) {
+	public int getHeight(int x, int z, Predicate<Tile> solid) {
 		for (int y = 127; y >= 0; --y) {
 			if (this.heightsToRender.contains(y)) {
-				if (Tile.BY_ID[this.readTile(x, y, z)].shouldRender()) {
+				if (solid.test(Tile.BY_ID[this.readTile(x, y, z)])) {
 					return y;
 				}
 			}

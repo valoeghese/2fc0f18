@@ -4,8 +4,10 @@ import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.ChunkPos;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.TilePos;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class ChunkSelection implements World {
 	public ChunkSelection(long seed) {
@@ -90,8 +92,8 @@ public class ChunkSelection implements World {
 	}
 
 	@Override
-	public int getHeight(int x, int z) {
-		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF);
+	public int getHeight(int x, int z, Predicate<Tile> solid) {
+		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
 	}
 
 	@Override

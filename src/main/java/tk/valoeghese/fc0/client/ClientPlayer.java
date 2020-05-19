@@ -16,7 +16,7 @@ public class ClientPlayer {
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.8f, 0)); // 2 blocks tall, camera at head
 		this.world = world;
-		this.move(0, world.getHeight(0, 0) + 2, 0);
+		this.move(0, world.getHeight(0, 0) + 1, 0);
 	}
 
 	private final MutablePos pos;

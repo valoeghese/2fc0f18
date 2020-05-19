@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import tk.valoeghese.fc0.client.gui.Crosshair;
 import tk.valoeghese.fc0.client.gui.GUI;
+import tk.valoeghese.fc0.client.gui.Version;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
@@ -45,6 +46,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private ClientPlayer player;
 	private long nextUpdate = 0;
 	private GUI crosshair;
+	private GUI version;
 
 	@Override
 	public void run() {
@@ -86,15 +88,22 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.prevYPos = this.window.height / 2;
 		this.prevXPos = this.window.width / 2;
 		this.crosshair = new Crosshair();
+		this.version = new Version();
 		this.world.populateChunks();
 	}
 
 	private void updateMovement() {
 		final float yaw = this.player.getCamera().getYaw();
 		float slowness = this.player.getHorizontalSlowness();
+		boolean lr = Keybinds.MOVE_LEFT.isPressed() || Keybinds.MOVE_RIGHT.isPressed();
+		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FOWARDS.isPressed();
 
 		if (Keybinds.RUN.isPressed()) {
 			slowness /= 1.67;
+		}
+
+		if (lr && fb) {
+			slowness = org.joml.Math.sqrt(2 * (slowness * slowness));
 		}
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
@@ -133,7 +142,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < -20) {
-			player.setPos(new Pos(0, 60, 0));
+			player.setPos(new Pos(0, this.world.getHeight(0, 0) + 1, 0));
 		}
 	}
 
@@ -145,6 +154,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// projection
 		Shaders.gui.uniformMat4f("projection", this.guiProjection);
 		// render gui
+		this.version.render();
 		this.crosshair.render();
 		// bind shader
 		Shaders.terrain.bind();

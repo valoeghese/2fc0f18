@@ -22,7 +22,7 @@ public class TreeGenerator extends Generator {
 		for (int i = 0; i < count; ++i) {
 			int x = startX + rand.nextInt(16);
 			int z = startZ + rand.nextInt(16);
-			int y = world.getHeight(x, z) + 1;
+			int y = world.getHeight(x, z, tile -> tile.isOpaque() && tile != Tile.LOG) + 1;
 			int height = 3 + rand.nextInt(3);
 
 			for (int xo = -2; xo <= 2; ++xo) {

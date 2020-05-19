@@ -8,13 +8,20 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 public class Textures {
-	public static final int TILE_ATLAS;
-
-	static {
+	private static int load(String arg0, boolean fallbackToNull) {
 		try {
-			TILE_ATLAS = TextureLoader.textureARGB(ImageIO.read(Resources.loadURL("assets/texture/tile_atlas.png")));
+			return TextureLoader.textureARGB(ImageIO.read(Resources.loadURL("assets/texture/" + arg0 + ".png")));
 		} catch (IOException e) {
-			throw new UncheckedIOException("Error loading Tile Atlas", e);
+			e.printStackTrace();
+
+			if (fallbackToNull) {
+				return 0;
+			} else {
+				throw new UncheckedIOException("Error loading Tile Atlas", e);
+			}
 		}
 	}
+
+	public static final int TILE_ATLAS = load("tile_atlas", false);
+	public static final int VERSION = load("version", true);
 }
