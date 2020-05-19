@@ -27,6 +27,10 @@ public class TilePos {
 		return new TilePos(this.x, this.y - 1, this.z);
 	}
 
+	public ChunkPos toChunkPos() {
+		return new ChunkPos(this.x >> 4, this.z >> 4);
+	}
+
 	public TilePos ofAdded(int x, int y, int z) {
 		return new TilePos(this.x + x, this.y + y, this.z + z);
 	}

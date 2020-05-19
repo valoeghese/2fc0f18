@@ -3,8 +3,11 @@ package tk.valoeghese.fc0.client;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.util.*;
-import tk.valoeghese.fc0.world.tile.Tile;
+import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.tile.Tile;
+
+import javax.annotation.Nullable;
 
 public class ClientPlayer {
 	public ClientPlayer(Camera camera, World world) {
@@ -21,6 +24,8 @@ public class ClientPlayer {
 	private final World world;
 	private final MutablePos velocity;
 	private boolean falling = false;
+	@Nullable
+	public Chunk chunk = null;
 
 	public Camera getCamera() {
 		return this.camera;
@@ -66,6 +71,7 @@ public class ClientPlayer {
 		}
 
 		this.pos.set(next);
+		this.world.updateChunkOf(this);
 		this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
 		return true;
 	}

@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world;
 
+import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.TilePos;
 
 public interface World {
@@ -19,4 +20,7 @@ public interface World {
 	void writeTile(int x, int y, int z, byte tile);
 	boolean isInWorld(int x, int y, int z);
 	int getHeight(int x, int z);
+
+	default void updateChunkOf(ClientPlayer clientPlayer) {
+	}
 }

@@ -1,6 +1,9 @@
 package tk.valoeghese.fc0.world;
 
+import tk.valoeghese.fc0.client.ClientPlayer;
+import tk.valoeghese.fc0.util.ChunkPos;
 import tk.valoeghese.fc0.util.OrderedList;
+import tk.valoeghese.fc0.util.TilePos;
 
 import java.util.*;
 
@@ -94,6 +97,19 @@ public class ChunkSelection implements World {
 	@Override
 	public boolean isInWorld(int x, int y, int z) {
 		return x >= this.minBound && x < this.maxBound && z >= this.minBound && z < this.maxBound && y >= 0 && y < 128;
+	}
+
+	@Override
+	public void updateChunkOf(ClientPlayer clientPlayer) {
+		TilePos pos = clientPlayer.getTilePos();
+		ChunkPos cPos = pos.toChunkPos();
+
+		if (this.isInWorld(pos.x, 50, pos.z)) {
+			this.getChunk(cPos.x, cPos.z).updateChunkOf(clientPlayer);
+		} else if (clientPlayer.chunk != null) {
+			clientPlayer.chunk.removePlayer(clientPlayer);
+			clientPlayer.chunk = null;
+		}
 	}
 
 	private static final int SIZE = 9;

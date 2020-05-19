@@ -2,9 +2,13 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.client.model.ChunkMesh;
 import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.tile.Tile;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Chunk implements World {
 	public Chunk(int x, int z, byte[] tiles) {
@@ -29,6 +33,7 @@ public class Chunk implements World {
 	public final int z;
 	private final IntSet heightsToRender = new IntArraySet();
 	private ChunkMesh mesh;
+	private List<ClientPlayer> players = new ArrayList<>();
 
 	@Override
 	public byte readTile(int x, int y, int z) {
@@ -99,6 +104,30 @@ public class Chunk implements World {
 		}
 
 		return 0;
+	}
+
+	void addPlayer(ClientPlayer player) {
+		if (!this.players.contains(player)) {
+			this.players.add(player);
+		}
+	}
+
+	void removePlayer(ClientPlayer player) {
+		if (this.players.contains(player)) {
+			this.players.remove(player);
+		}
+	}
+
+	@Override
+	public void updateChunkOf(ClientPlayer clientPlayer) {
+		if (clientPlayer.chunk != this) {
+			if (clientPlayer.chunk != null) {
+				clientPlayer.chunk.removePlayer(clientPlayer);
+			}
+
+			clientPlayer.chunk = this;
+			this.addPlayer(clientPlayer);
+		}
 	}
 
 	static int index(int x, int y, int z) {
