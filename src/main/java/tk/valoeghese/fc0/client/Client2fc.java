@@ -128,7 +128,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 		}
 
-		if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < 20) {
+		if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < -20) {
 			player.setPos(new Pos(0, 60, 0));
 		}
 	}
