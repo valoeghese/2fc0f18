@@ -11,7 +11,7 @@ public class WaterTile extends Tile {
 	}
 
 	@Override
-	public boolean shouldOptimiseOut() {
-		return false;
+	public boolean dontOptimiseOut() {
+		return true;
 	}
 }

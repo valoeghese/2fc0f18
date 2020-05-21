@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class ChunkMesh {
 	private final int z;
 	private final Matrix4f transform;
 	private final byte[] tiles;
-	private final Chunk chunk;
+	private final RenderedChunk chunk;
 	private ChunkMeshModel mesh;
 	private ChunkMeshModel water;
 
@@ -50,10 +51,10 @@ public class ChunkMesh {
 						if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y + 1, z)]];
 							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y - 1, z)]];
-							Tile tileWest = x == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x - 1, y, z)]];
-							Tile tileEast = x == 15 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x + 1, y, z)]];
-							Tile tileSouth = z == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z - 1)]];
-							Tile tileNorth = z == 15 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
+							Tile tileWest = x == 0 ? this.chunk.west(z, y) : Tile.BY_ID[this.tiles[index(x - 1, y, z)]];
+							Tile tileEast = x == 15 ? this.chunk.east(z, y) : Tile.BY_ID[this.tiles[index(x + 1, y, z)]];
+							Tile tileSouth = z == 0 ? this.chunk.south(x, y) : Tile.BY_ID[this.tiles[index(x, y, z - 1)]];
+							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
 							if (!tileUp.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(

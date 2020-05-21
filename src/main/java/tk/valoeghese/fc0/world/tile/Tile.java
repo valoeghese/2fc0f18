@@ -46,7 +46,7 @@ public class Tile {
 		return this.opaque;
 	}
 
-	public boolean shouldOptimiseOut() {
+	public boolean dontOptimiseOut() {
 		return this.shouldRender();
 	}
 

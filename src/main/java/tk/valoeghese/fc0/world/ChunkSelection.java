@@ -6,10 +6,11 @@ import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.TilePos;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class ChunkSelection implements World {
+public class ChunkSelection implements World, ChunkAccess {
 	public ChunkSelection(long seed) {
 		this.offset = SIZE - 1;
 		this.diameter = 1 + this.offset * 2;
@@ -22,7 +23,7 @@ public class ChunkSelection implements World {
 
 		for (int x = -SIZE + 1; x < SIZE; ++x) {
 			for (int z = -SIZE + 1; z < SIZE; ++z) {
-				Chunk chunk = WorldGen.generateChunk(x, z, seed, this.genRand);
+				Chunk chunk = WorldGen.generateChunk(this, x, z, seed, this.genRand);
 				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
 				orderedChunks.add(chunk);
 			}
@@ -65,7 +66,17 @@ public class ChunkSelection implements World {
 		System.out.println("Populated World in " + (System.currentTimeMillis() - time) + "ms.");
 	}
 
+	@Override
+	@Nullable
 	public Chunk getChunk(int x, int z) {
+		if (!this.isInWorld(x << 4, 50, z << 4)) {
+			return null;
+		}
+
+		return this.getChunkDirect(x, z);
+	}
+
+	public Chunk getChunkDirect(int x, int z) {
 		return this.chunks[(x + this.offset) * this.diameter + z + this.offset];
 	}
 
@@ -83,17 +94,17 @@ public class ChunkSelection implements World {
 
 	@Override
 	public byte readTile(int x, int y, int z) {
-		return this.getChunk(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
+		return this.getChunkDirect(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
 	}
 
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
-		this.getChunk(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
+		this.getChunkDirect(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
 	}
 
 	@Override
 	public int getHeight(int x, int z, Predicate<Tile> solid) {
-		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
+		return this.getChunkDirect(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
 	}
 
 	@Override
@@ -107,7 +118,7 @@ public class ChunkSelection implements World {
 		ChunkPos cPos = pos.toChunkPos();
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
-			this.getChunk(cPos.x, cPos.z).updateChunkOf(clientPlayer);
+			this.getChunkDirect(cPos.x, cPos.z).updateChunkOf(clientPlayer);
 		} else if (clientPlayer.chunk != null) {
 			clientPlayer.chunk.removePlayer(clientPlayer);
 			clientPlayer.chunk = null;

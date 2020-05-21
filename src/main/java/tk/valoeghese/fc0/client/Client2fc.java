@@ -8,10 +8,7 @@ import tk.valoeghese.fc0.client.gui.Version;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
-import tk.valoeghese.fc0.client.system.Camera;
-import tk.valoeghese.fc0.client.system.GraphicsSystem;
-import tk.valoeghese.fc0.client.system.Shader;
-import tk.valoeghese.fc0.client.system.Window;
+import tk.valoeghese.fc0.client.system.*;
 import tk.valoeghese.fc0.util.Pos;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.TilePos;
@@ -29,9 +26,12 @@ import static tk.valoeghese.fc0.client.model.Textures.TILE_ATLAS;
 
 public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
+		// initialise Graphics and Audio systems
 		GraphicsSystem.initGLFW();
 		this.window = new Window(640 * 2, 360 * 2);
 		GraphicsSystem.initGL(this.window);
+		AudioSystem.initAL();;
+		// setup shaders, world, projections, etc
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(45), this.window.aspect, 0.01f, 250.0f);
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);

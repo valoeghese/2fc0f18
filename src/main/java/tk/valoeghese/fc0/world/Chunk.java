@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Chunk implements World {
-	public Chunk(int x, int z, byte[] tiles) {
+public class Chunk implements World, RenderedChunk {
+	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles) {
+		this.parent = parent;
 		this.tiles = tiles;
 		this.x = x;
 		this.z = z;
@@ -20,7 +21,7 @@ public class Chunk implements World {
 		search: for (int y = 0; y < 128; ++y) {
 			for (int checx = 0; checx < 16; ++checx) {
 				for (int checz = 0; checz < 16; ++checz) {
-					if (Tile.BY_ID[this.readTile(checx, y, checz)].shouldOptimiseOut()) {
+					if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
 						this.heightsToRender.add(y);
 						continue search;
 					}
@@ -35,6 +36,7 @@ public class Chunk implements World {
 	private final IntSet heightsToRender = new IntArraySet();
 	private ChunkMesh mesh;
 	private List<ClientPlayer> players = new ArrayList<>();
+	private ChunkAccess parent;
 
 	@Override
 	public byte readTile(int x, int y, int z) {
@@ -51,13 +53,13 @@ public class Chunk implements World {
 
 		this.tiles[i] = tile;
 
-		if (Tile.BY_ID[tile].shouldOptimiseOut()) {
+		if (Tile.BY_ID[tile].dontOptimiseOut()) {
 			this.heightsToRender.add(y);
 		} else {
 			search: {
 				for (int checx = 0; checx < 16; ++checx) {
 					for (int checz = 0; checz < 16; ++checz) {
-						if (Tile.BY_ID[this.readTile(checx, y, checz)].shouldOptimiseOut()) {
+						if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
 							break search;
 						}
 					}
@@ -80,8 +82,53 @@ public class Chunk implements World {
 		return this.mesh;
 	}
 
+	@Override
 	public boolean renderHeight(int y) {
 		return (y >= 0 && y < 128) ? this.heightsToRender.contains(y) : false;
+	}
+
+	@Override
+	public Tile north(int x, int y) {
+		Chunk chunk = this.parent.getChunk(this.x, this.z + 1);
+
+		if (chunk == null) {
+			return Tile.AIR;
+		} else {
+			return Tile.BY_ID[chunk.readTile(x, y, 0)];
+		}
+	}
+
+	@Override
+	public Tile south(int x, int y) {
+		Chunk chunk = this.parent.getChunk(this.x, this.z - 1);
+
+		if (chunk == null) {
+			return Tile.AIR;
+		} else {
+			return Tile.BY_ID[chunk.readTile(x, y, 15)];
+		}
+	}
+
+	@Override
+	public Tile east(int z, int y) {
+		Chunk chunk = this.parent.getChunk(this.x + 1, this.z);
+
+		if (chunk == null) {
+			return Tile.AIR;
+		} else {
+			return Tile.BY_ID[chunk.readTile(0, y, z)];
+		}
+	}
+
+	@Override
+	public Tile west(int z, int y) {
+		Chunk chunk = this.parent.getChunk(this.x - 1, this.z);
+
+		if (chunk == null) {
+			return Tile.AIR;
+		} else {
+			return Tile.BY_ID[chunk.readTile(15, y, z)];
+		}
 	}
 
 	@Override

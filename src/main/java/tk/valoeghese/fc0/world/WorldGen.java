@@ -8,7 +8,7 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import java.util.Random;
 
 public final class WorldGen {
-	public static Chunk generateChunk(int chunkX, int chunkZ, long seed, Random rand) {
+	public static Chunk generateChunk(ChunkAccess parent, int chunkX, int chunkZ, long seed, Random rand) {
 		if (noise == null || seed != cachedSeed) {
 			noise = new Noise(new Random(seed));
 			ridges = new RidgedNoise(new Random(seed + 12));
@@ -53,7 +53,7 @@ public final class WorldGen {
 			}
 		}
 
-		return new Chunk(chunkX, chunkZ, tiles);
+		return new Chunk(parent, chunkX, chunkZ, tiles);
 	}
 
 	public static void populateChunk(World world, Chunk chunk, Random rand) {
