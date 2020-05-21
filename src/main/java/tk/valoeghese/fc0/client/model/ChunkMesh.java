@@ -9,6 +9,8 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class ChunkMesh {
 	public ChunkMesh(Chunk chunk, byte[] tiles, int x, int z) {
 		this.x = x << 4;
@@ -25,6 +27,7 @@ public class ChunkMesh {
 	private final byte[] tiles;
 	private final Chunk chunk;
 	private ChunkMeshModel mesh;
+	private ChunkMeshModel water;
 
 	public void updateTile(int index, byte tile) {
 		this.tiles[index] = tile;
@@ -33,6 +36,7 @@ public class ChunkMesh {
 
 	private void buildMesh() {
 		List<RenderedTileFace> faces = new ArrayList<>();
+		List<RenderedTileFace> waterFaces = new ArrayList<>();
 
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
@@ -41,7 +45,9 @@ public class ChunkMesh {
 						int tile = this.tiles[index(x, y, z)];
 						Tile instance = Tile.BY_ID[tile];
 
-						if (instance.shouldRender()) {
+						boolean waterLayer = instance == Tile.WATER;
+
+						if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y + 1, z)]];
 							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y - 1, z)]];
 							Tile tileWest = x == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x - 1, y, z)]];
@@ -49,48 +55,48 @@ public class ChunkMesh {
 							Tile tileSouth = z == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z - 1)]];
 							Tile tileNorth = z == 15 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
-							if (!tileUp.isOpaque()) {
-								faces.add(new RenderedTileFace(
+							if (!tileUp.isOpaque(waterLayer)) {
+								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z),
 										1,
 										instance,
 										0.95f));
 							}
 
-							if (!tileDown.isOpaque()) {
-								faces.add(new RenderedTileFace(
+							if (!tileDown.isOpaque(waterLayer)) {
+								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x, y - 0.5f, z),
 										1,
 										instance,
 										0.85f));
 							}
 
-							if (!tileNorth.isOpaque()) {
-								faces.add(new RenderedTileFace(
+							if (!tileNorth.isOpaque(waterLayer)) {
+								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x, y, z + 0.5f),
 										2,
 										instance,
 										1.05f));
 							}
 
-							if (!tileSouth.isOpaque()) {
-								faces.add(new RenderedTileFace(
+							if (!tileSouth.isOpaque(waterLayer)) {
+								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x, y, z - 0.5f),
 										2,
 										instance,
 										0.75f));
 							}
 
-							if (!tileEast.isOpaque()) {
-								faces.add(new RenderedTileFace(
+							if (!tileEast.isOpaque(waterLayer)) {
+								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y, z),
 										0,
 										instance,
 										0.9f));
 							}
 
-							if (!tileWest.isOpaque()) {
-								faces.add(new RenderedTileFace(
+							if (!tileWest.isOpaque(waterLayer)) {
+								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x - 0.5f, y, z),
 										0,
 										instance,
@@ -103,10 +109,15 @@ public class ChunkMesh {
 		}
 
 		this.mesh = new ChunkMeshModel(faces);
+		this.water = new ChunkMeshModel(waterFaces);
 	}
 
 	public void render(Camera camera) {
 		camera.render(this.mesh, this.transform);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		camera.render(this.water, this.transform);
+		glDisable(GL_BLEND);
 	}
 
 	private static int index(int x, int y, int z) { // @see Chunk.index
@@ -139,25 +150,25 @@ public class ChunkMesh {
 			int i;
 
 			switch (this.f) {
-				case 0:
-				default:
-					i = model.addVertex(this.pos.x, SIZE + this.pos.y, -SIZE + this.pos.z, startU, endV, this.l); // tl
-					model.addVertex(this.pos.x, -SIZE + this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
-					model.addVertex(this.pos.x, SIZE + this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
-					model.addVertex(this.pos.x, -SIZE + this.pos.y, SIZE + this.pos.z, endU, startV, this.l); // br
-					break;
-				case 1:
-					i = model.addVertex(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, startU, endV , this.l); // tl
-					model.addVertex(-SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
-					model.addVertex(SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
-					model.addVertex(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, endU, startV, this.l); // br
-					break;
-				case 2:
-					i = model.addVertex(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, l); // tl
-					model.addVertex(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, l); // bl
-					model.addVertex(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, endU, endV, l); // tr
-					model.addVertex(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, endU, startV, l); // br
-					break;
+			case 0:
+			default:
+				i = model.addVertex(this.pos.x, SIZE + this.pos.y, -SIZE + this.pos.z, startU, endV, this.l); // tl
+				model.addVertex(this.pos.x, -SIZE + this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
+				model.addVertex(this.pos.x, SIZE + this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
+				model.addVertex(this.pos.x, -SIZE + this.pos.y, SIZE + this.pos.z, endU, startV, this.l); // br
+				break;
+			case 1:
+				i = model.addVertex(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, startU, endV , this.l); // tl
+				model.addVertex(-SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
+				model.addVertex(SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
+				model.addVertex(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, endU, startV, this.l); // br
+				break;
+			case 2:
+				i = model.addVertex(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, l); // tl
+				model.addVertex(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, l); // bl
+				model.addVertex(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, endU, endV, l); // tr
+				model.addVertex(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, endU, startV, l); // br
+				break;
 			}
 
 			model.addTriangle(i, i + 1, i + 3);

@@ -38,7 +38,11 @@ public class Tile {
 		return this;
 	}
 
-	public boolean isOpaque() {
+	public final boolean isOpaque() {
+		return this.isOpaque(false);
+	}
+
+	public boolean isOpaque(boolean waterRenderLayer) {
 		return this.opaque;
 	}
 
@@ -52,4 +56,6 @@ public class Tile {
 	public static final Tile GRASS = new GrassTile(2, 0.01f, 0.03f);
 	public static final Tile LEAVES = new Tile(3, 2, 1, 0.02f, 0.1f).cutout();
 	public static final Tile LOG = new LogTile(4, 2, 0, 0.04f, 0.04f);
+	public static final Tile WATER = new WaterTile(5, 3, 1, 0.05f, 0.14f).dontRender();
+	public static final Tile SAND = new Tile(6, 0, 2, 0.025f, 0.01f);
 }
