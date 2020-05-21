@@ -31,20 +31,20 @@ public enum Face implements UnaryOperator<TilePos> {
 
 	public Face reverse() {
 		switch (this) {
-			case NORTH:
-				return SOUTH;
-			case SOUTH:
-				return NORTH;
-			case EAST:
-				return WEST;
-			case WEST:
-				return EAST;
-			case UP:
-				return DOWN;
-			case DOWN:
-				return UP;
-			default: // muri desu
-				return null;
+		case NORTH:
+			return SOUTH;
+		case SOUTH:
+			return NORTH;
+		case EAST:
+			return WEST;
+		case WEST:
+			return EAST;
+		case UP:
+			return DOWN;
+		case DOWN:
+			return UP;
+		default: // muri desu
+			return null;
 		}
 	}
 }

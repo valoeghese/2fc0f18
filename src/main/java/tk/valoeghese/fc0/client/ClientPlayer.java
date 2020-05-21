@@ -111,9 +111,13 @@ public class ClientPlayer {
 		int sy = MathsUtils.sign(dyCalc);
 		int sz = MathsUtils.sign(dzCalc);
 
-		double dx = initialDir(toUse.getX(), sx);
-		double dy = initialDir(toUse.getY(), sy);
-		double dz = initialDir(toUse.getZ(), sz);
+		double dx = toNearestFace(toUse.getX(), sx);
+		double dy = toNearestFace(toUse.getY(), sy);
+		double dz = toNearestFace(toUse.getZ(), sz);
+
+		double totalDX = 0;
+		double totalDY = 0;
+		double totalDZ = 0;
 
 		final MutablePos result = new MutablePos(0, 0, 0);
 
@@ -155,23 +159,46 @@ public class ClientPlayer {
 				}
 			}
 
-			result.set(toUse.getX() + dx, toUse.getY() + dy, toUse.getZ() + dz);
+			// add distances
+			totalDX += dx;
+			totalDY += dy;
+			totalDZ += dz;
+
+			// set result and get tile pos by making sure it's in the right tile position
+			result.set(toUse.getX() + totalDX, toUse.getY() + totalDY, toUse.getZ() + totalDZ);
 			TilePos tilePos = new TilePos(result.ofAdded(face.half()));
 
+			// test position for collision
 			if (this.world.isInWorld(tilePos)) {
 				if (Tile.BY_ID[this.world.readTile(tilePos)].shouldRender()) {
 					break;
 				}
 			}
 
-			double adx = Math.abs(dx);
-			double ady = Math.abs(dy);
-			double adz = Math.abs(dz);
+			double adx = Math.abs(totalDX); // get abs of each for dist calc
+			double ady = Math.abs(totalDY);
+			double adz = Math.abs(totalDZ);
 
-			d = adx * adx + ady * ady * adz * adz;
-			dx += sx;
-			dy += sy;
-			dz += sz;
+			d = adx * adx + ady * ady * adz * adz; // calculate distance
+
+			// prepare next distances
+			switch (face) {
+			case EAST: case WEST:
+				dx = sx;
+				dy = toNearestFace(result.getY(), sy);
+				dz = toNearestFace(result.getZ(), sz);
+				break;
+			case UP: case DOWN:
+				dx = toNearestFace(result.getX(), sx);
+				dy = sy;
+				dz = toNearestFace(result.getZ(), sz);
+				break;
+			case NORTH: case SOUTH:
+				dx = toNearestFace(result.getX(), sx);
+				dy = toNearestFace(result.getY(), sy);
+				dz = sz;
+				break;
+			}
 		} while (d < maxDistance);
 
 		return new RaycastResult(new TilePos(result), face.reverse());
@@ -185,18 +212,18 @@ public class ClientPlayer {
 
 		return dir -> {
 			switch (dir) {
-				case 0:
-					return ew;
-				case 1: default:
-					return ud;
-				case 2:
-					return ns;
+			case 0:
+				return ew;
+			case 1: default:
+				return ud;
+			case 2:
+				return ns;
 			}
 		};
 	}
 
 	// https://www.desmos.com/calculator/ovgxqnl008
-	private double initialDir(double n, int direction) {
+	private double toNearestFace(double n, int direction) {
 		if (direction == 0) {
 			return 0.0;
 		} else if (direction > 0) {
