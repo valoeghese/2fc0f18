@@ -31,6 +31,10 @@ public class Pos {
 		return new Pos(this.x + x, this.y + y, this.z + z);
 	}
 
+	public Pos ofAdded(Pos other) {
+		return this.ofAdded(other.x, other.y, other.z);
+	}
+
 	public double squaredDist(Pos other) {
 		double dx = Math.abs(other.x - this.x);
 		double dy = Math.abs(other.y - this.y);

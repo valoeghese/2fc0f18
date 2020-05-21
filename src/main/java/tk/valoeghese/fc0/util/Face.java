@@ -24,4 +24,27 @@ public enum Face implements UnaryOperator<TilePos> {
 	public TilePos apply(TilePos original) {
 		return original.ofAdded(this.x, this.y, this.z);
 	}
+
+	public Pos half() {
+		return new Pos((double) this.x * 0.5, (double) this.y * 0.5, (double) this.z * 0.5);
+	}
+
+	public Face reverse() {
+		switch (this) {
+			case NORTH:
+				return SOUTH;
+			case SOUTH:
+				return NORTH;
+			case EAST:
+				return WEST;
+			case WEST:
+				return EAST;
+			case UP:
+				return DOWN;
+			case DOWN:
+				return UP;
+			default: // muri desu
+				return null;
+		}
+	}
 }

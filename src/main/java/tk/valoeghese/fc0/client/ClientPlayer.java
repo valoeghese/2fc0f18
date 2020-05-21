@@ -8,6 +8,7 @@ import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
+import java.util.function.IntFunction;
 
 public class ClientPlayer {
 	public ClientPlayer(Camera camera, World world) {
@@ -114,19 +115,17 @@ public class ClientPlayer {
 		double dy = initialDir(toUse.getY(), sy);
 		double dz = initialDir(toUse.getZ(), sz);
 
-		double epsilonX = 0;//sx * 0.0001;
-		double epsilonZ = 0;//sz * 0.0001;
-		double epsilonY = 0;//sy * 0.0001;
-
 		final MutablePos result = new MutablePos(0, 0, 0);
 
 		double d;
-		int resultMode = 0;
+
+		IntFunction<Face> faceCalculator = computeFace(yaw, pitch);
+		Face face;
 
 		do {
 			if (dx < dz) {
 				if (dx < dy) {
-					resultMode = 0;
+					face = faceCalculator.apply(0);
 					dz = -dx / Math.tan(yaw);
 
 					double adxc = Math.abs(dx); // abs dx for calculation
@@ -134,14 +133,14 @@ public class ClientPlayer {
 					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
 					dy = hdist * dyCalc;
 				} else {
-					resultMode = 1;
+					face = faceCalculator.apply(1);
 					double hdist = dy / dyCalc;
 					dz = hdist * dzCalc;
 					dx = hdist * dxCalc;
 				}
 			} else {
 				if (dz < dy) {
-					resultMode = 2;
+					face = faceCalculator.apply(2);
 					dx = -(dz * Math.tan(yaw));
 
 					double adxc = Math.abs(dx); // abs dx for calculation
@@ -149,15 +148,15 @@ public class ClientPlayer {
 					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
 					dy = hdist * dyCalc;
 				} else {
-					resultMode = 1;
+					face = faceCalculator.apply(1);
 					double hdist = dy / dyCalc;
 					dz = hdist * dzCalc;
 					dx = hdist * dxCalc;
 				}
 			}
 
-			result.set(toUse.getX() + dx + epsilonX, toUse.getY() + dy + epsilonY, toUse.getZ() + dz + epsilonZ);
-			TilePos tilePos = new TilePos(result);
+			result.set(toUse.getX() + dx, toUse.getY() + dy, toUse.getZ() + dz);
+			TilePos tilePos = new TilePos(result.ofAdded(face.half()));
 
 			if (this.world.isInWorld(tilePos)) {
 				if (Tile.BY_ID[this.world.readTile(tilePos)].shouldRender()) {
@@ -175,17 +174,25 @@ public class ClientPlayer {
 			dz += sz;
 		} while (d < maxDistance);
 
-		// I probably got some of these around the wrong way but the algorithm is f***ed anyway
-		// Edit: I tried reversing n/s and e/w and it was still broken. I need a new alg lol.
-		// sometimes it places blocks up when I right click on the side, etc.
-		switch (resultMode) {
-			case 0:
-				return new RaycastResult(new TilePos(result), yaw < Math.PI ? Face.EAST : Face.WEST);
-			case 1: default:
-				return new RaycastResult(new TilePos(result), pitch < 0 ? Face.DOWN : Face.UP);
-			case 2:
-				return new RaycastResult(new TilePos(result), yaw > HALF_PI && yaw < THREE_HALF_PI ? Face.NORTH : Face.SOUTH);
-		}
+		return new RaycastResult(new TilePos(result), face.reverse());
+	}
+
+	// apply: 0: E/W, 1: U/D, 2: N/S
+	private static IntFunction<Face> computeFace(double yaw, double pitch) {
+		Face ew = yaw < Math.PI ? Face.EAST : Face.WEST;
+		Face ud = pitch > 0 ? Face.DOWN : Face.UP;
+		Face ns = yaw > HALF_PI && yaw < THREE_HALF_PI ? Face.SOUTH : Face.NORTH;
+
+		return dir -> {
+			switch (dir) {
+				case 0:
+					return ew;
+				case 1: default:
+					return ud;
+				case 2:
+					return ns;
+			}
+		};
 	}
 
 	private double initialDir(double n, double direction) {
