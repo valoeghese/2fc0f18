@@ -127,35 +127,61 @@ public class ClientPlayer {
 		Face face;
 
 		do {
-			if (dx < dz) {
-				if (dx < dy) {
-					face = faceCalculator.apply(0);
-					dz = -dx / Math.tan(yaw);
+			double xDz;
+			double xDy;
+			double xDist;
+			{
+				xDz = -dx / Math.tan(yaw);
 
-					double adxc = Math.abs(dx); // abs dx for calculation
-					double adzc = Math.abs(dz);
-					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
-					dy = hdist * dyCalc;
+				double adxc = Math.abs(dx); // abs dx for calculation
+				double adzc = Math.abs(dz);
+				double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
+				xDy = hdist * dyCalc;
+				xDist = xDy * xDy + dx * dx + xDz * xDz;
+			}
+
+			double zDx;
+			double zDy;
+			double zDist;
+			{
+				zDx = -(dz * Math.tan(yaw));
+
+				double adxc = Math.abs(dx); // abs dx for calculation
+				double adzc = Math.abs(dz);
+				double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
+				zDy = hdist * dyCalc;
+				zDist = zDy * zDy + zDx * zDx + dz * dz;
+			}
+
+			double yDx;
+			double yDz;
+			double yDist;
+			{
+				double hdist = dy / dyCalc;
+				yDz = hdist * dzCalc;
+				yDx = hdist * dxCalc;
+				yDist = dy * dy + yDx * yDx + yDz * yDz;
+			}
+
+			if (xDist < zDist) {
+				if (xDist < yDist) {
+					face = faceCalculator.apply(0);
+					dy = xDy;
+					dz = xDz;
 				} else {
 					face = faceCalculator.apply(1);
-					double hdist = dy / dyCalc;
-					dz = hdist * dzCalc;
-					dx = hdist * dxCalc;
+					dx = yDx;
+					dz = yDz;
 				}
 			} else {
-				if (dz < dy) {
+				if (zDist < yDist) {
 					face = faceCalculator.apply(2);
-					dx = -(dz * Math.tan(yaw));
-
-					double adxc = Math.abs(dx); // abs dx for calculation
-					double adzc = Math.abs(dz);
-					double hdist = Math.sqrt(adxc * adxc + adzc * adzc);
-					dy = hdist * dyCalc;
+					dx = zDx;
+					dy = zDy;
 				} else {
 					face = faceCalculator.apply(1);
-					double hdist = dy / dyCalc;
-					dz = hdist * dzCalc;
-					dx = hdist * dxCalc;
+					dx = yDx;
+					dz = yDz;
 				}
 			}
 
