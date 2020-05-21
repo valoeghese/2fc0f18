@@ -28,9 +28,9 @@ public final class WorldGen {
 				height += (int) ((height + 7) * 1.3 * ridges.sample(totalX / 75.0, totalZ / 75.0))
 						+ 50;
 
-				int sandHeight = height + (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
-
+				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
 				double cliff = noise.sample(totalX / 86.0, totalZ / 86.0);
+
 				if (cliff > noise.sample((totalX + 121) / 66.5, (totalZ + 121) / 66.5)) {
 					height += cliff;
 				}
@@ -38,7 +38,7 @@ public final class WorldGen {
 				for (int y = 0; y < height; ++y) {
 					byte toSet = y == height - 1 ? Tile.GRASS.id : Tile.STONE.id;
 
-					if (toSet < sandHeight && y > height - 3) {
+					if (y < 52 + sandHeight && y > 50) {
 						toSet = Tile.SAND.id;
 					}
 

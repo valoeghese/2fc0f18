@@ -46,6 +46,10 @@ public class Tile {
 		return this.opaque;
 	}
 
+	public boolean shouldOptimiseOut() {
+		return this.shouldRender();
+	}
+
 	public boolean shouldRender() {
 		return this.render;
 	}

@@ -9,4 +9,9 @@ public class WaterTile extends Tile {
 	public boolean isOpaque(boolean waterRenderLayer) {
 		return waterRenderLayer ? true : false;
 	}
+
+	@Override
+	public boolean shouldOptimiseOut() {
+		return false;
+	}
 }

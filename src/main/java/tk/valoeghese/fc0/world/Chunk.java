@@ -20,7 +20,7 @@ public class Chunk implements World {
 		search: for (int y = 0; y < 128; ++y) {
 			for (int checx = 0; checx < 16; ++checx) {
 				for (int checz = 0; checz < 16; ++checz) {
-					if (Tile.BY_ID[this.readTile(checx, y, checz)].shouldRender()) {
+					if (Tile.BY_ID[this.readTile(checx, y, checz)].shouldOptimiseOut()) {
 						this.heightsToRender.add(y);
 						continue search;
 					}
@@ -51,13 +51,13 @@ public class Chunk implements World {
 
 		this.tiles[i] = tile;
 
-		if (Tile.BY_ID[tile].shouldRender()) {
+		if (Tile.BY_ID[tile].shouldOptimiseOut()) {
 			this.heightsToRender.add(y);
 		} else {
 			search: {
 				for (int checx = 0; checx < 16; ++checx) {
 					for (int checz = 0; checz < 16; ++checz) {
-						if (Tile.BY_ID[this.readTile(checx, y, checz)].shouldRender()) {
+						if (Tile.BY_ID[this.readTile(checx, y, checz)].shouldOptimiseOut()) {
 							break search;
 						}
 					}

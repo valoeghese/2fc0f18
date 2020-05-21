@@ -25,6 +25,10 @@ public class TreeGenerator extends Generator {
 			int y = world.getHeight(x, z, tile -> tile.isOpaque() && tile != Tile.LOG) + 1;
 			int height = 3 + rand.nextInt(3);
 
+			if (world.readTile(x, y, z) == Tile.WATER.id) {
+				continue;
+			}
+
 			for (int xo = -2; xo <= 2; ++xo) {
 				int totalX = x + xo;
 
