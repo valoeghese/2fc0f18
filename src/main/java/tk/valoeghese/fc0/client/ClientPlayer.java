@@ -195,13 +195,14 @@ public class ClientPlayer {
 		};
 	}
 
-	private double initialDir(double n, double direction) {
+	// https://www.desmos.com/calculator/ovgxqnl008
+	private double initialDir(double n, int direction) {
 		if (direction == 0) {
 			return 0.0;
 		} else if (direction > 0) {
-			return Math.ceil(n) - n;
+			return Math.ceil(n + 0.5) - 0.5 - n;
 		} else {
-			return Math.floor(n) - n;
+			return Math.floor(n - 0.5) + 0.5 - n;
 		}
 	}
 
