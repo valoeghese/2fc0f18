@@ -99,7 +99,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		final float yaw = this.player.getCamera().getYaw();
 		float slowness = this.player.getHorizontalSlowness();
 		boolean lr = Keybinds.MOVE_LEFT.isPressed() || Keybinds.MOVE_RIGHT.isPressed();
-		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FOWARDS.isPressed();
+		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FORWARDS.isPressed();
 
 		if (Keybinds.RUN.isPressed()) {
 			slowness /= 1.67;
@@ -115,7 +115,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			this.player.addVelocity(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
-		} else if (Keybinds.MOVE_FOWARDS.isPressed()) {
+		} else if (Keybinds.MOVE_FORWARDS.isPressed()) {
 			this.player.addVelocity(-sin(yaw - PI) / slowness, 0.0f, cos(yaw - PI) / slowness);
 		}
 
