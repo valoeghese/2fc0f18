@@ -105,6 +105,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			slowness /= 1.67;
 		}
 
+		if (this.player.isSwimming()) {
+			slowness *= 2;
+		}
+
 		if (lr && fb) {
 			slowness = org.joml.Math.sqrt(2 * (slowness * slowness));
 		}
@@ -122,8 +126,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		if (Keybinds.JUMP.isPressed()) {
-			if (this.player.isOnGround()) {
-				this.player.addVelocity(0.0f, this.player.getJumpStrength(), 0.0f);
+			if (this.player.isSwimming()) {
+				this.player.addVelocity(0.0f, this.player.getJumpStrength() * 0.05f, 0.0f);
+			} else {
+				if (this.player.isOnGround()) {
+					this.player.addVelocity(0.0f, this.player.getJumpStrength(), 0.0f);
+				}
 			}
 		}
 

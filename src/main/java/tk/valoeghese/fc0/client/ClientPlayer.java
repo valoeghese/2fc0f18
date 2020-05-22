@@ -280,7 +280,7 @@ public class ClientPlayer {
 	}
 
 	public void tick() {
-		this.velocity.offsetY(-0.03f);
+		this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.03f);
 		this.velocity.mul(0.85, 0.9, 0.85);
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
