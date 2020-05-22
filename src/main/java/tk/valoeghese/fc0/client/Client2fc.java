@@ -166,8 +166,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		// bind shader
 		Shaders.terrain.bind();
+		// time
+		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
+		// defaults
+		Shaders.terrain.uniformInt("waveMode", 0);
 		// render world
 		GraphicsSystem.bindTexture(TILE_ATLAS);
 
