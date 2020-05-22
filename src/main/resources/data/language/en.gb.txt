@@ -1,0 +1,3 @@
+# Keybinds
+keybind.move_forwards=Move Forwards
+keybind.move_backwards=Move Backwards
