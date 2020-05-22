@@ -3,14 +3,13 @@ package tk.valoeghese.fc0.client.model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
+import tk.valoeghese.fc0.client.system.GraphicsSystem;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class ChunkMesh {
 	public ChunkMesh(Chunk chunk, byte[] tiles, int x, int z) {
@@ -115,10 +114,9 @@ public class ChunkMesh {
 
 	public void render(Camera camera) {
 		camera.render(this.mesh, this.transform);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		GraphicsSystem.enableBlend();
 		camera.render(this.water, this.transform);
-		glDisable(GL_BLEND);
+		GraphicsSystem.disableBlend();
 	}
 
 	private static int index(int x, int y, int z) { // @see Chunk.index

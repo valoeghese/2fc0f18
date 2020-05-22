@@ -48,6 +48,26 @@ public class ClientPlayer {
 		this.move(pos.getX(), pos.getY(), pos.getZ());
 	}
 
+	public boolean isUnderwater() {
+		TilePos pos = new TilePos(this.pos.ofAdded(0, 1.8, 0));
+
+		if (this.world.isInWorld(pos)) {
+			return this.world.readTile(pos) == Tile.WATER.id;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isSwimming() {
+		TilePos pos = this.getTilePos();
+
+		if (this.world.isInWorld(pos)) {
+			return this.world.readTile(pos) == Tile.WATER.id;
+		} else {
+			return false;
+		}
+	}
+
 	public void setPos(Pos pos) {
 		this.pos.set(pos);
 		this.camera.setPos((float) pos.getX(), (float) -pos.getY() - 1.8f, (float) pos.getZ());

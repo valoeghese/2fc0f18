@@ -23,5 +23,14 @@ public final class GraphicsSystem {
 		glBindTexture(GL_TEXTURE_2D, texture);
 	}
 
+	public static void enableBlend() {
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+
+	public static void disableBlend() {
+		glDisable(GL_BLEND);
+	}
+
 	public static final int NULL = 0;
 }

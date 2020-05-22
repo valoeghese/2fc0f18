@@ -4,10 +4,11 @@ import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import tk.valoeghese.fc0.client.gui.Crosshair;
 import tk.valoeghese.fc0.client.gui.GUI;
-import tk.valoeghese.fc0.client.gui.Version;
+import tk.valoeghese.fc0.client.gui.Overlay;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
+import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
 import tk.valoeghese.fc0.util.Pos;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -47,6 +48,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private long nextUpdate = 0;
 	private GUI crosshair;
 	private GUI version;
+	private GUI waterOverlay;
 
 	@Override
 	public void run() {
@@ -88,7 +90,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.prevYPos = this.window.height / 2;
 		this.prevXPos = this.window.width / 2;
 		this.crosshair = new Crosshair();
-		this.version = new Version();
+		this.version = new Overlay(Textures.VERSION);
+		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 		this.world.populateChunks();
 	}
 
@@ -150,13 +153,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		long time = System.nanoTime();
 
 		// bind shader
-		Shaders.gui.bind();
-		// projection
-		Shaders.gui.uniformMat4f("projection", this.guiProjection);
-		// render gui
-		this.version.render();
-		this.crosshair.render();
-		// bind shader
 		Shaders.terrain.bind();
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
@@ -166,8 +162,24 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		for (Chunk chunk : this.world.getChunksForRendering()) {
 			chunk.getOrCreateMesh().render(this.player.getCamera());
 		}
+
+		// bind shader
+		Shaders.gui.bind();
+		// projection
+		Shaders.gui.uniformMat4f("projection", this.guiProjection);
+		// render gui
+		this.version.render();
+		this.crosshair.render();
+
+		if (this.player.isUnderwater()) {
+			GraphicsSystem.enableBlend();
+			this.waterOverlay.render();
+			GraphicsSystem.disableBlend();
+		}
+
 		// unbind shader
 		GraphicsSystem.bindTexture(0);
+
 		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;
 

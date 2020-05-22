@@ -1,10 +1,8 @@
 package tk.valoeghese.fc0.client.gui;
 
-import tk.valoeghese.fc0.client.model.Textures;
-
-public class Version extends GUI {
-	public Version() {
-		super(Textures.VERSION);
+public class Overlay extends GUI {
+	public Overlay(int texture) {
+		super(texture);
 
 		int tl = this.vertex(-1.0f, 1.0f, 0, 1);
 		int bl = this.vertex(-1.0f, -1.0f, 0, 0);
