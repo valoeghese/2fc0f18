@@ -25,8 +25,10 @@ public final class WorldGen {
 			for (int z = 0; z < 16; ++z) {
 				int totalZ = z + blockZ;
 				int height = (int) (3.0 * noise.sample(totalX / 24.0, totalZ / 24.0));
-				height += (int) ((height + 7) * 1.3 * ridges.sample(totalX / 75.0, totalZ / 75.0))
-						+ 50;
+				height += (int) ((height + 7) * 1.3 * ridges.sample(totalX / 75.0, totalZ / 75.0)) ;
+				double mainNoise = noise.sample(totalX / 140.0, totalZ / 140.0);
+				height += (int) ((mainNoise > 0) ? 23.0 * mainNoise : 10.0 * mainNoise);
+				height += 50;
 
 				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
 				double cliff = noise.sample(totalX / 86.0, totalZ / 86.0);
