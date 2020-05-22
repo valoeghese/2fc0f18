@@ -126,9 +126,13 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		if (Keybinds.JUMP.isPressed()) {
-			if (this.player.isSwimming()) {
+			long time = System.currentTimeMillis();
+
+			if (this.player.isSwimming() && time > this.player.lockSwim) {
 				this.player.addVelocity(0.0f, this.player.getJumpStrength() * 0.05f, 0.0f);
 			} else {
+				this.player.lockSwim = time + 42;
+
 				if (this.player.isOnGround()) {
 					this.player.addVelocity(0.0f, this.player.getJumpStrength(), 0.0f);
 				}

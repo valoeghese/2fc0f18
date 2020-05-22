@@ -27,6 +27,7 @@ public class ClientPlayer {
 	private boolean falling = false;
 	@Nullable
 	public Chunk chunk = null;
+	public long lockSwim = 0;
 
 	public Camera getCamera() {
 		return this.camera;
