@@ -129,9 +129,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			long time = System.currentTimeMillis();
 
 			if (this.player.isSwimming() && time > this.player.lockSwim) {
-				this.player.addVelocity(0.0f, this.player.getJumpStrength() * 0.05f, 0.0f);
+				this.player.addVelocity(0.0f, this.player.getJumpStrength() * 0.03f, 0.0f);
 			} else {
-				this.player.lockSwim = time + 42;
+				this.player.lockSwim = time + 18;
 
 				if (this.player.isOnGround()) {
 					this.player.addVelocity(0.0f, this.player.getJumpStrength(), 0.0f);
