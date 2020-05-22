@@ -69,8 +69,46 @@ public class Chunk implements World, RenderedChunk {
 			}
 		}
 
+		this.updateMesh(i, tile);
+
+		if (x == 0) {
+			Chunk chunk = this.parent.getChunk(this.x - 1, this.z);
+
+			if (chunk != null) {
+				chunk.rebuildMesh();
+			}
+		} else if (x == 15) {
+			Chunk chunk = this.parent.getChunk(this.x + 1, this.z);
+
+			if (chunk != null) {
+				chunk.rebuildMesh();
+			}
+		}
+
+		if (z == 0) {
+			Chunk chunk = this.parent.getChunk(this.x, this.z - 1);
+
+			if (chunk != null) {
+				chunk.rebuildMesh();
+			}
+		} else if (z == 15) {
+			Chunk chunk = this.parent.getChunk(this.x, this.z + 1);
+
+			if (chunk != null) {
+				chunk.rebuildMesh();
+			}
+		}
+	}
+
+	private void rebuildMesh() {
 		if (this.mesh != null) {
-			this.mesh.updateTile(i, tile);
+			this.mesh.buildMesh();
+		}
+	}
+
+	private void updateMesh(int index, byte tile) {
+		if (this.mesh != null) {
+			this.mesh.updateTile(index, tile);
 		}
 	}
 

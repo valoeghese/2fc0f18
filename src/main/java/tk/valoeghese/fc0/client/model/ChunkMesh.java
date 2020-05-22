@@ -34,7 +34,7 @@ public class ChunkMesh {
 		this.buildMesh();
 	}
 
-	private void buildMesh() {
+	public void buildMesh() {
 		List<RenderedTileFace> faces = new ArrayList<>();
 		List<RenderedTileFace> waterFaces = new ArrayList<>();
 
