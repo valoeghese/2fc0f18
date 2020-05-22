@@ -7,6 +7,12 @@ import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public class Window {
 	public Window(int width, int height) {
+		if(System.getProperty("os.name").toLowerCase().contains("mac")){
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		}
 		this.glWindow = glfwCreateWindow(width,height,"2fc",NULL,NULL);
 
 		if (this.glWindow == NULL) {

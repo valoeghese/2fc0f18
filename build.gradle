@@ -2,8 +2,27 @@ apply plugin: 'application'
 mainClassName = 'tk.valoeghese.fc0.client.Main'
 sourceCompatibility = JavaVersion.VERSION_1_8
 
+if (org.gradle.internal.os.OperatingSystem.current() == org.gradle.internal.os.OperatingSystem.MAC_OS) {
+    applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
+}
+
 group 'tk.valoeghese'
 version '0.1.3+build.2'
+
+switch (org.gradle.internal.os.OperatingSystem.current()) {
+    case org.gradle.internal.os.OperatingSystem.LINUX:
+        def osArch = System.getProperty("os.arch")
+        project.ext.natives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
+                ? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
+                : "natives-linux"
+        break
+    case org.gradle.internal.os.OperatingSystem.MAC_OS:
+        project.ext.natives = "natives-macos"
+        break
+    case org.gradle.internal.os.OperatingSystem.WINDOWS:
+        project.ext.natives = System.getProperty("os.arch").contains("64") ? "natives-windows" : "natives-windows-x86"
+        break
+}
 
 repositories {
     mavenCentral()
@@ -11,24 +30,24 @@ repositories {
 
 dependencies {
     // lwjgl
-    implementation "org.lwjgl:lwjgl:${project.lwjgl_version}"
-    implementation "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl:${project.ext.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-assimp:${project.ext.lwjgl_version}"
     //implementation "org.lwjgl:lwjgl-jawt:${project.lwjgl_version}"
-    implementation "org.lwjgl:lwjgl-opengl:${project.lwjgl_version}"
-    implementation "org.lwjgl:lwjgl-glfw:${project.lwjgl_version}"
-    implementation "org.lwjgl:lwjgl-openal:${project.lwjgl_version}"
-    implementation "org.lwjgl:lwjgl-stb:${project.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-opengl:${project.ext.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-glfw:${project.ext.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-openal:${project.ext.lwjgl_version}"
+    implementation "org.lwjgl:lwjgl-stb:${project.ext.lwjgl_version}"
     // joml
     implementation "org.joml:joml:${project.joml_version}"
     // fastutil
     implementation "it.unimi.dsi:fastutil:${project.fastutil_version}"
     // lwjgl natives
-    runtimeOnly "org.lwjgl:lwjgl:${project.lwjgl_version}:${project.natives}"
-    runtimeOnly "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}:${project.natives}"
-    runtimeOnly "org.lwjgl:lwjgl-opengl:${project.lwjgl_version}:${project.natives}"
-    runtimeOnly "org.lwjgl:lwjgl-glfw:${project.lwjgl_version}:${project.natives}"
-    runtimeOnly "org.lwjgl:lwjgl-openal:${project.lwjgl_version}:${project.natives}"
-    runtimeOnly "org.lwjgl:lwjgl-stb:${project.lwjgl_version}:${project.natives}"
+    runtimeOnly "org.lwjgl:lwjgl:${project.lwjgl_version}:${project.ext.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}:${project.ext.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-opengl:${project.lwjgl_version}:${project.ext.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-glfw:${project.lwjgl_version}:${project.ext.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-openal:${project.lwjgl_version}:${project.ext.natives}"
+    runtimeOnly "org.lwjgl:lwjgl-stb:${project.lwjgl_version}:${project.ext.natives}"
 
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
     testCompile group: 'junit', name: 'junit', version: '4.12'
