@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.util;
+package tk.valoeghese.fc0.util.maths;
 
 public class MutablePos extends Pos {
 	public MutablePos(double x, double y, double z) {

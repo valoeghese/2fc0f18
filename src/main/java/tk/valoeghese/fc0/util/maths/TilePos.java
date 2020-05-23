@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.util;
+package tk.valoeghese.fc0.util.maths;
 
 public class TilePos {
 	public TilePos(int x, int y, int z) {

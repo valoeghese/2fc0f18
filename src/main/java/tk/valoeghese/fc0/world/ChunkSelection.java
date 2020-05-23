@@ -1,9 +1,9 @@
 package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.client.ClientPlayer;
-import tk.valoeghese.fc0.util.ChunkPos;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.OrderedList;
-import tk.valoeghese.fc0.util.TilePos;
+import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;

@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.util;
+package tk.valoeghese.fc0.util.maths;
 
 public class Pos {
 	public Pos(Pos other) {

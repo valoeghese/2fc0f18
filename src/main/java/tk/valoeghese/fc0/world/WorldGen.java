@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.world;
 
-import tk.valoeghese.fc0.util.Noise;
-import tk.valoeghese.fc0.util.RidgedNoise;
+import tk.valoeghese.fc0.util.noise.Noise;
+import tk.valoeghese.fc0.util.noise.RidgedNoise;
 import tk.valoeghese.fc0.world.generator.Generator;
 import tk.valoeghese.fc0.world.tile.Tile;
 

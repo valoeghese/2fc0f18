@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.util;
+package tk.valoeghese.fc0.util.noise;
 
 import java.util.Random;
 

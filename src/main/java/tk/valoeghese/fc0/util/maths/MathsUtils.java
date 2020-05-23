@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.util;
+package tk.valoeghese.fc0.util.maths;
 
 public final class MathsUtils {
 	public static int sign(double d) {

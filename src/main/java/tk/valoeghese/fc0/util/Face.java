@@ -1,5 +1,8 @@
 package tk.valoeghese.fc0.util;
 
+import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.util.maths.TilePos;
+
 import java.util.function.UnaryOperator;
 
 public enum Face implements UnaryOperator<TilePos> {

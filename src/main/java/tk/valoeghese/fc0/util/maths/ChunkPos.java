@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.util;
+package tk.valoeghese.fc0.util.maths;
 
 public class ChunkPos {
 	public ChunkPos(int x, int z) {
