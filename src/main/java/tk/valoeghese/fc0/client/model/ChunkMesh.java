@@ -112,13 +112,16 @@ public class ChunkMesh {
 		this.water = new ChunkMeshModel(waterFaces);
 	}
 
-	public void render(Camera camera) {
+	public void renderTerrain(Camera camera){
 		camera.render(this.mesh, this.transform);
-		GraphicsSystem.enableBlend();
-		Shaders.terrain.uniformInt("waveMode", 1);
-		camera.render(this.water, this.transform);
 		GraphicsSystem.disableBlend();
 		Shaders.terrain.uniformInt("waveMode", 0);
+	}
+
+	public void renderWater(Camera camera) {
+		camera.render(this.water, this.transform);
+		GraphicsSystem.enableBlend();
+		Shaders.terrain.uniformInt("waveMode", 1);
 	}
 
 	private static int index(int x, int y, int z) { // @see Chunk.index

@@ -158,10 +158,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (Keybinds.INTERACT.hasBeenPressed()) {
 			RaycastResult result = this.player.rayCast(10.0);
-			TilePos pos = result.face.apply(result.pos);
+			if(result.face!=null) {
+				TilePos pos = result.face.apply(result.pos);
 
-			if (this.world.isInWorld(pos)) {
-				this.world.writeTile(pos, Tile.STONE.id);
+				if (this.world.isInWorld(pos)) {
+					this.world.writeTile(pos, Tile.STONE.id);
+				}
 			}
 		}
 
@@ -197,8 +199,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// render world
 		GraphicsSystem.bindTexture(TILE_ATLAS);
 
-		for (Chunk chunk : this.world.getChunksForRendering()) {
-			chunk.getOrCreateMesh().render(this.player.getCamera());
+//		for (Chunk chunk : this.world.getChunksForRendering()) {
+//			chunk.getOrCreateMesh().render(this.player.getCamera());
+//		}
+		for(Chunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderTerrain(player.getCamera());
+		}
+		for(Chunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderWater(player.getCamera());
 		}
 
 		// bind shader
