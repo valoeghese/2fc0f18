@@ -109,7 +109,7 @@ public class ChunkSelection implements World, ChunkAccess {
 
 	@Override
 	public boolean isInWorld(int x, int y, int z) {
-		return x >= this.minBound && x < this.maxBound && z >= this.minBound && z < this.maxBound && y >= 0 && y < 128;
+		return x >= this.minBound && x < this.maxBound && z >= this.minBound && z < this.maxBound && y >= 0 && y < WORLD_HEIGHT;
 	}
 
 	@Override

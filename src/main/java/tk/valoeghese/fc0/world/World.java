@@ -30,4 +30,6 @@ public interface World {
 
 	default void updateChunkOf(ClientPlayer clientPlayer) {
 	}
+
+	static int WORLD_HEIGHT = 128;
 }

@@ -18,7 +18,7 @@ public class Chunk implements World, RenderedChunk {
 		this.x = x;
 		this.z = z;
 
-		for (int y = 0; y < 128; ++y) {
+		for (int y = 0; y < WORLD_HEIGHT; ++y) {
 			boolean check = true;
 
 			for (int checx = 0; checx < 16; ++checx) {
@@ -130,7 +130,7 @@ public class Chunk implements World, RenderedChunk {
 
 	@Override
 	public boolean renderHeight(int y) {
-		return (y >= 0 && y < 128) ? this.heightsToRender.contains(y) : false;
+		return (y >= 0 && y < WORLD_HEIGHT) ? this.heightsToRender.contains(y) : false;
 	}
 
 	@Override

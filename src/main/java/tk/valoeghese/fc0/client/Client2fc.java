@@ -10,8 +10,8 @@ import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
-import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.RaycastResult;
+import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
@@ -49,6 +49,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI crosshair;
 	private GUI version;
 	private GUI waterOverlay;
+	private long time = 0;
 
 	@Override
 	public void run() {
@@ -78,6 +79,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private void tick() {
 		this.updateMovement();
 		this.player.tick();
+		++this.time;
 	}
 
 	private void init() {

@@ -15,7 +15,7 @@ public final class WorldGen {
 			sand = new Noise(new Random(seed - 29));
 		}
 
-		byte[] tiles = new byte[16 * 16 * 128];
+		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
 		int blockX = chunkX << 4;
 		int blockZ = chunkZ << 4;
 
@@ -35,6 +35,10 @@ public final class WorldGen {
 
 				if (cliff > noise.sample((totalX + 121) / 66.5, (totalZ + 121) / 66.5)) {
 					height += cliff;
+				}
+
+				if (height >= World.WORLD_HEIGHT) {
+					height = World.WORLD_HEIGHT - 1;
 				}
 
 				for (int y = 0; y < height; ++y) {
