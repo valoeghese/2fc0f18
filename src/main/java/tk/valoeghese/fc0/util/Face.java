@@ -23,6 +23,18 @@ public enum Face implements UnaryOperator<TilePos> {
 	private final int y;
 	private final int z;
 
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public int getZ() {
+		return z;
+	}
+
 	@Override
 	public TilePos apply(TilePos original) {
 		return original.ofAdded(this.x, this.y, this.z);
