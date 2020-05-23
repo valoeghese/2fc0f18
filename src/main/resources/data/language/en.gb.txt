@@ -1,3 +1,11 @@
 # Keybinds
 keybind.move_forwards=Move Forwards
 keybind.move_backwards=Move Backwards
+keybind.move_left=Move Left
+keybind.move_right=Move Right
+keybind.escape=Exit
+keybind.jump=Jump
+keybind.run=Run
+keybind.destroy=Destroy
+keybind.interact=Interact
+keybind.respawn=Respawn

@@ -71,7 +71,7 @@ public class OrderedList<E> extends ArrayList<E> {
 	@Override
 	@Deprecated
 	public void add(int index, E element) throws UnsupportedOperationException {
-		throw new UnsupportedOperationException("Don't use add in an ordered list!");
+		throw new UnsupportedOperationException("Don't use add(int, Object) in an ordered list!");
 	}
 
 	private static final int SEARCH_GAP = 32;
