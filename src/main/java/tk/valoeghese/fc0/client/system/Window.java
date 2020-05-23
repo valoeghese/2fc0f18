@@ -13,6 +13,7 @@ public class Window {
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		}
+
 		this.glWindow = glfwCreateWindow(width,height,"2fc",NULL,NULL);
 
 		if (this.glWindow == NULL) {
