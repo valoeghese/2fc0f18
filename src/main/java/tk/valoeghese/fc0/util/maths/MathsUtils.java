@@ -26,4 +26,12 @@ public class MathsUtils {
 
 		return d > 0 ? 1 : -1;
 	}
+
+	public static int floor(float f) {
+		return (int) Math.floor(f);
+	}
+
+	public static int floor(double f) {
+		return (int) Math.floor(f);
+	}
 }
