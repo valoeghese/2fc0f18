@@ -70,5 +70,14 @@ public class Camera {
 			this.yaw += twopi;
 		}
 	}
+
+	public Vector3f getNormalisedDirection() {
+		double calcYaw = this.yaw + Math.PI;
+		double dxCalc = -Math.sin(calcYaw);
+		double dyCalc = -Math.tan(this.pitch);
+		double dzCalc = Math.cos(calcYaw);
+		return new Vector3f((float) dxCalc, (float) dyCalc, (float) dzCalc).normalize();
+	}
+
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 }
