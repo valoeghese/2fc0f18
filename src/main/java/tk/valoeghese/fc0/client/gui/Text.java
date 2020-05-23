@@ -31,13 +31,13 @@ public class Text extends GUI {
 
 			int tl = this.vertex(x, y + size, startU, endV);
 			int bl = this.vertex(x, y, startU, startV);
-			int tr = this.vertex(x + size, y + size, endU, endV);
-			int br = this.vertex(x + size, y, endU, startV);
+			int tr = this.vertex(x + (0.73f * size), y + size, endU, endV);
+			int br = this.vertex(x + (0.73f * size), y, endU, startV);
 
 			this.tri(tl, bl, br);
 			this.tri(tl, tr, br);
 
-			x += size;
+			x += 0.63f * size;
 		}
 
 		this.generateBuffers();
