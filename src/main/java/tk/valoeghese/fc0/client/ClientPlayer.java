@@ -102,47 +102,49 @@ public class ClientPlayer extends Player  {
 
 		for(int ind = 1; ind < maxDistance; ind++){
 			TilePos pos = list.get(ind);
-			byte tile = this.world.readTile(pos.x, pos.y, pos.z);
 
-			if(tile != 0){
-				int nx= list.get(ind - 1).x - pos.x;
-				int ny= list.get(ind - 1).y - pos.y;
-				int nz= list.get(ind - 1).z - pos.z;
+			if (this.world.isInWorld(pos.x, pos.y, pos.z)) {
+				byte tile = this.world.readTile(pos.x, pos.y, pos.z);
+				if (tile != 0) {
+					int nx = list.get(ind - 1).x - pos.x;
+					int ny = list.get(ind - 1).y - pos.y;
+					int nz = list.get(ind - 1).z - pos.z;
 
-				Face face = null;
+					Face face = null;
 
-				// yandere dev level if statement. I approve.
-				if(nx == -1) {
-					face = Face.WEST;
-				} else if(nx == 1) {
-					face = Face.EAST;
-				} else if(ny == -1) {
-					face = Face.DOWN;
-				} else if(ny == 1) {
-					face = Face.UP;
-				} else if(nz == -1) {
-					face = Face.SOUTH;
-				} else if(nz == 1) {
-					face = Face.NORTH;
+					// yandere dev level if statement. I approve.
+					if (nx == -1) {
+						face = Face.WEST;
+					} else if (nx == 1) {
+						face = Face.EAST;
+					} else if (ny == -1) {
+						face = Face.DOWN;
+					} else if (ny == 1) {
+						face = Face.UP;
+					} else if (nz == -1) {
+						face = Face.SOUTH;
+					} else if (nz == 1) {
+						face = Face.NORTH;
+					}
+
+					if (face == null) {
+						throw new RuntimeException("tf\n//I blame p0nki.");
+					}
+
+					if (nx != face.getX()) {
+						throw new RuntimeException(nx + ":" + face.getX());
+					}
+
+					if (ny != face.getY()) {
+						throw new RuntimeException(ny + ":" + face.getY());
+					}
+
+					if (nz != face.getZ()) {
+						throw new RuntimeException(nz + ":" + face.getZ());
+					}
+
+					return new RaycastResult(new TilePos(pos.x, pos.y, pos.z), face);
 				}
-
-				if(face == null) {
-					throw new RuntimeException("tf\n//I blame p0nki.");
-				}
-
-				if(nx != face.getX()) {
-					throw new RuntimeException(nx + ":" + face.getX());
-				}
-
-				if(ny != face.getY()) {
-					throw new RuntimeException(ny + ":" + face.getY());
-				}
-
-				if(nz != face.getZ()) {
-					throw new RuntimeException(nz + ":" + face.getZ());
-				}
-
-				return new RaycastResult(new TilePos(pos.x, pos.y, pos.z),face);
 			}
 		}
 
