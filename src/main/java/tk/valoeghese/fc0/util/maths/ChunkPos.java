@@ -12,4 +12,11 @@ public class ChunkPos {
 	public TilePos toTilePos(int y) {
 		return new TilePos(this.x << 4, y, this.z << 4);
 	}
+
+	@Override
+	public String toString() {
+		return "ChunkPos(" + this.x
+				+ ", " + this.z
+				+ ')';
+	}
 }

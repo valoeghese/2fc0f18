@@ -41,4 +41,12 @@ public class Pos {
 		double dz = Math.abs(other.z - this.z);
 		return dx * dx + dy * dy + dz * dz;
 	}
+
+	@Override
+	public String toString() {
+		return "Pos(" + this.x
+				+ ", " + this.y
+				+ ", " + this.z
+				+ ')';
+	}
 }
