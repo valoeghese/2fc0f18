@@ -184,7 +184,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void render() {
 		long time = System.nanoTime();
-		float lighting = MathsUtils.clampMap(sin((float) this.time / 2048.0f), -1, 1, 0.125f, 1.25f);
+		float lighting = MathsUtils.clampMap(sin((float) this.time / 2048.0f), -1, 1, 0.125f, 1.15f);
 		glClearColor(0.3f * lighting, 0.5f * lighting, 0.9f * lighting, 1.0f);
 
 		// bind shader
