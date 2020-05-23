@@ -119,6 +119,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			slowness *= 2;
 		}
 
+		// make it so you can't move in two horizontal directions to get extra speed
 		if (lr && fb) {
 			slowness = org.joml.Math.sqrt(2 * (slowness * slowness));
 		}
@@ -159,7 +160,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (Keybinds.INTERACT.hasBeenPressed()) {
 			RaycastResult result = this.player.rayCast(10.0);
-			if(result.face!=null) {
+
+			if(result.face != null) {
 				TilePos pos = result.face.apply(result.pos);
 
 				if (this.world.isInWorld(pos)) {
@@ -202,10 +204,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// render world
 		GraphicsSystem.bindTexture(TILE_ATLAS);
 
-//		for (Chunk chunk : this.world.getChunksForRendering()) {
-//			chunk.getOrCreateMesh().render(this.player.getCamera());
-//		}
 		List<Chunk> cachedChunksForRendering=world.getChunksForRendering();
+
 		for(Chunk chunk : cachedChunksForRendering){
 			chunk.getOrCreateMesh().renderTerrain(player.getCamera());
 		}
