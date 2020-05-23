@@ -18,6 +18,7 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import java.util.List;
 import java.util.Random;
 
 import static org.joml.Math.cos;
@@ -204,10 +205,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 //		for (Chunk chunk : this.world.getChunksForRendering()) {
 //			chunk.getOrCreateMesh().render(this.player.getCamera());
 //		}
-		for(Chunk chunk : this.world.getChunksForRendering()){
+		List<Chunk> cachedChunksForRendering=world.getChunksForRendering();
+		for(Chunk chunk : cachedChunksForRendering){
 			chunk.getOrCreateMesh().renderTerrain(player.getCamera());
 		}
-		for(Chunk chunk : this.world.getChunksForRendering()){
+		for(Chunk chunk : cachedChunksForRendering){
 			chunk.getOrCreateMesh().renderWater(player.getCamera());
 		}
 
