@@ -221,11 +221,11 @@ public class ClientPlayer {
 					throw new RuntimeException(nz + ":" + face.getZ());
 				}
 
-				return new RaycastResult(new TilePos(pos.x,pos.y,pos.z),face);
+				return new RaycastResult(new TilePos(pos.x, pos.y, pos.z),face);
 			}
 		}
 
-		return new RaycastResult(new TilePos(end.x, end.y, end.z),null);
+		return new RaycastResult(new TilePos((int) end.x, (int) end.y, (int) end.z),null);
 	}
 
 	public void tick() {
