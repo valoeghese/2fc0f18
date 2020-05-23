@@ -44,7 +44,7 @@ public final class WorldGen {
 				for (int y = 0; y < height; ++y) {
 					byte toSet = y == height - 1 ? Tile.GRASS.id : Tile.STONE.id;
 
-					if (y < 52 + sandHeight && y > 50) {
+					if (toSet == Tile.GRASS.id && height < 52) {
 						toSet = Tile.SAND.id;
 					}
 
@@ -54,6 +54,13 @@ public final class WorldGen {
 				if (height < 52) {
 					for (int y = height; y < 52; ++y) {
 						tiles[Chunk.index(x, y, z)] = Tile.WATER.id;
+					}
+				}
+
+				// add beaches
+				if (height <= 52 + sandHeight) {
+					for (int y = 51; y < height; ++y) {
+						tiles[Chunk.index(x, y, z)] = Tile.SAND.id;
 					}
 				}
 			}
