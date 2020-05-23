@@ -18,12 +18,17 @@ public class Chunk implements World, RenderedChunk {
 		this.x = x;
 		this.z = z;
 
-		search: for (int y = 0; y < 128; ++y) {
+		for (int y = 0; y < 128; ++y) {
+			boolean check = true;
+
 			for (int checx = 0; checx < 16; ++checx) {
 				for (int checz = 0; checz < 16; ++checz) {
-					if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
+					Tile tile = Tile.BY_ID[this.readTile(checx, y, checz)];
+					this.iota += tile.iota;
+
+					if (check && tile.dontOptimiseOut()) {
 						this.heightsToRender.add(y);
-						continue search;
+						check = false;
 					}
 				}
 			}
@@ -37,6 +42,7 @@ public class Chunk implements World, RenderedChunk {
 	private ChunkMesh mesh;
 	private List<ClientPlayer> players = new ArrayList<>();
 	private ChunkAccess parent;
+	private float iota = 0.0f;
 
 	@Override
 	public byte readTile(int x, int y, int z) {
@@ -51,7 +57,9 @@ public class Chunk implements World, RenderedChunk {
 			return;
 		}
 
+		this.iota -= Tile.BY_ID[this.tiles[i]].iota;
 		this.tiles[i] = tile;
+		this.iota += Tile.BY_ID[tile].iota;
 
 		if (Tile.BY_ID[tile].dontOptimiseOut()) {
 			this.heightsToRender.add(y);
