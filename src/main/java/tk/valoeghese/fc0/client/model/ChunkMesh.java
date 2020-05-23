@@ -108,6 +108,11 @@ public class ChunkMesh {
 			}
 		}
 
+		if (this.mesh != null) {
+			this.mesh.destroy();
+			this.water.destroy();
+		}
+
 		this.mesh = new ChunkMeshModel(faces);
 		this.water = new ChunkMeshModel(waterFaces);
 	}

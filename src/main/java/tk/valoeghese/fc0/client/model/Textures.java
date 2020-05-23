@@ -25,4 +25,5 @@ public class Textures {
 	public static final int TILE_ATLAS = load("tile_atlas", false);
 	public static final int VERSION = load("version", true);
 	public static final int WATER_OVERLAY = load("water_overlay", true);
+	public static final int FONT_ATLAS = load("font_atlas", false);
 }

@@ -7,15 +7,13 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import org.joml.Matrix4f;
 
 import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
 import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public abstract class Model {
@@ -79,6 +77,14 @@ public abstract class Model {
 		glBindVertexArray(0);
 
 		this.vertexArrays.add(new VertexArray(vao, indices.length));
+	}
+
+	public void destroy() {
+		for (VertexArray array : this.vertexArrays) {
+			glDeleteVertexArrays(array.vao);
+		}
+
+		this.vertexArrays = new ArrayList<>();
 	}
 
 	public final void render(Matrix4f transform) {
