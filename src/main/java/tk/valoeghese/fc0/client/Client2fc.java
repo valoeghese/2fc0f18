@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+import org.lwjgl.openal.ALC10;
 import tk.valoeghese.fc0.client.gui.Crosshair;
 import tk.valoeghese.fc0.client.gui.GUI;
 import tk.valoeghese.fc0.client.gui.Overlay;
@@ -91,6 +92,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		this.window.destroy();
+		ALC10.alcCloseDevice(AudioSystem.getDevice());
 	}
 
 	private void tick() {
