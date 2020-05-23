@@ -248,7 +248,7 @@ public class ClientPlayer {
 	public void changeWorld(World world) {
 		this.world = world;
 		this.setPos(Pos.ZERO);
-		this.move(0, world.getHeight(0, 0) + 1, 0);
+		this.move(0, world.getHeight(0, 0) + 0.5f, 0);
 	}
 
 	public float getHorizontalSlowness() {

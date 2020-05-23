@@ -93,6 +93,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
+		if (this.titleScreen) {
+			this.player.getCamera().rotateYaw(0.002f);
+		}
+
 		this.handleKeybinds();
 		this.player.tick();
 		++this.time;
@@ -112,6 +116,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
 		this.world.populateChunks();
+		this.player.getCamera().rotateYaw((float) Math.PI);
 	}
 
 	private void handleKeybinds() {
