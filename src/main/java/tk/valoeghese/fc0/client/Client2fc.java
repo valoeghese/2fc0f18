@@ -184,12 +184,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void render() {
 		long time = System.nanoTime();
+		float lighting = MathsUtils.clampMap(sin((float) this.time / 2048.0f), -1, 1, 0.125f, 1.25f);
+		glClearColor(0.3f * lighting, 0.5f * lighting, 0.9f * lighting, 1.0f);
 
 		// bind shader
 		Shaders.terrain.bind();
 		// time and stuff
 		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-		Shaders.terrain.uniformFloat("lighting", MathsUtils.clampMap(sin((float) this.time / 1250.0f), -1, 1, 0.25f, 1.25f));
+		Shaders.terrain.uniformFloat("lighting", lighting);
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// defaults
