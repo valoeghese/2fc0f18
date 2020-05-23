@@ -11,6 +11,7 @@ import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
 import tk.valoeghese.fc0.util.RaycastResult;
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
@@ -186,8 +187,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		// bind shader
 		Shaders.terrain.bind();
-		// time
+		// time and stuff
 		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
+		Shaders.terrain.uniformFloat("lighting", MathsUtils.clampMap(sin((float) this.time / 130.0f), -1, 1, 0.5f, 1.25f));
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// defaults
