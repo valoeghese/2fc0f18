@@ -117,8 +117,11 @@ public class ChunkMesh {
 		this.water = new ChunkMeshModel(waterFaces);
 	}
 
-	public void render(Camera camera) {
+	public void renderTerrain(Camera camera){
 		camera.render(this.mesh, this.transform);
+	}
+
+	public void renderWater(Camera camera) {
 		GraphicsSystem.enableBlend();
 		Shaders.terrain.uniformInt("waveMode", 1);
 		camera.render(this.water, this.transform);

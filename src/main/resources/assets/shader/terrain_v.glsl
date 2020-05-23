@@ -32,5 +32,5 @@ void main() {
 float wave1Y(float x, float z) {
     float xSample = 0.07 * (float(time) * 0.01 + x);
     float zSample = 0.07 * (float(time + 10) * 0.01 + z);
-    return sin(xSample) + sin(zSample);
+    return -abs(sin(xSample) + sin(zSample));
 }

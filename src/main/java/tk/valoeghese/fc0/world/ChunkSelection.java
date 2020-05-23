@@ -80,6 +80,7 @@ public class ChunkSelection implements World, ChunkAccess {
 		return this.chunks[(x + this.offset) * this.diameter + z + this.offset];
 	}
 
+	// ONLY CALL ONCE PER FRAME BC :b:ALO
 	public List<Chunk> getChunksForRendering() {
 		if (!this.toAddForRendering.isEmpty()) {
 			ncTick = !ncTick;
