@@ -132,7 +132,7 @@ public class ClientPlayer {
 		// I don't even know what I'm doing as I write this
 
 		Vector3f start = new Vector3f((float)toUse.getX(), (float)toUse.getY(), (float)toUse.getZ());
-		start.add(0.5F,0.5F,0.5F);
+		start.add(0.5F, 0.5F, 0.5F);
 		Vector3f dir = this.camera.getNormalisedDirection();
 		Vector3f end = new Vector3f(start).add(new Vector3f(dir).mul((float) maxDistance));
 
