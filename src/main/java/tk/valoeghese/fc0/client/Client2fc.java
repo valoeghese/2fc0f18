@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import tk.valoeghese.fc0.client.gui.Crosshair;
 import tk.valoeghese.fc0.client.gui.GUI;
 import tk.valoeghese.fc0.client.gui.Overlay;
+import tk.valoeghese.fc0.client.gui.Text;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
@@ -40,7 +41,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.world = new ChunkSelection(new Random().nextLong());
+		this.world = new ChunkSelection(0, 3);
 	}
 
 	private ChunkSelection world;
@@ -53,6 +54,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI waterOverlay;
 	private long time = 0;
 	private int fov;
+	private boolean titleScreen = true;
+	private GUI titleText;
+
+	public void createWorld() {
+		this.world = new ChunkSelection(new Random().nextLong(), 9);
+		this.time = 0;
+		this.player.changeWorld(this.world);
+	}
 
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
@@ -102,76 +111,86 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.crosshair = new Crosshair();
 		this.version = new Overlay(Textures.VERSION);
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
+		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
 		this.world.populateChunks();
 	}
 
 	private void handleKeybinds() {
-		final float yaw = this.player.getCamera().getYaw();
-		float slowness = this.player.getHorizontalSlowness();
-		boolean lr = Keybinds.MOVE_LEFT.isPressed() || Keybinds.MOVE_RIGHT.isPressed();
-		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FORWARDS.isPressed();
+		if (this.titleScreen) {
+			if (Keybinds.DESTROY.hasBeenPressed()) {
+				this.titleScreen = false;
+				this.world.destroy();
+				this.createWorld();
+				this.world.populateChunks();
+			}
+		} else {
+			final float yaw = this.player.getCamera().getYaw();
+			float slowness = this.player.getHorizontalSlowness();
+			boolean lr = Keybinds.MOVE_LEFT.isPressed() || Keybinds.MOVE_RIGHT.isPressed();
+			boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FORWARDS.isPressed();
 
-		if (Keybinds.RUN.isPressed()) {
-			slowness /= 1.67;
-		}
+			if (Keybinds.RUN.isPressed()) {
+				slowness /= 1.67;
+			}
 
-		if (this.player.isSwimming()) {
-			slowness *= 2;
-		}
+			if (this.player.isSwimming()) {
+				slowness *= 2;
+			}
 
-		// make it so you can't move in two horizontal directions to get extra speed
-		if (lr && fb) {
-			slowness = org.joml.Math.sqrt(2 * (slowness * slowness));
-		}
+			// make it so you can't move in two horizontal directions to get extra speed
+			if (lr && fb) {
+				slowness = org.joml.Math.sqrt(2 * (slowness * slowness));
+			}
 
-		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
-			this.player.addVelocity(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
-		} else if (Keybinds.MOVE_FORWARDS.isPressed()) {
-			this.player.addVelocity(-sin(yaw - PI) / slowness, 0.0f, cos(yaw - PI) / slowness);
-		}
+			if (Keybinds.MOVE_BACKWARDS.isPressed()) {
+				this.player.addVelocity(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
+			} else if (Keybinds.MOVE_FORWARDS.isPressed()) {
+				this.player.addVelocity(-sin(yaw - PI) / slowness, 0.0f, cos(yaw - PI) / slowness);
+			}
 
-		if (Keybinds.MOVE_LEFT.isPressed()) {
-			this.player.addVelocity(-sin(yaw + HALF_PI) / slowness, 0.0f, cos(yaw + HALF_PI) / slowness);
-		} else if (Keybinds.MOVE_RIGHT.isPressed()) {
-			this.player.addVelocity(-sin(yaw - HALF_PI) / slowness, 0.0f, cos(yaw - HALF_PI) / slowness);
-		}
+			if (Keybinds.MOVE_LEFT.isPressed()) {
+				this.player.addVelocity(-sin(yaw + HALF_PI) / slowness, 0.0f, cos(yaw + HALF_PI) / slowness);
+			} else if (Keybinds.MOVE_RIGHT.isPressed()) {
+				this.player.addVelocity(-sin(yaw - HALF_PI) / slowness, 0.0f, cos(yaw - HALF_PI) / slowness);
+			}
 
-		if (Keybinds.JUMP.isPressed()) {
-			long time = System.currentTimeMillis();
+			if (Keybinds.JUMP.isPressed()) {
+				long time = System.currentTimeMillis();
 
-			if (this.player.isSwimming() && time > this.player.lockSwim) {
-				this.player.addVelocity(0.0f, this.player.getJumpStrength() * 0.03f, 0.0f);
-			} else {
-				this.player.lockSwim = time + 18;
+				if (this.player.isSwimming() && time > this.player.lockSwim) {
+					this.player.addVelocity(0.0f, this.player.getJumpStrength() * 0.03f, 0.0f);
+				} else {
+					this.player.lockSwim = time + 18;
 
-				if (this.player.isOnGround()) {
-					this.player.addVelocity(0.0f, this.player.getJumpStrength(), 0.0f);
+					if (this.player.isOnGround()) {
+						this.player.addVelocity(0.0f, this.player.getJumpStrength(), 0.0f);
+					}
 				}
 			}
-		}
 
-		if (Keybinds.DESTROY.hasBeenPressed()) {
-			TilePos pos = this.player.rayCast(10.0).pos;
-
-			if (this.world.isInWorld(pos)) {
-				this.world.writeTile(pos, Tile.AIR.id);
-			}
-		}
-
-		if (Keybinds.INTERACT.hasBeenPressed()) {
-			RaycastResult result = this.player.rayCast(10.0);
-
-			if(result.face != null) {
-				TilePos pos = result.face.apply(result.pos);
+			if (Keybinds.DESTROY.hasBeenPressed()) {
+				TilePos pos = this.player.rayCast(10.0).pos;
 
 				if (this.world.isInWorld(pos)) {
-					this.world.writeTile(pos, Tile.STONE.id);
+					this.world.writeTile(pos, Tile.AIR.id);
 				}
 			}
-		}
 
-		if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < -20) {
-			player.setPos(new Pos(0, this.world.getHeight(0, 0) + 1, 0));
+			if (Keybinds.INTERACT.hasBeenPressed()) {
+				RaycastResult result = this.player.rayCast(10.0);
+
+				if (result.face != null) {
+					TilePos pos = result.face.apply(result.pos);
+
+					if (this.world.isInWorld(pos)) {
+						this.world.writeTile(pos, Tile.STONE.id);
+					}
+				}
+			}
+
+			if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < -20) {
+				player.setPos(new Pos(0, this.world.getHeight(0, 0) + 1, 0));
+			}
 		}
 
 		if (Keybinds.FOV_DOWN.hasBeenPressed()) {
@@ -218,8 +237,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// projection
 		Shaders.gui.uniformMat4f("projection", this.guiProjection);
 		// render gui
-		this.version.render();
-		this.crosshair.render();
+		if (this.titleScreen) {
+			this.titleText.render();
+		} else {
+			this.version.render();
+			this.crosshair.render();
+		}
 
 		if (this.player.isUnderwater()) {
 			GraphicsSystem.enableBlend();
@@ -245,19 +268,21 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	@Override
 	public void invoke(long window, double xpos, double ypos) {
-		double dx = xpos - this.prevXPos;
-		double dy = ypos - this.prevYPos;
+		if (!this.titleScreen) {
+			double dx = xpos - this.prevXPos;
+			double dy = ypos - this.prevYPos;
 
-		if (Math.abs(dx) > 1.5f) {
-			this.player.getCamera().rotateYaw((float) (dx) / 100.0f);
+			if (Math.abs(dx) > 1.5f) {
+				this.player.getCamera().rotateYaw((float) (dx) / 100.0f);
+			}
+
+			if (Math.abs(dy) > 1.5f) {
+				this.player.getCamera().rotatePitch((float) (dy) / 60.0f);
+			}
+
+			this.prevYPos = ypos;
+			this.prevXPos = xpos;
 		}
-
-		if (Math.abs(dy) > 1.5f) {
-			this.player.getCamera().rotatePitch((float) (dy) / 60.0f);
-		}
-
-		this.prevYPos = ypos;
-		this.prevXPos = xpos;
 	}
 
 	private static final float PI = (float) Math.PI;

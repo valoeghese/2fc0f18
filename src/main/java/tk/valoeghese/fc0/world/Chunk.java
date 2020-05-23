@@ -224,6 +224,11 @@ public class Chunk implements World, RenderedChunk {
 		}
 	}
 
+	@Override
+	public void destroy() {
+		this.mesh.destroy();
+	}
+
 	static int index(int x, int y, int z) {
 		return (x << 11) | (z << 7) | y;
 	}

@@ -21,13 +21,12 @@ public class ClientPlayer {
 		this.velocity = new MutablePos(0, 0, 0);
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.8f, 0)); // 2 blocks tall, camera at head
-		this.world = world;
-		this.move(0, world.getHeight(0, 0) + 1, 0);
+		this.changeWorld(world);
 	}
 
 	private final MutablePos pos;
 	private final Camera camera;
-	private final World world;
+	private World world;
 	private final MutablePos velocity;
 	private boolean falling = false;
 	@Nullable
@@ -244,6 +243,12 @@ public class ClientPlayer {
 		}
 
 		this.camera.wrapYaw();
+	}
+
+	public void changeWorld(World world) {
+		this.world = world;
+		this.setPos(Pos.ZERO);
+		this.move(0, world.getHeight(0, 0) + 1, 0);
 	}
 
 	public float getHorizontalSlowness() {

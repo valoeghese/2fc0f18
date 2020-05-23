@@ -49,4 +49,6 @@ public class Pos {
 				+ ", " + this.z
 				+ ')';
 	}
+
+	public static final Pos ZERO = new Pos(0.0, 0.0, 0.0);
 }

@@ -184,4 +184,9 @@ public class ChunkMesh {
 			model.addTriangle(i, i + 2, i + 3);
 		}
 	}
+
+	public void destroy() {
+		this.mesh.destroy();
+		this.water.destroy();
+	}
 }

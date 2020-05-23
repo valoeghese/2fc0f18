@@ -27,6 +27,7 @@ public interface World {
 	void writeTile(int x, int y, int z, byte tile);
 	boolean isInWorld(int x, int y, int z);
 	int getHeight(int x, int z, Predicate<Tile> solid);
+	void destroy();
 
 	default void updateChunkOf(ClientPlayer clientPlayer) {
 	}

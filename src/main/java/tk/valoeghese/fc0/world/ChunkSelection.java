@@ -1,8 +1,8 @@
 package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.client.ClientPlayer;
-import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.OrderedList;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -11,8 +11,8 @@ import java.util.*;
 import java.util.function.Predicate;
 
 public class ChunkSelection implements World, ChunkAccess {
-	public ChunkSelection(long seed) {
-		this.offset = SIZE - 1;
+	public ChunkSelection(long seed, int size) {
+		this.offset = size - 1;
 		this.diameter = 1 + this.offset * 2;
 		long time = System.currentTimeMillis();
 		System.out.println("Generating World.");
@@ -21,8 +21,8 @@ public class ChunkSelection implements World, ChunkAccess {
 
 		OrderedList<Chunk> orderedChunks = new OrderedList<>(c -> (float) (Math.abs(c.x) + Math.abs(c.z)));
 
-		for (int x = -SIZE + 1; x < SIZE; ++x) {
-			for (int z = -SIZE + 1; z < SIZE; ++z) {
+		for (int x = -size + 1; x < size; ++x) {
+			for (int z = -size + 1; z < size; ++z) {
 				Chunk chunk = WorldGen.generateChunk(this, x, z, seed, this.genRand);
 				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
 				orderedChunks.add(chunk);
@@ -41,8 +41,8 @@ public class ChunkSelection implements World, ChunkAccess {
 			}
 		}
 
-		this.minBound = (-SIZE + 1) << 4;
-		this.maxBound = SIZE << 4;
+		this.minBound = (-size + 1) << 4;
+		this.maxBound = size << 4;
 	}
 
 	private final int offset;
@@ -126,5 +126,10 @@ public class ChunkSelection implements World, ChunkAccess {
 		}
 	}
 
-	private static final int SIZE = 9;
+	@Override
+	public void destroy() {
+		for (Chunk c : this.chunksForRendering) {
+			c.destroy();
+		}
+	}
 }
