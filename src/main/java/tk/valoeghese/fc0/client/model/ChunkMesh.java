@@ -5,8 +5,7 @@ import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.client.system.GraphicsSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.RenderedChunk;
+import tk.valoeghese.fc0.client.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;

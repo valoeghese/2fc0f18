@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.world.tile.Tile;
 

@@ -3,7 +3,6 @@ package tk.valoeghese.fc0.client.world;
 import tk.valoeghese.fc0.client.model.ChunkMesh;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
-import tk.valoeghese.fc0.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 public class ClientChunk extends Chunk implements RenderedChunk {
