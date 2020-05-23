@@ -3,7 +3,6 @@ package tk.valoeghese.fc0.world;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import tk.valoeghese.fc0.client.ClientPlayer;
-import tk.valoeghese.fc0.client.model.ChunkMesh;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.tile.Tile;
 

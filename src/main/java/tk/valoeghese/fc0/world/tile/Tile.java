@@ -18,6 +18,7 @@ public class Tile {
 	public final float kappa;
 	private boolean opaque = true;
 	private boolean render = true;
+	private boolean cross = false;
 
 	public int getU(int faceAxis) {
 		return this.u;
@@ -38,6 +39,12 @@ public class Tile {
 		return this;
 	}
 
+	protected Tile cross() {
+		this.cross = true;
+		this.cutout();
+		return this;
+	}
+
 	public final boolean isOpaque() {
 		return this.isOpaque(false);
 	}
@@ -48,6 +55,10 @@ public class Tile {
 
 	public boolean dontOptimiseOut() {
 		return this.shouldRender();
+	}
+
+	public boolean isCross() {
+		return this.cross;
 	}
 
 	public boolean shouldRender() {
