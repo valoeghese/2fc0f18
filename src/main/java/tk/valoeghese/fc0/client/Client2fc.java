@@ -19,7 +19,6 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.tile.Tile;
 
-import java.util.List;
 import java.util.Random;
 
 import static org.joml.Math.cos;
@@ -106,8 +105,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
 		this.player = new ClientPlayer(new Camera(), this.world);
-		this.prevYPos = this.window.height / 2;
-		this.prevXPos = this.window.width / 2;
+		this.prevYPos = this.window.height / 2.0f;
+		this.prevXPos = this.window.width / 2.0f;
 		this.crosshair = new Crosshair();
 		this.version = new Overlay(Textures.VERSION);
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
@@ -208,7 +207,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void render() {
 		long time = System.nanoTime();
-		float lighting = MathsUtils.clampMap(sin((float) this.time / 2048.0f), -1, 1, 0.125f, 1.15f);
+		float lighting = MathsUtils.clampMap(sin((float) this.time / 3072.0f), -1, 1, 0.125f, 1.15f);
 		glClearColor(0.3f * lighting, 0.5f * lighting, 0.9f * lighting, 1.0f);
 
 		// bind shader
@@ -223,13 +222,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// render world
 		GraphicsSystem.bindTexture(TILE_ATLAS);
 
-		List<Chunk> cachedChunksForRendering=world.getChunksForRendering();
+		this.world.updateChunksForRendering();
 
-		for(Chunk chunk : cachedChunksForRendering){
-			chunk.getOrCreateMesh().renderTerrain(player.getCamera());
+		for(Chunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderTerrain(this.player.getCamera());
 		}
-		for(Chunk chunk : cachedChunksForRendering){
-			chunk.getOrCreateMesh().renderWater(player.getCamera());
+
+		for(Chunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
 		}
 
 		// bind shader

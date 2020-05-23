@@ -1,8 +1,11 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.gen;
 
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.util.noise.RidgedNoise;
-import tk.valoeghese.fc0.world.generator.Generator;
+import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -13,6 +16,7 @@ public final class WorldGen {
 			noise = new Noise(new Random(seed));
 			ridges = new RidgedNoise(new Random(seed + 12));
 			sand = new Noise(new Random(seed - 29));
+			ecoZone = new Noise(new Random(seed + 31));
 		}
 
 		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
@@ -24,8 +28,13 @@ public final class WorldGen {
 
 			for (int z = 0; z < 16; ++z) {
 				int totalZ = z + blockZ;
-				int height = (int) (3.0 * noise.sample(totalX / 24.0, totalZ / 24.0));
+				EcoZone zone = getEcoZoneByPosition(totalX, totalZ);
+
+				// details and ridges
+				int height = (int) (3.5 * noise.sample(totalX / 29.0, totalZ / 29.0));
 				height += (int) ((height + 7) * 1.3 * ridges.sample(totalX / 75.0, totalZ / 75.0)) ;
+
+				// main shape
 				double mainNoise = noise.sample(totalX / 140.0, totalZ / 140.0);
 				height += (int) ((mainNoise > 0) ? 23.0 * mainNoise : 10.0 * mainNoise);
 				height += 50;
@@ -41,11 +50,13 @@ public final class WorldGen {
 					height = World.WORLD_HEIGHT - 1;
 				}
 
-				for (int y = 0; y < height; ++y) {
-					byte toSet = y == height - 1 ? Tile.GRASS.id : Tile.STONE.id;
+				int depth = zone.surface == Tile.SAND.id ? 2 : 1;
 
-					if (toSet == Tile.GRASS.id && height < 52) {
-						toSet = Tile.SAND.id;
+				for (int y = 0; y < height; ++y) {
+					byte toSet = y > height - depth - 1 ? zone.surface : Tile.STONE.id;
+
+					if (toSet == zone.surface && height < 52) {
+						toSet = zone.beach;
 					}
 
 					tiles[Chunk.index(x, y, z)] = toSet;
@@ -60,7 +71,7 @@ public final class WorldGen {
 				// add beaches
 				if (height <= 52 + sandHeight) {
 					for (int y = 51; y < height; ++y) {
-						tiles[Chunk.index(x, y, z)] = Tile.SAND.id;
+						tiles[Chunk.index(x, y, z)] = zone.beach;
 					}
 				}
 			}
@@ -70,8 +81,36 @@ public final class WorldGen {
 	}
 
 	public static void populateChunk(World world, Chunk chunk, Random rand) {
+		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
+
 		for (Generator generator : Generator.GENERATORS) {
-			generator.generate(chunk.x << 4, chunk.z << 4, rand, world);
+			generator.generate(world, zone, chunk.x << 4, chunk.z << 4, rand);
+		}
+	}
+
+	public static EcoZone getEcoZoneByPosition(double x, double z) {
+		return getEcoZone(ecoZone.sample(x * 0.006, z * 0.006), ecoZone.sample(x * 0.01 + 4.08, z * 0.01));
+	}
+
+	public static EcoZone getEcoZone(double temp, double humidity) {
+		if (temp < -0.27) {
+			return EcoZone.TUNDRA;
+		} else if (temp < 0.27) {
+			if (humidity < -0.15) {
+				return EcoZone.TEMPERATE_GRASSLAND;
+			} else if (humidity < 0.25) {
+				return EcoZone.TEMPERATE_WOODLAND;
+			} else {
+				return EcoZone.TEMPERATE_RAINFOREST;
+			}
+		} else {
+			if (humidity < -0.2) {
+				return EcoZone.DESERT;
+			} else if (humidity < 0.2) {
+				return EcoZone.TROPICAL_GRASSLAND;
+			} else {
+				return EcoZone.TROPICAL_RAINFOREST;
+			}
 		}
 	}
 
@@ -82,5 +121,6 @@ public final class WorldGen {
 	private static Noise noise;
 	private static Noise ridges;
 	private static Noise sand;
+	private static Noise ecoZone;
 	private static long cachedSeed = 0;
 }

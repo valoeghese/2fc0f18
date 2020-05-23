@@ -4,6 +4,7 @@ import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -12,10 +13,15 @@ import java.util.function.Predicate;
 
 public class ChunkSelection implements World, ChunkAccess {
 	public ChunkSelection(long seed, int size) {
+		this.seed = seed;
 		this.offset = size - 1;
 		this.diameter = 1 + this.offset * 2;
 		long time = System.currentTimeMillis();
-		System.out.println("Generating World.");
+
+		if (this.seed != 0) {
+			System.out.println("Generating World.");
+		}
+
 		this.chunks = new Chunk[this.diameter * this.diameter];
 		this.genRand = new Random(seed);
 
@@ -29,7 +35,9 @@ public class ChunkSelection implements World, ChunkAccess {
 			}
 		}
 
-		System.out.println("Generated World in " + (System.currentTimeMillis() - time) + "ms.");
+		if (this.seed != 0) {
+			System.out.println("Generated World in " + (System.currentTimeMillis() - time) + "ms.");
+		}
 
 		// add to render queue
 		int i = 0;
@@ -53,17 +61,23 @@ public class ChunkSelection implements World, ChunkAccess {
 	private final Queue<Chunk> toAddForRendering = new LinkedList<>();
 	private final List<Chunk> chunksForRendering = new ArrayList<>();
 	private final Random genRand;
+	private long seed;
 	private boolean ncTick = false;
 
 	public void populateChunks() {
 		long time = System.currentTimeMillis();
-		System.out.println("Populating World.");
+
+		if (this.seed != 0) {
+			System.out.println("Populating World.");
+		}
 
 		for (Chunk chunk : this.chunks) {
 			WorldGen.populateChunk(this, chunk, this.genRand);
 		}
 
-		System.out.println("Populated World in " + (System.currentTimeMillis() - time) + "ms.");
+		if (this.seed != 0) {
+			System.out.println("Populated World in " + (System.currentTimeMillis() - time) + "ms.");
+		}
 	}
 
 	@Override
@@ -80,8 +94,7 @@ public class ChunkSelection implements World, ChunkAccess {
 		return this.chunks[(x + this.offset) * this.diameter + z + this.offset];
 	}
 
-	// ONLY CALL ONCE PER FRAME BC :b:ALO
-	public List<Chunk> getChunksForRendering() {
+	public void updateChunksForRendering() {
 		if (!this.toAddForRendering.isEmpty()) {
 			ncTick = !ncTick;
 
@@ -89,7 +102,9 @@ public class ChunkSelection implements World, ChunkAccess {
 				this.chunksForRendering.add(this.toAddForRendering.remove());
 			}
 		}
+	}
 
+	public List<Chunk> getChunksForRendering() {
 		return this.chunksForRendering;
 	}
 

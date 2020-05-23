@@ -1,15 +1,16 @@
-package tk.valoeghese.fc0.world.generator;
+package tk.valoeghese.fc0.world.gen.generator;
 
 import tk.valoeghese.fc0.world.World;
-import tk.valoeghese.fc0.world.WorldGen;
+import tk.valoeghese.fc0.world.gen.EcoZone;
+import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
 
 public class TreeGenerator extends Generator {
 	@Override
-	public void generate(int startX, int startZ, Random rand, World world) {
-		int count = 1 + (int) (3 * WorldGen.sampleNoise(startX / 128.0, startZ / 128.0));
+	public void generate(World world, EcoZone zone, int startX, int startZ, Random rand) {
+		int count = zone.baseTreeCount + (int) (zone.treeCountVariation * WorldGen.sampleNoise(startX / 64.0, startZ / 64.0));
 
 		if (rand.nextInt(8) == 0) {
 			++count;
@@ -23,9 +24,9 @@ public class TreeGenerator extends Generator {
 			int x = startX + rand.nextInt(16);
 			int z = startZ + rand.nextInt(16);
 			int y = world.getHeight(x, z, tile -> tile.isOpaque() && tile != Tile.LOG) + 1;
-			int height = 3 + rand.nextInt(3);
+			int height = zone.baseTreeHeight + rand.nextInt(zone.potentialHeightIncrease);
 
-			if (world.readTile(x, y, z) == Tile.WATER.id) {
+			if (world.readTile(x, y - 1, z) != Tile.GRASS.id) {
 				continue;
 			}
 

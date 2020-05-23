@@ -17,6 +17,8 @@ public class Chunk implements World, RenderedChunk {
 		this.tiles = tiles;
 		this.x = x;
 		this.z = z;
+		this.startX = x << 4;
+		this.startZ = z << 4;
 
 		for (int y = 0; y < WORLD_HEIGHT; ++y) {
 			boolean check = true;
@@ -38,6 +40,8 @@ public class Chunk implements World, RenderedChunk {
 	private byte[] tiles;
 	public final int x;
 	public final int z;
+	public final int startX;
+	public final int startZ;
 	private final IntSet heightsToRender = new IntArraySet();
 	private ChunkMesh mesh;
 	private List<ClientPlayer> players = new ArrayList<>();
@@ -229,7 +233,7 @@ public class Chunk implements World, RenderedChunk {
 		this.mesh.destroy();
 	}
 
-	static int index(int x, int y, int z) {
+	public static int index(int x, int y, int z) {
 		return (x << 11) | (z << 7) | y;
 	}
 }
