@@ -33,7 +33,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		GraphicsSystem.initGL(this.window);
 		AudioSystem.initAL();;
 		// setup shaders, world, projections, etc
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(45), this.window.aspect, 0.01f, 250.0f);
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(64), this.window.aspect, 0.01f, 250.0f);
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
