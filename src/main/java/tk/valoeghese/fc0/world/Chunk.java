@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class Chunk implements World, RenderedChunk {
+public abstract class Chunk implements World {
 	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles) {
 		this.parent = parent;
 		this.tiles = tiles;
@@ -37,15 +37,14 @@ public class Chunk implements World, RenderedChunk {
 		}
 	}
 
-	private byte[] tiles;
+	protected byte[] tiles;
 	public final int x;
 	public final int z;
 	public final int startX;
 	public final int startZ;
-	private final IntSet heightsToRender = new IntArraySet();
-	private ChunkMesh mesh;
+	protected final IntSet heightsToRender = new IntArraySet();
 	private List<ClientPlayer> players = new ArrayList<>();
-	private ChunkAccess parent;
+	protected ChunkAccess parent;
 	private float iota = 0.0f;
 
 	@Override
@@ -56,10 +55,6 @@ public class Chunk implements World, RenderedChunk {
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
 		int i = index(x, y, z);
-
-		if (this.tiles[i] == tile) {
-			return;
-		}
 
 		this.iota -= Tile.BY_ID[this.tiles[i]].iota;
 		this.tiles[i] = tile;
@@ -79,105 +74,6 @@ public class Chunk implements World, RenderedChunk {
 
 				this.heightsToRender.remove(y);
 			}
-		}
-
-		this.updateMesh(i, tile);
-
-		if (x == 0) {
-			Chunk chunk = this.parent.getChunk(this.x - 1, this.z);
-
-			if (chunk != null) {
-				chunk.rebuildMesh();
-			}
-		} else if (x == 15) {
-			Chunk chunk = this.parent.getChunk(this.x + 1, this.z);
-
-			if (chunk != null) {
-				chunk.rebuildMesh();
-			}
-		}
-
-		if (z == 0) {
-			Chunk chunk = this.parent.getChunk(this.x, this.z - 1);
-
-			if (chunk != null) {
-				chunk.rebuildMesh();
-			}
-		} else if (z == 15) {
-			Chunk chunk = this.parent.getChunk(this.x, this.z + 1);
-
-			if (chunk != null) {
-				chunk.rebuildMesh();
-			}
-		}
-	}
-
-	private void rebuildMesh() {
-		if (this.mesh != null) {
-			this.mesh.buildMesh();
-		}
-	}
-
-	private void updateMesh(int index, byte tile) {
-		if (this.mesh != null) {
-			this.mesh.updateTile(index, tile);
-		}
-	}
-
-	public ChunkMesh getOrCreateMesh() {
-		if (this.mesh == null) {
-			this.mesh = new ChunkMesh(this, this.tiles, this.x, this.z);
-		}
-
-		return this.mesh;
-	}
-
-	@Override
-	public boolean renderHeight(int y) {
-		return (y >= 0 && y < WORLD_HEIGHT) ? this.heightsToRender.contains(y) : false;
-	}
-
-	@Override
-	public Tile north(int x, int y) {
-		Chunk chunk = this.parent.getChunk(this.x, this.z + 1);
-
-		if (chunk == null) {
-			return Tile.AIR;
-		} else {
-			return Tile.BY_ID[chunk.readTile(x, y, 0)];
-		}
-	}
-
-	@Override
-	public Tile south(int x, int y) {
-		Chunk chunk = this.parent.getChunk(this.x, this.z - 1);
-
-		if (chunk == null) {
-			return Tile.AIR;
-		} else {
-			return Tile.BY_ID[chunk.readTile(x, y, 15)];
-		}
-	}
-
-	@Override
-	public Tile east(int z, int y) {
-		Chunk chunk = this.parent.getChunk(this.x + 1, this.z);
-
-		if (chunk == null) {
-			return Tile.AIR;
-		} else {
-			return Tile.BY_ID[chunk.readTile(0, y, z)];
-		}
-	}
-
-	@Override
-	public Tile west(int z, int y) {
-		Chunk chunk = this.parent.getChunk(this.x - 1, this.z);
-
-		if (chunk == null) {
-			return Tile.AIR;
-		} else {
-			return Tile.BY_ID[chunk.readTile(15, y, z)];
 		}
 	}
 
@@ -230,7 +126,6 @@ public class Chunk implements World, RenderedChunk {
 
 	@Override
 	public void destroy() {
-		this.mesh.destroy();
 	}
 
 	public static int index(int x, int y, int z) {

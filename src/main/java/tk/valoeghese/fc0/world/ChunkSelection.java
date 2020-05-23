@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.client.ClientPlayer;
+import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -22,14 +23,14 @@ public class ChunkSelection implements World, ChunkAccess {
 			System.out.println("Generating World.");
 		}
 
-		this.chunks = new Chunk[this.diameter * this.diameter];
+		this.chunks = new ClientChunk[this.diameter * this.diameter];
 		this.genRand = new Random(seed);
 
-		OrderedList<Chunk> orderedChunks = new OrderedList<>(c -> (float) (Math.abs(c.x) + Math.abs(c.z)));
+		OrderedList<ClientChunk> orderedChunks = new OrderedList<>(c -> (float) (Math.abs(c.x) + Math.abs(c.z)));
 
 		for (int x = -size + 1; x < size; ++x) {
 			for (int z = -size + 1; z < size; ++z) {
-				Chunk chunk = WorldGen.generateChunk(this, x, z, seed, this.genRand);
+				ClientChunk chunk = WorldGen.generateChunk(ClientChunk::new, this, x, z, seed, this.genRand);
 				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
 				orderedChunks.add(chunk);
 			}
@@ -41,7 +42,7 @@ public class ChunkSelection implements World, ChunkAccess {
 
 		// add to render queue
 		int i = 0;
-		for (Chunk chunk : orderedChunks) {
+		for (ClientChunk chunk : orderedChunks) {
 			if (i++ < 8) {
 				this.chunksForRendering.add(chunk);
 			} else {
@@ -57,9 +58,9 @@ public class ChunkSelection implements World, ChunkAccess {
 	private final int diameter;
 	private final int minBound;
 	private final int maxBound;
-	private final Chunk[] chunks;
-	private final Queue<Chunk> toAddForRendering = new LinkedList<>();
-	private final List<Chunk> chunksForRendering = new ArrayList<>();
+	private final ClientChunk[] chunks;
+	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
+	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
 	private final Random genRand;
 	private long seed;
 	private boolean ncTick = false;
@@ -104,7 +105,7 @@ public class ChunkSelection implements World, ChunkAccess {
 		}
 	}
 
-	public List<Chunk> getChunksForRendering() {
+	public List<ClientChunk> getChunksForRendering() {
 		return this.chunksForRendering;
 	}
 

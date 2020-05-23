@@ -11,6 +11,7 @@ import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
+import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
@@ -213,7 +214,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private void render() {
 		long time = System.nanoTime();
 		float lighting = MathsUtils.clampMap(sin((float) this.time / 3072.0f), -1, 1, 0.125f, 1.15f);
-		glClearColor(0.3f * lighting, 0.5f * lighting, 0.9f * lighting, 1.0f);
+		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
 		// bind shader
 		Shaders.terrain.bind();
@@ -229,11 +230,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		this.world.updateChunksForRendering();
 
-		for(Chunk chunk : this.world.getChunksForRendering()){
+		for(ClientChunk chunk : this.world.getChunksForRendering()){
 			chunk.getOrCreateMesh().renderTerrain(this.player.getCamera());
 		}
 
-		for(Chunk chunk : this.world.getChunksForRendering()){
+		for(ClientChunk chunk : this.world.getChunksForRendering()){
 			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
 		}
 

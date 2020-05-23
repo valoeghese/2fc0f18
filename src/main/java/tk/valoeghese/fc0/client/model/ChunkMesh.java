@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
 import tk.valoeghese.fc0.client.system.GraphicsSystem;
+import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChunkMesh {
-	public ChunkMesh(Chunk chunk, byte[] tiles, int x, int z) {
+	public ChunkMesh(ClientChunk chunk, byte[] tiles, int x, int z) {
 		this.x = x << 4;
 		this.z = z << 4;
 		this.transform = new Matrix4f().translate(this.x, 0, this.z);
