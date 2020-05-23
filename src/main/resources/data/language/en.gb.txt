@@ -9,3 +9,5 @@ keybind.run=Run
 keybind.destroy=Destroy
 keybind.interact=Interact
 keybind.respawn=Respawn
+keybind.fov_up=FOV Up
+keybind.fov_down=FOV Down

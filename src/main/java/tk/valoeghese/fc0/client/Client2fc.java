@@ -33,7 +33,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		GraphicsSystem.initGL(this.window);
 		AudioSystem.initAL();;
 		// setup shaders, world, projections, etc
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(64), this.window.aspect, 0.01f, 250.0f);
+		this.setFOV(64);
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
@@ -42,7 +42,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private ChunkSelection world;
-	private final Matrix4f projection;
+	private Matrix4f projection;
 	private final Matrix4f guiProjection;
 	private ClientPlayer player;
 	private long nextUpdate = 0;
@@ -50,6 +50,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI version;
 	private GUI waterOverlay;
 	private long time = 0;
+	private int fov;
+
+	public void setFOV(int newFOV) {
+		this.fov = newFOV;
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov), this.window.aspect, 0.01f, 250.0f);
+	}
 
 	@Override
 	public void run() {
@@ -77,7 +83,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
-		this.updateMovement();
+		this.handleKeybinds();
 		this.player.tick();
 		++this.time;
 	}
@@ -97,7 +103,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.world.populateChunks();
 	}
 
-	private void updateMovement() {
+	private void handleKeybinds() {
 		final float yaw = this.player.getCamera().getYaw();
 		float slowness = this.player.getHorizontalSlowness();
 		boolean lr = Keybinds.MOVE_LEFT.isPressed() || Keybinds.MOVE_RIGHT.isPressed();
@@ -160,6 +166,18 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < -20) {
 			player.setPos(new Pos(0, this.world.getHeight(0, 0) + 1, 0));
+		}
+
+		if (Keybinds.FOV_DOWN.hasBeenPressed()) {
+			if (this.fov > 30) {
+				this.setFOV(this.fov - 5);
+			}
+		}
+
+		if (Keybinds.FOV_UP.hasBeenPressed()) {
+			if (this.fov < 90) {
+				this.setFOV(this.fov + 5);
+			}
 		}
 	}
 
