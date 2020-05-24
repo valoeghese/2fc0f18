@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -11,7 +11,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 	}
 
 	@Override
-	public void generate(World world, TreeGeneratorSettings settings, int startX, int startZ, Random rand) {
+	public void generate(GenWorld world, TreeGeneratorSettings settings, int startX, int startZ, Random rand) {
 		int count = settings.getCount(rand, startX, startZ);
 
 		if (rand.nextInt(8) == 0) {
@@ -46,7 +46,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 						int totalY = y + height + yo;
 
 						if (world.isInWorld(totalX, totalY, totalZ)) {
-							world.writeTile(totalX, totalY, totalZ, Tile.LEAVES.id);
+							world.wgWriteTile(totalX, totalY, totalZ, Tile.LEAVES.id);
 						}
 					}
 				}
@@ -65,7 +65,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 					int totalZ = zo + z;
 
 					if (world.isInWorld(totalX, finalCrossY, totalZ)) {
-						world.writeTile(totalX, finalCrossY, totalZ, Tile.LEAVES.id);
+						world.wgWriteTile(totalX, finalCrossY, totalZ, Tile.LEAVES.id);
 					}
 				}
 			}
@@ -74,7 +74,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 				int totalY = yo + y;
 
 				if (world.isInWorld(x, totalY, z)) {
-					world.writeTile(x, totalY, z, Tile.LOG.id);
+					world.wgWriteTile(x, totalY, z, Tile.LOG.id);
 				}
 			}
 		}

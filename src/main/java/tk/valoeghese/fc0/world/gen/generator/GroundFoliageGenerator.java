@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -11,7 +11,7 @@ public class GroundFoliageGenerator extends Generator<GroundFoliageGeneratorSett
 	}
 
 	@Override
-	public void generate(World world, GroundFoliageGeneratorSettings settings, int startX, int startZ, Random rand) {
+	public void generate(GenWorld world, GroundFoliageGeneratorSettings settings, int startX, int startZ, Random rand) {
 		int count = settings.getCount(rand, startX, startZ);
 
 		while (count --> 0) {
@@ -25,13 +25,13 @@ public class GroundFoliageGenerator extends Generator<GroundFoliageGeneratorSett
 			}
 
 			if (world.isInWorld(x, y, z)) {
-				world.writeTile(x, y, z, tile.id);
+				world.wgWriteTile(x, y, z, tile.id);
 
 				if (tile == Tile.CACTUS) {
 					++y;
 
 					if (world.isInWorld(x, y, z)) {
-						world.writeTile(x, y, z, tile.id);
+						world.wgWriteTile(x, y, z, tile.id);
 					}
 				}
 			}

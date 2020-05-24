@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
 import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -36,9 +37,9 @@ public abstract class Generator<T extends GeneratorSettings> {
 		return "generator." + this.name;
 	}
 
-	public abstract void generate(World world, T generatorSettings, int startX, int startZ, Random rand);
+	public abstract void generate(GenWorld world, T generatorSettings, int startX, int startZ, Random rand);
 
-	protected static int getHeightForGeneration(World world, int x, int z) {
+	protected static int getHeightForGeneration(GenWorld world, int x, int z) {
 		return world.getHeight(x, z, tile -> tile.isOpaque() && tile != Tile.LOG) + 1;
 	}
 

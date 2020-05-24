@@ -2,11 +2,10 @@ package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
-import java.util.function.Predicate;
-
-public interface World {
+public interface World extends GenWorld {
 	default byte readTile(TilePos pos) {
 		return this.readTile(pos.x, pos.y, pos.z);
 	}
@@ -15,18 +14,20 @@ public interface World {
 		this.writeTile(pos.x, pos.y, pos.z, tile);
 	}
 
-	default boolean isInWorld(TilePos pos) {
-		return this.isInWorld(pos.x, pos.y, pos.z);
-	}
-
 	default int getHeight(int x, int z) {
 		return this.getHeight(x, z, Tile::shouldRender);
 	}
 
-	byte readTile(int x, int y, int z);
+	default boolean isInWorld(TilePos pos) {
+		return this.isInWorld(pos.x, pos.y, pos.z);
+	}
+
+	@Override
+	default void wgWriteTile(int x, int y, int z, byte tile) {
+		this.writeTile(x, y, z, tile);
+	}
+
 	void writeTile(int x, int y, int z, byte tile);
-	boolean isInWorld(int x, int y, int z);
-	int getHeight(int x, int z, Predicate<Tile> solid);
 	void destroy();
 
 	default void updateChunkOf(ClientPlayer clientPlayer) {
