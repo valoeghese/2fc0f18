@@ -13,12 +13,11 @@ import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
 import tk.valoeghese.fc0.client.world.ClientChunk;
+import tk.valoeghese.fc0.client.world.ClientChunkSelection;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -42,10 +41,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.world = new ChunkSelection(0, 3);
+		this.world = new ClientChunkSelection(0, 3);
 	}
 
-	private ChunkSelection world;
+	private ClientChunkSelection world;
 	private Matrix4f projection;
 	private final Matrix4f guiProjection;
 	private ClientPlayer player;
@@ -59,7 +58,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI titleText;
 
 	public void createWorld() {
-		this.world = new ChunkSelection(new Random().nextLong(), 9);
+		this.world = new ClientChunkSelection(new Random().nextLong(), 9);
 		this.time = 0;
 		this.player.changeWorld(this.world);
 	}
