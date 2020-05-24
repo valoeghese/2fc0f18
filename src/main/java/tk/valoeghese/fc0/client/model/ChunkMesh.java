@@ -66,7 +66,7 @@ public class ChunkMesh {
 							if (!tileDown.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x, y - 0.5f, z),
-										1,
+										4,
 										instance,
 										0.85f));
 							}
@@ -82,7 +82,7 @@ public class ChunkMesh {
 							if (!tileSouth.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x, y, z - 0.5f),
-										2,
+										5,
 										instance,
 										0.75f));
 							}
@@ -98,7 +98,7 @@ public class ChunkMesh {
 							if (!tileWest.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
 										new Vector3f(x - 0.5f, y, z),
-										0,
+										3,
 										instance,
 										0.9f));
 							}
@@ -158,7 +158,7 @@ public class ChunkMesh {
 
 			int i;
 
-			switch (this.f) {
+			switch (this.f % 3) {
 			case 0:
 			default:
 				i = model.addVertex(this.pos.x, SIZE + this.pos.y, -SIZE + this.pos.z, startU, endV, this.l); // tl

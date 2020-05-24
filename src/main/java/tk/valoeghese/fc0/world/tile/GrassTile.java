@@ -9,4 +9,9 @@ public class GrassTile extends Tile {
 	public int getV(int faceAxis) {
 		return faceAxis == 1 ? 0 : 1;
 	}
+
+	@Override
+	public int getU(int faceAxis) {
+		return faceAxis == 4 ? 0 : 1;
+	}
 }
