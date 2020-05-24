@@ -17,7 +17,7 @@ public class GroundFoliageGenerator extends Generator<GroundFoliageGeneratorSett
 		while (count --> 0) {
 			int x = startX + rand.nextInt(16);
 			int z = startZ + rand.nextInt( 16);
-			int y = getHeightForGeneration(world, x, z) + 1;
+			int y = getHeightForGeneration(world, x, z);
 			Tile tile = settings.pickTile(rand);
 
 			if (world.isInWorld(x, y, z)) {

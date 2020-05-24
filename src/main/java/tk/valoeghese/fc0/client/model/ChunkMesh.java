@@ -161,8 +161,8 @@ public class ChunkMesh {
 
 			i = model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE, startU, startV, this.l);
 			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z - SIZE, startU, endV, this.l);
-			model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE, endU, startV, this.l);
-			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z - SIZE, endU, endV, this.l);
+			model.addVertex(this.pos.x - SIZE, this.pos.y - SIZE, this.pos.z + SIZE, endU, startV, this.l);
+			model.addVertex(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z + SIZE, endU, endV, this.l);
 
 			model.addTriangle(i, i + 1, i + 3);
 			model.addTriangle(i, i + 2, i + 3);
