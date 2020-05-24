@@ -93,7 +93,13 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			glfwPollEvents();
 
 			if (Keybinds.ESCAPE.hasBeenPressed()) {
-				glfwSetWindowShouldClose(this.window.glWindow, true);
+				if (this.titleScreen) {
+					glfwSetWindowShouldClose(this.window.glWindow, true);
+				} else {
+					this.world = new ClientChunkSelection(0, 3);
+					this.player.changeWorld(this.world);
+					this.titleScreen = true;
+				}
 			}
 		}
 
