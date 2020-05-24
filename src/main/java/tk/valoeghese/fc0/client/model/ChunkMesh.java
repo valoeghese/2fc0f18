@@ -12,11 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChunkMesh {
-	public ChunkMesh(ClientChunk chunk, byte[] tiles, int x, int z) {
+	public ChunkMesh(ClientChunk chunk, byte[] tiles, byte[] meta, int x, int z) {
 		this.x = x << 4;
 		this.z = z << 4;
 		this.transform = new Matrix4f().translate(this.x, 0, this.z);
 		this.tiles = tiles;
+		this.meta = meta;
 		this.chunk = chunk;
 		this.buildMesh();
 	}
@@ -25,6 +26,7 @@ public class ChunkMesh {
 	private final int z;
 	private final Matrix4f transform;
 	private final byte[] tiles;
+	private final byte[] meta;
 	private final RenderedChunk chunk;
 	private ChunkMeshModel mesh;
 	private ChunkMeshModel water;
@@ -43,15 +45,16 @@ public class ChunkMesh {
 				for (int y = 0; y < 128; ++y) {
 					if (this.chunk.renderHeight(y)) {
 						int tile = this.tiles[index(x, y, z)];
+						byte meta = this.meta[index(x, y, z)];
 						Tile instance = Tile.BY_ID[tile];
-
 						boolean waterLayer = instance == Tile.WATER;
 
 						if (instance.shouldRender() && instance.isCross()) {
 							(waterLayer ? waterFaces : faces).add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
 											instance,
-											0.95f));
+											0.95f,
+											meta));
 						} else if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y + 1, z)]];
 							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y - 1, z)]];
@@ -65,7 +68,8 @@ public class ChunkMesh {
 										new Vector3f(x, y + 0.5f, z),
 										1,
 										instance,
-										0.95f));
+										0.95f,
+										meta));
 							}
 
 							if (!tileDown.isOpaque(waterLayer)) {
@@ -73,7 +77,8 @@ public class ChunkMesh {
 										new Vector3f(x, y - 0.5f, z),
 										4,
 										instance,
-										0.85f));
+										0.85f,
+										meta));
 							}
 
 							if (!tileNorth.isOpaque(waterLayer)) {
@@ -81,7 +86,8 @@ public class ChunkMesh {
 										new Vector3f(x, y, z + 0.5f),
 										2,
 										instance,
-										1.05f));
+										1.05f,
+										meta));
 							}
 
 							if (!tileSouth.isOpaque(waterLayer)) {
@@ -89,7 +95,8 @@ public class ChunkMesh {
 										new Vector3f(x, y, z - 0.5f),
 										5,
 										instance,
-										0.75f));
+										0.75f,
+										meta));
 							}
 
 							if (!tileEast.isOpaque(waterLayer)) {
@@ -97,7 +104,8 @@ public class ChunkMesh {
 										new Vector3f(x + 0.5f, y, z),
 										0,
 										instance,
-										0.9f));
+										0.9f,
+										meta));
 							}
 
 							if (!tileWest.isOpaque(waterLayer)) {
@@ -105,7 +113,8 @@ public class ChunkMesh {
 										new Vector3f(x - 0.5f, y, z),
 										3,
 										instance,
-										0.9f));
+										0.9f,
+										meta));
 							}
 						}
 					}
@@ -139,8 +148,8 @@ public class ChunkMesh {
 	}
 
 	static class RenderedCrossTileFace extends RenderedTileFace {
-		RenderedCrossTileFace(Vector3f offset, Tile tile, float light) {
-			super(offset, 1, tile, light);
+		RenderedCrossTileFace(Vector3f offset, Tile tile, float light, byte meta) {
+			super(offset, 1, tile, light, meta);
 		}
 
 		@Override
@@ -170,10 +179,10 @@ public class ChunkMesh {
 	}
 
 	static class RenderedTileFace {
-		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light) {
+		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light, byte meta) {
 			this.pos = offset;
-			this.u = tile.getU(faceAxis);
-			this.v = tile.getV(faceAxis);
+			this.u = tile.getU(faceAxis, meta);
+			this.v = tile.getV(faceAxis, meta);
 			this.f = faceAxis;
 			this.l = light;
 		}

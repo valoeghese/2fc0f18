@@ -115,7 +115,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	public ChunkMesh getOrCreateMesh() {
 		if (this.mesh == null) {
-			this.mesh = new ChunkMesh(this, this.tiles, this.x, this.z);
+			this.mesh = new ChunkMesh(this, this.tiles, this.meta, this.x, this.z);
 		}
 
 		return this.mesh;

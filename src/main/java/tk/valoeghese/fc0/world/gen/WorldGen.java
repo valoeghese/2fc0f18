@@ -22,6 +22,8 @@ public final class WorldGen {
 		}
 
 		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
+		byte[] meta = new byte[tiles.length];
+
 		int blockX = chunkX << 4;
 		int blockZ = chunkZ << 4;
 
@@ -61,7 +63,12 @@ public final class WorldGen {
 						toSet = zone.beach;
 					}
 
-					tiles[Chunk.index(x, y, z)] = toSet;
+					int index = Chunk.index(x, y, z);
+					tiles[index] = toSet;
+
+					if (toSet == Tile.GRASS.id && zone == EcoZone.TUNDRA) {
+						meta[index] = 1;
+					}
 				}
 
 				if (height < 52) {
@@ -79,7 +86,7 @@ public final class WorldGen {
 			}
 		}
 
-		return constructor.create(parent, chunkX, chunkZ, tiles);
+		return constructor.create(parent, chunkX, chunkZ, tiles, meta);
 	}
 
 	public static void populateChunk(World world, Chunk chunk, Random rand) {
@@ -128,6 +135,6 @@ public final class WorldGen {
 
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
-		T create(ChunkAccess parent, int x, int z, byte[] tiles);
+		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta);
 	}
 }
