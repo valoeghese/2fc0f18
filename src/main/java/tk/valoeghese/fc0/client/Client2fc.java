@@ -56,10 +56,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private int fov;
 	private boolean titleScreen = true;
 	private GUI titleText;
+	private Pos spawnLoc = Pos.ZERO;
 
 	public void createWorld() {
 		this.world = new ClientChunkSelection(new Random().nextLong(), 9);
 		this.time = 0;
+		this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
 		this.player.changeWorld(this.world);
 	}
 
@@ -221,7 +223,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 
 			if (Keybinds.RESPAWN.hasBeenPressed() || this.player.getTilePos().y < -20) {
-				player.setPos(new Pos(0, this.world.getHeight(0, 0) + 1, 0));
+				this.player.setPos(this.spawnLoc);
+			}
+
+			if (Keybinds.SET_SPAWN.hasBeenPressed()) {
+				this.spawnLoc = this.player.getPos();
 			}
 		}
 

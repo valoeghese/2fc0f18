@@ -29,7 +29,7 @@ public class ClientPlayer extends Player  {
 	@Override
 	public void setPos(Pos pos) {
 		super.setPos(pos);
-		this.camera.setPos((float) pos.getX(), (float) -pos.getY() - 1.8f, (float) pos.getZ());
+		this.camera.setPos((float) -pos.getX(), (float) -pos.getY() - 1.8f, (float) -pos.getZ());
 	}
 
 	@Override

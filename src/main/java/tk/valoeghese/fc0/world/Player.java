@@ -139,4 +139,8 @@ public class Player {
 	public int getZ() {
 		return new TilePos(this.pos).z;
 	}
+
+	public Pos getPos() {
+		return new Pos(this.pos);
+	}
 }
