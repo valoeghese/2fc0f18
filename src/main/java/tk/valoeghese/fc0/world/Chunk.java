@@ -42,7 +42,7 @@ public abstract class Chunk implements World {
 	public final int startX;
 	public final int startZ;
 	protected final IntSet heightsToRender = new IntArraySet();
-	private List<ClientPlayer> players = new ArrayList<>();
+	private List<Player> players = new ArrayList<>();
 	protected ChunkAccess parent;
 	private float iota = 0.0f;
 
@@ -99,27 +99,27 @@ public abstract class Chunk implements World {
 		return 0;
 	}
 
-	void addPlayer(ClientPlayer player) {
+	void addPlayer(Player player) {
 		if (!this.players.contains(player)) {
 			this.players.add(player);
 		}
 	}
 
-	void removePlayer(ClientPlayer player) {
+	void removePlayer(Player player) {
 		if (this.players.contains(player)) {
 			this.players.remove(player);
 		}
 	}
 
 	@Override
-	public void updateChunkOf(ClientPlayer clientPlayer) {
-		if (clientPlayer.chunk != this) {
-			if (clientPlayer.chunk != null) {
-				clientPlayer.chunk.removePlayer(clientPlayer);
+	public void updateChunkOf(Player player) {
+		if (player.chunk != this) {
+			if (player.chunk != null) {
+				player.chunk.removePlayer(player);
 			}
 
-			clientPlayer.chunk = this;
-			this.addPlayer(clientPlayer);
+			player.chunk = this;
+			this.addPlayer(player);
 		}
 	}
 

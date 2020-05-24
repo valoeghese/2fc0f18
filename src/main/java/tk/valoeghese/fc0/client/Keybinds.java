@@ -17,4 +17,8 @@ public final class Keybinds {
 	public static final Keybind RESPAWN = new Keybind("respawn", GLFW_KEY_R, false);
 	public static final Keybind FOV_UP = new Keybind("fov_up", GLFW_KEY_RIGHT_BRACKET, false);
 	public static final Keybind FOV_DOWN = new Keybind("fov_down", GLFW_KEY_LEFT_BRACKET, false);
+	public static final Keybind SELECT_0 = new Keybind("select_0", GLFW_KEY_0, false);
+	public static final Keybind SELECT_1 = new Keybind("select_1", GLFW_KEY_1, false);
+	public static final Keybind SELECT_2 = new Keybind("select_2", GLFW_KEY_2, false);
+	public static final Keybind SELECT_3 = new Keybind("select_3", GLFW_KEY_3, false);
 }

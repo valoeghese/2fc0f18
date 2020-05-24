@@ -30,7 +30,7 @@ public interface World extends GenWorld {
 	void writeTile(int x, int y, int z, byte tile);
 	void destroy();
 
-	default void updateChunkOf(ClientPlayer clientPlayer) {
+	default void updateChunkOf(Player player) {
 	}
 
 	static int WORLD_HEIGHT = 128;

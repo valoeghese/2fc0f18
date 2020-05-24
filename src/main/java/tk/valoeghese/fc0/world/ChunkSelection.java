@@ -104,15 +104,15 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	}
 
 	@Override
-	public void updateChunkOf(ClientPlayer clientPlayer) {
-		TilePos pos = clientPlayer.getTilePos();
+	public void updateChunkOf(Player player) {
+		TilePos pos = player.getTilePos();
 		ChunkPos cPos = pos.toChunkPos();
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
-			this.getChunkDirect(cPos.x, cPos.z).updateChunkOf(clientPlayer);
-		} else if (clientPlayer.chunk != null) {
-			clientPlayer.chunk.removePlayer(clientPlayer);
-			clientPlayer.chunk = null;
+			this.getChunkDirect(cPos.x, cPos.z).updateChunkOf(player);
+		} else if (player.chunk != null) {
+			player.chunk.removePlayer(player);
+			player.chunk = null;
 		}
 	}
 
