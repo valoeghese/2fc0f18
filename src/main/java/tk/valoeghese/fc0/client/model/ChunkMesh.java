@@ -47,7 +47,12 @@ public class ChunkMesh {
 
 						boolean waterLayer = instance == Tile.WATER;
 
-						if (instance.shouldRender() || waterLayer) {
+						if (instance.shouldRender() && instance.isCross()) {
+							(waterLayer ? waterFaces : faces).add(
+									new RenderedCrossTileFace(new Vector3f(x, y, z),
+											instance,
+											0.95f));
+						} else if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y + 1, z)]];
 							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y - 1, z)]];
 							Tile tileWest = x == 0 ? this.chunk.west(z, y) : Tile.BY_ID[this.tiles[index(x - 1, y, z)]];
@@ -133,6 +138,37 @@ public class ChunkMesh {
 		return (x << 11) | (z << 7) | y;
 	}
 
+	static class RenderedCrossTileFace extends RenderedTileFace {
+		RenderedCrossTileFace(Vector3f offset, Tile tile, float light) {
+			super(offset, 1, tile, light);
+		}
+
+		@Override
+		public void addTo(ExternallyEditableModel model) {
+			final float startU = (this.u / 16.0f);
+			final float startV = (this.v / 16.0f);
+			final float endU = startU + 0.0625f;
+			final float endV = startV + 0.0625f;
+
+			// square 1
+			int i = model.addVertex(this.pos.x - SIZE, this.pos.y - SIZE, this.pos.z - SIZE, startU, startV, this.l);
+			model.addVertex(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z - SIZE, startU, endV, this.l);
+			model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z + SIZE, endU, startV, this.l);
+			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z + SIZE, endU, endV, this.l);
+
+			model.addTriangle(i, i + 1, i + 3);
+			model.addTriangle(i, i + 2, i + 3);
+
+			i = model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE, startU, startV, this.l);
+			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z - SIZE, startU, endV, this.l);
+			model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE, endU, startV, this.l);
+			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z - SIZE, endU, endV, this.l);
+
+			model.addTriangle(i, i + 1, i + 3);
+			model.addTriangle(i, i + 2, i + 3);
+		}
+	}
+
 	static class RenderedTileFace {
 		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light) {
 			this.pos = offset;
@@ -142,11 +178,11 @@ public class ChunkMesh {
 			this.l = light;
 		}
 
-		private final Vector3f pos;
-		private int u;
-		private int v;
+		final Vector3f pos;
+		int u;
+		int v;
 		private int f;
-		private float l;
+		float l;
 
 		static final float SIZE = 0.5f;
 
@@ -173,10 +209,10 @@ public class ChunkMesh {
 				model.addVertex(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, endU, startV, this.l); // br
 				break;
 			case 2:
-				i = model.addVertex(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, l); // tl
-				model.addVertex(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, l); // bl
-				model.addVertex(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, endU, endV, l); // tr
-				model.addVertex(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, endU, startV, l); // br
+				i = model.addVertex(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, this.l); // tl
+				model.addVertex(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, this.l); // bl
+				model.addVertex(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, endU, endV, this.l); // tr
+				model.addVertex(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, endU, startV, this.l); // br
 				break;
 			}
 
