@@ -51,7 +51,7 @@ public class Player {
 
 	public void tick() {
 		this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.025f);
-		this.velocity.mul(0.85, 0.98, 0.85);
+		this.velocity.mul(0.85, 0.96, 0.85);
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
@@ -128,7 +128,7 @@ public class Player {
 	}
 
 	public double getJumpStrength() {
-		return 12.0 / 30.0;
+		return 11.0 / 30.0;
 	}
 
 	public int getX() {
