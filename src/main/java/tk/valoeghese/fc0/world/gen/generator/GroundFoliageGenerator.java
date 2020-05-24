@@ -22,6 +22,14 @@ public class GroundFoliageGenerator extends Generator<GroundFoliageGeneratorSett
 
 			if (world.isInWorld(x, y, z)) {
 				world.writeTile(x, y, z, tile.id);
+
+				if (tile == Tile.CACTUS) {
+					++y;
+
+					if (world.isInWorld(x, y, z)) {
+						world.writeTile(x, y, z, tile.id);
+					}
+				}
 			}
 		}
 	}
