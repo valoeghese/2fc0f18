@@ -174,11 +174,33 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				}
 			}
 
+			if (Keybinds.SELECT_1.hasBeenPressed()) {
+				this.player.selectedTile = Tile.STONE;
+			} else if (Keybinds.SELECT_2.hasBeenPressed()) {
+				this.player.selectedTile = Tile.GRASS;
+			} else if (Keybinds.SELECT_3.hasBeenPressed()) {
+				this.player.selectedTile = Tile.LOG;
+			} else if (Keybinds.SELECT_4.hasBeenPressed()) {
+				this.player.selectedTile = Tile.LEAVES;
+			} else if (Keybinds.SELECT_5.hasBeenPressed()) {
+				this.player.selectedTile = Tile.SAND;
+			} else if (Keybinds.SELECT_6.hasBeenPressed()) {
+				this.player.selectedTile = Tile.DAISY;
+			} else if (Keybinds.SELECT_7.hasBeenPressed()) {
+				this.player.selectedTile = Tile.TALLGRASS;
+			} else if (Keybinds.SELECT_8.hasBeenPressed()) {
+				this.player.selectedTile = Tile.BRICKS;
+			} else if (Keybinds.SELECT_9.hasBeenPressed()) {
+				this.player.selectedTile = Tile.STONE_BRICKS;
+			}
+
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				TilePos pos = this.player.rayCast(10.0).pos;
 
 				if (this.world.isInWorld(pos)) {
-					this.world.writeTile(pos, Tile.AIR.id);
+					if (this.world.readTile(pos) != Tile.WATER.id) {
+						this.world.writeTile(pos, Tile.AIR.id);
+					}
 				}
 			}
 
@@ -189,7 +211,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 					TilePos pos = result.face.apply(result.pos);
 
 					if (this.world.isInWorld(pos)) {
-						this.world.writeTile(pos, Tile.STONE.id);
+						if (this.player.selectedTile.id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
+							this.world.writeTile(pos, Tile.CACTUS.id);
+						} else {
+							this.world.writeTile(pos, this.player.selectedTile.id);
+						}
 					}
 				}
 			}

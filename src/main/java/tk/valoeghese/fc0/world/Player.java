@@ -20,6 +20,7 @@ public class Player {
 	@Nullable
 	public Chunk chunk = null;
 	public long lockSwim = 0;
+	public Tile selectedTile = Tile.STONE;
 
 	public void changeWorld(World world) {
 		this.world = world;

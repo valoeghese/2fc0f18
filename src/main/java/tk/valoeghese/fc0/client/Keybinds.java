@@ -21,4 +21,10 @@ public final class Keybinds {
 	public static final Keybind SELECT_1 = new Keybind("select_1", GLFW_KEY_1, false);
 	public static final Keybind SELECT_2 = new Keybind("select_2", GLFW_KEY_2, false);
 	public static final Keybind SELECT_3 = new Keybind("select_3", GLFW_KEY_3, false);
+	public static final Keybind SELECT_4 = new Keybind("select_4", GLFW_KEY_4, false);
+	public static final Keybind SELECT_5 = new Keybind("select_5", GLFW_KEY_5, false);
+	public static final Keybind SELECT_6 = new Keybind("select_6", GLFW_KEY_6, false);
+	public static final Keybind SELECT_7 = new Keybind("select_7", GLFW_KEY_7, false);
+	public static final Keybind SELECT_8 = new Keybind("select_8", GLFW_KEY_8, false);
+	public static final Keybind SELECT_9 = new Keybind("select_9", GLFW_KEY_9, false);
 }
