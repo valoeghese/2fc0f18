@@ -6,8 +6,10 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.generator.Generator;
+import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import java.util.Map;
 import java.util.Random;
 
 public final class WorldGen {
@@ -83,8 +85,8 @@ public final class WorldGen {
 	public static void populateChunk(World world, Chunk chunk, Random rand) {
 		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
 
-		for (Generator generator : Generator.GENERATORS) {
-			generator.generate(world, zone, chunk.x << 4, chunk.z << 4, rand);
+		for (Map.Entry<Generator, GeneratorSettings> generator : zone.getGenerators()) {
+			generator.getKey().generate(world, generator.getValue(), chunk.x << 4, chunk.z << 4, rand);
 		}
 	}
 

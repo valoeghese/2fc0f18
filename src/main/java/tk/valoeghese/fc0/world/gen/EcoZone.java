@@ -1,6 +1,14 @@
 package tk.valoeghese.fc0.world.gen;
 
+import tk.valoeghese.fc0.world.gen.generator.Generator;
+import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
+import tk.valoeghese.fc0.world.gen.generator.GroundFoliageGeneratorSettings;
+import tk.valoeghese.fc0.world.gen.generator.TreeGeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class EcoZone {
 	public EcoZone(String name) {
@@ -16,21 +24,15 @@ public class EcoZone {
 	private final String name;
 	public final byte surface;
 	public final byte beach;
-	public int baseTreeCount = 0;
-	public float treeCountVariation = 0;
-	public int baseTreeHeight = 3;
-	public int potentialHeightIncrease = 3;
+	private Map<Generator, GeneratorSettings> generators = new LinkedHashMap<>();
 
-	protected EcoZone treePlacement(int baseCount, float countVariation) {
-		this.baseTreeCount = baseCount;
-		this.treeCountVariation = countVariation;
+	public <T extends GeneratorSettings> EcoZone addGenerator(Generator<T> generator, T settings) {
+		this.generators.put(generator, settings);
 		return this;
 	}
 
-	protected EcoZone treeStyle(int baseHeight, int potentialHeightIncrease) {
-		this.baseTreeHeight = baseHeight;
-		this.potentialHeightIncrease = potentialHeightIncrease;
-		return this;
+	public Set<Map.Entry<Generator, GeneratorSettings>> getGenerators() {
+		return this.generators.entrySet();
 	}
 
 	@Override
@@ -39,18 +41,28 @@ public class EcoZone {
 	}
 
 	public static final EcoZone TEMPERATE_GRASSLAND = new EcoZone("temperate_grassland")
-			.treePlacement(0, 1.5f);
+			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(3, 7, Tile.DAISY))
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(0, 1.5f));
+
 	public static final EcoZone TROPICAL_GRASSLAND = new EcoZone("tropical_grassland")
-			.treePlacement(0, 1.75f)
-			.treeStyle(1, 1);
+			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(5, 8, Tile.DAISY))
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(0, 1.75f, 1, 1));
+
 	public static final EcoZone TROPICAL_RAINFOREST = new EcoZone("tropical_rainforest")
-			.treePlacement(6, 3.0f)
-			.treeStyle(6, 4);
+			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(0, 1, Tile.DAISY))
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(6, 3.0f, 6, 4));
+
 	public static final EcoZone TEMPERATE_RAINFOREST = new EcoZone("temperate_rainforest")
-			.treePlacement(4, 2.0f)
-			.treeStyle(4, 3);
+			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(0, 1, Tile.DAISY))
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(4, 2.0f, 4, 3));
+
 	public static final EcoZone TEMPERATE_WOODLAND = new EcoZone("temperate_woodland")
-			.treePlacement(2, 2.0f);
-	public static final EcoZone TUNDRA = new EcoZone("tundra");
-	public static final EcoZone DESERT = new EcoZone("desert", Tile.SAND, Tile.SAND);
+			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(1, 2, Tile.DAISY))
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(2, 2.0f));
+
+	public static final EcoZone TUNDRA = new EcoZone("tundra")
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(0, 0));
+
+	public static final EcoZone DESERT = new EcoZone("desert", Tile.SAND, Tile.SAND)
+			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(2, 3, Tile.CACTUS));
 }
