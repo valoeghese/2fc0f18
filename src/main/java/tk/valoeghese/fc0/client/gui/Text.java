@@ -6,13 +6,29 @@ public class Text extends GUI {
 	public Text(String value, float xOffset, float yOffset, float size) {
 		super(Textures.FONT_ATLAS);
 
-		float x = xOffset;
-		float y = yOffset;
-		size = STEP * size;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+		this.size = STEP * size;
+		this.setText(value.toCharArray());
+	}
 
-		for (char c : value.toCharArray()) {
+	private final float xOffset;
+	private final float yOffset;
+	private final float size;
+
+	public void changeText(String newText) {
+		this.destroy();
+		this.setText(newText.toCharArray());
+	}
+
+	private void setText(char[] text) {
+		float x = this.xOffset;
+		float y = this.yOffset;
+
+		for (char c : text) {
 			if (c == '\n') {
-				y -= size;
+				y -= this.size;
+				x = this.xOffset;
 				continue;
 			}
 
@@ -29,15 +45,15 @@ public class Text extends GUI {
 			final float endU = startU + 0.0625f;
 			final float endV = startV + 0.0625f;
 
-			int tl = this.vertex(x, y + size, startU, endV);
+			int tl = this.vertex(x, y + this.size, startU, endV);
 			int bl = this.vertex(x, y, startU, startV);
-			int tr = this.vertex(x + (0.73f * size), y + size, endU, endV);
-			int br = this.vertex(x + (0.73f * size), y, endU, startV);
+			int tr = this.vertex(x + (0.73f * this.size), y + this.size, endU, endV);
+			int br = this.vertex(x + (0.73f * this.size), y, endU, startV);
 
 			this.tri(tl, bl, br);
 			this.tri(tl, tr, br);
 
-			x += 0.63f * size;
+			x += 0.63f * this.size;
 		}
 
 		this.generateBuffers();

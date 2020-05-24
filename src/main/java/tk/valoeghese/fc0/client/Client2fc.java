@@ -9,6 +9,7 @@ import tk.valoeghese.fc0.client.gui.Overlay;
 import tk.valoeghese.fc0.client.gui.Text;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
+import tk.valoeghese.fc0.client.language.Language;
 import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
@@ -18,6 +19,8 @@ import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.gen.EcoZone;
+import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -57,6 +60,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private boolean titleScreen = true;
 	private GUI titleText;
 	private Pos spawnLoc = Pos.ZERO;
+	private Text biomeWidget;
+	private Language language = Language.EN_GB;
 
 	public void createWorld() {
 		this.world = new ClientChunkSelection(new Random().nextLong(), 9);
@@ -103,6 +108,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		this.handleKeybinds();
 		this.player.tick();
+
+		EcoZone zone = WorldGen.getEcoZoneByPosition(this.player.getX(), this.player.getZ());
+
+		if (!this.titleScreen && zone != this.player.cachedZone) {
+			this.player.cachedZone = zone;
+			this.biomeWidget.changeText(this.language.translate(zone.toString()));
+		}
+
 		++this.time;
 	}
 
@@ -121,6 +134,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
 		this.world.populateChunks();
 		this.player.getCamera().rotateYaw((float) Math.PI);
+		this.biomeWidget = new Text("ecozone.placeholder", -0.85f, 0.5f, 1.0f);
 	}
 
 	private void handleKeybinds() {
@@ -282,6 +296,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			this.version.render();
 			this.crosshair.render();
 		}
+		this.biomeWidget.render();
 
 		if (this.player.isUnderwater()) {
 			GraphicsSystem.enableBlend();

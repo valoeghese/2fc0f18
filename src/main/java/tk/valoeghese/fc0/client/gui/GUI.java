@@ -13,8 +13,7 @@ import java.util.List;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
 import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
 
 public abstract class GUI {
@@ -44,6 +43,14 @@ public abstract class GUI {
 		this.iTemp.add(i0);
 		this.iTemp.add(i1);
 		this.iTemp.add(i2);
+	}
+
+	public void destroy() {
+		for (GUI.VertexArray array : this.vertexArrays) {
+			glDeleteVertexArrays(array.vao);
+		}
+
+		this.vertexArrays = new ArrayList<>();
 	}
 
 	protected void generateBuffers() {

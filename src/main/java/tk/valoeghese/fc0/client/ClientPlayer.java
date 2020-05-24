@@ -8,6 +8,7 @@ import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Player;
 import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.EcoZone;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class ClientPlayer extends Player  {
 	}
 
 	private final Camera camera;
+	public EcoZone cachedZone;
 
 	public Camera getCamera() {
 		return this.camera;
