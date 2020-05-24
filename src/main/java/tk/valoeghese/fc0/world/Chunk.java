@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -11,9 +10,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 public abstract class Chunk implements World {
-	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles) {
+	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
 		this.parent = parent;
 		this.tiles = tiles;
+		this.meta = meta;
 		this.x = x;
 		this.z = z;
 		this.startX = x << 4;
@@ -37,6 +37,7 @@ public abstract class Chunk implements World {
 	}
 
 	protected byte[] tiles;
+	protected byte[] meta;
 	public final int x;
 	public final int z;
 	public final int startX;
@@ -49,6 +50,11 @@ public abstract class Chunk implements World {
 	@Override
 	public byte readTile(int x, int y, int z) {
 		return this.tiles[index(x, y, z)];
+	}
+
+	@Override
+	public byte readMeta(int x, int y, int z) {
+		return this.meta[index(x, y, z)];
 	}
 
 	@Override
@@ -74,6 +80,11 @@ public abstract class Chunk implements World {
 				this.heightsToRender.remove(y);
 			}
 		}
+	}
+
+	@Override
+	public void writeMeta(int x, int y, int z, byte meta) {
+		this.meta[index(x, y, z)] = meta;
 	}
 
 	@Override

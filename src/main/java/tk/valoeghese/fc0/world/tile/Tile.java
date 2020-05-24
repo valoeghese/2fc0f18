@@ -20,11 +20,11 @@ public class Tile {
 	private boolean render = true;
 	private boolean cross = false;
 
-	public int getU(int faceAxis) {
+	public int getU(int faceAxis, byte meta) {
 		return this.u;
 	}
 
-	public int getV(int faceAxis) {
+	public int getV(int faceAxis, byte meta) {
 		return this.v;
 	}
 

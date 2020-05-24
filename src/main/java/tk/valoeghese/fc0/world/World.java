@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.world;
 
-import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -29,6 +28,8 @@ public interface World extends GenWorld {
 
 	void writeTile(int x, int y, int z, byte tile);
 	void destroy();
+	void writeMeta(int x, int y, int z, byte meta);
+	byte readMeta(int x, int y, int z);
 
 	default void updateChunkOf(Player player) {
 	}

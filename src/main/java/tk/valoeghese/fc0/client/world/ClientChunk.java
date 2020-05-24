@@ -6,8 +6,8 @@ import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 public class ClientChunk extends Chunk implements RenderedChunk {
-	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles) {
-		super(parent, x, z, tiles);
+	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
+		super(parent, x, z, tiles, meta);
 	}
 
 	protected ChunkMesh mesh;

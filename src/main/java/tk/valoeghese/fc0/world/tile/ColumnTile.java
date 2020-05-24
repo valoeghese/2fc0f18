@@ -6,8 +6,8 @@ public class ColumnTile extends Tile {
 	}
 
 	@Override
-	public int getU(int faceAxis) {
-		int sResult = super.getU(faceAxis);
+	public int getU(int faceAxis, byte meta) {
+		int sResult = super.getU(faceAxis, meta);
 		return faceAxis == 1 || faceAxis == 4 ? sResult + 1 : sResult;
 	}
 }

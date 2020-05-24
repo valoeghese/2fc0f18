@@ -6,12 +6,16 @@ public class GrassTile extends Tile {
 	}
 
 	@Override
-	public int getV(int faceAxis) {
+	public int getV(int faceAxis, byte meta) {
 		return faceAxis == 1 ? 0 : 1;
 	}
 
 	@Override
-	public int getU(int faceAxis) {
-		return faceAxis == 4 ? 0 : 1;
+	public int getU(int faceAxis, byte meta) {
+		if (faceAxis == 4) {
+			return 0;
+		} else {
+			return meta == 1 ? 4 : 1;
+		}
 	}
 }

@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.world;
 
-import tk.valoeghese.fc0.client.ClientPlayer;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -89,8 +88,18 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	}
 
 	@Override
+	public byte readMeta(int x, int y, int z) {
+		return this.getChunkDirect(x >> 4, z >> 4).readMeta(x & 0xF, y, z & 0xF);
+	}
+
+	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
 		this.getChunkDirect(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
+	}
+
+	@Override
+	public void writeMeta(int x, int y, int z, byte meta) {
+		this.getChunkDirect(x >> 4, z >> 4).writeMeta(x & 0xF, y, z & 0xF, meta);
 	}
 
 	@Override
