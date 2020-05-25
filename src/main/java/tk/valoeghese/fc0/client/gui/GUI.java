@@ -26,7 +26,7 @@ public abstract class GUI {
 	private FloatList vTemp = new FloatArrayList();
 	private int vTempIndex = 0;
 	private IntList iTemp = new IntArrayList();
-	private List<VertexArray> vertexArrays = new ArrayList<>();
+	protected List<VertexArray> vertexArrays = new ArrayList<>();
 	private final int mode;
 	private final Shader shader;
 	private final int texture;
@@ -50,7 +50,8 @@ public abstract class GUI {
 			glDeleteVertexArrays(array.vao);
 		}
 
-		this.vertexArrays = new ArrayList<>();
+		this.vertexArrays.clear();
+		this.vTempIndex = 0;
 	}
 
 	protected void generateBuffers() {
@@ -88,8 +89,8 @@ public abstract class GUI {
 			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, NULL);
 		}
 
-		glBindTexture(GL_TEXTURE_2D, 0);
 		unbind();
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	public Shader getShader() {
@@ -100,7 +101,7 @@ public abstract class GUI {
 		glBindVertexArray(0);
 	}
 
-	private static class VertexArray {
+	protected static class VertexArray {
 		private VertexArray(int vao, int elementCount) {
 			this.vao = vao;
 			this.elementCount = elementCount;
@@ -108,5 +109,10 @@ public abstract class GUI {
 
 		private final int vao;
 		private final int elementCount;
+
+		@Override
+		public String toString() {
+			return "{vao: " + this.vao + ", elementCount: " + this.elementCount + "}";
+		}
 	}
 }

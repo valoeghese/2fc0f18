@@ -13,14 +13,16 @@ import java.util.Map;
 import java.util.Random;
 
 public final class WorldGen {
-	public static <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, long seed, Random rand) {
+	public static void updateSeed(long seed) {
 		if (noise == null || seed != cachedSeed) {
 			noise = new Noise(new Random(seed));
 			ridges = new RidgedNoise(new Random(seed + 12));
 			sand = new Noise(new Random(seed - 29));
 			ecoZone = new Noise(new Random(seed + 31));
 		}
+	}
 
+	public static <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, long seed, Random rand) {
 		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
 

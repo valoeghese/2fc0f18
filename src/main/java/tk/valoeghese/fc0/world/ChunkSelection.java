@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 
 public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAccess {
 	public ChunkSelection(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor, IntFunction<T[]> arraySupplier) {
+		WorldGen.updateSeed(seed);
 		this.seed = seed;
 		this.offset = size - 1;
 		this.diameter = 1 + this.offset * 2;

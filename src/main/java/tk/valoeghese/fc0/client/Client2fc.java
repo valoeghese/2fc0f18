@@ -78,9 +78,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void createWorld() {
 		this.saveWorld();
+		this.time = 0;
 		this.save = new Save("save", new Random().nextLong());
 		this.world = new ClientChunkSelection(this.save, this.save.getSeed(), 9);
-		this.time = 0;
+
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;
 		} else {
@@ -145,7 +146,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (!this.titleScreen && zone != this.player.cachedZone) {
 			this.player.cachedZone = zone;
-			this.biomeWidget.changeText(this.language.translate(zone.toString()));
+			String newValue = this.language.translate(zone.toString());
+			System.out.println(newValue);
+			this.biomeWidget.changeText(newValue);
 		}
 
 		++this.time;
@@ -166,7 +169,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
 		this.world.populateChunks();
 		this.player.getCamera().rotateYaw((float) Math.PI);
-		this.biomeWidget = new Text("ecozone.placeholder", -0.85f, 0.5f, 1.0f);
+		this.biomeWidget = new Text(this.language.translate("ecozone.temperate_grassland"), -0.85f, 0.8f, 1.0f);
 	}
 
 	private void handleKeybinds() {
