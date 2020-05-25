@@ -2,8 +2,13 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.tile.Tile;
+import tk.valoeghese.sod.BinaryData;
+import tk.valoeghese.sod.ByteArrayDataSection;
+import tk.valoeghese.sod.DataSection;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +51,7 @@ public abstract class Chunk implements World {
 	private List<Player> players = new ArrayList<>();
 	protected ChunkAccess parent;
 	private float iota = 0.0f;
+	public boolean populated = false;
 
 	@Override
 	public byte readTile(int x, int y, int z) {
@@ -136,6 +142,44 @@ public abstract class Chunk implements World {
 
 	@Override
 	public void destroy() {
+	}
+
+	public void write(BinaryData data) {
+		ByteArrayDataSection tiles = new ByteArrayDataSection();
+
+		for (int i = 0; i < this.tiles.length; ++i) {
+			tiles.writeByte(this.tiles[i]);
+			tiles.writeByte(this.meta[i]);
+		}
+
+		DataSection properties = new DataSection();
+		properties.writeInt(this.x);
+		properties.writeInt(this.z);
+		properties.writeBoolean(this.populated);
+
+		data.put("tiles", tiles);
+		data.put("properties", properties);
+	}
+
+	public ChunkPos getPos() {
+		return new ChunkPos(this.x, this.z);
+	}
+
+	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
+		ByteArrayDataSection tileData = data.getByteArray("tiles");
+		byte[] tiles = new byte[16 * 16 * WORLD_HEIGHT];
+		byte[] meta = new byte[tiles.length];
+
+		for (int i = 0; i < tileData.size() / 2; ++i) {
+			int j = i * 2;
+			tiles[i] = tileData.readByte(j);
+			meta[i] = tileData.readByte(j + 1);
+		}
+
+		DataSection properties = data.get("properties");
+		T result = constructor.create(parent, properties.readInt(0), properties.readInt(1), tiles, meta);
+		result.populated = properties.readBoolean(2);
+		return result;
 	}
 
 	public static int index(int x, int y, int z) {

@@ -19,8 +19,11 @@ import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -44,7 +47,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.world = new ClientChunkSelection(0, 3);
+		this.world = new ClientChunkSelection(null, 0, 3);
 	}
 
 	private ClientChunkSelection world;
@@ -62,9 +65,21 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private Pos spawnLoc = Pos.ZERO;
 	private Text biomeWidget;
 	private Language language = Language.EN_GB;
+	private Save save = null;
+
+	public void saveWorld() {
+		if (this.save != null) {
+			Save save = this.save;
+			ChunkSelection<?> world = this.world;
+
+
+		}
+	}
 
 	public void createWorld() {
-		this.world = new ClientChunkSelection(new Random().nextLong(), 9);
+		this.saveWorld();
+		this.save = new Save("save", new Random().nextLong());
+		this.world = new ClientChunkSelection(this.save, this.save.getSeed(), 9);
 		this.time = 0;
 		this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
 		this.player.changeWorld(this.world);
@@ -96,7 +111,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				if (this.titleScreen) {
 					glfwSetWindowShouldClose(this.window.glWindow, true);
 				} else {
-					this.world = new ClientChunkSelection(0, 3);
+					this.saveWorld();
+					this.save = null;
+					this.world = new ClientChunkSelection(null, 0, 3);
 					this.player.changeWorld(this.world);
 					this.titleScreen = true;
 				}

@@ -4,6 +4,7 @@ import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -12,13 +13,13 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAccess {
-	public ChunkSelection(long seed, int size, WorldGen.ChunkConstructor<T> constructor, IntFunction<T[]> arraySupplier) {
+	public ChunkSelection(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor, IntFunction<T[]> arraySupplier) {
 		this.seed = seed;
 		this.offset = size - 1;
 		this.diameter = 1 + this.offset * 2;
 		long time = System.currentTimeMillis();
 
-		if (this.seed != 0) {
+		if (save != null) {
 			System.out.println("Generating World.");
 		}
 
@@ -29,13 +30,21 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 
 		for (int x = -size + 1; x < size; ++x) {
 			for (int z = -size + 1; z < size; ++z) {
-				T chunk = WorldGen.generateChunk(constructor, this, x, z, seed, this.genRand);
+				T chunk;
+
+				if (save == null) {
+					this.genRand.setSeed(seed + 134 * x + -529 * z);
+					chunk = WorldGen.generateChunk(constructor, this, x, z, seed, this.genRand);
+				} else {
+					chunk = save.getOrCreateChunk(this, x, z, constructor);
+				}
+
 				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
 				this.orderedChunks.add(chunk);
 			}
 		}
 
-		if (this.seed != 0) {
+		if (save != null) {
 			System.out.println("Generated World in " + (System.currentTimeMillis() - time) + "ms.");
 		}
 
@@ -60,12 +69,20 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 		}
 
 		for (Chunk chunk : this.chunks) {
-			WorldGen.populateChunk(this, chunk, this.genRand);
+			if (!chunk.populated) {
+				this.genRand.setSeed(this.seed + 134 * chunk.x + -529 * chunk.z + 127);
+				WorldGen.populateChunk(this, chunk, this.genRand);
+				chunk.populated = true;
+			}
 		}
 
 		if (this.seed != 0) {
 			System.out.println("Populated World in " + (System.currentTimeMillis() - time) + "ms.");
 		}
+	}
+
+	public Chunk[] getChunks() {
+		return this.chunks;
 	}
 
 	@Override
@@ -127,5 +144,10 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 
 	@Override
 	public void destroy() {
+	}
+
+	@Override
+	public long getSeed() {
+		return this.seed;
 	}
 }

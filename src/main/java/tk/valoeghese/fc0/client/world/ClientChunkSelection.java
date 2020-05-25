@@ -2,15 +2,17 @@ package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkSelection;
+import tk.valoeghese.fc0.world.save.Save;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 public class ClientChunkSelection extends ChunkSelection<ClientChunk> {
-	public ClientChunkSelection(long seed, int size) {
-		super(seed, size, ClientChunk::new, ClientChunk[]::new);
+	public ClientChunkSelection(@Nullable Save save, long seed, int size) {
+		super(save, seed, size, ClientChunk::new, ClientChunk[]::new);
 
 		// add to render queue
 		int i = 0;

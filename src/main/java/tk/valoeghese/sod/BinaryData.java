@@ -1,18 +1,13 @@
 package tk.valoeghese.sod;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import tk.valoeghese.sod.exception.SODParseException;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-
-import tk.valoeghese.sod.exception.SODParseException;
 
 @SuppressWarnings("rawtypes")
 public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> {
@@ -86,7 +81,7 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 			long magic = dis.readLong();
 
 			if (magic != 0xA77D1E) {
-				throw new SODParseException("Not a valid SOD file!");
+				throw new SODParseException("Not a valid GZIPPED SOD file!");
 			}
 
 			return Parser.parse(dis);
