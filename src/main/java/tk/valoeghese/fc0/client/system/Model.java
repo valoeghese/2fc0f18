@@ -85,6 +85,7 @@ public abstract class Model {
 		}
 
 		this.vertexArrays = new ArrayList<>();
+		this.vTempIndex = 0;
 	}
 
 	public final void render(Matrix4f transform) {
