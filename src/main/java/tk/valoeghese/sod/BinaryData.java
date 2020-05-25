@@ -1,13 +1,20 @@
 package tk.valoeghese.sod;
 
-import tk.valoeghese.sod.exception.SODParseException;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+
+import tk.valoeghese.sod.exception.SODParseException;
 
 @SuppressWarnings("rawtypes")
 public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> {
@@ -61,16 +68,6 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 		return this.sections.containsKey(name);
 	}
 
-	public boolean writeGzipped(File file) {
-		try (DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(file)))) {
-			Parser.write(this, dos);
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
 	public boolean write(File file) {
 		try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(file))) {
 			Parser.write(this, dos);
@@ -81,31 +78,18 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 		}
 	}
 
+	public void writeGzipped(File file) throws IOException {
+		try (DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(file)))) {
+			Parser.write(this, dos);
+		}
+	}
+
 	@Override
 	public Iterator<Map.Entry<String, BaseDataSection>> iterator() {
 		return this.sections.entrySet().iterator();
 	}
 
-	public static BinaryData readGzipped(File file, boolean createIfNoError) throws SODParseException {
-		try (DataInputStream dis = new DataInputStream(new GZIPInputStream(new FileInputStream(file)))) {
-			long magic = dis.readLong();
-
-			if (magic != 0xA77D1E) {
-				throw new SODParseException("Not a valid GZIPPED SOD file!");
-			}
-
-			return Parser.parse(dis);
-		} catch (IOException e) {
-			if (!createIfNoError) {
-				throw new SODParseException("Error in parsing file " + file.toString(), e);
-			}
-
-			e.printStackTrace();
-			return new BinaryData();
-		}
-	}
-
-	public static BinaryData read(File file, boolean createIfNoError) throws SODParseException {
+	public static BinaryData read(File file) throws SODParseException {
 		try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
 			long magic = dis.readLong();
 
@@ -115,12 +99,35 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 
 			return Parser.parse(dis);
 		} catch (IOException e) {
-			if (!createIfNoError) {
-				throw new SODParseException("Error in parsing file " + file.toString(), e);
+			throw new SODParseException("Unhandled IOException in parsing file " + file.toString(), e);
+		}
+	}
+
+	public static BinaryData readGzipped(File file) throws SODParseException {
+		try (GZIPInputStream gis = new GZIPInputStream(new FileInputStream(file))) {
+			// thanks stack overflow for having more efficient code than I probably would have written
+			ByteArrayOutputStream uncompressed = new ByteArrayOutputStream();
+			byte[] buf = new byte[0x1000];
+			int bytesRead;
+
+			// while file has not ended, copy up to 0x4000 bytes of data into a byte[] buffer
+			// and store the number of bytes read
+			while ((bytesRead = gis.read(buf, 0, buf.length)) != -1) {
+				// add to uncompressed output stream, omitting any bytes that weren't part of the read data
+				uncompressed.write(buf, 0, bytesRead);
 			}
 
-			e.printStackTrace();
-			return new BinaryData();
+			DataInputStream dis = new DataInputStream(new ByteArrayInputStream(uncompressed.toByteArray()));
+
+			long magic = dis.readLong();
+
+			if (magic != 0xA77D1E) {
+				throw new SODParseException("Not a valid GZIPPED SOD file!");
+			}
+
+			return Parser.parse(dis);
+		} catch (IOException e) {
+			throw new SODParseException("Unhandled IOException in parsing file " + file.toString(), e);
 		}
 	}
 }

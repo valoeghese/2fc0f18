@@ -26,7 +26,7 @@ public class ShortArrayDataSection implements BaseDataSection<Short> {
 	@Override
 	public <T> void writeForParser(T data) throws UnsupportedOperationException {
 		if (data instanceof Short) {
-			this.writeShort((Short) data);
+			this.writeShort((short) data);
 		} else {
 			throw new UnsupportedOperationException("Invalid data type parameter for this data section");
 		}

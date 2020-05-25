@@ -1,13 +1,12 @@
 package tk.valoeghese.sod;
 
-import tk.valoeghese.sod.exception.SODParseException;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+
+import tk.valoeghese.sod.exception.SODParseException;
 
 final class Parser {
 	@SuppressWarnings({"deprecation", "rawtypes", "unchecked"})
@@ -24,6 +23,8 @@ final class Parser {
 
 		try {
 			currentSection = dataType.createSection();
+			data.put(input.readUTF(), currentSection);
+
 			if (dataType != DataType.SECTION) {
 				arraySizeCountdown = input.readInt();
 			}
@@ -31,9 +32,8 @@ final class Parser {
 			throw new SODParseException("Data must be segregated into sections!");
 		}
 
-		data.put(input.readUTF(), currentSection);
-
 		while (input.available() > 0) {
+			//System.out.println(input.available());
 			switch (sectionType) {
 			case BYTE_ARRAY_SECTION:
 				while (arraySizeCountdown --> 0) {
@@ -177,13 +177,7 @@ final class Parser {
 				break;
 			case SECTION:
 			default:
-				int i = input.available();
-				try {
-					dataType = DataType.of(input.readByte());
-				} catch (EOFException e) {
-					System.out.println(i);
-					throw e;
-				}
+				dataType = DataType.of(input.readByte());
 
 				switch (dataType) {
 				case BYTE:

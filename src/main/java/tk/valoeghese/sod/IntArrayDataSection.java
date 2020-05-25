@@ -26,7 +26,7 @@ public class IntArrayDataSection implements BaseDataSection<Integer> {
 	@Override
 	public <T> void writeForParser(T data) throws UnsupportedOperationException {
 		if (data instanceof Integer) {
-			this.writeInt((Integer) data);
+			this.writeInt((int) data);
 		} else {
 			throw new UnsupportedOperationException("Invalid data type parameter for this data section");
 		}
