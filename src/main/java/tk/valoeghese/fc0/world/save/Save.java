@@ -19,7 +19,7 @@ public class Save {
 		this.saveDat = new File(this.parentDir, "save.gsod");
 
 		if (this.saveDat.exists()) {
-			BinaryData data = BinaryData.readGzipped(this.saveDat, false);
+			BinaryData data = BinaryData.readGzipped(this.saveDat);
 			this.seed = data.get("data").readLong(0);
 		} else {
 			this.seed = seed;
@@ -90,7 +90,7 @@ public class Save {
 		File file = new File(this.parentDir, "c" + x + "." + z + ".gsod");
 
 		if (file.exists()) {
-			return Chunk.read(parent, constructor, BinaryData.readGzipped(file, false));
+			return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
 		} else {
 			Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
 			return WorldGen.generateChunk(constructor, parent, x, z, parent.getSeed(), genRand);
