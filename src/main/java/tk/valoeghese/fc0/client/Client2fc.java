@@ -330,8 +330,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		} else {
 			this.version.render();
 			this.crosshair.render();
+			this.biomeWidget.render();
 		}
-		this.biomeWidget.render();
 
 		if (this.player.isUnderwater()) {
 			GraphicsSystem.enableBlend();

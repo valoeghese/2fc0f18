@@ -60,7 +60,7 @@ public class EcoZone {
 			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(3, 4, Tile.DAISY, Tile.DAISY, Tile.TALLGRASS))
 			.addGenerator(Generator.TREE, new TreeGeneratorSettings(2, 2.0f));
 
-	public static final EcoZone TUNDRA = new EcoZone("tundra")
+	public static final EcoZone TUNDRA = new EcoZone("tundra", Tile.GRASS, Tile.STONE)
 			.addGenerator(Generator.TREE, new TreeGeneratorSettings(0, 0))
 			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(0, 1, Tile.TALLGRASS));
 

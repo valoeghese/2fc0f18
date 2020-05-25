@@ -130,7 +130,7 @@ public class Player {
 	}
 
 	public float getHorizontalSlowness() {
-		return 40.0f;
+		return 52.0f;
 	}
 
 	public double getJumpStrength() {
