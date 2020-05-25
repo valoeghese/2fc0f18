@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.world.save;
 
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
-import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.DataSection;
@@ -20,7 +19,7 @@ public class Save {
 		this.saveDat = new File(this.parentDir, "save.gsod");
 
 		if (this.saveDat.exists()) {
-			BinaryData data = BinaryData.read(saveDat, false);
+			BinaryData data = BinaryData.readGzipped(this.saveDat, false);
 			this.seed = data.get("data").readLong(0);
 		} else {
 			this.seed = seed;
@@ -37,7 +36,7 @@ public class Save {
 		return this.seed;
 	}
 
-	public void write(ChunkSelection<?> world) {
+	public void write(Chunk[] chunks) {
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -51,7 +50,7 @@ public class Save {
 		thread = new WorldSaveThread(() -> {
 			System.out.println("Saving Chunks");
 
-			for (Chunk c : world.getChunks()) {
+			for (Chunk c : chunks) {
 				if (c != null) {
 					this.saveChunk(c);
 				}
@@ -63,7 +62,7 @@ public class Save {
 				DataSection mainData = new DataSection();
 				mainData.writeLong(this.seed);
 				data.put("data", mainData);
-				data.write(this.saveDat);
+				data.writeGzipped(this.saveDat);
 			} catch (IOException e) {
 				throw new UncheckedIOException("Error writing save data", e);
 			}
@@ -91,7 +90,7 @@ public class Save {
 		File file = new File(this.parentDir, "c" + x + "." + z + ".gsod");
 
 		if (file.exists()) {
-			return Chunk.read(parent, constructor, BinaryData.read(file, false));
+			return Chunk.read(parent, constructor, BinaryData.readGzipped(file, false));
 		} else {
 			Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
 			return WorldGen.generateChunk(constructor, parent, x, z, parent.getSeed(), genRand);
@@ -105,7 +104,7 @@ public class Save {
 			file.createNewFile();
 			BinaryData data = new BinaryData();
 			chunk.write(data);
-			data.write(file);
+			data.writeGzipped(file);
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error writing chunk! " + chunk.getPos().toString(), e);
 		}

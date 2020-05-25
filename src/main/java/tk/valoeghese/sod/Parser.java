@@ -1,12 +1,12 @@
 package tk.valoeghese.sod;
 
+import tk.valoeghese.sod.exception.SODParseException;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-
-import tk.valoeghese.sod.exception.SODParseException;
 
 final class Parser {
 	@SuppressWarnings({"deprecation", "rawtypes", "unchecked"})

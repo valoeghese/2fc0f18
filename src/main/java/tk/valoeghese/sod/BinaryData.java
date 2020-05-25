@@ -61,8 +61,18 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 		return this.sections.containsKey(name);
 	}
 
-	public boolean write(File file) {
+	public boolean writeGzipped(File file) {
 		try (DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(file)))) {
+			Parser.write(this, dos);
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+
+	public boolean write(File file) {
+		try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(file))) {
 			Parser.write(this, dos);
 			return true;
 		} catch (IOException e) {
@@ -76,12 +86,31 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 		return this.sections.entrySet().iterator();
 	}
 
-	public static BinaryData read(File file, boolean createIfNoError) throws SODParseException {
+	public static BinaryData readGzipped(File file, boolean createIfNoError) throws SODParseException {
 		try (DataInputStream dis = new DataInputStream(new GZIPInputStream(new FileInputStream(file)))) {
 			long magic = dis.readLong();
 
 			if (magic != 0xA77D1E) {
 				throw new SODParseException("Not a valid GZIPPED SOD file!");
+			}
+
+			return Parser.parse(dis);
+		} catch (IOException e) {
+			if (!createIfNoError) {
+				throw new SODParseException("Error in parsing file " + file.toString(), e);
+			}
+
+			e.printStackTrace();
+			return new BinaryData();
+		}
+	}
+
+	public static BinaryData read(File file, boolean createIfNoError) throws SODParseException {
+		try (DataInputStream dis = new DataInputStream(new FileInputStream(file))) {
+			long magic = dis.readLong();
+
+			if (magic != 0xA77D1E) {
+				throw new SODParseException("Not a valid SOD file!");
 			}
 
 			return Parser.parse(dis);

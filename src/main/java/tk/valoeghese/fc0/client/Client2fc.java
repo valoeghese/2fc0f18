@@ -19,7 +19,6 @@ import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
-import tk.valoeghese.fc0.world.ChunkSelection;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.save.Save;
@@ -68,9 +67,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void saveWorld() {
 		if (this.save != null) {
-			Save save = this.save;
-			ChunkSelection<?> world = this.world;
-			save.write(world);
+			this.save.write(this.world.getChunks());
 		}
 	}
 
