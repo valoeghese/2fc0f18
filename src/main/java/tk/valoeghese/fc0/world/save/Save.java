@@ -37,7 +37,7 @@ public class Save {
 		return this.seed;
 	}
 
-	private void write(ChunkSelection<?> world) {
+	public void write(ChunkSelection<?> world) {
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -49,6 +49,8 @@ public class Save {
 		}
 
 		thread = new WorldSaveThread(() -> {
+			System.out.println("Saving Chunks");
+
 			for (Chunk c : world.getChunks()) {
 				if (c != null) {
 					this.saveChunk(c);
@@ -82,6 +84,7 @@ public class Save {
 					lock.wait();
 				}
 			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 		}
 
