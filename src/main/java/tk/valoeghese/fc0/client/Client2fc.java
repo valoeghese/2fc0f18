@@ -34,6 +34,7 @@ import static tk.valoeghese.fc0.client.model.Textures.TILE_ATLAS;
 
 public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
+		instance = this;
 		// initialise Graphics and Audio systems
 		GraphicsSystem.initGLFW();
 		this.window = new Window(640 * 2, 360 * 2);
@@ -56,7 +57,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI crosshair;
 	private GUI version;
 	private GUI waterOverlay;
-	private long time = 0;
+	public long time = 0;
 	private int fov;
 	private boolean titleScreen = true;
 	private GUI titleText;
@@ -65,9 +66,13 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private Language language = Language.EN_GB;
 	private Save save = null;
 
+	public static Client2fc getInstance() {
+		return instance;
+	}
+
 	public void saveWorld() {
 		if (this.save != null) {
-			this.save.write(this.world.getChunks());
+			this.save.write(this.world.getChunks(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
@@ -76,8 +81,17 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.save = new Save("save", new Random().nextLong());
 		this.world = new ClientChunkSelection(this.save, this.save.getSeed(), 9);
 		this.time = 0;
-		this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
-		this.player.changeWorld(this.world);
+		if (this.save.spawnLocPos != null) {
+			this.spawnLoc = this.save.spawnLocPos;
+		} else {
+			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
+		}
+
+		if (this.save.lastSavePos != null) {
+			this.player.changeWorld(this.world, this.save.lastSavePos);
+		} else {
+			this.player.changeWorld(this.world);
+		}
 	}
 
 	public void setFOV(int newFOV) {
@@ -360,4 +374,5 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private static final float PI = (float) Math.PI;
 	private static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
+	private static Client2fc instance;
 }

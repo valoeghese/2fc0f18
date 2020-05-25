@@ -28,6 +28,11 @@ public class Player {
 		this.move(0, world.getHeight(0, 0) + 0.5f, 0);
 	}
 
+	public void changeWorld(World world, Pos movePos) {
+		this.world = world;
+		this.setPos(movePos);
+	}
+
 	public boolean move(double x, double y, double z) {
 		Pos next = this.pos.ofAdded(x, y, z);
 		TilePos tilePos = new TilePos(next);
