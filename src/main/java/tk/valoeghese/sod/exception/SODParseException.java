@@ -6,4 +6,8 @@ public class SODParseException extends RuntimeException {
 	public SODParseException(String message) {
 		super(message);
 	}
+
+	public SODParseException(String message, Exception parent) {
+		super(message, parent);
+	}
 }

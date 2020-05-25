@@ -87,7 +87,7 @@ public class BinaryData implements Iterable<Map.Entry<String, BaseDataSection>> 
 			return Parser.parse(dis);
 		} catch (IOException e) {
 			if (!createIfNoError) {
-				throw new SODParseException("Error in parsing file " + file.toString());
+				throw new SODParseException("Error in parsing file " + file.toString(), e);
 			}
 
 			e.printStackTrace();

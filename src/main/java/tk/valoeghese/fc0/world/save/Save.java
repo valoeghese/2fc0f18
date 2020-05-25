@@ -30,21 +30,29 @@ public class Save {
 	private final File parentDir;
 	private final File saveDat;
 	private final long seed;
-	private static boolean wait = false;
+	public static WorldSaveThread thread;
+	private static final Object lock = new Object();
 
 	public long getSeed() {
 		return this.seed;
 	}
 
 	private void write(ChunkSelection<?> world) {
-		while (wait) {
-			Thread.sleep(1);
+		synchronized (lock) {
+			try {
+				while (thread != null && !thread.isReady()) {
+					lock.wait();
+				}
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
-		wait = true;
-		Thread thread = new Thread(() -> {
+		thread = new WorldSaveThread(() -> {
 			for (Chunk c : world.getChunks()) {
-				this.saveChunk(c);
+				if (c != null) {
+					this.saveChunk(c);
+				}
 			}
 
 			try {
@@ -58,14 +66,25 @@ public class Save {
 				throw new UncheckedIOException("Error writing save data", e);
 			}
 
-			wait = false;
+			synchronized (lock) {
+				WorldSaveThread.setReady();
+				lock.notifyAll();
+			}
 		});
 
-		thread.setDaemon(true);
 		thread.start();
 	}
 
 	public <T extends Chunk> T getOrCreateChunk(ChunkAccess parent, int x, int z, WorldGen.ChunkConstructor<T> constructor) {
+		synchronized (lock) {
+			try {
+				while (thread != null && !thread.isReady()) {
+					lock.wait();
+				}
+			} catch (InterruptedException e) {
+			}
+		}
+
 		File file = new File(this.parentDir, "c" + x + "." + z + ".gsod");
 
 		if (file.exists()) {
