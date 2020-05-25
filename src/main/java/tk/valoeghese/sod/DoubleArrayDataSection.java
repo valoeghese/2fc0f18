@@ -26,7 +26,7 @@ public class DoubleArrayDataSection implements BaseDataSection<Double> {
 	@Override
 	public <T> void writeForParser(T data) throws UnsupportedOperationException {
 		if (data instanceof Double) {
-			this.writeDouble((double) data);
+			this.writeDouble((Double) data);
 		} else {
 			throw new UnsupportedOperationException("Invalid data type parameter for this data section");
 		}

@@ -26,7 +26,7 @@ public class LongArrayDataSection implements BaseDataSection<Long> {
 	@Override
 	public <T> void writeForParser(T data) throws UnsupportedOperationException {
 		if (data instanceof Long) {
-			this.writeLong((long) data);
+			this.writeLong((Long) data);
 		} else {
 			throw new UnsupportedOperationException("Invalid data type parameter for this data section");
 		}

@@ -26,7 +26,7 @@ public class FloatArrayDataSection implements BaseDataSection<Float> {
 	@Override
 	public <T> void writeForParser(T data) throws UnsupportedOperationException {
 		if (data instanceof Float) {
-			this.writeFloat((float) data);
+			this.writeFloat((Float) data);
 		} else {
 			throw new UnsupportedOperationException("Invalid data type parameter for this data section");
 		}
