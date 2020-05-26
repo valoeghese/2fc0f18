@@ -23,6 +23,7 @@ public abstract class Chunk implements World {
 		this.z = z;
 		this.startX = x << 4;
 		this.startZ = z << 4;
+		this.pos = new ChunkPos(x, z);
 
 		for (int y = 0; y < WORLD_HEIGHT; ++y) {
 			boolean check = true;
@@ -45,6 +46,7 @@ public abstract class Chunk implements World {
 	protected byte[] meta;
 	public final int x;
 	public final int z;
+	private final ChunkPos pos;
 	public final int startX;
 	public final int startZ;
 	protected final IntSet heightsToRender = new IntArraySet();
@@ -142,6 +144,10 @@ public abstract class Chunk implements World {
 
 	@Override
 	public void destroy() {
+	}
+
+	public ChunkPos getChunkPos() {
+		return this.pos;
 	}
 
 	public void write(BinaryData data) {

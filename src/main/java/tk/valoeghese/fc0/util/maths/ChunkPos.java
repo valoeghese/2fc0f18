@@ -13,6 +13,12 @@ public class ChunkPos {
 		return new TilePos(this.x << 4, y, this.z << 4);
 	}
 
+	public double distanceTo(ChunkPos other) {
+		int dx = other.x - this.x;
+		int dz = other.z - this.z;
+		return Math.sqrt(dx * dx + dz * dz);
+	}
+
 	@Override
 	public String toString() {
 		return "ChunkPos(" + this.x

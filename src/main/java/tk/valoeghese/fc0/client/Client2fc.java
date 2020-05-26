@@ -93,6 +93,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		} else {
 			this.player.changeWorld(this.world);
 		}
+
+		this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
 	}
 
 	public void setFOV(int newFOV) {
@@ -125,6 +127,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 					this.save = null;
 					this.world = new ClientChunkSelection(null, 0, 3);
 					this.player.changeWorld(this.world);
+					this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
 					this.titleScreen = true;
 				}
 			}
@@ -161,6 +164,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
 		this.player = new ClientPlayer(new Camera(), this.world);
+		this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
 		this.prevYPos = this.window.height / 2.0f;
 		this.prevXPos = this.window.width / 2.0f;
 		this.crosshair = new Crosshair();

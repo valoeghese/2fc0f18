@@ -27,8 +27,6 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 		this.chunks = arraySupplier.apply(this.diameter * this.diameter);
 		this.genRand = new Random(seed);
 
-		this.orderedChunks = new OrderedList<>(c -> (float) (Math.abs(c.x) + Math.abs(c.z)));
-
 		for (int x = -size + 1; x < size; ++x) {
 			for (int z = -size + 1; z < size; ++z) {
 				T chunk;
@@ -41,7 +39,6 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 				}
 
 				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
-				this.orderedChunks.add(chunk);
 			}
 		}
 
@@ -58,7 +55,6 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	private final int minBound;
 	private final int maxBound;
 	private final T[] chunks;
-	protected OrderedList<T> orderedChunks;
 	private final Random genRand;
 	private final long seed;
 
@@ -82,7 +78,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 		}
 	}
 
-	public Chunk[] getChunks() {
+	public T[] getChunks() {
 		return this.chunks;
 	}
 
