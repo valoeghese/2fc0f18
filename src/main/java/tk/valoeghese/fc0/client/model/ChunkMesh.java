@@ -65,7 +65,7 @@ public class ChunkMesh {
 
 							if (!tileUp.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
-										new Vector3f(x, y + 0.5f, z),
+										new Vector3f(x + 0.5f, y + 1f, z + 0.5f),
 										1,
 										instance,
 										0.95f,
@@ -74,7 +74,7 @@ public class ChunkMesh {
 
 							if (!tileDown.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
-										new Vector3f(x, y - 0.5f, z),
+										new Vector3f(x + 0.5f, y, z + 0.5f),
 										4,
 										instance,
 										0.85f,
@@ -83,7 +83,7 @@ public class ChunkMesh {
 
 							if (!tileNorth.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
-										new Vector3f(x, y, z + 0.5f),
+										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
 										2,
 										instance,
 										1.05f,
@@ -92,7 +92,7 @@ public class ChunkMesh {
 
 							if (!tileSouth.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
-										new Vector3f(x, y, z - 0.5f),
+										new Vector3f(x + 0.5f, y + 0.5f, z),
 										5,
 										instance,
 										0.75f,
@@ -101,7 +101,7 @@ public class ChunkMesh {
 
 							if (!tileEast.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
-										new Vector3f(x + 0.5f, y, z),
+										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
 										instance,
 										0.9f,
@@ -110,7 +110,7 @@ public class ChunkMesh {
 
 							if (!tileWest.isOpaque(waterLayer)) {
 								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
-										new Vector3f(x - 0.5f, y, z),
+										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,
 										instance,
 										0.9f,
@@ -149,7 +149,7 @@ public class ChunkMesh {
 
 	static class RenderedCrossTileFace extends RenderedTileFace {
 		RenderedCrossTileFace(Vector3f offset, Tile tile, float light, byte meta) {
-			super(offset, 1, tile, light, meta);
+			super(offset.sub(-0.5f, -0.5f, -0.5f), 1, tile, light, meta);
 		}
 
 		@Override

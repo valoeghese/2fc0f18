@@ -93,6 +93,12 @@ public class Save {
 				throw new UncheckedIOException("Error writing save data", e);
 			}
 
+			try {
+				Thread.sleep(5); // pls fix save loading bugs
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
 			synchronized (lock) {
 				WorldSaveThread.setReady();
 				lock.notifyAll();

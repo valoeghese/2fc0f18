@@ -25,7 +25,7 @@ public class Player {
 	public void changeWorld(World world) {
 		this.world = world;
 		this.setPos(Pos.ZERO);
-		this.move(0, world.getHeight(0, 0) + 0.5f, 0);
+		this.move(0, world.getHeight(0, 0) + 1f, 0);
 	}
 
 	public void changeWorld(World world, Pos movePos) {

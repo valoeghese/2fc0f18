@@ -150,7 +150,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		if (!this.titleScreen && zone != this.player.cachedZone) {
 			this.player.cachedZone = zone;
 			String newValue = this.language.translate(zone.toString());
-			System.out.println(newValue);
 			this.biomeWidget.changeText(newValue);
 		}
 
