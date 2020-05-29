@@ -14,7 +14,7 @@ import java.util.Queue;
 
 public class ClientChunkSelection extends ChunkSelection<ClientChunk> {
 	public ClientChunkSelection(@Nullable Save save, long seed, int size) {
-		super(save, seed, size, ClientChunk::new, ClientChunk[]::new);
+		super(save, seed, size, ClientChunk::new);
 	}
 
 	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();

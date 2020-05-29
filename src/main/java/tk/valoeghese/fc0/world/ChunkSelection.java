@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world;
 
-import tk.valoeghese.fc0.util.OrderedList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -8,12 +9,12 @@ import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
+import java.util.Iterator;
 import java.util.Random;
-import java.util.function.IntFunction;
 import java.util.function.Predicate;
 
 public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAccess {
-	public ChunkSelection(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor, IntFunction<T[]> arraySupplier) {
+	public ChunkSelection(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		WorldGen.updateSeed(seed);
 		this.seed = seed;
 		this.offset = size - 1;
@@ -24,7 +25,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 			System.out.println("Generating World.");
 		}
 
-		this.chunks = arraySupplier.apply(this.diameter * this.diameter);
+		this.chunks = new Long2ObjectArrayMap<>();
 		this.genRand = new Random(seed);
 
 		for (int x = -size + 1; x < size; ++x) {
@@ -38,7 +39,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 					chunk = save.getOrCreateChunk(this, x, z, constructor);
 				}
 
-				this.chunks[(x + this.offset) * this.diameter + z + this.offset] = chunk;
+				this.chunks.put((x + this.offset) * this.diameter + z + this.offset, chunk);
 			}
 		}
 
@@ -54,7 +55,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	private final int diameter;
 	private final int minBound;
 	private final int maxBound;
-	private final T[] chunks;
+	private final Long2ObjectMap<T> chunks;
 	private final Random genRand;
 	private final long seed;
 
@@ -65,7 +66,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 			System.out.println("Populating World.");
 		}
 
-		for (Chunk chunk : this.chunks) {
+		for (Chunk chunk : this.chunks.values()) {
 			if (!chunk.populated) {
 				this.genRand.setSeed(this.seed + 134 * chunk.x + -529 * chunk.z + 127);
 				WorldGen.populateChunk(this, chunk, this.genRand);
@@ -78,8 +79,8 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 		}
 	}
 
-	public T[] getChunks() {
-		return this.chunks;
+	public Iterator<T> getChunks() {
+		return this.chunks.values().iterator();
 	}
 
 	@Override
@@ -93,7 +94,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	}
 
 	public Chunk getChunkDirect(int x, int z) {
-		return this.chunks[(x + this.offset) * this.diameter + z + this.offset];
+		return this.chunks.get((x + this.offset) * this.diameter + z + this.offset);
 	}
 
 	@Override

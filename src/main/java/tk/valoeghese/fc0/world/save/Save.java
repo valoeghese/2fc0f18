@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Iterator;
 import java.util.Random;
 
 public class Save {
@@ -51,7 +52,7 @@ public class Save {
 		return this.seed;
 	}
 
-	public void write(Chunk[] chunks, Pos playerPos, Pos spawnPos, long time) {
+	public void write(Iterator<? extends Chunk> chunks, Pos playerPos, Pos spawnPos, long time) {
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -65,7 +66,9 @@ public class Save {
 		thread = new WorldSaveThread(() -> {
 			System.out.println("Saving Chunks");
 
-			for (Chunk c : chunks) {
+			while (chunks.hasNext()) {
+				Chunk c = chunks.next();
+
 				if (c != null) {
 					this.saveChunk(c);
 				}
