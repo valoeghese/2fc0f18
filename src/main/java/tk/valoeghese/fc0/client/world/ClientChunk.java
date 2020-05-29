@@ -5,6 +5,8 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import javax.annotation.Nullable;
+
 public class ClientChunk extends Chunk implements RenderedChunk {
 	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
 		super(parent, x, z, tiles, meta);
@@ -24,13 +26,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		this.updateMesh(i, tile);
 
 		if (x == 0) {
-			ClientChunk chunk = (ClientChunk) this.parent.getChunk(this.x - 1, this.z);
+			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x - 1, this.z);
 
 			if (chunk != null) {
 				chunk.rebuildMesh();
 			}
 		} else if (x == 15) {
-			ClientChunk chunk = (ClientChunk) this.parent.getChunk(this.x + 1, this.z);
+			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x + 1, this.z);
 
 			if (chunk != null) {
 				chunk.rebuildMesh();
@@ -38,13 +40,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 
 		if (z == 0) {
-			ClientChunk chunk = (ClientChunk) this.parent.getChunk(this.x, this.z - 1);
+			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z - 1);
 
 			if (chunk != null) {
 				chunk.rebuildMesh();
 			}
 		} else if (z == 15) {
-			ClientChunk chunk = (ClientChunk) this.parent.getChunk(this.x, this.z + 1);
+			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z + 1);
 
 			if (chunk != null) {
 				chunk.rebuildMesh();
@@ -59,7 +61,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile north(int x, int y) {
-		Chunk chunk = this.parent.getChunk(this.x, this.z + 1);
+		Chunk chunk = this.getChunk(this.x, this.z + 1);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -70,7 +72,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile south(int x, int y) {
-		Chunk chunk = this.parent.getChunk(this.x, this.z - 1);
+		Chunk chunk = this.getChunk(this.x, this.z - 1);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -81,7 +83,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile east(int z, int y) {
-		Chunk chunk = this.parent.getChunk(this.x + 1, this.z);
+		Chunk chunk = this.getChunk(this.x + 1, this.z);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -92,7 +94,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile west(int z, int y) {
-		Chunk chunk = this.parent.getChunk(this.x - 1, this.z);
+		Chunk chunk = this.getChunk(this.x - 1, this.z);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -119,6 +121,11 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 
 		return this.mesh;
+	}
+
+	@Nullable
+	public Chunk getRenderChunk(int x, int z) {
+		return this.parent.getRenderChunk(x, z);
 	}
 
 	@Override

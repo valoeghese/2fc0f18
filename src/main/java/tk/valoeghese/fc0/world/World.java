@@ -21,18 +21,11 @@ public interface World extends GenWorld {
 		return this.isInWorld(pos.x, pos.y, pos.z);
 	}
 
-	@Override
-	default void wgWriteTile(int x, int y, int z, byte tile) {
-		this.writeTile(x, y, z, tile);
-	}
-
 	void writeTile(int x, int y, int z, byte tile);
 	void destroy();
-	void writeMeta(int x, int y, int z, byte meta);
-	byte readMeta(int x, int y, int z);
 
 	default void updateChunkOf(Player player) {
 	}
 
-	static int WORLD_HEIGHT = 128;
+	int WORLD_HEIGHT = 128;
 }

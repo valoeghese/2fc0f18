@@ -3,17 +3,15 @@ package tk.valoeghese.fc0.client.world;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkSelection;
+import tk.valoeghese.fc0.world.ChunkLoadStatus;
+import tk.valoeghese.fc0.world.GameWorld;
 import tk.valoeghese.fc0.world.save.Save;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
-public class ClientChunkSelection extends ChunkSelection<ClientChunk> {
-	public ClientChunkSelection(@Nullable Save save, long seed, int size) {
+public class ClientWorld extends GameWorld<ClientChunk> {
+	public ClientWorld(@Nullable Save save, long seed, int size) {
 		super(save, seed, size, ClientChunk::new);
 	}
 
@@ -21,10 +19,28 @@ public class ClientChunkSelection extends ChunkSelection<ClientChunk> {
 	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
 	private boolean ncTick = false;
 
+	@Nullable
+	@Override
+	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
+		ClientChunk result = (ClientChunk) super.loadChunk(x, z, status);
+
+		if (result != null) {
+			if (status == ChunkLoadStatus.RENDER) {
+				if (!result.render) {
+					result.getOrCreateMesh();
+					result.render = true;
+				}
+			}
+		}
+
+		return result;
+	}
+
 	public void computeRenderChunks(ChunkPos playerChunk) {
 		OrderedList<ClientChunk> orderedChunks = new OrderedList<ClientChunk>(c -> (float) c.getPos().distanceTo(playerChunk));
 
-		for (ClientChunk chunk : this.getChunks()) {
+		for (Iterator<ClientChunk> it = this.getChunks(); it.hasNext();) {
+			ClientChunk chunk = it.next();
 			if (chunk != null) {
 				orderedChunks.add(chunk);
 			}

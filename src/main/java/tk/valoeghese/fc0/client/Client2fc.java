@@ -14,7 +14,7 @@ import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.*;
 import tk.valoeghese.fc0.client.world.ClientChunk;
-import tk.valoeghese.fc0.client.world.ClientChunkSelection;
+import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
@@ -46,10 +46,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		Shaders.loadShaders();
-		this.world = new ClientChunkSelection(null, 0, 3);
+		this.world = new ClientWorld(null, 0, 3);
 	}
 
-	private ClientChunkSelection world;
+	private ClientWorld world;
 	private Matrix4f projection;
 	private final Matrix4f guiProjection;
 	private ClientPlayer player;
@@ -80,7 +80,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.saveWorld();
 		this.time = 0;
 		this.save = new Save("save", new Random().nextLong());
-		this.world = new ClientChunkSelection(this.save, this.save.getSeed(), 9);
+		this.world = new ClientWorld(this.save, this.save.getSeed(), 9);
 
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;
@@ -125,7 +125,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				} else {
 					this.saveWorld();
 					this.save = null;
-					this.world = new ClientChunkSelection(null, 0, 3);
+					this.world = new ClientWorld(null, 0, 3);
 					this.player.changeWorld(this.world);
 					this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
 					this.titleScreen = true;
@@ -327,6 +327,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		Shaders.gui.bind();
 		// projection
 		Shaders.gui.uniformMat4f("projection", this.guiProjection);
+		// defaults
+		Shaders.gui.uniformFloat("lighting", 1.0f);
 		// render gui
 		if (this.titleScreen) {
 			this.titleText.render();
@@ -338,7 +340,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (this.player.isUnderwater()) {
 			GraphicsSystem.enableBlend();
+			Shaders.gui.uniformFloat("lighting", lighting);
 			this.waterOverlay.render();
+			Shaders.gui.uniformFloat("lighting", 1.0f);
 			GraphicsSystem.disableBlend();
 		}
 

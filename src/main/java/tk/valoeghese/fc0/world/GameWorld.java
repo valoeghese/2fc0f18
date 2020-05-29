@@ -4,17 +4,16 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.save.Save;
-import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.function.Predicate;
 
-public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAccess {
-	public ChunkSelection(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
+public abstract class GameWorld<T extends Chunk> implements World, ChunkAccess {
+	public GameWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		WorldGen.updateSeed(seed);
 		this.seed = seed;
 		this.offset = size - 1;
@@ -27,18 +26,12 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 
 		this.chunks = new Long2ObjectArrayMap<>();
 		this.genRand = new Random(seed);
+		this.constructor = constructor;
+		this.save = save;
 
 		for (int x = -size + 1; x < size; ++x) {
 			for (int z = -size + 1; z < size; ++z) {
-				T chunk;
-
-				if (save == null) {
-					this.genRand.setSeed(seed + 134 * x + -529 * z);
-					chunk = WorldGen.generateChunk(constructor, this, x, z, seed, this.genRand);
-				} else {
-					chunk = save.getOrCreateChunk(this, x, z, constructor);
-				}
-
+				T chunk = this.getOrCreateChunk(x, z);
 				this.chunks.put((x + this.offset) * this.diameter + z + this.offset, chunk);
 			}
 		}
@@ -58,6 +51,25 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	private final Long2ObjectMap<T> chunks;
 	private final Random genRand;
 	private final long seed;
+	private final GenWorld genWorld = new GeneratorWorldAccess();
+	private final WorldGen.ChunkConstructor<T> constructor;
+	@Nullable
+	private final Save save;
+
+	private T getOrCreateChunk(int x, int z) {
+		T result = this.accessChunk(x, z);
+
+		if (result != null) {
+			return result;
+		}
+
+		if (save == null) {
+			this.genRand.setSeed(seed + 134 * x + -529 * z);
+			return WorldGen.generateChunk(this.constructor, this, x, z, seed, this.genRand);
+		} else {
+			return this.save.getOrCreateChunk(this, x, z, this.constructor);
+		}
+	}
 
 	public void populateChunks() {
 		long time = System.currentTimeMillis();
@@ -69,7 +81,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 		for (Chunk chunk : this.chunks.values()) {
 			if (!chunk.populated) {
 				this.genRand.setSeed(this.seed + 134 * chunk.x + -529 * chunk.z + 127);
-				WorldGen.populateChunk(this, chunk, this.genRand);
+				WorldGen.populateChunk(this.genWorld, chunk, this.genRand);
 				chunk.populated = true;
 			}
 		}
@@ -85,41 +97,65 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 
 	@Override
 	@Nullable
-	public Chunk getChunk(int x, int z) {
+	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
 		if (!this.isInWorld(x << 4, 50, z << 4)) {
 			return null;
 		}
 
-		return this.getChunkDirect(x, z);
+		Chunk result = this.getOrCreateChunk(x, z);
+
+		switch (status) {
+		case GENERATE:
+			break;
+		case RENDER: // actual specific RENDER case handling only happens client side
+		case TICK: // render chunks are also ticking chunks
+		case POPULATE: // ticking chunks are also populated
+			if (!result.populated) {
+				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
+				WorldGen.populateChunk(this.genWorld, result, this.genRand);
+				result.populated = true;
+			}
+			break;
+		}
+
+		return result;
 	}
 
-	public Chunk getChunkDirect(int x, int z) {
+	@Nullable
+	private T accessChunk(int x, int z) {
 		return this.chunks.get((x + this.offset) * this.diameter + z + this.offset);
 	}
 
 	@Override
-	public byte readTile(int x, int y, int z) {
-		return this.getChunkDirect(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
+	@Nullable
+	public Chunk getChunk(int x, int z) {
+		return this.loadChunk(x, z, ChunkLoadStatus.POPULATE);
 	}
 
+	@Nullable
 	@Override
-	public byte readMeta(int x, int y, int z) {
-		return this.getChunkDirect(x >> 4, z >> 4).readMeta(x & 0xF, y, z & 0xF);
+	public Chunk getRenderChunk(int x, int z) {
+		Chunk c = this.accessChunk(x, z);
+
+		if (c == null) {
+			return null;
+		}
+
+		if (c.render) {
+			return c;
+		}
+
+		return null;
 	}
 
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
-		this.getChunkDirect(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
+		World.super.wgWriteTile(x, y, z, tile);
 	}
 
 	@Override
-	public void writeMeta(int x, int y, int z, byte meta) {
-		this.getChunkDirect(x >> 4, z >> 4).writeMeta(x & 0xF, y, z & 0xF, meta);
-	}
-
-	@Override
-	public int getHeight(int x, int z, Predicate<Tile> solid) {
-		return this.getChunkDirect(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
+	public void wgWriteTile(int x, int y, int z, byte tile) {
+		this.genWorld.wgWriteTile(x, y, z, tile);
 	}
 
 	@Override
@@ -133,7 +169,7 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 		ChunkPos cPos = pos.toChunkPos();
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
-			this.getChunkDirect(cPos.x, cPos.z).updateChunkOf(player);
+			this.getChunk(cPos.x, cPos.z).updateChunkOf(player);
 		} else if (player.chunk != null) {
 			player.chunk.removePlayer(player);
 			player.chunk = null;
@@ -147,5 +183,18 @@ public abstract class ChunkSelection<T extends Chunk> implements World, ChunkAcc
 	@Override
 	public long getSeed() {
 		return this.seed;
+	}
+
+	private class GeneratorWorldAccess implements GenWorld {
+		@Override
+		public boolean isInWorld(int x, int y, int z) {
+			return GameWorld.this.isInWorld(x, y, z);
+		}
+
+		@Nullable
+		@Override
+		public Chunk getChunk(int x, int z) {
+			return GameWorld.this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
+		}
 	}
 }

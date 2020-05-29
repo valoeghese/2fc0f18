@@ -10,6 +10,7 @@ import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.ByteArrayDataSection;
 import tk.valoeghese.sod.DataSection;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -54,6 +55,7 @@ public abstract class Chunk implements World {
 	protected ChunkAccess parent;
 	private float iota = 0.0f;
 	public boolean populated = false;
+	public boolean render = false;
 
 	@Override
 	public byte readTile(int x, int y, int z) {
@@ -165,6 +167,12 @@ public abstract class Chunk implements World {
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
+	}
+
+	@Nullable
+	@Override
+	public Chunk getChunk(int x, int z) {
+		return this.parent.loadChunk(x, z, ChunkLoadStatus.POPULATE);
 	}
 
 	public ChunkPos getPos() {

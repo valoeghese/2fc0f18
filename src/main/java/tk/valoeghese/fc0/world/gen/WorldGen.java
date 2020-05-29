@@ -91,7 +91,7 @@ public final class WorldGen {
 		return constructor.create(parent, chunkX, chunkZ, tiles, meta);
 	}
 
-	public static void populateChunk(World world, Chunk chunk, Random rand) {
+	public static void populateChunk(GenWorld world, Chunk chunk, Random rand) {
 		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
 
 		for (Map.Entry<Generator, GeneratorSettings> generator : zone.getGenerators()) {
