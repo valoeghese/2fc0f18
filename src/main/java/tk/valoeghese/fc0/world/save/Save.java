@@ -52,6 +52,43 @@ public class Save {
 		return this.seed;
 	}
 
+	public void writeChunks(Iterator<? extends Chunk> chunks) {
+		synchronized (lock) {
+			try {
+				while (thread != null && !thread.isReady()) {
+					lock.wait();
+				}
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		thread = new WorldSaveThread(() -> {
+			System.out.println("Saving Chunks");
+
+			while (chunks.hasNext()) {
+				Chunk c = chunks.next();
+
+				if (c != null) {
+					this.saveChunk(c);
+				}
+			}
+
+			try {
+				Thread.sleep(5); // pls fix save loading bugs
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			synchronized (lock) {
+				WorldSaveThread.setReady();
+				lock.notifyAll();
+			}
+		});
+
+		thread.start();
+	}
+
 	public void write(Iterator<? extends Chunk> chunks, Pos playerPos, Pos spawnPos, long time) {
 		synchronized (lock) {
 			try {

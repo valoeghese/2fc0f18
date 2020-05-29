@@ -7,18 +7,16 @@ import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Player;
-import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientPlayer extends Player  {
-	public ClientPlayer(Camera camera, World world) {
+	public ClientPlayer(Camera camera) {
 		super();
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.8f, 0)); // 2 blocks tall, camera at head
-		this.changeWorld(world);
 	}
 
 	private final Camera camera;
@@ -39,7 +37,6 @@ public class ClientPlayer extends Player  {
 		boolean result = super.move(x, y, z);
 
 		if (result) {
-			this.world.updateChunkOf(this);
 			this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
 		}
 

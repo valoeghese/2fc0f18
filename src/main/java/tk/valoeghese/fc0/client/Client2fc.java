@@ -70,6 +70,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		return instance;
 	}
 
+	public ClientPlayer getPlayer() {
+		return this.player;
+	}
+
 	public void saveWorld() {
 		if (this.save != null) {
 			this.save.write(this.world.getChunks(), this.player.getPos(), this.spawnLoc, this.time);
@@ -93,8 +97,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		} else {
 			this.player.changeWorld(this.world);
 		}
-
-		this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
 	}
 
 	public void setFOV(int newFOV) {
@@ -127,7 +129,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 					this.save = null;
 					this.world = new ClientWorld(null, 0, 3);
 					this.player.changeWorld(this.world);
-					this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
 					this.titleScreen = true;
 				}
 			}
@@ -162,8 +163,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
-		this.player = new ClientPlayer(new Camera(), this.world);
-		this.world.computeRenderChunks(this.player.getTilePos().toChunkPos());
+		this.player = new ClientPlayer(new Camera());
+		this.player.changeWorld(this.world);
+
 		this.prevYPos = this.window.height / 2.0f;
 		this.prevXPos = this.window.width / 2.0f;
 		this.crosshair = new Crosshair();

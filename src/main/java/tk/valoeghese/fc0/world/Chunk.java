@@ -148,7 +148,7 @@ public abstract class Chunk implements World {
 	public void destroy() {
 	}
 
-	public ChunkPos getChunkPos() {
+	public ChunkPos getPos() {
 		return this.pos;
 	}
 
@@ -173,10 +173,6 @@ public abstract class Chunk implements World {
 	@Override
 	public Chunk getChunk(int x, int z) {
 		return this.parent.loadChunk(x, z, ChunkLoadStatus.POPULATE);
-	}
-
-	public ChunkPos getPos() {
-		return new ChunkPos(this.x, this.z);
 	}
 
 	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {

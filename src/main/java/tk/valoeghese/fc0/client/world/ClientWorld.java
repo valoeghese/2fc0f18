@@ -1,20 +1,25 @@
 package tk.valoeghese.fc0.client.world;
 
+import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.OrderedList;
-import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkLoadStatus;
-import tk.valoeghese.fc0.world.GameWorld;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.save.Save;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
-public class ClientWorld extends GameWorld<ClientChunk> {
+public class ClientWorld extends GameplayWorld<ClientChunk> {
 	public ClientWorld(@Nullable Save save, long seed, int size) {
 		super(save, seed, size, ClientChunk::new);
 	}
 
+	private final OrderedList<ClientChunk> toAddToQueue = new OrderedList<>(c -> (float) c.getPos().distanceTo(
+			Client2fc.getInstance().getPlayer().chunk.getPos()));
 	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
 	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
 	private boolean ncTick = false;
@@ -29,6 +34,7 @@ public class ClientWorld extends GameWorld<ClientChunk> {
 				if (!result.render) {
 					result.getOrCreateMesh();
 					result.render = true;
+					this.toAddToQueue.add(result);
 				}
 			}
 		}
@@ -36,32 +42,19 @@ public class ClientWorld extends GameWorld<ClientChunk> {
 		return result;
 	}
 
-	public void computeRenderChunks(ChunkPos playerChunk) {
-		OrderedList<ClientChunk> orderedChunks = new OrderedList<ClientChunk>(c -> (float) c.getPos().distanceTo(playerChunk));
-
-		for (Iterator<ClientChunk> it = this.getChunks(); it.hasNext();) {
-			ClientChunk chunk = it.next();
-			if (chunk != null) {
-				orderedChunks.add(chunk);
-			}
-		}
-
-		// add to render queue
-		int i = 0;
-		for (ClientChunk chunk : orderedChunks) {
-			if (i++ < 8) {
-				this.chunksForRendering.add(chunk);
-			} else {
-				this.toAddForRendering.add(chunk);
-			}
-		}
-	}
-
 	public void updateChunksForRendering() {
-		if (!this.toAddForRendering.isEmpty()) {
-			ncTick = !ncTick;
+		while (!this.toAddToQueue.isEmpty()) {
+			if (this.chunksForRendering.size() < 8) {
+				this.chunksForRendering.add(this.toAddToQueue.remove(0));
+			} else {
+				this.toAddForRendering.add(this.toAddToQueue.remove(0));
+			}
+		}
 
-			if (ncTick) {
+		if (!this.toAddForRendering.isEmpty()) {
+			this.ncTick = !this.ncTick;
+
+			if (this.ncTick) {
 				this.chunksForRendering.add(this.toAddForRendering.remove());
 			}
 		}
@@ -69,6 +62,19 @@ public class ClientWorld extends GameWorld<ClientChunk> {
 
 	public List<ClientChunk> getChunksForRendering() {
 		return this.chunksForRendering;
+	}
+
+	@Override
+	protected void onChunkRemove(Chunk c) {
+		if (c.render) {
+			if (this.toAddToQueue.contains(c)) {
+				this.toAddForRendering.remove(c);
+			} else if (this.toAddForRendering.contains(c)) {
+				this.toAddForRendering.remove(c);
+			} else if (this.chunksForRendering.contains(c)) {
+				this.chunksForRendering.remove(c);
+			}
+		}
 	}
 
 	@Override

@@ -52,6 +52,7 @@ public class Player {
 		}
 
 		this.pos.set(next);
+		this.world.updateChunkOf(this);
 		return true;
 	}
 
@@ -83,6 +84,7 @@ public class Player {
 
 	public void setPos(Pos pos) {
 		this.pos.set(pos);
+		this.world.updateChunkOf(this);
 	}
 
 	// checkers
