@@ -180,7 +180,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void render() {
 		long time = System.nanoTime();
-		float lighting = MathsUtils.clampMap(sin((float) this.time / 3072.0f), -1, 1, 0.125f, 1.15f);
+		float lighting = MathsUtils.clampMap(sin((float) this.time / 9216.0f), -1, 1, 0.125f, 1.15f);
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
 		// bind shader
@@ -231,7 +231,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			this.version.render();
 			this.crosshair.render();
 			this.biomeWidget.render();
+
+			Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
 			this.selectedTile.render();
+			Shaders.gui.uniformFloat("lighting", 1.0f);
 		}
 
 		if (this.player.isUnderwater()) {

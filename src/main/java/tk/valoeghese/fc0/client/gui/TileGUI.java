@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.client.gui;
 
-import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -37,7 +36,6 @@ public class TileGUI extends GUI {
 			this.tri(tl, tr, br);
 		} else {
 			// up face
-			Shaders.gui.uniformFloat("lighting", 0.9f);
 			float startU = (tile.getU(1, meta) / 16.0f);
 			float startV = (tile.getV(1, meta) / 16.0f);
 			float endU = startU + 0.0625f;
@@ -52,7 +50,6 @@ public class TileGUI extends GUI {
 			this.tri(tl, tr, br);
 
 			// left, north face
-			Shaders.gui.uniformFloat("lighting", 1.0f);
 			startU = (tile.getU(2, meta) / 16.0f);
 			startV = (tile.getV(2, meta) / 16.0f);
 			endU = startU + 0.0625f;
@@ -67,7 +64,6 @@ public class TileGUI extends GUI {
 			this.tri(tl, tr, br);
 
 			// right, west face
-			Shaders.gui.uniformFloat("lighting", 0.8f);
 			startU = (tile.getU(3, meta) / 16.0f);
 			startV = (tile.getV(3, meta) / 16.0f);
 			endU = startU + 0.0625f;
@@ -83,6 +79,5 @@ public class TileGUI extends GUI {
 		}
 
 		this.generateBuffers();
-		Shaders.gui.uniformFloat("lighting", 1.0f);
 	}
 }

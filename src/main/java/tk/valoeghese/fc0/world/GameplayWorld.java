@@ -250,6 +250,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
-	private static final int CHUNK_RENDER_DIST = 3;
+	private static final int CHUNK_RENDER_DIST = 5;
 	private static final int CHUNK_LOAD_DIST = CHUNK_RENDER_DIST + 3;
 }
