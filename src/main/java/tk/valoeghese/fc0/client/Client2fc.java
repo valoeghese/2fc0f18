@@ -3,10 +3,7 @@ package tk.valoeghese.fc0.client;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.ALC10;
-import tk.valoeghese.fc0.client.gui.Crosshair;
-import tk.valoeghese.fc0.client.gui.GUI;
-import tk.valoeghese.fc0.client.gui.Overlay;
-import tk.valoeghese.fc0.client.gui.Text;
+import tk.valoeghese.fc0.client.gui.*;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.language.Language;
@@ -55,10 +52,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI crosshair;
 	private GUI version;
 	private GUI waterOverlay;
+	private GUI titleText;
+	private TileGUI selectedTile;
 	public long time = 0;
 	private int fov;
 	private boolean titleScreen = true;
-	private GUI titleText;
 	private Pos spawnLoc = Pos.ZERO;
 	private Text biomeWidget;
 	private Language language = Language.EN_GB;
@@ -93,6 +91,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			glfwPollEvents();
 		}
 
+		this.selectedTile.setTile(Tile.STONE, (byte) 0, 1f / this.window.aspect);
+
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
@@ -113,7 +113,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 					this.saveWorld();
 					this.world.destroy();
 					this.save = null;
-					this.world = new ClientWorld(null, 0, 3);
+					this.world = new ClientWorld(null, 0, 4);
 					this.player.changeWorld(this.world);
 					this.titleScreen = true;
 				}
@@ -162,17 +162,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
 		this.biomeWidget = new Text(this.language.translate("ecozone.missingno"), -0.85f, 0.8f, 1.0f);
+		this.selectedTile = new TileGUI(0.8f, 0.72f, 0.16f);
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
 	private void init() {
+		long time = System.currentTimeMillis();
 		this.setFOV(64);
-		this.world = new ClientWorld(null, 0, 3);
+		this.world = new ClientWorld(null, 0, 4);
 		this.player = new ClientPlayer(new Camera());
 		this.player.changeWorld(this.world);
 		this.world.generateSpawnChunks();
 		this.player.getCamera().rotateYaw((float) Math.PI);
+		System.out.println("Initialised 2fc0f18 in " + (System.currentTimeMillis() - time) + "ms.");
 	}
 
 	private void render() {
@@ -209,22 +212,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// defaults
 		Shaders.gui.uniformFloat("lighting", 1.0f);
 		// render gui
-		if (this.titleScreen) {
-			this.titleText.render();
-		} else {
-			this.version.render();
-			this.crosshair.render();
-			this.biomeWidget.render();
-		}
-
-		if (this.player.isUnderwater()) {
-			GraphicsSystem.enableBlend();
-			Shaders.gui.uniformFloat("lighting", lighting);
-			this.waterOverlay.render();
-			Shaders.gui.uniformFloat("lighting", 1.0f);
-			GraphicsSystem.disableBlend();
-		}
-
+		this.renderGUI(lighting);
 		// unbind shader
 		GraphicsSystem.bindTexture(0);
 
@@ -233,6 +221,25 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		if (elapsed > 180) {
 			System.out.println("[Render/Warn] Unusually long time! Rendering took: " + elapsed + "ms. Note that this is normal if it merely happens on startup.");
+		}
+	}
+
+	private void renderGUI(float lighting) {
+		if (this.titleScreen) {
+			this.titleText.render();
+		} else {
+			this.version.render();
+			this.crosshair.render();
+			this.biomeWidget.render();
+			this.selectedTile.render();
+		}
+
+		if (this.player.isUnderwater()) {
+			GraphicsSystem.enableBlend();
+			Shaders.gui.uniformFloat("lighting", lighting);
+			this.waterOverlay.render();
+			Shaders.gui.uniformFloat("lighting", 1.0f);
+			GraphicsSystem.disableBlend();
 		}
 	}
 
@@ -308,6 +315,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				this.player.selectedTile = Tile.STONE_BRICKS;
 			}
 
+			this.selectedTile.setTile(this.player.selectedTile, (byte) 0, 1f / this.window.aspect);
+
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				TilePos pos = this.player.rayCast(10.0).pos;
 
@@ -375,7 +384,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.saveWorld();
 		this.time = 0;
 		this.save = new Save("save", new Random().nextLong());
-		this.world = new ClientWorld(this.save, this.save.getSeed(), 20);
+		// 240000 * 240000 world.
+		this.world = new ClientWorld(this.save, this.save.getSeed(), 750);
 
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;

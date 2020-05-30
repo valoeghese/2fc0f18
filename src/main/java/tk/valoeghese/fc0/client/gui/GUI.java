@@ -32,8 +32,13 @@ public abstract class GUI {
 	private final int texture;
 
 	protected int vertex(float x, float y, float u, float v) {
+		return this.vertex(x, y, 0.999f, u, v);
+	}
+
+	protected int vertex(float x, float y, float z, float u, float v) {
 		this.vTemp.add(x);
 		this.vTemp.add(y);
+		this.vTemp.add(z);
 		this.vTemp.add(u);
 		this.vTemp.add(v);
 		return this.vTempIndex++;
@@ -72,9 +77,9 @@ public abstract class GUI {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, this.mode);
 
-		glVertexAttribPointer(0, 2, GL_FLOAT, false,4 * 4, 4 * 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 4 * 5, 4 * 0);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * 4, 4 * 2);
+		glVertexAttribPointer(1, 2, GL_FLOAT, false, 4 * 5, 4 * 3);
 		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 
