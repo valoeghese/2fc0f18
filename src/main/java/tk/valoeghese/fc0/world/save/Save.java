@@ -64,8 +64,6 @@ public class Save {
 		}
 
 		thread = new WorldSaveThread(() -> {
-			System.out.println("Saving Chunks");
-
 			while (chunks.hasNext()) {
 				Chunk c = chunks.next();
 

@@ -13,10 +13,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAccess {
+public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkAccess {
 	public GameplayWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		WorldGen.updateSeed(seed);
 		this.seed = seed;
@@ -39,7 +39,7 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 	private final WorldGen.ChunkConstructor<T> constructor;
 	@Nullable
 	private final Save save;
-	private final Executor chunkSaveExecutor = Executors.newSingleThreadExecutor();
+	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);
@@ -56,23 +56,21 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 		}
 	}
 
-	public void populateChunks() {
+	public void generateSpawnChunks() {
 		long time = System.currentTimeMillis();
 
-		if (this.seed != 0) {
-			System.out.println("Populating World.");
+		if (this.save != null) {
+			System.out.println("Generating World Spawn.");
 		}
 
-		for (Chunk chunk : this.chunks.values()) {
-			if (!chunk.populated) {
-				this.genRand.setSeed(this.seed + 134 * chunk.x + -529 * chunk.z + 127);
-				WorldGen.populateChunk(this.genWorld, chunk, this.genRand);
-				chunk.populated = true;
+		for (int cx = -3; cx <= 3; ++cx) {
+			for (int cz = -3; cz <= 3; ++cz) {
+				this.getChunk(cx, cz);
 			}
 		}
 
-		if (this.seed != 0) {
-			System.out.println("Populated World in " + (System.currentTimeMillis() - time) + "ms.");
+		if (this.save != null) {
+			System.out.println("Generated World Spawn in " + (System.currentTimeMillis() - time) + "ms.");
 		}
 	}
 
@@ -103,7 +101,10 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 			break;
 		}
 
-		this.chunks.put(chunkKey(x, z), result);
+		if (result != null) {
+			this.chunks.put(chunkKey(x, z), result);
+		}
+
 		return result;
 	}
 
@@ -136,7 +137,7 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
-		World.super.wgWriteTile(x, y, z, tile);
+		LoadableWorld.super.wgWriteTile(x, y, z, tile);
 	}
 
 	@Override
@@ -147,6 +148,11 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 	@Override
 	public boolean isInWorld(int x, int y, int z) {
 		return x >= this.minBound && x < this.maxBound && z >= this.minBound && z < this.maxBound && y >= 0 && y < WORLD_HEIGHT;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		this.chunkSaveExecutor.shutdown();
 	}
 
 	@Override
@@ -167,22 +173,27 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 			player.chunk = null;
 		}
 
+		this.chunkLoad(cPos);
+	}
+
+	@Override
+	public void chunkLoad(ChunkPos centrePos) {
 		List<Chunk> toWrite = new ArrayList<Chunk>();
 
 		// prepare chunks to remove
 		for (Chunk c : this.chunks.values()) {
-			if (c.getPos().manhattan(cPos) > CHUNK_LOAD_DIST) {
+			if (c.getPos().manhattan(centrePos) > CHUNK_LOAD_DIST) {
 				// prepare for chunk remove on-thread
 				this.onChunkRemove(c);
 				toWrite.add(c);
-				this.chunks.put(chunkKey(c.x, c.z), null);
+				this.chunks.remove(chunkKey(c.x, c.z));
 			}
 		}
 
 		// read new chunks
-		for (int cx = cPos.x - CHUNK_LOAD_DIST; cx <= cPos.x + CHUNK_LOAD_DIST; ++cx) {
-			for (int cz = cPos.z - CHUNK_LOAD_DIST; cz <= cPos.z + CHUNK_LOAD_DIST; ++cz) {
-				int dist = cPos.manhattan(cx, cz);
+		for (int cx = centrePos.x - CHUNK_LOAD_DIST; cx <= centrePos.x + CHUNK_LOAD_DIST; ++cx) {
+			for (int cz = centrePos.z - CHUNK_LOAD_DIST; cz <= centrePos.z + CHUNK_LOAD_DIST; ++cz) {
+				int dist = centrePos.manhattan(cx, cz);
 
 				if (dist > CHUNK_LOAD_DIST) {
 					continue;
@@ -192,10 +203,10 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 				case CHUNK_LOAD_DIST:
 					this.loadChunk(cx, cz, ChunkLoadStatus.GENERATE);
 					break;
-				case CHUNK_RENDER_DIST + 2:
+				case CHUNK_LOAD_DIST - 1:
 					this.loadChunk(cx, cz, ChunkLoadStatus.POPULATE);
 					break;
-				case CHUNK_RENDER_DIST + 1:
+				case CHUNK_LOAD_DIST - 2:
 					this.loadChunk(cx, cz, ChunkLoadStatus.TICK);
 					break;
 				default:
@@ -239,8 +250,8 @@ public abstract class GameplayWorld<T extends Chunk> implements World, ChunkAcce
 		}
 	}
 
-	private static final long chunkKey(int x, int z) {
-		return ((x & 32L) << 32L) | (z & 32L);
+	public static final long chunkKey(int x, int z) {
+		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
 	private static final int CHUNK_RENDER_DIST = 3;

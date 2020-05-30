@@ -172,7 +172,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.version = new Overlay(Textures.VERSION);
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
-		this.world.populateChunks();
+		this.world.generateSpawnChunks();
 		this.player.getCamera().rotateYaw((float) Math.PI);
 		this.biomeWidget = new Text(this.language.translate("ecozone.temperate_grassland"), -0.85f, 0.8f, 1.0f);
 	}
@@ -183,7 +183,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				this.titleScreen = false;
 				this.world.destroy();
 				this.createWorld();
-				this.world.populateChunks();
+				this.world.generateSpawnChunks();
 			}
 		} else {
 			final float yaw = this.player.getCamera().getYaw();

@@ -14,7 +14,7 @@ public class Player {
 	}
 
 	protected final MutablePos pos;
-	protected World world;
+	protected LoadableWorld world;
 	protected final MutablePos velocity;
 	protected boolean falling = false;
 	@Nullable
@@ -22,15 +22,17 @@ public class Player {
 	public long lockSwim = 0;
 	public Tile selectedTile = Tile.STONE;
 
-	public void changeWorld(World world) {
+	public void changeWorld(LoadableWorld world) {
 		this.world = world;
 		this.setPos(Pos.ZERO);
 		this.move(0, world.getHeight(0, 0) + 1f, 0);
+		this.world.chunkLoad(this.getTilePos().toChunkPos());
 	}
 
-	public void changeWorld(World world, Pos movePos) {
+	public void changeWorld(LoadableWorld world, Pos movePos) {
 		this.world = world;
 		this.setPos(movePos);
+		this.world.chunkLoad(this.getTilePos().toChunkPos());
 	}
 
 	public boolean move(double x, double y, double z) {
