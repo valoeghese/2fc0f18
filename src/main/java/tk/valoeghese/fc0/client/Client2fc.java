@@ -34,19 +34,17 @@ import static tk.valoeghese.fc0.client.model.Textures.TILE_ATLAS;
 
 public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
+		long time = System.currentTimeMillis();
 		instance = this;
 		// initialise Graphics and Audio systems
 		GraphicsSystem.initGLFW();
 		this.window = new Window(640 * 2, 360 * 2);
 		GraphicsSystem.initGL(this.window);
-		AudioSystem.initAL();;
+		AudioSystem.initAL();
+		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
+
 		// setup shaders, world, projections, etc
-		this.setFOV(64);
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
-		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
-		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
-		Shaders.loadShaders();
-		this.world = new ClientWorld(null, 0, 3);
 	}
 
 	private ClientWorld world;
@@ -65,53 +63,35 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private Text biomeWidget;
 	private Language language = Language.EN_GB;
 	private Save save = null;
+	private final Window window;
+	private double prevYPos = 0;
+	private double prevXPos = 0;
 
 	public static Client2fc getInstance() {
 		return instance;
 	}
 
-	public ClientPlayer getPlayer() {
-		return this.player;
-	}
-
-	public ClientWorld getWorld() {
-		return this.world;
-	}
-
-	private void saveWorld() {
-		if (this.save != null) {
-			this.save.write(this.world.getChunks(), this.player.getPos(), this.spawnLoc, this.time);
-		}
-	}
-
-	private void createWorld() {
-		this.world.destroy();
-		this.saveWorld();
-		this.time = 0;
-		this.save = new Save("save", new Random().nextLong());
-		this.world = new ClientWorld(this.save, this.save.getSeed(), 9);
-
-		if (this.save.spawnLocPos != null) {
-			this.spawnLoc = this.save.spawnLocPos;
-		} else {
-			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
-		}
-
-		if (this.save.lastSavePos != null) {
-			this.player.changeWorld(this.world, this.save.lastSavePos);
-		} else {
-			this.player.changeWorld(this.world);
-		}
-	}
-
-	public void setFOV(int newFOV) {
-		this.fov = newFOV;
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov), this.window.aspect, 0.01f, 250.0f);
-	}
-
 	@Override
 	public void run() {
-		init();
+		GUI setupScreen = new Overlay(Textures.STARTUP);
+		this.initGameRendering();
+
+		Thread t = new Thread(this::init);
+		t.start();
+
+		while (t.isAlive()) {
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			// render loading screen
+			Shaders.gui.bind();
+			Shaders.gui.uniformMat4f("projection", this.guiProjection);
+			Shaders.gui.uniformFloat("lighting", 1.0f);
+			setupScreen.render();
+			Shader.unbind();
+
+			this.window.swapBuffers();
+			glfwPollEvents();
+		}
 
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
@@ -164,24 +144,96 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		++this.time;
 	}
 
-	private void init() {
+	private void initGameRendering() {
+		long start = System.currentTimeMillis();
+		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
+		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
+		Shaders.loadShaders();
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
-		this.player = new ClientPlayer(new Camera());
-		this.player.changeWorld(this.world);
-
 		this.prevYPos = this.window.height / 2.0f;
 		this.prevXPos = this.window.width / 2.0f;
-		this.crosshair = new Crosshair();
+
 		this.version = new Overlay(Textures.VERSION);
+		this.crosshair = new Crosshair();
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
+		this.biomeWidget = new Text(this.language.translate("ecozone.missingno"), -0.85f, 0.8f, 1.0f);
+
+		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
+	}
+
+	private void init() {
+		this.setFOV(64);
+		this.world = new ClientWorld(null, 0, 3);
+		this.player = new ClientPlayer(new Camera());
+		this.player.changeWorld(this.world);
 		this.world.generateSpawnChunks();
 		this.player.getCamera().rotateYaw((float) Math.PI);
-		this.biomeWidget = new Text(this.language.translate("ecozone.temperate_grassland"), -0.85f, 0.8f, 1.0f);
+	}
+
+	private void render() {
+		long time = System.nanoTime();
+		float lighting = MathsUtils.clampMap(sin((float) this.time / 3072.0f), -1, 1, 0.125f, 1.15f);
+		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
+
+		// bind shader
+		Shaders.terrain.bind();
+		// time and stuff
+		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
+		Shaders.terrain.uniformFloat("lighting", lighting);
+		// projection
+		Shaders.terrain.uniformMat4f("projection", this.projection);
+		// defaults
+		Shaders.terrain.uniformInt("waveMode", 0);
+		// render world
+		GraphicsSystem.bindTexture(TILE_ATLAS);
+
+		this.world.updateChunksForRendering();
+
+		for(ClientChunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderTerrain(this.player.getCamera());
+		}
+
+		for(ClientChunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
+		}
+
+		// bind shader
+		Shaders.gui.bind();
+		// projection
+		Shaders.gui.uniformMat4f("projection", this.guiProjection);
+		// defaults
+		Shaders.gui.uniformFloat("lighting", 1.0f);
+		// render gui
+		if (this.titleScreen) {
+			this.titleText.render();
+		} else {
+			this.version.render();
+			this.crosshair.render();
+			this.biomeWidget.render();
+		}
+
+		if (this.player.isUnderwater()) {
+			GraphicsSystem.enableBlend();
+			Shaders.gui.uniformFloat("lighting", lighting);
+			this.waterOverlay.render();
+			Shaders.gui.uniformFloat("lighting", 1.0f);
+			GraphicsSystem.disableBlend();
+		}
+
+		// unbind shader
+		GraphicsSystem.bindTexture(0);
+
+		Shader.unbind();
+		long elapsed = (System.nanoTime() - time) / 1000000;
+
+		if (elapsed > 180) {
+			System.out.println("[Render/Warn] Unusually long time! Rendering took: " + elapsed + "ms. Note that this is normal if it merely happens on startup.");
+		}
 	}
 
 	private void handleKeybinds() {
@@ -304,71 +356,44 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 	}
 
-	private void render() {
-		long time = System.nanoTime();
-		float lighting = MathsUtils.clampMap(sin((float) this.time / 3072.0f), -1, 1, 0.125f, 1.15f);
-		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
+	public ClientPlayer getPlayer() {
+		return this.player;
+	}
 
-		// bind shader
-		Shaders.terrain.bind();
-		// time and stuff
-		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-		Shaders.terrain.uniformFloat("lighting", lighting);
-		// projection
-		Shaders.terrain.uniformMat4f("projection", this.projection);
-		// defaults
-		Shaders.terrain.uniformInt("waveMode", 0);
-		// render world
-		GraphicsSystem.bindTexture(TILE_ATLAS);
+	public ClientWorld getWorld() {
+		return this.world;
+	}
 
-		this.world.updateChunksForRendering();
-
-		for(ClientChunk chunk : this.world.getChunksForRendering()){
-			chunk.getOrCreateMesh().renderTerrain(this.player.getCamera());
-		}
-
-		for(ClientChunk chunk : this.world.getChunksForRendering()){
-			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
-		}
-
-		// bind shader
-		Shaders.gui.bind();
-		// projection
-		Shaders.gui.uniformMat4f("projection", this.guiProjection);
-		// defaults
-		Shaders.gui.uniformFloat("lighting", 1.0f);
-		// render gui
-		if (this.titleScreen) {
-			this.titleText.render();
-		} else {
-			this.version.render();
-			this.crosshair.render();
-			this.biomeWidget.render();
-		}
-
-		if (this.player.isUnderwater()) {
-			GraphicsSystem.enableBlend();
-			Shaders.gui.uniformFloat("lighting", lighting);
-			this.waterOverlay.render();
-			Shaders.gui.uniformFloat("lighting", 1.0f);
-			GraphicsSystem.disableBlend();
-		}
-
-		// unbind shader
-		GraphicsSystem.bindTexture(0);
-
-		Shader.unbind();
-		long elapsed = (System.nanoTime() - time) / 1000000;
-
-		if (elapsed > 180) {
-			System.out.println("[Render/Warn] Unusually long time! Rendering took: " + elapsed + "ms. Note that this is normal if it merely happens on startup.");
+	private void saveWorld() {
+		if (this.save != null) {
+			this.save.write(this.world.getChunks(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
-	private final Window window;
+	private void createWorld() {
+		this.world.destroy();
+		this.saveWorld();
+		this.time = 0;
+		this.save = new Save("save", new Random().nextLong());
+		this.world = new ClientWorld(this.save, this.save.getSeed(), 20);
 
-	private double prevYPos = 0;
-	private double prevXPos = 0;
+		if (this.save.spawnLocPos != null) {
+			this.spawnLoc = this.save.spawnLocPos;
+		} else {
+			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
+		}
+
+		if (this.save.lastSavePos != null) {
+			this.player.changeWorld(this.world, this.save.lastSavePos);
+		} else {
+			this.player.changeWorld(this.world);
+		}
+	}
+
+	public void setFOV(int newFOV) {
+		this.fov = newFOV;
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov), this.window.aspect, 0.01f, 250.0f);
+	}
 
 	@Override
 	public void invoke(long window, double xpos, double ypos) {
@@ -393,4 +418,5 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
+	private static Object lock = new Object();
 }

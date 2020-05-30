@@ -32,7 +32,6 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 		if (result != null) {
 			if (status == ChunkLoadStatus.RENDER) {
 				if (!result.render) {
-					result.getOrCreateMesh();
 					result.render = true;
 					this.toAddToQueue.add(result);
 				}
