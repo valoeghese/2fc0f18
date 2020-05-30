@@ -151,11 +151,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
-	protected void finalize() throws Throwable {
-		this.chunkSaveExecutor.shutdown();
-	}
-
-	@Override
 	public void updateChunkOf(Player player) {
 		TilePos pos = player.getTilePos();
 		ChunkPos cPos = pos.toChunkPos();
@@ -230,6 +225,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void destroy() {
+		this.chunkSaveExecutor.shutdown();
 	}
 
 	@Override

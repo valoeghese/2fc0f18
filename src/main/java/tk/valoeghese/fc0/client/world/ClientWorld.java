@@ -67,6 +67,8 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	@Override
 	protected void onChunkRemove(Chunk c) {
 		if (c.render) {
+			c.destroy();
+
 			if (this.toAddToQueue.contains(c)) {
 				this.toAddForRendering.remove(c);
 			} else if (this.toAddForRendering.contains(c)) {
@@ -79,6 +81,8 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 
 	@Override
 	public void destroy() {
+		super.destroy();
+
 		for (Chunk c : this.chunksForRendering) {
 			c.destroy();
 		}

@@ -130,6 +130,8 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public void destroy() {
-		this.mesh.destroy();
+		if (this.mesh != null) {
+			this.mesh.destroy();
+		}
 	}
 }

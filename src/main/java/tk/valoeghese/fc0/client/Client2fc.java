@@ -74,13 +74,18 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		return this.player;
 	}
 
-	public void saveWorld() {
+	public ClientWorld getWorld() {
+		return this.world;
+	}
+
+	private void saveWorld() {
 		if (this.save != null) {
 			this.save.write(this.world.getChunks(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
-	public void createWorld() {
+	private void createWorld() {
+		this.world.destroy();
 		this.saveWorld();
 		this.time = 0;
 		this.save = new Save("save", new Random().nextLong());
@@ -126,6 +131,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 					glfwSetWindowShouldClose(this.window.glWindow, true);
 				} else {
 					this.saveWorld();
+					this.world.destroy();
 					this.save = null;
 					this.world = new ClientWorld(null, 0, 3);
 					this.player.changeWorld(this.world);
@@ -134,6 +140,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 		}
 
+		this.world.destroy();
 		this.window.destroy();
 		ALC10.alcCloseDevice(AudioSystem.getDevice());
 	}
@@ -181,7 +188,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		if (this.titleScreen) {
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				this.titleScreen = false;
-				this.world.destroy();
 				this.createWorld();
 				this.world.generateSpawnChunks();
 			}
