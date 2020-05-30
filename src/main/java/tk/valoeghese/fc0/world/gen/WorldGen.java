@@ -100,7 +100,7 @@ public final class WorldGen {
 	}
 
 	public static EcoZone getEcoZoneByPosition(double x, double z) {
-		return getEcoZone(ecoZone.sample(x * 0.006, z * 0.006), ecoZone.sample(x * 0.01 + 4.08, z * 0.01));
+		return getEcoZone(ecoZone.sample(x * 0.0012, z * 0.0012), ecoZone.sample(x * 0.002 + 4.08, z * 0.002));
 	}
 
 	public static EcoZone getEcoZone(double temp, double humidity) {
