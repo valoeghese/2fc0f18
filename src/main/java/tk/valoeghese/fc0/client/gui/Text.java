@@ -37,8 +37,35 @@ public class Text extends GUI {
 			}
 
 			int cVal = (int) c - 32; // space is at 0
-			int u = cVal % 16;
-			int v = cVal / 16;
+
+			int u;
+			int v;
+
+			switch (cVal) {
+			case 196 - 32: // a umlaut capital
+				u = 15;
+				v = 5;
+				break;
+			case 203 - 32: // e
+				u = 0;
+				v = 6;
+				break;
+			case 207 - 32: // i
+				u = 1;
+				v = 6;
+				break;
+			case 214 - 32: // o
+				u = 2;
+				v = 6;
+				break;
+			case 220 - 32: // u
+				u = 3;
+				v = 6;
+				break;
+			default:
+				u = cVal % 16;
+				v = cVal / 16;
+			}
 
 			final float startU = (u / 16.0f);
 			final float startV = (v / 16.0f);
