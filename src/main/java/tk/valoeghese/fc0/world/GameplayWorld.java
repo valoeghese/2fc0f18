@@ -8,6 +8,7 @@ import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (result != null) {
-			this.chunks.put(chunkKey(x, z), result);
+			this.chunks.put(key(x, z), result);
 		}
 
 		return result;
@@ -111,7 +112,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Nullable
 	private T accessChunk(int x, int z) {
-		return this.chunks.get(chunkKey(x, z));
+		return this.chunks.get(key(x, z));
 	}
 
 	@Override
@@ -174,7 +175,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void chunkLoad(ChunkPos centrePos) {
-		List<Chunk> toWrite = new ArrayList<Chunk>();
+		List<Chunk> toWrite = new ArrayList<>();
 
 		// prepare chunks to remove
 		for (Chunk c : this.chunks.values()) {
@@ -182,7 +183,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				// prepare for chunk remove on-thread
 				this.onChunkRemove(c);
 				toWrite.add(c);
-				this.chunks.remove(chunkKey(c.x, c.z));
+				this.chunks.remove(key(c.x, c.z));
 			}
 		}
 
@@ -245,9 +246,16 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		public Chunk getChunk(int x, int z) {
 			return GameplayWorld.this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
 		}
+
+		@Override
+		public void wgWriteTile(int x, int y, int z, byte tile) {
+			if (Tile.BY_ID[tile].canPlaceAt(this, x, y, z)) {
+				GenWorld.super.wgWriteTile(x, y, z, tile);
+			}
+		}
 	}
 
-	public static final long chunkKey(int x, int z) {
+	public static long key(int x, int z) {
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 

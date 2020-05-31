@@ -3,13 +3,21 @@ package tk.valoeghese.fc0.client;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.ALC10;
-import tk.valoeghese.fc0.client.gui.*;
+import tk.valoeghese.fc0.client.gui.Crosshair;
+import tk.valoeghese.fc0.client.gui.Hotbar;
+import tk.valoeghese.fc0.client.gui.Overlay;
+import tk.valoeghese.fc0.client.gui.Text;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.language.Language;
 import tk.valoeghese.fc0.client.model.Shaders;
 import tk.valoeghese.fc0.client.model.Textures;
-import tk.valoeghese.fc0.client.system.*;
+import tk.valoeghese.fc0.client.system.Audio;
+import tk.valoeghese.fc0.client.system.Camera;
+import tk.valoeghese.fc0.client.system.Shader;
+import tk.valoeghese.fc0.client.system.Window;
+import tk.valoeghese.fc0.client.system.gui.GUI;
+import tk.valoeghese.fc0.client.system.util.GraphicsSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -39,7 +47,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		GraphicsSystem.initGLFW();
 		this.window = new Window(640 * 2, 360 * 2);
 		GraphicsSystem.initGL(this.window);
-		AudioSystem.initAL();
+		Audio.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
 
 		// setup shaders, world, projections, etc
@@ -55,7 +63,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private GUI version;
 	private GUI waterOverlay;
 	private GUI titleText;
-	private TileGUI selectedTile;
+	private Hotbar hotbarRenderer;
 	public long time = 0;
 	private int fov;
 	private boolean titleScreen = true;
@@ -74,7 +82,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	@Override
 	public void run() {
 		GUI setupScreen = new Overlay(Textures.STARTUP);
-		this.initGameRendering();
+		Shaders.loadShaders();
 
 		Thread t = new Thread(this::init);
 		t.start();
@@ -93,7 +101,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			glfwPollEvents();
 		}
 
-		this.selectedTile.setTile(Tile.STONE, (byte) 0, 1f / this.window.aspect);
+		this.initGameRendering();
+		this.initGameAudio();
 
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
@@ -105,6 +114,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this.render();
+			Audio.tickAudio();
 			this.window.swapBuffers();
 			glfwPollEvents();
 
@@ -124,7 +134,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		this.world.destroy();
 		this.window.destroy();
-		ALC10.alcCloseDevice(AudioSystem.getDevice());
+		ALC10.alcCloseDevice(Audio.getDevice());
 	}
 
 	private void tick() {
@@ -150,7 +160,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		long start = System.currentTimeMillis();
 		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
-		Shaders.loadShaders();
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -164,7 +173,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 		this.titleText = new Text("Click to start.", -0.85f, 0.5f, 2.2f);
 		this.biomeWidget = new Text(this.language.translate("ecozone.missingno"), -0.85f, 0.8f, 1.0f);
-		this.selectedTile = new TileGUI(0.8f, 0.72f, 0.16f);
+		this.hotbarRenderer = new Hotbar(this.player.getInventory());
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
 	}
@@ -178,6 +187,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
 		System.out.println("Initialised 2fc0f18 in " + (System.currentTimeMillis() - time) + "ms.");
+	}
+
+	private void initGameAudio() {
+		long start = System.currentTimeMillis();
+		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
 	private void render() {
@@ -235,7 +249,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			this.biomeWidget.render();
 
 			Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
-			this.selectedTile.render();
+			this.hotbarRenderer.render();
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 		}
 
@@ -323,12 +337,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 
 			Item selectedItem = inventory.getSelectedItem();
-
-			if (selectedItem != null && selectedItem.isTile()) {
-				this.selectedTile.setTile(selectedItem.tileValue(), (byte) 0, 1f / this.window.aspect);
-			} else {
-				this.selectedTile.destroy();
-			}
+			this.hotbarRenderer.update(inventory.getSelectedSlot(), this.window.aspect);
 
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				TilePos pos = this.player.rayCast(10.0).pos;
@@ -348,10 +357,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 						TilePos pos = result.face.apply(result.pos);
 
 						if (this.world.isInWorld(pos)) {
-							if (selectedItem.tileValue().id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
-								this.world.writeTile(pos, Tile.CACTUS.id);
-							} else {
-								this.world.writeTile(pos, selectedItem.tileValue().id);
+							Tile tile = selectedItem.tileValue();
+
+							if (tile.canPlaceAt(this.world, pos.x, pos.y, pos.z)) {
+								if (tile.id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
+									this.world.writeTile(pos, Tile.CACTUS.id);
+								} else {
+									this.world.writeTile(pos, tile.id);
+								}
 							}
 						}
 					}

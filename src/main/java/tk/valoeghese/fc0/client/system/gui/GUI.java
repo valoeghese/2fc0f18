@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.gui;
+package tk.valoeghese.fc0.client.system.gui;
 
 import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
@@ -14,9 +14,9 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
-import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.system.util.GraphicsSystem.NULL;
 
-public abstract class GUI {
+public abstract class GUI implements PseudoGUI {
 	protected GUI(int texture) {
 		this.mode = GL_STATIC_DRAW;
 		this.shader = Shaders.gui;
@@ -50,6 +50,7 @@ public abstract class GUI {
 		this.iTemp.add(i2);
 	}
 
+	@Override
 	public void destroy() {
 		for (GUI.VertexArray array : this.vertexArrays) {
 			glDeleteVertexArrays(array.vao);
@@ -86,6 +87,7 @@ public abstract class GUI {
 		this.vertexArrays.add(new VertexArray(vao, indices.length));
 	}
 
+	@Override
 	public final void render() {
 		glBindTexture(GL_TEXTURE_2D, texture);
 

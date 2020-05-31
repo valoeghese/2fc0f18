@@ -1,5 +1,8 @@
 package tk.valoeghese.fc0.world.tile;
 
+import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.GenWorld;
+
 public class Tile {
 	public Tile(int id, int u, int v, float iota, float kappa) {
 		BY_ID[id] = this;
@@ -65,6 +68,10 @@ public class Tile {
 		return this.render;
 	}
 
+	public boolean canPlaceAt(GenWorld world, int x, int y, int z) {
+		return true;
+	}
+
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile(0, 0, 0, 0.0f, 0.02f).dontRender();
 	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f);
@@ -73,9 +80,9 @@ public class Tile {
 	public static final Tile LOG = new ColumnTile(4, 2, 0, 0.04f, 0.04f);
 	public static final Tile WATER = new WaterTile(5, 3, 1, 0.05f, 0.14f).dontRender();
 	public static final Tile SAND = new Tile(6, 0, 2, 0.025f, 0.01f);
-	public static final Tile DAISY = new Tile(7, 1, 2, 0.001f, 0.12f).cross();
-	public static final Tile CACTUS = new Tile(8, 2, 2, 0.002f, 0.06f).cross();
-	public static final Tile TALLGRASS = new Tile(9, 3, 2, 0.002f, 0.14f).cross();
+	public static final Tile DAISY = new PlantTile(7, 1, 2, 0.001f, 0.12f, GRASS).cross();
+	public static final Tile CACTUS = new PlantTile(8, 2, 2, 0.002f, 0.06f, SAND).cross();
+	public static final Tile TALLGRASS = new PlantTile(9, 3, 2, 0.002f, 0.14f, GRASS).cross();
 	public static final Tile BRICKS = new Tile(10, 4, 2, 0.02f, 0.01f);
 	public static final Tile STONE_BRICKS = new Tile(11, 5, 2, 0.015f, 0.011f);
 }

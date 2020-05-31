@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
-import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.system.util.GraphicsSystem.NULL;
 
 public abstract class Model {
 	protected Model(int mode, @Nullable Shader shader) {

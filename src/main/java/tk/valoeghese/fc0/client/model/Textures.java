@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.client.model;
 
-import tk.valoeghese.fc0.client.system.Resources;
-import tk.valoeghese.fc0.client.system.TextureLoader;
+import tk.valoeghese.fc0.client.system.util.ResourceLoader;
+import tk.valoeghese.fc0.client.system.util.TextureLoader;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.io.UncheckedIOException;
 public class Textures {
 	private static int load(String arg0, boolean fallbackToNull) {
 		try {
-			return TextureLoader.textureARGB(ImageIO.read(Resources.loadURL("assets/texture/" + arg0 + ".png")));
+			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + arg0 + ".png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 

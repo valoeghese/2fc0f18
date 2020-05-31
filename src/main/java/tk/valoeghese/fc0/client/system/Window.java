@@ -3,7 +3,7 @@ package tk.valoeghese.fc0.client.system;
 import org.lwjgl.glfw.GLFWVidMode;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static tk.valoeghese.fc0.client.system.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.system.util.GraphicsSystem.NULL;
 
 public class Window {
 	public Window(int width, int height) {

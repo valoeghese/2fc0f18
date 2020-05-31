@@ -1,4 +1,6 @@
-package tk.valoeghese.fc0.client.system;
+package tk.valoeghese.fc0.client.system.util;
+
+import tk.valoeghese.fc0.client.system.Window;
 
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;

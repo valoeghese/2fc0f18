@@ -1,5 +1,8 @@
 package tk.valoeghese.fc0.client.system;
 
+import tk.valoeghese.fc0.client.system.util.ResourceLoader;
+import tk.valoeghese.fc0.client.system.util.TextureLoader;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -20,7 +23,7 @@ public class TestPlaneModel extends Model {
 
 	static {
 		try {
-			BufferedImage image = ImageIO.read(Resources.loadURL("assets/texture/misaka.png"));
+			BufferedImage image = ImageIO.read(ResourceLoader.loadURL("assets/texture/misaka.png"));
 			TEXTURE_TO_USE = TextureLoader.textureARGB(image);
 		} catch (IOException | RuntimeException e) {
 			throw new RuntimeException("Error loading image!", e);

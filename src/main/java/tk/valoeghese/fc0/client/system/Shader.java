@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import tk.valoeghese.fc0.client.system.util.ResourceLoader;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -17,7 +18,7 @@ public class Shader {
 		int vertex = glCreateShader(GL_VERTEX_SHADER);
 
 		try {
-			glShaderSource(vertex, Resources.loadAsString(vertexResource));
+			glShaderSource(vertex, ResourceLoader.loadAsString(vertexResource));
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error loading Vertex Shader Source!", e);
 		}
@@ -34,7 +35,7 @@ public class Shader {
 		int fragment = glCreateShader(GL_FRAGMENT_SHADER);
 
 		try {
-			glShaderSource(fragment,Resources.loadAsString(fragmentResource));
+			glShaderSource(fragment, ResourceLoader.loadAsString(fragmentResource));
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error loading Fragment Shader Source!", e);
 		}

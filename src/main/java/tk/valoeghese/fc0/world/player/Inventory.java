@@ -20,7 +20,14 @@ public class Inventory {
 
 	@Nullable
 	public Item getItemAt(int slot) throws ArrayIndexOutOfBoundsException {
-		return this.items[slot];
+		Item result = this.items[slot];
+
+		if (result.getCount() <= 0) {
+			this.putItemAt(slot, null);
+			return null;
+		}
+
+		return result;
 	}
 
 	public void putItemAt(int slot, @Nullable Item item) throws ArrayIndexOutOfBoundsException {

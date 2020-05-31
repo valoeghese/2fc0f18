@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.client.gui;
 
+import tk.valoeghese.fc0.client.system.gui.GUI;
+
 public class Overlay extends GUI {
 	public Overlay(int texture) {
 		super(texture);

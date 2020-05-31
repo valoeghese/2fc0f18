@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.client.gui;
 
+import tk.valoeghese.fc0.client.system.gui.GUI;
+
 public class Crosshair extends GUI {
 	public Crosshair() {
 		super(0);

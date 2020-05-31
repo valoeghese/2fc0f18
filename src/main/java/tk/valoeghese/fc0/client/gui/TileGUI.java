@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.gui;
 
 import tk.valoeghese.fc0.client.model.Textures;
+import tk.valoeghese.fc0.client.system.gui.GUI;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 public class TileGUI extends GUI {

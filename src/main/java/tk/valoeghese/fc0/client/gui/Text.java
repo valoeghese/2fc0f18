@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.gui;
 
 import tk.valoeghese.fc0.client.model.Textures;
+import tk.valoeghese.fc0.client.system.gui.GUI;
 
 public class Text extends GUI {
 	public Text(String value, float xOffset, float yOffset, float size) {

@@ -19,6 +19,7 @@ public class Item {
 	@Nullable
 	private final Tile tileValue;
 	private final byte meta;
+	private int count = 1;
 
 	public boolean isTile() {
 		return this.tile;
@@ -31,5 +32,21 @@ public class Item {
 
 	public byte getMeta() {
 		return this.meta;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
+	}
+
+	public int getCount() {
+		return this.count;
+	}
+
+	public void decrement() {
+		this.count--;
+	}
+
+	public void increment() {
+		this.count++;
 	}
 }

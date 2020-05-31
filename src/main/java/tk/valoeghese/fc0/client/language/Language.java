@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.client.language;
 
-import tk.valoeghese.fc0.client.system.Resources;
+import tk.valoeghese.fc0.client.system.util.ResourceLoader;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -31,7 +31,7 @@ public final class Language {
 		if (this.parent != null) {
 			defaults = new Properties();
 
-			try (InputStream is = Resources.load("data/language/" + this.parent + ".txt")) {
+			try (InputStream is = ResourceLoader.load("data/language/" + this.parent + ".txt")) {
 				defaults.load(is);
 			} catch (IOException e) {
 				throw new RuntimeException("Error loading parent language file!");
@@ -40,7 +40,7 @@ public final class Language {
 
 		this.values = defaults == null ? new Properties() : new Properties(defaults);
 
-		try (InputStream is = Resources.load("data/language/" + this.id + ".txt")) {
+		try (InputStream is = ResourceLoader.load("data/language/" + this.id + ".txt")) {
 			this.values.load(is);
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading language file!");
