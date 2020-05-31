@@ -10,8 +10,8 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 	public Hotbar(Inventory parent) {
 		this.parent = parent;
 
-		for (int i = 0; i < 9; ++i) {
-			this.guis.add(new HotbarEntry(0.8f, 0.87f - (0.2f * i)));
+		for (int i = 0; i < 10; ++i) {
+			this.guis.add(new HotbarEntry(0.8f, 0.87f - (0.1f * i)));
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
 	}
@@ -40,8 +40,8 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 
 	static class HotbarEntry implements PseudoGUI {
 		public HotbarEntry(float xOffset, float yOffset) {
-			this.tileGUI = new TileGUI(xOffset, yOffset, 0.1f);
-			this.countGUI = new Text("0", xOffset - 0.14f, yOffset, 0.78f);
+			this.tileGUI = new TileGUI(xOffset, yOffset, 0.06f);
+			this.countGUI = new Text("0", xOffset - 0.14f, yOffset - 0.05f, 0.8f);
 		}
 
 		final TileGUI tileGUI;

@@ -216,12 +216,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.world.updateChunksForRendering();
 
 		for(ClientChunk chunk : this.world.getChunksForRendering()){
-			chunk.getOrCreateMesh().renderTerrain(this.player.getCamera());
+			chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
+		}
+
+		GraphicsSystem.enableBlend();
+
+		for(ClientChunk chunk : this.world.getChunksForRendering()){
+			chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
 		}
 
 		for(ClientChunk chunk : this.world.getChunksForRendering()){
 			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
 		}
+
+		GraphicsSystem.disableBlend();
 
 		// bind shader
 		Shaders.gui.bind();
@@ -336,6 +344,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				inventory.setSelectedSlot(7);
 			} else if (Keybinds.SELECT_9.hasBeenPressed()) {
 				inventory.setSelectedSlot(8);
+			} else if (Keybinds.SELECT_0.hasBeenPressed()) {
+				inventory.setSelectedSlot(9);
 			}
 
 			Item selectedItem = inventory.getSelectedItem();

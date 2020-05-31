@@ -3,7 +3,6 @@ package tk.valoeghese.fc0.client.model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
-import tk.valoeghese.fc0.client.system.util.GraphicsSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -28,7 +27,8 @@ public class ChunkMesh {
 	private final byte[] tiles;
 	private final byte[] meta;
 	private final RenderedChunk chunk;
-	private ChunkMeshModel mesh;
+	private ChunkMeshModel solid;
+	private ChunkMeshModel translucent;
 	private ChunkMeshModel water;
 
 	public void updateTile(int index, byte tile) {
@@ -39,6 +39,7 @@ public class ChunkMesh {
 	public void buildMesh() {
 		List<RenderedTileFace> faces = new ArrayList<>();
 		List<RenderedTileFace> waterFaces = new ArrayList<>();
+		List<RenderedTileFace> translucentFaces = new ArrayList<>();
 
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
@@ -48,9 +49,10 @@ public class ChunkMesh {
 						byte meta = this.meta[index(x, y, z)];
 						Tile instance = Tile.BY_ID[tile];
 						boolean waterLayer = instance == Tile.WATER;
+						List<RenderedTileFace> layer = waterLayer ? waterFaces : (instance.isTranslucent() ? translucentFaces : faces);
 
 						if (instance.shouldRender() && instance.isCross()) {
-							(waterLayer ? waterFaces : faces).add(
+							layer.add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
 											instance,
 											0.95f,
@@ -64,7 +66,7 @@ public class ChunkMesh {
 							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
 							if (!tileUp.isOpaque(waterLayer)) {
-								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
+								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 1f, z + 0.5f),
 										1,
 										instance,
@@ -73,7 +75,7 @@ public class ChunkMesh {
 							}
 
 							if (!tileDown.isOpaque(waterLayer)) {
-								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
+								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y, z + 0.5f),
 										4,
 										instance,
@@ -82,7 +84,7 @@ public class ChunkMesh {
 							}
 
 							if (!tileNorth.isOpaque(waterLayer)) {
-								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
+								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
 										2,
 										instance,
@@ -91,7 +93,7 @@ public class ChunkMesh {
 							}
 
 							if (!tileSouth.isOpaque(waterLayer)) {
-								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
+								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z),
 										5,
 										instance,
@@ -100,7 +102,7 @@ public class ChunkMesh {
 							}
 
 							if (!tileEast.isOpaque(waterLayer)) {
-								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
+								layer.add(new RenderedTileFace(
 										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
 										instance,
@@ -109,7 +111,7 @@ public class ChunkMesh {
 							}
 
 							if (!tileWest.isOpaque(waterLayer)) {
-								(waterLayer ? waterFaces : faces).add(new RenderedTileFace(
+								layer.add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,
 										instance,
@@ -122,24 +124,28 @@ public class ChunkMesh {
 			}
 		}
 
-		if (this.mesh != null) {
-			this.mesh.destroy();
+		if (this.solid != null) {
+			this.solid.destroy();
+			this.translucent.destroy();
 			this.water.destroy();
 		}
 
-		this.mesh = new ChunkMeshModel(faces);
+		this.solid = new ChunkMeshModel(faces);
+		this.translucent = new ChunkMeshModel(translucentFaces);
 		this.water = new ChunkMeshModel(waterFaces);
 	}
 
-	public void renderTerrain(Camera camera){
-		camera.render(this.mesh, this.transform);
+	public void renderSolidTerrain(Camera camera){
+		camera.render(this.solid, this.transform);
+	}
+
+	public void renderTranslucentTerrain(Camera camera) {
+		camera.render(this.translucent, this.transform);
 	}
 
 	public void renderWater(Camera camera) {
-		GraphicsSystem.enableBlend();
 		Shaders.terrain.uniformInt("waveMode", 1);
 		camera.render(this.water, this.transform);
-		GraphicsSystem.disableBlend();
 		Shaders.terrain.uniformInt("waveMode", 0);
 	}
 
@@ -231,7 +237,7 @@ public class ChunkMesh {
 	}
 
 	public void destroy() {
-		this.mesh.destroy();
+		this.solid.destroy();
 		this.water.destroy();
 	}
 }

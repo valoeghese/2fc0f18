@@ -16,7 +16,7 @@ public class Player {
 		this.pos = new MutablePos(0, 0, 0);
 		this.velocity = new MutablePos(0, 0, 0);
 		this.dev = dev;
-		this.inventory = inventoryConstructor.apply(9);
+		this.inventory = inventoryConstructor.apply(10);
 
 		if (this.inventory == null) {
 			throw new NullPointerException("Inventory cannot be null!");
@@ -32,6 +32,7 @@ public class Player {
 			this.inventory.putItemAt(6, new Item(Tile.TALLGRASS));
 			this.inventory.putItemAt(7, new Item(Tile.BRICKS));
 			this.inventory.putItemAt(8, new Item(Tile.STONE_BRICKS));
+			this.inventory.putItemAt(9, new Item(Tile.ICE));
 		}
 	}
 

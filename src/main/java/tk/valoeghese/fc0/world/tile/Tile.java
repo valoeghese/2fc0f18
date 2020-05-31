@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.world.tile;
 
-import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 
 public class Tile {
@@ -22,6 +21,7 @@ public class Tile {
 	private boolean opaque = true;
 	private boolean render = true;
 	private boolean cross = false;
+	private boolean translucent = false;
 
 	public int getU(int faceAxis, byte meta) {
 		return this.u;
@@ -44,6 +44,12 @@ public class Tile {
 
 	protected Tile cross() {
 		this.cross = true;
+		this.cutout();
+		return this;
+	}
+
+	protected Tile translucent() {
+		this.translucent = true;
 		this.cutout();
 		return this;
 	}
@@ -72,6 +78,10 @@ public class Tile {
 		return true;
 	}
 
+	public boolean isTranslucent() {
+		return this.translucent;
+	}
+
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile(0, 0, 0, 0.0f, 0.02f).dontRender();
 	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f);
@@ -85,4 +95,6 @@ public class Tile {
 	public static final Tile TALLGRASS = new PlantTile(9, 3, 2, 0.002f, 0.14f, GRASS).cross();
 	public static final Tile BRICKS = new Tile(10, 4, 2, 0.02f, 0.01f);
 	public static final Tile STONE_BRICKS = new Tile(11, 5, 2, 0.015f, 0.011f);
+	public static final Tile ICE = new Tile(12, 5, 0, 0.05f, 0.14f).translucent();
+	public static final Tile GALENA = new Tile(13, 5, 2, 0.01f, 0.01f);
 }
