@@ -7,14 +7,20 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.function.IntFunction;
 
 public class Player {
-	public Player(boolean dev) {
+	public Player(boolean dev, IntFunction<Inventory> inventoryConstructor) {
 		this.pos = new MutablePos(0, 0, 0);
 		this.velocity = new MutablePos(0, 0, 0);
 		this.dev = dev;
-		this.inventory = new Inventory(9);
+		this.inventory = inventoryConstructor.apply(9);
+
+		if (this.inventory == null) {
+			throw new NullPointerException("Inventory cannot be null!");
+		}
 
 		if (this.dev) {
 			this.inventory.putItemAt(0, new Item(Tile.STONE));
@@ -37,6 +43,7 @@ public class Player {
 	public Chunk chunk = null;
 	public long lockSwim = 0;
 	public final boolean dev;
+	@Nonnull
 	private final Inventory inventory;
 
 	public void changeWorld(LoadableWorld world) {

@@ -31,6 +31,7 @@ import tk.valoeghese.fc0.world.player.Item;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import javax.annotation.Nullable;
 import java.util.Random;
 
 import static org.joml.Math.cos;
@@ -182,7 +183,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		long time = System.currentTimeMillis();
 		this.setFOV(64);
 		this.world = new ClientWorld(null, 0, 4);
-		this.player = new ClientPlayer(new Camera(), true);
+		this.player = new ClientPlayer(new Camera(), this, true);
 		this.player.changeWorld(this.world);
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
@@ -191,6 +192,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void initGameAudio() {
 		long start = System.currentTimeMillis();
+		//TODO everything
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
@@ -337,7 +339,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 
 			Item selectedItem = inventory.getSelectedItem();
-			this.hotbarRenderer.update(inventory.getSelectedSlot(), this.window.aspect);
 
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				TilePos pos = this.player.rayCast(10.0).pos;
@@ -431,6 +432,15 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov), this.window.aspect, 0.01f, 250.0f);
+	}
+
+	public float getWindowAspect() {
+		return this.window.aspect;
+	}
+
+	@Nullable
+	public Hotbar getHotbarRenderer() {
+		return this.hotbarRenderer;
 	}
 
 	@Override

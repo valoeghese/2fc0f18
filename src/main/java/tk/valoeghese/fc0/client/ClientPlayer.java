@@ -2,19 +2,20 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.system.Camera;
+import tk.valoeghese.fc0.client.world.ClientInventory;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
-import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.gen.EcoZone;
+import tk.valoeghese.fc0.world.player.Player;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientPlayer extends Player  {
-	public ClientPlayer(Camera camera, boolean dev) {
-		super(dev);
+	public ClientPlayer(Camera camera, Client2fc game, boolean dev) {
+		super(dev, size -> new ClientInventory(size, game));
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.8f, 0)); // 2 blocks tall, camera at head
 	}
