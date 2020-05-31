@@ -18,6 +18,8 @@ import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.player.Inventory;
+import tk.valoeghese.fc0.world.player.Item;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -171,9 +173,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		long time = System.currentTimeMillis();
 		this.setFOV(64);
 		this.world = new ClientWorld(null, 0, 4);
-		this.player = new ClientPlayer(new Camera());
+		this.player = new ClientPlayer(new Camera(), true);
 		this.player.changeWorld(this.world);
-		this.world.generateSpawnChunks();
+		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
 		System.out.println("Initialised 2fc0f18 in " + (System.currentTimeMillis() - time) + "ms.");
 	}
@@ -251,7 +253,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				this.titleScreen = false;
 				this.createWorld();
-				this.world.generateSpawnChunks();
+				this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 			}
 		} else {
 			final float yaw = this.player.getCamera().getYaw();
@@ -298,27 +300,35 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				}
 			}
 
+			Inventory inventory = this.player.getInventory();
+
 			if (Keybinds.SELECT_1.hasBeenPressed()) {
-				this.player.selectedTile = Tile.STONE;
+				inventory.setSelectedSlot(0);
 			} else if (Keybinds.SELECT_2.hasBeenPressed()) {
-				this.player.selectedTile = Tile.GRASS;
+				inventory.setSelectedSlot(1);
 			} else if (Keybinds.SELECT_3.hasBeenPressed()) {
-				this.player.selectedTile = Tile.LOG;
+				inventory.setSelectedSlot(2);
 			} else if (Keybinds.SELECT_4.hasBeenPressed()) {
-				this.player.selectedTile = Tile.LEAVES;
+				inventory.setSelectedSlot(3);
 			} else if (Keybinds.SELECT_5.hasBeenPressed()) {
-				this.player.selectedTile = Tile.SAND;
+				inventory.setSelectedSlot(4);
 			} else if (Keybinds.SELECT_6.hasBeenPressed()) {
-				this.player.selectedTile = Tile.DAISY;
+				inventory.setSelectedSlot(5);
 			} else if (Keybinds.SELECT_7.hasBeenPressed()) {
-				this.player.selectedTile = Tile.TALLGRASS;
+				inventory.setSelectedSlot(6);
 			} else if (Keybinds.SELECT_8.hasBeenPressed()) {
-				this.player.selectedTile = Tile.BRICKS;
+				inventory.setSelectedSlot(7);
 			} else if (Keybinds.SELECT_9.hasBeenPressed()) {
-				this.player.selectedTile = Tile.STONE_BRICKS;
+				inventory.setSelectedSlot(8);
 			}
 
-			this.selectedTile.setTile(this.player.selectedTile, (byte) 0, 1f / this.window.aspect);
+			Item selectedItem = inventory.getSelectedItem();
+
+			if (selectedItem != null && selectedItem.isTile()) {
+				this.selectedTile.setTile(selectedItem.tileValue(), (byte) 0, 1f / this.window.aspect);
+			} else {
+				this.selectedTile.destroy();
+			}
 
 			if (Keybinds.DESTROY.hasBeenPressed()) {
 				TilePos pos = this.player.rayCast(10.0).pos;
@@ -331,16 +341,18 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			}
 
 			if (Keybinds.INTERACT.hasBeenPressed()) {
-				RaycastResult result = this.player.rayCast(10.0);
+				if (selectedItem != null && selectedItem.isTile()) {
+					RaycastResult result = this.player.rayCast(10.0);
 
-				if (result.face != null) {
-					TilePos pos = result.face.apply(result.pos);
+					if (result.face != null) {
+						TilePos pos = result.face.apply(result.pos);
 
-					if (this.world.isInWorld(pos)) {
-						if (this.player.selectedTile.id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
-							this.world.writeTile(pos, Tile.CACTUS.id);
-						} else {
-							this.world.writeTile(pos, this.player.selectedTile.id);
+						if (this.world.isInWorld(pos)) {
+							if (selectedItem.tileValue().id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
+								this.world.writeTile(pos, Tile.CACTUS.id);
+							} else {
+								this.world.writeTile(pos, selectedItem.tileValue().id);
+							}
 						}
 					}
 				}

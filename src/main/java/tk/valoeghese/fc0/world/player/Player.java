@@ -1,16 +1,32 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.player;
 
 import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 
 public class Player {
-	public Player() {
+	public Player(boolean dev) {
 		this.pos = new MutablePos(0, 0, 0);
 		this.velocity = new MutablePos(0, 0, 0);
+		this.dev = dev;
+		this.inventory = new Inventory(9);
+
+		if (this.dev) {
+			this.inventory.putItemAt(0, new Item(Tile.STONE));
+			this.inventory.putItemAt(1, new Item(Tile.GRASS));
+			this.inventory.putItemAt(2, new Item(Tile.LOG));
+			this.inventory.putItemAt(3, new Item(Tile.LEAVES));
+			this.inventory.putItemAt(4, new Item(Tile.SAND));
+			this.inventory.putItemAt(5, new Item(Tile.DAISY));
+			this.inventory.putItemAt(6, new Item(Tile.TALLGRASS));
+			this.inventory.putItemAt(7, new Item(Tile.BRICKS));
+			this.inventory.putItemAt(8, new Item(Tile.STONE_BRICKS));
+		}
 	}
 
 	protected final MutablePos pos;
@@ -20,7 +36,8 @@ public class Player {
 	@Nullable
 	public Chunk chunk = null;
 	public long lockSwim = 0;
-	public Tile selectedTile = Tile.STONE;
+	public final boolean dev;
+	private final Inventory inventory;
 
 	public void changeWorld(LoadableWorld world) {
 		this.world = world;
@@ -151,5 +168,9 @@ public class Player {
 
 	public Pos getPos() {
 		return new Pos(this.pos);
+	}
+
+	public Inventory getInventory() {
+		return this.inventory;
 	}
 }

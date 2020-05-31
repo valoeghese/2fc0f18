@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.tile.Tile;
 import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.ByteArrayDataSection;

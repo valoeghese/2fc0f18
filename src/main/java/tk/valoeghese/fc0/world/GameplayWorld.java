@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.Save;
 
 import javax.annotation.Nullable;
@@ -56,16 +57,16 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 	}
 
-	public void generateSpawnChunks() {
+	public void generateSpawnChunks(ChunkPos around) {
 		long time = System.currentTimeMillis();
 
 		if (this.save != null) {
 			System.out.println("Generating World Spawn.");
 		}
 
-		for (int cx = -3; cx <= 3; ++cx) {
-			for (int cz = -3; cz <= 3; ++cz) {
-				this.getChunk(cx, cz);
+		for (int cx = around.x + -3; cx <= around.x + 3; ++cx) {
+			for (int cz = around.z + -3; cz <= around.z + 3; ++cz) {
+				this.loadChunk(cx, cz, ChunkLoadStatus.TICK);
 			}
 		}
 

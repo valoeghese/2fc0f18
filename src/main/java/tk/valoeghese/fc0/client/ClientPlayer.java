@@ -6,15 +6,15 @@ import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
-import tk.valoeghese.fc0.world.Player;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ClientPlayer extends Player  {
-	public ClientPlayer(Camera camera) {
-		super();
+	public ClientPlayer(Camera camera, boolean dev) {
+		super(dev);
 		this.camera = camera;
 		this.camera.translateScene(new Vector3f(0, -1.8f, 0)); // 2 blocks tall, camera at head
 	}
