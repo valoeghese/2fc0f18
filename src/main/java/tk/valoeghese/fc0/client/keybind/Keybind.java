@@ -2,7 +2,8 @@ package tk.valoeghese.fc0.client.keybind;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_PRESS;
+import static org.lwjgl.glfw.GLFW.GLFW_RELEASE;
 
 public final class Keybind {
 	public Keybind(String name, int key, boolean mouse) {
@@ -54,6 +55,11 @@ public final class Keybind {
 	}
 
 	public boolean hasBeenPressed() {
+		if (!this.isPressed) {
+			this.hasBeenPressed = false;
+			return false;
+		}
+
 		if (this.hasBeenPressed) {
 			this.hasBeenPressed = false;
 			return true;

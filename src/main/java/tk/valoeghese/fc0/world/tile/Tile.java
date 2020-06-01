@@ -118,6 +118,6 @@ public class Tile {
 	public static final Tile TALLGRASS = new PlantTile(9, 3, 2, 0.002f, 0.14f, GRASS).cross().noCollision();
 	public static final Tile BRICKS = new Tile(10, 4, 2, 0.02f, 0.01f);
 	public static final Tile STONE_BRICKS = new Tile(11, 5, 2, 0.015f, 0.011f);
-	public static final Tile ICE = new Tile(12, 5, 0, 0.05f, 0.14f).translucent();
+	public static final Tile ICE = new IceTile(12, 5, 0, 0.05f, 0.14f).translucent();
 	public static final Tile GALENA = new Tile(13, 5, 2, 0.01f, 0.01f);
 }

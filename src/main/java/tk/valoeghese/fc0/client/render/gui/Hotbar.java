@@ -22,7 +22,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 
 	private final Inventory parent;
 	public boolean updating = false;
-	private final MoveableSquare selected;
+	public final MoveableSquare selected;
 
 	@Override
 	public void render() {

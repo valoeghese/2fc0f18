@@ -63,6 +63,11 @@ public class GameScreen extends Screen {
 
 	@Override
 	public void handleKeybinds() {
+		if (Keybinds.INVENTORY.hasBeenPressed()) {
+			this.game.switchScreen(this.game.craftingScreen);
+			return;
+		}
+
 		ClientPlayer player = this.game.getPlayer();
 
 		final float yaw = player.getCamera().getYaw();
@@ -147,9 +152,10 @@ public class GameScreen extends Screen {
 
 					if (!player.dev && tile.shouldRender()) {
 						inventory.addItem(tile.getDrop(RANDOM));
+						world.writeTile(pos, Tile.AIR.id);
+					} else if (player.dev) {
+						world.writeTile(pos, Tile.AIR.id);
 					}
-
-					world.writeTile(pos, Tile.AIR.id);
 				}
 			}
 		}
@@ -198,6 +204,6 @@ public class GameScreen extends Screen {
 		ClientWorld world = new ClientWorld(null, 0, 4);
 		this.game.setWorld(world);
 		this.game.getPlayer().changeWorld(world, this.game.save);
-		this.game.switchScreen(this.game.menuScreen);
+		this.game.switchScreen(this.game.titleScreen);
 	}
 }

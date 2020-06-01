@@ -22,6 +22,10 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 			}
 		}
 
+		if (count <= 0) {
+			return;
+		}
+
 		for (int i = 0; i < count; ++i) {
 			int x = startX + rand.nextInt(16);
 			int z = startZ + rand.nextInt(16);

@@ -57,6 +57,9 @@ public abstract class Chunk implements World {
 	private float iota = 0.0f;
 	public boolean populated = false;
 	public boolean render = false;
+	// whether the chunk will have to save. Can be caused by an entity, meta, or tile change.
+	// players are stored separately so don't count
+	private boolean dirty = false;
 
 	@Override
 	public byte readTile(int x, int y, int z) {
@@ -70,6 +73,7 @@ public abstract class Chunk implements World {
 
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
+		this.dirty = true;
 		int i = index(x, y, z);
 
 		this.iota -= Tile.BY_ID[this.tiles[i]].iota;
@@ -95,6 +99,7 @@ public abstract class Chunk implements World {
 
 	@Override
 	public void writeMeta(int x, int y, int z, byte meta) {
+		this.dirty = true;
 		this.meta[index(x, y, z)] = meta;
 	}
 
@@ -174,6 +179,10 @@ public abstract class Chunk implements World {
 	@Override
 	public Chunk getChunk(int x, int z) {
 		return this.parent.loadChunk(x, z, ChunkLoadStatus.POPULATE);
+	}
+
+	public boolean isDirty() {
+		return this.dirty;
 	}
 
 	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {

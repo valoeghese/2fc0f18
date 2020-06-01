@@ -220,15 +220,18 @@ public class Save {
 	}
 
 	private void saveChunk(Chunk chunk) {
-		File file = new File(this.parentDir, "c" + chunk.x + "." + chunk.z + ".gsod");
+		// only save modified chunks
+		if (chunk.isDirty()) {
+			File file = new File(this.parentDir, "c" + chunk.x + "." + chunk.z + ".gsod");
 
-		try {
-			file.createNewFile();
-			BinaryData data = new BinaryData();
-			chunk.write(data);
-			data.writeGzipped(file);
-		} catch (IOException e) {
-			throw new UncheckedIOException("Error writing chunk! " + chunk.getPos().toString(), e);
+			try {
+				file.createNewFile();
+				BinaryData data = new BinaryData();
+				chunk.write(data);
+				data.writeGzipped(file);
+			} catch (IOException e) {
+				throw new UncheckedIOException("Error writing chunk! " + chunk.getPos().toString(), e);
+			}
 		}
 	}
 }

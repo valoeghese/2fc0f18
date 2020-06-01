@@ -20,3 +20,4 @@ ecozone.temperate_rainforest=Temperate Rainforest
 ecozone.temperate_woodland=Woodland
 ecozone.tundra=Tundra
 ecozone.desert=Desert
+ecozone.cold_woodland=Cold Woodland

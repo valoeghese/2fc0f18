@@ -108,8 +108,14 @@ public final class WorldGen {
 	}
 
 	public static EcoZone getEcoZone(double temp, double humidity) {
-		if (temp < -0.27) {
+		if (temp < -0.39) {
 			return EcoZone.TUNDRA;
+		} else if (temp < -0.27) {
+			if (humidity > 0.15) {
+				return EcoZone.COLD_WOODLAND;
+			} else {
+				return EcoZone.TUNDRA;
+			}
 		} else if (temp < 0.27) {
 			if (humidity < -0.15) {
 				return EcoZone.TEMPERATE_GRASSLAND;

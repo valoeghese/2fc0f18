@@ -22,10 +22,6 @@ public class Player {
 		if (this.inventory == null) {
 			throw new NullPointerException("Inventory cannot be null!");
 		}
-
-		if (this.dev) {
-			this.addDevItems();
-		}
 	}
 
 	protected final MutablePos pos;
@@ -38,6 +34,7 @@ public class Player {
 	public final boolean dev;
 	@Nonnull
 	private final Inventory inventory;
+	private double friction = 0.85;
 
 	private void addDevItems() {
 		this.inventory.putItemAt(0, new Item(Tile.STONE));
@@ -112,8 +109,20 @@ public class Player {
 	}
 
 	public void tick() {
+		TilePos below = this.getTilePos().down();
+
+		if (this.world.isInWorld(below)) {
+			byte tile = this.world.readTile(below);
+
+			if (tile != Tile.AIR.id) {
+				this.friction = 0.85;
+				this.friction /= Tile.BY_ID[tile].getFrictionConstant();
+				this.friction = Math.min(1.0, this.friction);
+			}
+		}
+
 		this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.025f);
-		this.velocity.mul(0.85, 0.96, 0.85);
+		this.velocity.mul(this.friction, 0.96, this.friction);
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 

@@ -5,7 +5,7 @@ import java.util.Random;
 public class RandomCountGeneratorSettings implements GeneratorSettings {
 	public RandomCountGeneratorSettings(int min, int max) {
 		this.min = min;
-		this.dCount = max - min;
+		this.dCount = max - min + 1;
 	}
 
 	private final int min;

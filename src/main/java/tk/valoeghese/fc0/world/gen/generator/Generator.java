@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -45,4 +44,5 @@ public abstract class Generator<T extends GeneratorSettings> {
 
 	public static final Generator<TreeGeneratorSettings> TREE = new TreeGenerator();
 	public static final Generator<GroundFoliageGeneratorSettings> GROUND_FOLIAGE = new GroundFoliageGenerator();
+	public static final Generator<HeightCountGeneratorSettings> SCATTERED_ORE = new ScatteredOreGenerator();
 }

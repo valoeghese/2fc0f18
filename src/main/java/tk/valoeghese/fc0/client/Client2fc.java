@@ -10,6 +10,7 @@ import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.model.Shaders;
 import tk.valoeghese.fc0.client.render.model.Textures;
+import tk.valoeghese.fc0.client.render.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.render.screen.GameScreen;
 import tk.valoeghese.fc0.client.render.screen.Screen;
 import tk.valoeghese.fc0.client.render.screen.TitleScreen;
@@ -63,7 +64,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
 	public GameScreen gameScreen;
-	public Screen menuScreen;
+	public Screen titleScreen;
+	public Screen craftingScreen;
 	private Screen currentScreen;
 	@Nullable
 	public Save save = null;
@@ -126,7 +128,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
-		boolean isTitleScreen = this.currentScreen == this.menuScreen;
+		boolean isTitleScreen = this.currentScreen == this.titleScreen;
 
 		if (isTitleScreen) {
 			this.player.getCamera().rotateYaw(0.002f);
@@ -159,11 +161,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.prevXPos = this.window.width / 2.0f;
 
 		this.gameScreen = new GameScreen(this);
-		this.menuScreen = new TitleScreen(this);
+		this.titleScreen = new TitleScreen(this);
+		this.craftingScreen = new CraftingScreen(this);
 		this.gameScreen.init();
-		this.menuScreen.init();
+		this.titleScreen.init();
 
-		this.currentScreen = this.menuScreen;
+		this.currentScreen = this.titleScreen;
 
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 

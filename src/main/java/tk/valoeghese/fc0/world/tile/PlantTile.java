@@ -16,6 +16,12 @@ public class PlantTile extends Tile {
 			return false;
 		}
 
-		return world.readTile(x, y - 1, z) == this.support;
+		byte below = world.readTile(x, y - 1, z);
+
+		if (this == Tile.CACTUS && below == this.id) {
+			return true;
+		}
+
+		return below == this.support;
 	}
 }
