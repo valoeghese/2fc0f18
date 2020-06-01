@@ -17,7 +17,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.openal.EXTEfx.ALC_MAX_AUXILIARY_SENDS;
-import static tk.valoeghese.fc0.client.render.system.util.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.render.system.util.GLUtils.NULL;
 
 public final class Audio {
 	private Audio(int id, String file) {

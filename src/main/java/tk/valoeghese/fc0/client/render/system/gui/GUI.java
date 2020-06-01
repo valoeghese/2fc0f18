@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import tk.valoeghese.fc0.client.render.model.Shaders;
+import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.system.Shader;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
-import static tk.valoeghese.fc0.client.render.system.util.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.render.system.util.GLUtils.NULL;
 
 public abstract class GUI implements PseudoGUI {
 	protected GUI(int texture) {

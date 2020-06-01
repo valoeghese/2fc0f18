@@ -5,7 +5,7 @@ import it.unimi.dsi.fastutil.floats.FloatList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import org.joml.Matrix4f;
-import tk.valoeghese.fc0.client.render.system.util.GraphicsSystem;
+import tk.valoeghese.fc0.client.render.system.util.GLUtils;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -95,7 +95,7 @@ public abstract class Model {
 
 		for (VertexArray array : this.vertexArrays) {
 			glBindVertexArray(array.vao);
-			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, GraphicsSystem.NULL);
+			glDrawElements(GL_TRIANGLES, array.elementCount, GL_UNSIGNED_INT, GLUtils.NULL);
 		}
 
 		unbind();

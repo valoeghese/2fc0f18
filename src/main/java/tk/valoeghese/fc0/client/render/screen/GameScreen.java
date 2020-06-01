@@ -5,10 +5,11 @@ import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.gui.Crosshair;
 import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Text;
-import tk.valoeghese.fc0.client.render.model.Shaders;
+import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.render.system.Window;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
+import tk.valoeghese.fc0.client.render.system.util.GLUtils;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -28,8 +29,8 @@ public class GameScreen extends Screen {
 
 		this.version = new Text("2fc0f18-v0.2.1", -0.92f, 0.9f, 1.7f);
 		this.crosshair = new Crosshair();
-		this.biomeWidget = new Text(this.game.language.translate("ecozone.missingno"), -0.92f, 0.78f, 1.0f);
-		this.hotbarRenderer = new Hotbar(this.game.getPlayer().getInventory());
+		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
+		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 	}
 
 	private final GUI crosshair;
@@ -207,5 +208,10 @@ public class GameScreen extends Screen {
 		this.game.setWorld(world);
 		this.game.getPlayer().changeWorld(world, this.game.save);
 		this.game.switchScreen(this.game.titleScreen);
+	}
+
+	@Override
+	public void onFocus() {
+		GLUtils.disableMouse(Client2fc.getInstance().getWindowId());
 	}
 }

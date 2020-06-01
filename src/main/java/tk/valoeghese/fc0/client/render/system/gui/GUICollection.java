@@ -29,8 +29,10 @@ public abstract class GUICollection<T extends PseudoGUI> implements PseudoGUI {
 
 	@Override
 	public void destroy() {
-		for (int i = this.guis.size() - 1; i >= 0; --i) {
-			this.guis.remove(i);
+		for (PseudoGUI gui : this.guis) {
+			gui.destroy();
 		}
+
+		this.guis.clear();
 	}
 }

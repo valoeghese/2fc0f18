@@ -14,4 +14,7 @@ public abstract class Screen {
 	public abstract void handleMouseInput(double dx, double dy);
 	public abstract void handleKeybinds();
 	public abstract void handleEscape(Window window);
+
+	public void onFocus() {
+	}
 }

@@ -1,11 +1,14 @@
 package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.client.render.model.Textures;
+import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.system.gui.GUICollection;
 import tk.valoeghese.fc0.client.render.system.gui.PseudoGUI;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 	public Hotbar(Inventory parent) {
@@ -16,7 +19,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
 
-		this.selected = new MoveableSquare(Textures.SELECTED, Client2fc.getInstance().getWindowAspect(), 0.08f);
+		this.selected = new MoveableSquare(Textures.SELECTED, 0.08f);
 		this.selected.setPosition(0.8f, 0.87f);
 	}
 
@@ -38,6 +41,11 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 
 	public void setSelectedSlot(int slot) {
 		this.selected.setPosition(0.8f, 0.87f - (0.14f * slot));
+		float windowAspect = Client2fc.getInstance().getWindowAspect();
+
+		for (HotbarUpdateSubscriber subscriber : UPDATE_SUBSCRIBERS) {
+			subscriber.onUpdate(slot, windowAspect);
+		}
 	}
 
 	public void update(int slot, float windowAspect) {
@@ -56,7 +64,21 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 			}
 		}
 
+		for (HotbarUpdateSubscriber subscriber : UPDATE_SUBSCRIBERS) {
+			subscriber.onUpdate(slot, windowAspect);
+		}
+
 		this.updating = false;
+	}
+
+	public static void addUpdateSubscriber(HotbarUpdateSubscriber subscriber) {
+		UPDATE_SUBSCRIBERS.add(subscriber);
+	}
+
+	private static final List<HotbarUpdateSubscriber> UPDATE_SUBSCRIBERS = new ArrayList<>();
+
+	public interface HotbarUpdateSubscriber {
+		void onUpdate(int slot, float windowAspect);
 	}
 
 	static class HotbarEntry implements PseudoGUI {

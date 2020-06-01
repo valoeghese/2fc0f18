@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.render.model;
+package tk.valoeghese.fc0.client.render;
 
 import tk.valoeghese.fc0.client.render.system.Shader;
 

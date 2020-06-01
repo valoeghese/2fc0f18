@@ -7,8 +7,8 @@ import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
-import tk.valoeghese.fc0.client.render.model.Shaders;
-import tk.valoeghese.fc0.client.render.model.Textures;
+import tk.valoeghese.fc0.client.render.Shaders;
+import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.render.screen.GameScreen;
 import tk.valoeghese.fc0.client.render.screen.Screen;
@@ -18,7 +18,7 @@ import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.render.system.Shader;
 import tk.valoeghese.fc0.client.render.system.Window;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
-import tk.valoeghese.fc0.client.render.system.util.GraphicsSystem;
+import tk.valoeghese.fc0.client.render.system.util.GLUtils;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
@@ -36,16 +36,16 @@ import java.util.Random;
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static tk.valoeghese.fc0.client.render.model.Textures.TILE_ATLAS;
+import static tk.valoeghese.fc0.client.render.Textures.TILE_ATLAS;
 
 public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
 		long time = System.currentTimeMillis();
 		instance = this;
 		// initialise Graphics and Audio systems
-		GraphicsSystem.initGLFW();
+		GLUtils.initGLFW();
 		this.window = new Window(640 * 2, 360 * 2);
-		GraphicsSystem.initGL(this.window);
+		GLUtils.initGL(this.window);
 		Audio.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
 
@@ -154,7 +154,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
-		glfwSetInputMode(this.window.glWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(this.window.glWindow, this);
 
 		this.prevYPos = this.window.height / 2.0f;
@@ -163,7 +162,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
-		this.currentScreen = this.titleScreen;
+		this.switchScreen(this.titleScreen);
 
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
 
@@ -206,7 +205,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// defaults
 		Shaders.terrain.uniformInt("waveMode", 0);
 		// render world
-		GraphicsSystem.bindTexture(TILE_ATLAS);
+		GLUtils.bindTexture(TILE_ATLAS);
 
 		this.world.updateChunksForRendering();
 
@@ -214,7 +213,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
 		}
 
-		GraphicsSystem.enableBlend();
+		GLUtils.enableBlend();
 
 		for(ClientChunk chunk : this.world.getChunksForRendering()){
 			chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
@@ -224,7 +223,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
 		}
 
-		GraphicsSystem.disableBlend();
+		GLUtils.disableBlend();
 
 		// bind shader
 		Shaders.gui.bind();
@@ -235,7 +234,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		// render gui
 		this.renderGUI(lighting);
 		// unbind shader
-		GraphicsSystem.bindTexture(0);
+		GLUtils.bindTexture(0);
 
 		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;
@@ -249,11 +248,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.currentScreen.renderGUI(lighting);
 
 		if (this.player.isUnderwater()) {
-			GraphicsSystem.enableBlend();
+			GLUtils.enableBlend();
 			Shaders.gui.uniformFloat("lighting", lighting);
 			this.waterOverlay.render();
 			Shaders.gui.uniformFloat("lighting", 1.0f);
-			GraphicsSystem.disableBlend();
+			GLUtils.disableBlend();
 		}
 	}
 
@@ -329,6 +328,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		return this.window.glWindow;
 	}
 
+	public Window getWindow() {
+		return this.window;
+	}
+
 	@Nullable
 	public Hotbar getHotbarRenderer() {
 		return this.gameScreen == null ? null : this.gameScreen.hotbarRenderer;
@@ -346,6 +349,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void switchScreen(Screen screen) {
 		this.currentScreen = screen;
+		this.currentScreen.onFocus();
 	}
 
 	public static final float PI = (float) Math.PI;

@@ -2,16 +2,11 @@ package tk.valoeghese.fc0.client.render.system.util;
 
 import tk.valoeghese.fc0.client.render.system.Window;
 
-import static org.lwjgl.glfw.GLFW.glfwInit;
-import static org.lwjgl.glfw.GLFW.glfwSetFramebufferSizeCallback;
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.*;
 
-public class GraphicsSystem {
-	private GraphicsSystem() {
-		// NO-OP
-	}
-
+public class GLUtils {
 	public static void initGLFW() {
 		if (!glfwInit()) {
 			throw new RuntimeException("Error initialising GLFW");
@@ -22,6 +17,14 @@ public class GraphicsSystem {
 		createCapabilities();
 		glViewport(0, 0, window.width, window.height);
 		glfwSetFramebufferSizeCallback(window.glWindow, (w, width, height) -> glViewport(0, 0, width, height));
+	}
+
+	public static void disableMouse(long window) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	}
+
+	public static void enableMouse(long window) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 
 	public static void bindTexture(int texture) {

@@ -5,6 +5,7 @@ import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.system.Window;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
+import tk.valoeghese.fc0.client.render.system.util.GLUtils;
 
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
@@ -37,5 +38,10 @@ public class TitleScreen extends Screen {
 	@Override
 	public void handleEscape(Window window) {
 		glfwSetWindowShouldClose(window.glWindow, true);
+	}
+
+	@Override
+	public void onFocus() {
+		GLUtils.disableMouse(this.game.getWindowId());
 	}
 }

@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.render.model;
+package tk.valoeghese.fc0.client.render;
 
 import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
 import tk.valoeghese.fc0.client.render.system.util.TextureLoader;
@@ -27,4 +27,5 @@ public class Textures {
 	public static final int FONT_ATLAS = load("font_atlas", false);
 	public static final int STARTUP = load("startup", false);
 	public static final int SELECTED = load("selected", true);
+	public static final int CRAFT = load("craft", true);
 }
