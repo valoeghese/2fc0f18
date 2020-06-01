@@ -4,10 +4,8 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.gui.Crosshair;
 import tk.valoeghese.fc0.client.render.gui.Hotbar;
-import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.model.Shaders;
-import tk.valoeghese.fc0.client.render.model.Textures;
 import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.render.system.Window;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
@@ -28,9 +26,9 @@ public class GameScreen extends Screen {
 	public GameScreen(Client2fc game) {
 		super(game);
 
-		this.version = new Overlay(Textures.VERSION);
+		this.version = new Text("2fc0f18-v0.2.1", -0.92f, 0.9f, 1.7f);
 		this.crosshair = new Crosshair();
-		this.biomeWidget = new Text(this.game.language.translate("ecozone.missingno"), -0.85f, 0.8f, 1.0f);
+		this.biomeWidget = new Text(this.game.language.translate("ecozone.missingno"), -0.92f, 0.78f, 1.0f);
 		this.hotbarRenderer = new Hotbar(this.game.getPlayer().getInventory());
 	}
 

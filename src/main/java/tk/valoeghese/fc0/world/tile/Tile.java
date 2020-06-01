@@ -101,6 +101,10 @@ public class Tile {
 		return this.solid;
 	}
 
+	public float getFrictionConstant() {
+		return 1.0f;
+	}
+
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile(0, 0, 0, 0.0f, 0.02f).dontRender().noCollision();
 	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f);

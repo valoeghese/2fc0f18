@@ -66,6 +66,7 @@ public class Text extends GUI {
 			default:
 				u = cVal % 16;
 				v = cVal / 16;
+				break;
 			}
 
 			final float startU = (u / 16.0f);
@@ -81,7 +82,11 @@ public class Text extends GUI {
 			this.tri(tl, bl, br);
 			this.tri(tl, tr, br);
 
-			x += 0.63f * this.size;
+			if (c == ' ' || c == '`' || c == '.') {
+				x += 0.43f * this.size;
+			} else {
+				x += 0.63f * this.size;
+			}
 		}
 
 		this.generateBuffers();
