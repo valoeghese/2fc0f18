@@ -71,10 +71,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private Pos spawnLoc = Pos.ZERO;
 	private Text biomeWidget;
 	private Language language = Language.EN_GB;
+	@Nullable
 	private Save save = null;
 	private final Window window;
 	private double prevYPos = 0;
 	private double prevXPos = 0;
+	public static final Random RANDOM = new Random();
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -127,7 +129,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 					this.world.destroy();
 					this.save = null;
 					this.world = new ClientWorld(null, 0, 4);
-					this.player.changeWorld(this.world);
+					this.player.changeWorld(this.world, this.save);
 					this.titleScreen = true;
 				}
 			}
@@ -183,8 +185,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		long time = System.currentTimeMillis();
 		this.setFOV(64);
 		this.world = new ClientWorld(null, 0, 4);
-		this.player = new ClientPlayer(new Camera(), this, true);
-		this.player.changeWorld(this.world);
+		this.player = new ClientPlayer(new Camera(), this, DEV);
+		this.player.changeWorld(this.world, this.save);
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
 		System.out.println("Initialised 2fc0f18 in " + (System.currentTimeMillis() - time) + "ms.");
@@ -354,7 +356,15 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				TilePos pos = this.player.rayCast(10.0).pos;
 
 				if (this.world.isInWorld(pos)) {
-					if (this.world.readTile(pos) != Tile.WATER.id) {
+					byte tileId = this.world.readTile(pos);
+
+					if (tileId != Tile.WATER.id) {
+						Tile tile = Tile.BY_ID[tileId];
+
+						if (!player.dev && tile.shouldRender()) {
+							inventory.addItem(tile.getDrop(RANDOM));
+						}
+
 						this.world.writeTile(pos, Tile.AIR.id);
 					}
 				}
@@ -371,7 +381,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 							Tile tile = selectedItem.tileValue();
 
 							if (tile.canPlaceAt(this.world, pos.x, pos.y, pos.z)) {
-								if (tile.id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
+								if (!player.dev) {
+									selectedItem.decrement();
+								}
+
+								if (player.dev && tile.id == Tile.DAISY.id && this.world.readTile(pos.down()) == Tile.SAND.id) {
 									this.world.writeTile(pos, Tile.CACTUS.id);
 								} else {
 									this.world.writeTile(pos, tile.id);
@@ -414,7 +428,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void saveWorld() {
 		if (this.save != null) {
-			this.save.write(this.world.getChunks(), this.player.getPos(), this.spawnLoc, this.time);
+			this.save.writeForClient(this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
@@ -433,9 +447,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		if (this.save.lastSavePos != null) {
-			this.player.changeWorld(this.world, this.save.lastSavePos);
+			this.player.changeWorld(this.world, this.save.lastSavePos, this.save);
 		} else {
-			this.player.changeWorld(this.world);
+			this.player.changeWorld(this.world, this.save);
 		}
 	}
 
@@ -476,5 +490,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
+	// why did I add this again?
 	private static Object lock = new Object();
+	private static final boolean DEV = false;
 }

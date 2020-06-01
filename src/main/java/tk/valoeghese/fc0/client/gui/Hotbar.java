@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.gui;
 
 import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.client.model.Textures;
 import tk.valoeghese.fc0.client.system.gui.GUICollection;
 import tk.valoeghese.fc0.client.system.gui.PseudoGUI;
 import tk.valoeghese.fc0.world.player.Inventory;
@@ -11,13 +12,33 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 		this.parent = parent;
 
 		for (int i = 0; i < 10; ++i) {
-			this.guis.add(new HotbarEntry(0.8f, 0.87f - (0.1f * i)));
+			this.guis.add(new HotbarEntry(0.8f, 0.87f - (0.14f * i)));
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
+
+		this.selected = new MoveableSquare(Textures.SELECTED, Client2fc.getInstance().getWindowAspect(), 0.08f);
+		this.selected.setPosition(0.8f, 0.87f);
 	}
 
 	private final Inventory parent;
 	public boolean updating = false;
+	private final MoveableSquare selected;
+
+	@Override
+	public void render() {
+		super.render();
+		this.selected.render();
+	}
+
+	@Override
+	public void destroy() {
+		super.destroy();
+		this.selected.destroy();
+	}
+
+	public void setSelectedSlot(int slot) {
+		this.selected.setPosition(0.8f, 0.87f - (0.14f * slot));
+	}
 
 	public void update(int slot, float windowAspect) {
 		this.updating = true;
@@ -41,7 +62,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 	static class HotbarEntry implements PseudoGUI {
 		public HotbarEntry(float xOffset, float yOffset) {
 			this.tileGUI = new TileGUI(xOffset, yOffset, 0.06f);
-			this.countGUI = new Text("0", xOffset - 0.14f, yOffset - 0.05f, 0.8f);
+			this.countGUI = new Text("0", xOffset - 0.14f, yOffset - 0.02f, 0.8f);
 		}
 
 		final TileGUI tileGUI;

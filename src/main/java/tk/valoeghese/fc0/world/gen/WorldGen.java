@@ -75,7 +75,11 @@ public final class WorldGen {
 
 				if (height < 52) {
 					for (int y = height; y < 52; ++y) {
-						tiles[Chunk.index(x, y, z)] = Tile.WATER.id;
+						if (y == 51 && zone == EcoZone.TUNDRA) {
+							tiles[Chunk.index(x, y, z)] = Tile.ICE.id;
+						} else {
+							tiles[Chunk.index(x, y, z)] = Tile.WATER.id;
+						}
 					}
 				}
 

@@ -105,7 +105,8 @@ public class ClientPlayer extends Player  {
 
 			if (this.world.isInWorld(pos.x, pos.y, pos.z)) {
 				byte tile = this.world.readTile(pos.x, pos.y, pos.z);
-				if (tile != 0) {
+
+				if (/*!Tile.BY_ID[tile].shouldRender()*/ tile != 0) {
 					int nx = list.get(ind - 1).x - pos.x;
 					int ny = list.get(ind - 1).y - pos.y;
 					int nz = list.get(ind - 1).z - pos.z;

@@ -5,6 +5,7 @@ import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
+import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nonnull;
@@ -23,16 +24,7 @@ public class Player {
 		}
 
 		if (this.dev) {
-			this.inventory.putItemAt(0, new Item(Tile.STONE));
-			this.inventory.putItemAt(1, new Item(Tile.GRASS));
-			this.inventory.putItemAt(2, new Item(Tile.LOG));
-			this.inventory.putItemAt(3, new Item(Tile.LEAVES));
-			this.inventory.putItemAt(4, new Item(Tile.SAND));
-			this.inventory.putItemAt(5, new Item(Tile.DAISY));
-			this.inventory.putItemAt(6, new Item(Tile.TALLGRASS));
-			this.inventory.putItemAt(7, new Item(Tile.BRICKS));
-			this.inventory.putItemAt(8, new Item(Tile.STONE_BRICKS));
-			this.inventory.putItemAt(9, new Item(Tile.ICE));
+			this.addDevItems();
 		}
 	}
 
@@ -47,17 +39,53 @@ public class Player {
 	@Nonnull
 	private final Inventory inventory;
 
-	public void changeWorld(LoadableWorld world) {
+	private void addDevItems() {
+		this.inventory.putItemAt(0, new Item(Tile.STONE));
+		this.inventory.putItemAt(1, new Item(Tile.GRASS));
+		this.inventory.putItemAt(2, new Item(Tile.LOG));
+		this.inventory.putItemAt(3, new Item(Tile.LEAVES));
+		this.inventory.putItemAt(4, new Item(Tile.SAND));
+		this.inventory.putItemAt(5, new Item(Tile.DAISY));
+		this.inventory.putItemAt(6, new Item(Tile.TALLGRASS));
+		this.inventory.putItemAt(7, new Item(Tile.BRICKS));
+		this.inventory.putItemAt(8, new Item(Tile.STONE_BRICKS));
+		this.inventory.putItemAt(9, new Item(Tile.ICE));
+	}
+
+	public void changeWorld(LoadableWorld world, @Nullable Save save) {
 		this.world = world;
 		this.setPos(Pos.ZERO);
 		this.move(0, world.getHeight(0, 0) + 1f, 0);
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
+		this.loadNullableInventory(save);
 	}
 
-	public void changeWorld(LoadableWorld world, Pos movePos) {
+	public void changeWorld(LoadableWorld world, Pos movePos, @Nullable Save save) {
 		this.world = world;
 		this.setPos(movePos);
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
+		this.loadNullableInventory(save);
+	}
+
+	private void loadNullableInventory(@Nullable Save save) {
+		if (save != null) {
+			if (save.loadedInventory != null) {
+				this.loadInventory(save);
+				return;
+			}
+		}
+
+		this.inventory.reset();
+
+		if (this.dev) {
+			this.addDevItems();
+		}
+	}
+
+	private void loadInventory(@Nonnull Save save) {
+		for (int i = 0; i < save.loadedInventory.length; ++i) {
+			this.inventory.putItemAt(i, save.loadedInventory[i]);
+		}
 	}
 
 	public boolean move(double x, double y, double z) {
@@ -65,7 +93,7 @@ public class Player {
 		TilePos tilePos = new TilePos(next);
 
 		if (this.world.isInWorld(tilePos)) {
-			if (Tile.BY_ID[this.world.readTile(tilePos)].isOpaque()) {
+			if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
 				return false;
 			}
 		}
@@ -73,7 +101,7 @@ public class Player {
 		tilePos = tilePos.up();
 
 		if (this.world.isInWorld(tilePos)) {
-			if (Tile.BY_ID[this.world.readTile(tilePos)].isOpaque()) {
+			if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
 				return false;
 			}
 		}

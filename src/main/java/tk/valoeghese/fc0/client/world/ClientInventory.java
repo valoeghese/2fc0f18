@@ -29,8 +29,27 @@ public class ClientInventory extends Inventory {
 	}
 
 	@Override
+	public void setSelectedSlot(int slot) {
+		super.setSelectedSlot(slot);
+		Hotbar hotbar = this.game.getHotbarRenderer();
+
+		if (hotbar != null) {
+			hotbar.setSelectedSlot(slot);
+		}
+	}
+
+	@Override
 	public void putItemAt(int slot, @Nullable Item item) throws ArrayIndexOutOfBoundsException {
 		super.putItemAt(slot, item);
+		Hotbar hotbar = this.game.getHotbarRenderer();
+
+		if (hotbar != null) {
+			hotbar.update(slot, this.game.getWindowAspect());
+		}
+	}
+
+	@Override
+	protected void refresh(int slot, Item item) {
 		Hotbar hotbar = this.game.getHotbarRenderer();
 
 		if (hotbar != null) {

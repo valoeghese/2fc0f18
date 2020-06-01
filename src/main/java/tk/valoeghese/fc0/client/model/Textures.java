@@ -17,7 +17,7 @@ public class Textures {
 			if (fallbackToNull) {
 				return 0;
 			} else {
-				throw new UncheckedIOException("Error loading Tile Atlas", e);
+				throw new UncheckedIOException("Error loading Texture " + arg0, e);
 			}
 		}
 	}
@@ -27,4 +27,5 @@ public class Textures {
 	public static final int WATER_OVERLAY = load("water_overlay", true);
 	public static final int FONT_ATLAS = load("font_atlas", false);
 	public static final int STARTUP = load("startup", false);
+	public static final int SELECTED = load("selected", true);
 }
