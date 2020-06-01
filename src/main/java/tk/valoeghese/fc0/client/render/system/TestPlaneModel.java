@@ -1,7 +1,7 @@
-package tk.valoeghese.fc0.client.system;
+package tk.valoeghese.fc0.client.render.system;
 
-import tk.valoeghese.fc0.client.system.util.ResourceLoader;
-import tk.valoeghese.fc0.client.system.util.TextureLoader;
+import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
+import tk.valoeghese.fc0.client.render.system.util.TextureLoader;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

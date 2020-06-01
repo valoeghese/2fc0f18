@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.system.util;
+package tk.valoeghese.fc0.client.render.system.util;
 
 import org.lwjgl.BufferUtils;
 

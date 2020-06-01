@@ -1,9 +1,9 @@
-package tk.valoeghese.fc0.client.gui;
+package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.client.model.Textures;
-import tk.valoeghese.fc0.client.system.gui.GUICollection;
-import tk.valoeghese.fc0.client.system.gui.PseudoGUI;
+import tk.valoeghese.fc0.client.render.model.Textures;
+import tk.valoeghese.fc0.client.render.system.gui.GUICollection;
+import tk.valoeghese.fc0.client.render.system.gui.PseudoGUI;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
 

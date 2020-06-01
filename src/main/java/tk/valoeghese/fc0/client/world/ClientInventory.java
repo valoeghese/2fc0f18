@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.client.gui.Hotbar;
+import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
 

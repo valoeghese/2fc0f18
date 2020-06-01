@@ -1,10 +1,10 @@
-package tk.valoeghese.fc0.client.system;
+package tk.valoeghese.fc0.client.render.system;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
-import tk.valoeghese.fc0.client.system.util.ResourceLoader;
+import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

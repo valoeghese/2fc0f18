@@ -1,9 +1,9 @@
-package tk.valoeghese.fc0.client.system;
+package tk.valoeghese.fc0.client.render.system;
 
 import org.lwjgl.glfw.GLFWVidMode;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static tk.valoeghese.fc0.client.system.util.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.render.system.util.GraphicsSystem.NULL;
 
 public class Window {
 	public Window(int width, int height) {

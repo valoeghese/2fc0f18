@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.system;
+package tk.valoeghese.fc0.client.render.system;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -17,7 +17,7 @@ import java.nio.IntBuffer;
 import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.openal.EXTEfx.ALC_MAX_AUXILIARY_SENDS;
-import static tk.valoeghese.fc0.client.system.util.GraphicsSystem.NULL;
+import static tk.valoeghese.fc0.client.render.system.util.GraphicsSystem.NULL;
 
 public final class Audio {
 	private Audio(int id, String file) {

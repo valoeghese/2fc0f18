@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.system;
+package tk.valoeghese.fc0.client.render.system;
 
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;

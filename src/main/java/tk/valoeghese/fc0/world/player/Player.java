@@ -162,7 +162,7 @@ public class Player {
 		TilePos check = new TilePos(this.pos).down();
 
 		if (this.world.isInWorld(check)) {
-			if (Tile.BY_ID[this.world.readTile(check)].isOpaque()) {
+			if (Tile.BY_ID[this.world.readTile(check)].isSolid()) {
 				return true;
 			}
 		}

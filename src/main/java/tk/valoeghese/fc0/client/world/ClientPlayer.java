@@ -1,14 +1,15 @@
-package tk.valoeghese.fc0.client;
+package tk.valoeghese.fc0.client.world;
 
 import org.joml.Vector3f;
-import tk.valoeghese.fc0.client.system.Camera;
-import tk.valoeghese.fc0.client.world.ClientInventory;
+import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +107,7 @@ public class ClientPlayer extends Player  {
 			if (this.world.isInWorld(pos.x, pos.y, pos.z)) {
 				byte tile = this.world.readTile(pos.x, pos.y, pos.z);
 
-				if (/*!Tile.BY_ID[tile].shouldRender()*/ tile != 0) {
+				if (Tile.BY_ID[tile].shouldRender()) {
 					int nx = list.get(ind - 1).x - pos.x;
 					int ny = list.get(ind - 1).y - pos.y;
 					int nz = list.get(ind - 1).z - pos.z;

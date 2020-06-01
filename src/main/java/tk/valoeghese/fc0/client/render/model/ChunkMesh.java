@@ -1,8 +1,8 @@
-package tk.valoeghese.fc0.client.model;
+package tk.valoeghese.fc0.client.render.model;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import tk.valoeghese.fc0.client.system.Camera;
+import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;

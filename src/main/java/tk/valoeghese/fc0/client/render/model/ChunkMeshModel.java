@@ -1,6 +1,6 @@
-package tk.valoeghese.fc0.client.model;
+package tk.valoeghese.fc0.client.render.model;
 
-import tk.valoeghese.fc0.client.system.Model;
+import tk.valoeghese.fc0.client.render.system.Model;
 
 import java.util.List;
 

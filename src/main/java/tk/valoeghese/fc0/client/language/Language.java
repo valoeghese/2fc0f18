@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.client.language;
 
-import tk.valoeghese.fc0.client.system.util.ResourceLoader;
+import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
