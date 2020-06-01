@@ -63,7 +63,7 @@ public class CraftingMenu extends GUICollection<CraftingMenu.Craftable> implemen
 			for (int i = 0; i < craftables.size(); ++i) {
 				Item craftable = craftables.get(i);
 
-				Craftable rendered = new Craftable(craftable, -0.8f, 0.87f - (0.14f * i));
+				Craftable rendered = new Craftable(new Item(craftable), -0.8f, 0.87f - (0.14f * i));
 				String[] rawTranslationKeys = craftable.asStringArray();
 				rendered.nameGUI.changeText(Client2fc.getInstance().language.translate(rawTranslationKeys[0]) + " x" + rawTranslationKeys[1]);
 

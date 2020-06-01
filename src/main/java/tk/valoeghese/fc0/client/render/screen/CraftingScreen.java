@@ -18,7 +18,7 @@ public class CraftingScreen extends Screen {
 	public CraftingScreen(Client2fc game) {
 		super(game);
 
-		this.craftingOverlay = new Overlay(Textures.WATER_OVERLAY);
+		this.craftingOverlay = new Overlay(Textures.CRAFTING);
 		this.menu = new CraftingMenu(game.getPlayer().getInventory());
 		Hotbar.addUpdateSubscriber(this.menu);
 	}
@@ -32,7 +32,10 @@ public class CraftingScreen extends Screen {
 			this.menu.setFocus(true);
 		}
 
+		GLUtils.enableBlend();
 		this.craftingOverlay.render();
+		GLUtils.disableBlend();
+
 		this.menu.render();
 		this.game.gameScreen.hotbarRenderer.render();
 	}
@@ -41,11 +44,15 @@ public class CraftingScreen extends Screen {
 	public void handleMouseInput(double dx, double dy) {
 	}
 
+	private void closeInventory() {
+		this.menu.setFocus(false);
+		this.game.switchScreen(this.game.gameScreen);
+	}
+
 	@Override
 	public void handleKeybinds() {
 		if (Keybinds.INVENTORY.hasBeenPressed()) {
-			this.menu.setFocus(false);
-			this.game.switchScreen(this.game.gameScreen);
+			this.closeInventory();
 			return;
 		}
 
@@ -73,8 +80,7 @@ public class CraftingScreen extends Screen {
 
 	@Override
 	public void handleEscape(Window window) {
-		this.menu.setFocus(false);
-		this.game.gameScreen.handleEscape(window);
+		this.closeInventory();
 	}
 
 	@Override

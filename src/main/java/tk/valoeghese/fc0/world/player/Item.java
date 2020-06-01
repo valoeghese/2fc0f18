@@ -15,6 +15,10 @@ public class Item {
 		this.meta = (byte) meta;
 	}
 
+	public Item(Item other) {
+		this(other.id(), other.meta, other.count);
+	}
+
 	public Item(int id, byte meta, int count) {
 		this.tileValue = id < 256 ? Tile.BY_ID[id] : null;
 		this.tile = id < 256;

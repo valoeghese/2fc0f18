@@ -28,4 +28,5 @@ public class Textures {
 	public static final int STARTUP = load("startup", false);
 	public static final int SELECTED = load("selected", true);
 	public static final int CRAFT = load("craft", true);
+	public static final int CRAFTING = load("crafting", false);
 }
