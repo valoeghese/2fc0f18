@@ -27,6 +27,7 @@ public class Tile {
 	private boolean cross = false;
 	private boolean translucent = false;
 	private boolean solid = true;
+	private String translationKey = "tile.missingno";
 
 	public int getU(int faceAxis, byte meta) {
 		return this.u;
@@ -61,6 +62,11 @@ public class Tile {
 
 	protected Tile noCollision() {
 		this.solid = false;
+		return this;
+	}
+
+	protected Tile setName(String name) {
+		this.translationKey = "tile." + name;
 		return this;
 	}
 
@@ -105,19 +111,24 @@ public class Tile {
 		return 1.0f;
 	}
 
+	@Override
+	public String toString() {
+		return this.translationKey;
+	}
+
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile(0, 0, 0, 0.0f, 0.02f).dontRender().noCollision();
-	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f);
-	public static final Tile GRASS = new GrassTile(2, 0.01f, 0.03f);
-	public static final Tile LEAVES = new Tile(3, 2, 1, 0.02f, 0.1f).cutout().noCollision();
-	public static final Tile LOG = new ColumnTile(4, 2, 0, 0.04f, 0.04f);
+	public static final Tile STONE = new Tile(1, 0, 1, 0.01f, 0.01f).setName("stone");
+	public static final Tile GRASS = new GrassTile(2, 0.01f, 0.03f).setName("grass");
+	public static final Tile LEAVES = new Tile(3, 2, 1, 0.02f, 0.1f).cutout().noCollision().setName("leaves");
+	public static final Tile LOG = new ColumnTile(4, 2, 0, 0.04f, 0.04f).setName("log");
 	public static final Tile WATER = new WaterTile(5, 3, 1, 0.05f, 0.14f).dontRender().noCollision();
-	public static final Tile SAND = new Tile(6, 0, 2, 0.025f, 0.01f);
-	public static final Tile DAISY = new PlantTile(7, 1, 2, 0.001f, 0.12f, GRASS).cross().noCollision();
-	public static final Tile CACTUS = new PlantTile(8, 2, 2, 0.002f, 0.06f, SAND).cross().noCollision();
-	public static final Tile TALLGRASS = new PlantTile(9, 3, 2, 0.002f, 0.14f, GRASS).cross().noCollision();
-	public static final Tile BRICKS = new Tile(10, 4, 2, 0.02f, 0.01f);
-	public static final Tile STONE_BRICKS = new Tile(11, 5, 2, 0.015f, 0.011f);
-	public static final Tile ICE = new IceTile(12, 5, 0, 0.05f, 0.14f).translucent();
-	public static final Tile GALENA = new Tile(13, 5, 2, 0.01f, 0.01f);
+	public static final Tile SAND = new Tile(6, 0, 2, 0.025f, 0.01f).setName("sand");
+	public static final Tile DAISY = new PlantTile(7, 1, 2, 0.001f, 0.12f, GRASS).cross().noCollision().setName("daisy");
+	public static final Tile CACTUS = new PlantTile(8, 2, 2, 0.002f, 0.06f, SAND).cross().noCollision().setName("cactus");
+	public static final Tile TALLGRASS = new PlantTile(9, 3, 2, 0.002f, 0.14f, GRASS).cross().noCollision().setName("tallgrass");
+	public static final Tile BRICKS = new Tile(10, 4, 2, 0.02f, 0.01f).setName("bricks");
+	public static final Tile STONE_BRICKS = new Tile(11, 5, 2, 0.015f, 0.011f).setName("stone_bricks");
+	public static final Tile ICE = new IceTile(12, 5, 0, 0.05f, 0.14f).translucent().setName("ice");
+	public static final Tile GALENA = new Tile(13, 5, 2, 0.01f, 0.01f).setName("galena");
 }

@@ -5,7 +5,6 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.ALC10;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
-import tk.valoeghese.fc0.client.language.Language;
 import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.model.Shaders;
@@ -23,10 +22,12 @@ import tk.valoeghese.fc0.client.render.system.util.GraphicsSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
+import tk.valoeghese.fc0.language.Language;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.save.Save;
 
 import javax.annotation.Nullable;
@@ -57,7 +58,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private final Matrix4f guiProjection;
 	private ClientPlayer player;
 	private long nextUpdate = 0;
-
 	private GUI waterOverlay;
 	public long time = 0;
 	private int fov;
@@ -163,9 +163,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
-		this.gameScreen.init();
-		this.titleScreen.init();
-
 		this.currentScreen = this.titleScreen;
 
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
@@ -182,6 +179,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.player.changeWorld(this.world, this.save);
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
+
+		CraftingManager.addCraftingRecipes();
 
 		System.out.println("Initialised 2fc0f18 in " + (System.currentTimeMillis() - time) + "ms.");
 	}
@@ -324,6 +323,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public float getWindowAspect() {
 		return this.window.aspect;
+	}
+
+	public long getWindowId() {
+		return this.window.glWindow;
 	}
 
 	@Nullable

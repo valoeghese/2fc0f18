@@ -61,6 +61,30 @@ public class GameScreen extends Screen {
 		}
 	}
 
+	public void updateSelected(Inventory inventory) {
+		if (Keybinds.SELECT_1.hasBeenPressed()) {
+			inventory.setSelectedSlot(0);
+		} else if (Keybinds.SELECT_2.hasBeenPressed()) {
+			inventory.setSelectedSlot(1);
+		} else if (Keybinds.SELECT_3.hasBeenPressed()) {
+			inventory.setSelectedSlot(2);
+		} else if (Keybinds.SELECT_4.hasBeenPressed()) {
+			inventory.setSelectedSlot(3);
+		} else if (Keybinds.SELECT_5.hasBeenPressed()) {
+			inventory.setSelectedSlot(4);
+		} else if (Keybinds.SELECT_6.hasBeenPressed()) {
+			inventory.setSelectedSlot(5);
+		} else if (Keybinds.SELECT_7.hasBeenPressed()) {
+			inventory.setSelectedSlot(6);
+		} else if (Keybinds.SELECT_8.hasBeenPressed()) {
+			inventory.setSelectedSlot(7);
+		} else if (Keybinds.SELECT_9.hasBeenPressed()) {
+			inventory.setSelectedSlot(8);
+		} else if (Keybinds.SELECT_0.hasBeenPressed()) {
+			inventory.setSelectedSlot(9);
+		}
+	}
+
 	@Override
 	public void handleKeybinds() {
 		if (Keybinds.INVENTORY.hasBeenPressed()) {
@@ -115,29 +139,7 @@ public class GameScreen extends Screen {
 		}
 
 		Inventory inventory = player.getInventory();
-
-		if (Keybinds.SELECT_1.hasBeenPressed()) {
-			inventory.setSelectedSlot(0);
-		} else if (Keybinds.SELECT_2.hasBeenPressed()) {
-			inventory.setSelectedSlot(1);
-		} else if (Keybinds.SELECT_3.hasBeenPressed()) {
-			inventory.setSelectedSlot(2);
-		} else if (Keybinds.SELECT_4.hasBeenPressed()) {
-			inventory.setSelectedSlot(3);
-		} else if (Keybinds.SELECT_5.hasBeenPressed()) {
-			inventory.setSelectedSlot(4);
-		} else if (Keybinds.SELECT_6.hasBeenPressed()) {
-			inventory.setSelectedSlot(5);
-		} else if (Keybinds.SELECT_7.hasBeenPressed()) {
-			inventory.setSelectedSlot(6);
-		} else if (Keybinds.SELECT_8.hasBeenPressed()) {
-			inventory.setSelectedSlot(7);
-		} else if (Keybinds.SELECT_9.hasBeenPressed()) {
-			inventory.setSelectedSlot(8);
-		} else if (Keybinds.SELECT_0.hasBeenPressed()) {
-			inventory.setSelectedSlot(9);
-		}
-
+		this.updateSelected(inventory);
 		Item selectedItem = inventory.getSelectedItem();
 		GameplayWorld<?> world = this.game.getWorld();
 

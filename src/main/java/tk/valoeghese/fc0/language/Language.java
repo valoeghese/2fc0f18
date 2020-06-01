@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.language;
+package tk.valoeghese.fc0.language;
 
 import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
 

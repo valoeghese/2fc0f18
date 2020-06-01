@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.client.render.screen;
 
+import org.lwjgl.glfw.GLFW;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
@@ -34,7 +35,17 @@ public class CraftingScreen extends Screen {
 	public void handleKeybinds() {
 		if (Keybinds.INVENTORY.hasBeenPressed()) {
 			this.game.switchScreen(this.game.gameScreen);
+			return;
 		}
+
+		if (Keybinds.DESTROY.hasBeenPressed()) {
+			double[] x = new double[1];
+			double[] y = new double[1];
+			GLFW.glfwGetCursorPos(this.game.getWindowId(), x, y);
+
+			System.out.println(x + ", " + y);
+		}
+		this.game.gameScreen.updateSelected(this.game.getPlayer().getInventory());
 	}
 
 	@Override

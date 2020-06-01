@@ -1,0 +1,3 @@
+# because you muricans will be too lazy to figure out what galena is
+# :wink:
+tile.galena=Lead Ore

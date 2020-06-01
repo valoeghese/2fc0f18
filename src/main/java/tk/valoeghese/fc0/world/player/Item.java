@@ -88,4 +88,12 @@ public class Item {
 
 		return 0; // TODO non tile Item types
 	}
+
+	public String[] asStringArray() {
+		if (this.tile) {
+			return new String[] {this.tileValue.toString(), String.valueOf(this.count)};
+		} else {
+			return new String[] {"item.missingno", String.valueOf(this.count)};
+		}
+	}
 }

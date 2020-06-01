@@ -10,9 +10,6 @@ public abstract class Screen {
 
 	protected final Client2fc game;
 
-	public void init() {
-	}
-
 	public abstract void renderGUI(float lighting);
 	public abstract void handleMouseInput(double dx, double dy);
 	public abstract void handleKeybinds();

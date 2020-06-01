@@ -4,8 +4,8 @@ import tk.valoeghese.fc0.client.render.model.Textures;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
 import tk.valoeghese.fc0.world.tile.Tile;
 
-public class TileGUI extends GUI {
-	public TileGUI(float xOffset, float yOffset, float size) {
+public class ItemGUI extends GUI {
+	public ItemGUI(float xOffset, float yOffset, float size) {
 		super(Textures.TILE_ATLAS);
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;

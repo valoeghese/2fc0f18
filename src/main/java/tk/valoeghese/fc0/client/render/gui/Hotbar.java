@@ -52,7 +52,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 			entry.countGUI.changeText(String.valueOf(item.getCount()));
 
 			if (item.isTile()) {
-				entry.tileGUI.setTile(item.tileValue(), item.getMeta(), 1f / windowAspect);
+				entry.itemGUI.setTile(item.tileValue(), item.getMeta(), 1f / windowAspect);
 			}
 		}
 
@@ -61,22 +61,22 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 
 	static class HotbarEntry implements PseudoGUI {
 		public HotbarEntry(float xOffset, float yOffset) {
-			this.tileGUI = new TileGUI(xOffset, yOffset, 0.06f);
+			this.itemGUI = new ItemGUI(xOffset, yOffset, 0.06f);
 			this.countGUI = new Text("0", xOffset - 0.14f, yOffset - 0.02f, 0.8f);
 		}
 
-		final TileGUI tileGUI;
+		final ItemGUI itemGUI;
 		final Text countGUI;
 
 		@Override
 		public void render() {
-			this.tileGUI.render();
+			this.itemGUI.render();
 			this.countGUI.render();
 		}
 
 		@Override
 		public void destroy() {
-			this.tileGUI.destroy();
+			this.itemGUI.destroy();
 			this.countGUI.destroy();
 		}
 	}

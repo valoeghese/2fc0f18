@@ -21,3 +21,17 @@ ecozone.temperate_woodland=Woodland
 ecozone.tundra=Tundra
 ecozone.desert=Desert
 ecozone.cold_woodland=Cold Woodland
+
+# Tiles
+tile.stone=Stone
+tile.grass=Grass
+tile.leaves=Leaves
+tile.log=Log
+tile.sand=Sand
+tile.daisy=Daisy
+tile.cactus=Cactus
+tile.tallgrass=Tall Grass
+tile.bricks=Bricks
+tile.stone_bricks=Stone Bricks
+tile.ice=Ice
+tile.galena=Galena
