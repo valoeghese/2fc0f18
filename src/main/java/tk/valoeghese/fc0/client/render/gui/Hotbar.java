@@ -61,6 +61,8 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 
 			if (item.isTile()) {
 				entry.itemGUI.setTile(item.tileValue(), item.getMeta(), 1f / windowAspect);
+			} else {
+				entry.itemGUI.setIngredientItem(item.ingredientItemValue(), 1f / windowAspect);
 			}
 		}
 

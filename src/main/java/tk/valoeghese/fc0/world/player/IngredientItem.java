@@ -18,7 +18,7 @@ public class IngredientItem {
 	private int v = 0;
 
 	public final void requestUV(Function<String, Vec2i> uvSupplier) {
-		Vec2i uv = uvSupplier.apply(this.translationKey);
+		Vec2i uv = uvSupplier.apply(this.textureName);
 		this.u = uv.getX();
 		this.v = uv.getY();
 	}

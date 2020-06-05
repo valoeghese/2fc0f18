@@ -69,6 +69,7 @@ public class Textures {
 				String entry = entries[i];
 
 				if (entry.equals("./$break")) {
+					++i;
 					break;
 				}
 

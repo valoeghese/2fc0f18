@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.player;
 
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -87,7 +88,8 @@ public class Player {
 
 	public boolean move(double x, double y, double z) {
 		Pos next = this.pos.ofAdded(x, y, z);
-		TilePos tilePos = new TilePos(next);
+		Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.03, y, z + MathsUtils.sign(z) * 0.03);
+		TilePos tilePos = new TilePos(test);
 
 		if (this.world.isInWorld(tilePos)) {
 			if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
@@ -95,7 +97,7 @@ public class Player {
 			}
 		}
 
-		tilePos = tilePos.up();
+		tilePos = new TilePos(test.ofAdded(0, 1.8, 0));
 
 		if (this.world.isInWorld(tilePos)) {
 			if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {

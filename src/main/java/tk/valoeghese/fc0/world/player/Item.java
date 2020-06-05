@@ -29,7 +29,7 @@ public class Item {
 
 	public Item(int id, byte meta, int count) {
 		this.tileValue = id < 256 ? Tile.BY_ID[id] : null;
-		this.ingredientItemValue = id > 255 ? IngredientItem.BY_ID[id] : null;
+		this.ingredientItemValue = id > 255 ? IngredientItem.BY_ID[id - 256] : null;
 		this.tile = id < 256;
 		this.meta = meta;
 		this.count = count;

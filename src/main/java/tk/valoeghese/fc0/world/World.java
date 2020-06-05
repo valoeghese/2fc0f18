@@ -23,7 +23,7 @@ public interface World extends GenWorld {
 	}
 
 	default byte readMeta(TilePos pos) {
-		return this.readTile(pos.x, pos.y, pos.z);
+		return this.readMeta(pos.x, pos.y, pos.z);
 	}
 
 	void writeTile(int x, int y, int z, byte tile);
