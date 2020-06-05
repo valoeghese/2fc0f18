@@ -3,8 +3,8 @@ package tk.valoeghese.fc0.world.tile;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 
 public class PlantTile extends Tile {
-	public PlantTile(String textureName, int id, float iota, float kappa, Tile support) {
-		super(textureName, id, iota, kappa);
+	public PlantTile(String textureName, int id, float iota, Tile support) {
+		super(textureName, id, iota);
 		this.support = support.id;
 	}
 

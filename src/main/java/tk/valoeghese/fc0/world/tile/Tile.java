@@ -9,20 +9,18 @@ import java.util.Random;
 import java.util.function.Function;
 
 public class Tile {
-	public Tile(String textureName, int id, float iota, float kappa) {
+	public Tile(String textureName, int id, float iota) {
 		BY_ID[id] = this;
 		this.id = (byte) id;
 		this.iota = iota;
-		this.kappa = kappa;
 		this.textureName = textureName;
 	}
 
 	public final byte id;
 	protected int u;
 	protected int v;
-	// TODO use these in epic stuff
+	// TODO use this
 	public final float iota;
-	public final float kappa;
 	private boolean opaque = true;
 	private boolean render = true;
 	private boolean cross = false;
@@ -125,18 +123,18 @@ public class Tile {
 	}
 
 	public static final Tile[] BY_ID = new Tile[256];
-	public static final Tile AIR = new Tile("stone", 0, 0.0f, 0.02f).dontRender().noCollision();
-	public static final Tile STONE = new Tile("stone", 1, 0.01f, 0.01f).setName("stone");
-	public static final Tile GRASS = new GrassTile("grass", 2, 0.01f, 0.03f).setName("grass");
-	public static final Tile LEAVES = new Tile("leaves", 3, 0.02f, 0.1f).cutout().noCollision().setName("leaves");
-	public static final Tile LOG = new ColumnTile("log", 4, 0.04f, 0.04f).setName("log");
-	public static final Tile WATER = new WaterTile("water", 5, 0.05f, 0.14f).dontRender().noCollision();
-	public static final Tile SAND = new Tile("sand", 6, 0.025f, 0.01f).setName("sand");
-	public static final Tile DAISY = new PlantTile("daisy", 7, 0.001f, 0.12f, GRASS).cross().noCollision().setName("daisy");
-	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.002f, 0.06f, SAND).cross().noCollision().setName("cactus");
-	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 0.002f, 0.14f, GRASS).cross().noCollision().setName("tallgrass");
-	public static final Tile BRICKS = new Tile("bricks", 10, 0.02f, 0.01f).setName("bricks");
-	public static final Tile STONE_BRICKS = new Tile("stone_bricks", 11, 0.015f, 0.011f).setName("stone_bricks");
-	public static final Tile ICE = new IceTile("ice", 12, 0.05f, 0.14f).translucent().setName("ice");
-	public static final Tile GALENA = new Tile("galena", 13, 0.01f, 0.01f).setName("galena");
+	public static final Tile AIR = new Tile("stone", 0, 0.0f).dontRender().noCollision();
+	public static final Tile STONE = new Tile("stone", 1, 0.01f).setName("stone");
+	public static final Tile GRASS = new GrassTile("grass", 2, 0.01f).setName("grass");
+	public static final Tile LEAVES = new Tile("leaves", 3, 0.02f).cutout().noCollision().setName("leaves");
+	public static final Tile LOG = new ColumnTile("log", 4, 0.04f).setName("log");
+	public static final Tile WATER = new WaterTile("water", 5, 0.05f).dontRender().noCollision();
+	public static final Tile SAND = new Tile("sand", 6, 0.025f).setName("sand");
+	public static final Tile DAISY = new PlantTile("daisy", 7, 0.001f, GRASS).cross().noCollision().setName("daisy");
+	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.002f, SAND).cross().noCollision().setName("cactus");
+	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 0.002f, GRASS).cross().noCollision().setName("tallgrass");
+	public static final Tile BRICKS = new Tile("bricks", 10, 0.02f).setName("bricks");
+	public static final Tile STONE_BRICKS = new Tile("stone_bricks", 11, 0.015f).setName("stone_bricks");
+	public static final Tile ICE = new IceTile("ice", 12, 0.05f).translucent().setName("ice");
+	public static final Tile GALENA = new Tile("galena", 13, 0.01f).setName("galena");
 }
