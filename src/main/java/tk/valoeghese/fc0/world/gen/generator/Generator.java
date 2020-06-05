@@ -42,6 +42,17 @@ public abstract class Generator<T extends GeneratorSettings> {
 		return world.getHeight(x, z, tile -> tile.isOpaque() && tile != Tile.LOG) + 1;
 	}
 
+	protected boolean writeTile(GenWorld world, int x, int y, int z, byte tile) {
+		byte current = world.readTile(x, y, z);
+
+		if (current != Tile.STONE.id && current != Tile.LOG.id) {
+			world.wgWriteTile(x, y, z, tile);
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	public static final Generator<TreeGeneratorSettings> TREE = new TreeGenerator();
 	public static final Generator<GroundFoliageGeneratorSettings> GROUND_FOLIAGE = new GroundFoliageGenerator();
 	public static final Generator<HeightCountGeneratorSettings> SCATTERED_ORE = new ScatteredOreGenerator();

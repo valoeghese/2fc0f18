@@ -1,7 +1,10 @@
-package tk.valoeghese.fc0.client.render.gui;
+package tk.valoeghese.fc0.client.render.gui.collection;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.gui.ItemGUI;
+import tk.valoeghese.fc0.client.render.gui.MoveableSquare;
+import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.system.gui.GUICollection;
 import tk.valoeghese.fc0.client.render.system.gui.PseudoGUI;
 import tk.valoeghese.fc0.world.player.Inventory;

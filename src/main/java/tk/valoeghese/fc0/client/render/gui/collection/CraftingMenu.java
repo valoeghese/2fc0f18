@@ -1,7 +1,10 @@
-package tk.valoeghese.fc0.client.render.gui;
+package tk.valoeghese.fc0.client.render.gui.collection;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.gui.ButtonSquare;
+import tk.valoeghese.fc0.client.render.gui.ItemGUI;
+import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.system.gui.GUICollection;
 import tk.valoeghese.fc0.client.render.system.gui.PseudoGUI;
 import tk.valoeghese.fc0.world.player.CraftingManager;
@@ -84,34 +87,19 @@ public class CraftingMenu extends GUICollection<CraftingMenu.Craftable> implemen
 
 			this.itemGUI = new ItemGUI(xOffset, yOffset, 0.06f);
 			this.nameGUI = new Text("tile.missingno", xOffset + 0.14f, yOffset - 0.02f, 0.8f);
-			this.button = new MoveableSquare(Textures.CRAFT, 0.06f);
+			this.button = new ButtonSquare(Textures.CRAFT, 0.06f);
 			this.button.setPosition(xOffset + buttonXOff, yOffset);
 
-			float aspect = 1f / Client2fc.getInstance().getWindowAspect();
-			this.x0 = xOffset + buttonXOff - aspect * 0.06f;
-			this.y0 = yOffset - 0.06f;
-			this.x1 = xOffset + buttonXOff + aspect * 0.06f;
-			this.y1 = yOffset + 0.06f;
 			this.output = output;
 		}
 
 		final ItemGUI itemGUI;
 		final Text nameGUI;
-		final MoveableSquare button;
-		final float x0;
-		final float x1;
-		final float y0;
-		final float y1;
+		final ButtonSquare button;
 		final Item output;
 
 		public boolean isCursorSelecting(float x, float y) {
-			if (y > this.y0 && y < this.y1) {
-				if (x > this.x0 && x < this.x1) {
-					return true;
-				}
-			}
-
-			return false;
+			return this.button.isCursorSelecting(x, y);
 		}
 
 		@Override

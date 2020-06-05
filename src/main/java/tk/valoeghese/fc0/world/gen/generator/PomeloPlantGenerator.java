@@ -39,15 +39,16 @@ public class PomeloPlantGenerator extends Generator<TreeGeneratorSettings> {
 					int totalZ = z + zo;
 
 					for (int yo = 0; yo < 2; ++yo) {
-						if (yo == 1 && Math.abs(zo) == 1 && Math.abs(xo) == 1 && rand.nextBoolean()) {
+						if (yo == 1 && Math.abs(zo) == 1 && Math.abs(xo) == 1) {
 							break;
 						}
 
 						int totalY = y + height + yo;
 
 						if (world.isInWorld(totalX, totalY, totalZ)) {
-							world.wgWriteTile(totalX, totalY, totalZ, Tile.LEAVES.id);
-							world.writeMeta(totalX, totalY, totalZ, (byte) (rand.nextInt(3) == 0 ? 1 : 0));
+							if (writeTile(world, totalX, totalY, totalZ, Tile.LEAVES.id)) {
+								world.writeMeta(totalX, totalY, totalZ, (byte) (rand.nextInt(3) == 0 ? 1 : 0));
+							}
 						}
 					}
 				}

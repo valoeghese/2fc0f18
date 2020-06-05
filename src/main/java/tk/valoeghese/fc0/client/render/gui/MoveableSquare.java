@@ -13,7 +13,11 @@ public class MoveableSquare extends GUI {
 				{size, size},
 				{size, -size}
 		};
+
+		this.size = size;
 	}
+
+	protected final float size;
 
 	public void setPosition(float xOffset, float yOffset) {
 		this.destroy();

@@ -50,7 +50,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 						int totalY = y + height + yo;
 
 						if (world.isInWorld(totalX, totalY, totalZ)) {
-							world.wgWriteTile(totalX, totalY, totalZ, Tile.LEAVES.id);
+							writeTile(world, totalX, totalY, totalZ, Tile.LEAVES.id);
 						}
 					}
 				}
@@ -69,7 +69,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 					int totalZ = zo + z;
 
 					if (world.isInWorld(totalX, finalCrossY, totalZ)) {
-						world.wgWriteTile(totalX, finalCrossY, totalZ, Tile.LEAVES.id);
+						writeTile(world, totalX, finalCrossY, totalZ, Tile.LEAVES.id);
 					}
 				}
 			}

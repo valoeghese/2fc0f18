@@ -16,7 +16,7 @@ public class GLUtils {
 	public static void initGL(Window window) {
 		createCapabilities();
 		glViewport(0, 0, window.width, window.height);
-		glfwSetFramebufferSizeCallback(window.glWindow, (w, width, height) -> glViewport(0, 0, width, height));
+		glfwSetFramebufferSizeCallback(window.id, (w, width, height) -> glViewport(0, 0, width, height));
 	}
 
 	public static void disableMouse(long window) {

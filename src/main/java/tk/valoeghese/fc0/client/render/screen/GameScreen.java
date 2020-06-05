@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.gui.Crosshair;
-import tk.valoeghese.fc0.client.render.gui.Hotbar;
+import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.render.system.Window;

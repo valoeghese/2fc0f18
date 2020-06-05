@@ -7,8 +7,8 @@ import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.Textures;
-import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
+import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.render.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.render.screen.GameScreen;
 import tk.valoeghese.fc0.client.render.screen.Screen;
@@ -154,11 +154,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void initGameRendering() {
 		long start = System.currentTimeMillis();
-		glfwSetKeyCallback(this.window.glWindow, KeybindManager.INSTANCE);
-		glfwSetMouseButtonCallback(this.window.glWindow, MousebindManager.INSTANCE);
+		glfwSetKeyCallback(this.window.id, KeybindManager.INSTANCE);
+		glfwSetMouseButtonCallback(this.window.id, MousebindManager.INSTANCE);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
-		glfwSetCursorPosCallback(this.window.glWindow, this);
+		glfwSetCursorPosCallback(this.window.id, this);
 
 		// load in the atlases!
 		Textures.loadGeneratedAtlases();
@@ -312,11 +312,11 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 	}
 
-	public void createWorld() {
+	public void createWorld(String saveName) {
 		this.world.destroy();
 		this.saveWorld();
 		this.time = 0;
-		this.save = new Save("save", new Random().nextLong());
+		this.save = new Save(saveName, new Random().nextLong());
 		// 240000 * 240000 world.
 		this.world = new ClientWorld(this.save, this.save.getSeed(), 750);
 
@@ -347,7 +347,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	public long getWindowId() {
-		return this.window.glWindow;
+		return this.window.id;
 	}
 
 	public Window getWindow() {
