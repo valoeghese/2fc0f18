@@ -7,7 +7,7 @@ if (org.gradle.internal.os.OperatingSystem.current() == org.gradle.internal.os.O
 }
 
 group 'tk.valoeghese'
-version '0.2.1'
+version '0.2.2'
 
 switch (org.gradle.internal.os.OperatingSystem.current()) {
     case org.gradle.internal.os.OperatingSystem.LINUX:
