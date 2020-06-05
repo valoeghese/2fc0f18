@@ -2,10 +2,10 @@ package tk.valoeghese.fc0.client.render.screen;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
+import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.gui.Crosshair;
 import tk.valoeghese.fc0.client.render.gui.Hotbar;
 import tk.valoeghese.fc0.client.render.gui.Text;
-import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.render.system.Window;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
@@ -27,7 +27,7 @@ public class GameScreen extends Screen {
 	public GameScreen(Client2fc game) {
 		super(game);
 
-		this.version = new Text("2fc0f18-v0.2.1", -0.92f, 0.9f, 1.7f);
+		this.version = new Text("2fc0f18-v0.2.2", -0.92f, 0.9f, 1.7f);
 		this.crosshair = new Crosshair();
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
@@ -148,13 +148,13 @@ public class GameScreen extends Screen {
 			TilePos pos = player.rayCast(10.0).pos;
 
 			if (world.isInWorld(pos)) {
-				byte tileId = this.game.getWorld().readTile(pos);
+				byte tileId = world.readTile(pos);
 
 				if (tileId != Tile.WATER.id) {
 					Tile tile = Tile.BY_ID[tileId];
 
 					if (!player.dev && tile.shouldRender()) {
-						inventory.addItem(tile.getDrop(RANDOM));
+						inventory.addItem(tile.getDrop(RANDOM, world.readMeta(pos)));
 						world.writeTile(pos, Tile.AIR.id);
 					} else if (player.dev) {
 						world.writeTile(pos, Tile.AIR.id);

@@ -50,12 +50,14 @@ public class EcoZone {
 	public static final EcoZone TROPICAL_RAINFOREST = new EcoZone("tropical_rainforest")
 			.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.SETTINGS)
 			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(12, 15, Tile.DAISY, Tile.TALLGRASS))
-			.addGenerator(Generator.TREE, new TreeGeneratorSettings(8, 3.5f, 6, 4));
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(8, 3.5f, 6, 4))
+			.addGenerator(Generator.POMELO_PLANT, new TreeGeneratorSettings(0, 5.0f, 1, 1));
 
 	public static final EcoZone TEMPERATE_RAINFOREST = new EcoZone("temperate_rainforest")
 			.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.SETTINGS)
 			.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(6, 16, Tile.DAISY, Tile.TALLGRASS, Tile.TALLGRASS))
-			.addGenerator(Generator.TREE, new TreeGeneratorSettings(5, 2.0f, 4, 3));
+			.addGenerator(Generator.TREE, new TreeGeneratorSettings(5, 2.0f, 4, 3))
+			.addGenerator(Generator.POMELO_PLANT, new TreeGeneratorSettings(0, 2.2f, 1, 1));
 
 	public static final EcoZone TEMPERATE_WOODLAND = new EcoZone("temperate_woodland")
 			.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.SETTINGS)

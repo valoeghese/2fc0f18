@@ -2,11 +2,12 @@ package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.system.gui.GUI;
+import tk.valoeghese.fc0.world.player.IngredientItem;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 public class ItemGUI extends GUI {
 	public ItemGUI(float xOffset, float yOffset, float size) {
-		super(Textures.TILE_ATLAS);
+		super(Textures.ITEM_ATLAS);
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 		this.size = size;
@@ -16,9 +17,29 @@ public class ItemGUI extends GUI {
 	private final float yOffset;
 	private final float size;
 
+	public void setIngredientItem(IngredientItem item, float aspect) {
+		this.destroy();
+		float horizontalSize = aspect * this.size;
+
+		// render west face
+		float startU = (item.getU() / 16.0f);
+		float startV = (item.getV() / 16.0f);
+		float endU = startU + 0.0625f;
+		float endV = startV + 0.0625f;
+
+		int tl = this.vertex(this.xOffset - horizontalSize, this.yOffset + this.size, startU, endV);
+		int bl = this.vertex(this.xOffset - horizontalSize, this.yOffset - this.size, startU, startV);
+		int tr = this.vertex(this.xOffset + horizontalSize, this.yOffset + this.size, endU, endV);
+		int br = this.vertex(this.xOffset + horizontalSize, this.yOffset - this.size, endU, startV);
+
+		this.tri(tl, bl, br);
+		this.tri(tl, tr, br);
+
+		this.generateBuffers();
+	}
+
 	public void setTile(Tile tile, byte meta, float aspect) {
 		this.destroy();
-
 		float horizontalSize = aspect * this.size;
 
 		if (tile.isCross()) {

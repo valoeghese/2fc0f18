@@ -64,11 +64,13 @@ public class CraftingMenu extends GUICollection<CraftingMenu.Craftable> implemen
 				Item craftable = craftables.get(i);
 
 				Craftable rendered = new Craftable(new Item(craftable), -0.8f, 0.87f - (0.14f * i));
-				String[] rawTranslationKeys = craftable.asStringArray();
+				String[] rawTranslationKeys = craftable.translationStringArray();
 				rendered.nameGUI.changeText(Client2fc.getInstance().language.translate(rawTranslationKeys[0]) + " x" + rawTranslationKeys[1]);
 
 				if (craftable.isTile()) {
 					rendered.itemGUI.setTile(craftable.tileValue(), craftable.getMeta(), 1f / Client2fc.getInstance().getWindowAspect());
+				} else {
+					rendered.itemGUI.setIngredientItem(craftable.ingredientItemValue(), 1f / Client2fc.getInstance().getWindowAspect());
 				}
 
 				this.guis.add(rendered);

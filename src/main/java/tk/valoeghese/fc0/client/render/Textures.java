@@ -4,6 +4,7 @@ import tk.valoeghese.fc0.client.render.system.GeneratedAtlas;
 import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
 import tk.valoeghese.fc0.client.render.system.util.TextureLoader;
 import tk.valoeghese.fc0.util.maths.Vec2i;
+import tk.valoeghese.fc0.world.player.IngredientItem;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.imageio.ImageIO;
@@ -55,7 +56,49 @@ public class Textures {
 		}
 	}
 
+	private static GeneratedAtlas loadItemAtlas(String name, Consumer<Set<String>> populator) {
+		try {
+			List<GeneratedAtlas.ImageEntry> images = new ArrayList<>();
+			Set<String> entrySet = new LinkedHashSet<>();
+			populator.accept(entrySet);
+			String[] entries = entrySet.toArray(new String[0]);
+
+			int i = 0;
+
+			for (;;++i) {
+				String entry = entries[i];
+
+				if (entry.equals("./$break")) {
+					break;
+				}
+
+				GeneratedAtlas.ImageEntry iEntry = new GeneratedAtlas.ImageEntry();
+				iEntry.name = entry.trim();
+				iEntry.image = ImageIO.read(
+						ResourceLoader.loadURL("assets/texture/tile/" + entry.trim() + ".png")
+				);
+				images.add(iEntry);
+			}
+
+			for (;i < entries.length;++i) {
+				String entry = entries[i];
+
+				GeneratedAtlas.ImageEntry iEntry = new GeneratedAtlas.ImageEntry();
+				iEntry.name = entry.trim();
+				iEntry.image = ImageIO.read(
+						ResourceLoader.loadURL("assets/texture/" + name + "/" + entry.trim() + ".png")
+				);
+				images.add(iEntry);
+			}
+
+			return new GeneratedAtlas(name, images.toArray(new GeneratedAtlas.ImageEntry[0]));
+		} catch (IOException e) {
+			throw new UncheckedIOException("Error generating Item Texture Atlas" + name, e);
+		}
+	}
+
 	public static void loadGeneratedAtlases() {
+		// tile atlas
 		TILE_ATLAS_OBJ = loadAtlas("tile", entries -> {
 			entries.add("missingno");
 
@@ -68,11 +111,41 @@ public class Textures {
 				}
 			}
 		});
+
 		TILE_ATLAS = load(TILE_ATLAS_OBJ);
+
+		// item atlas
+		ITEM_ATLAS_OBJ = loadItemAtlas("item", entries -> {
+			entries.add("missingno");
+
+			for (Tile tile : Tile.BY_ID) {
+				if (tile != null) {
+					tile.requestUV(str -> { // dummy code to collect textures again
+						entries.add(str);
+						return new Vec2i(0, 0);
+					});
+				}
+			}
+
+			entries.add("./$break"); // key for tile end, item begin
+
+			for (IngredientItem item : IngredientItem.BY_ID) {
+				if (item != null) {
+					item.requestUV(str -> { // dummy code to collect textures yet once more
+						entries.add(str);
+						return new Vec2i(0, 0);
+					});
+				}
+			}
+		});
+
+		ITEM_ATLAS = load(ITEM_ATLAS_OBJ);
 	}
 
 	public static GeneratedAtlas TILE_ATLAS_OBJ;
+	public static GeneratedAtlas ITEM_ATLAS_OBJ;
 	public static int TILE_ATLAS = 0;
+	public static int ITEM_ATLAS = 0;
 	public static final int WATER_OVERLAY = load("water_overlay", true);
 	public static final int FONT_ATLAS = load("font_atlas", false);
 	public static final int STARTUP = load("startup", false);

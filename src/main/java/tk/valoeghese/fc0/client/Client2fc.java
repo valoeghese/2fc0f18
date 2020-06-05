@@ -29,6 +29,7 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.CraftingManager;
+import tk.valoeghese.fc0.world.player.IngredientItem;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -166,6 +167,14 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		for (Tile tile : Tile.BY_ID) {
 			if (tile != null) {
 				tile.requestUV(uvRequests);
+			}
+		}
+
+		uvRequests = name -> new Vec2i(Textures.ITEM_ATLAS_OBJ.imageLocationMap.get(name));
+
+		for (IngredientItem item : IngredientItem.BY_ID) {
+			if (item != null) {
+				item.requestUV(uvRequests);
 			}
 		}
 

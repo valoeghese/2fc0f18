@@ -9,8 +9,16 @@ public class Item {
 		this(tile, 0);
 	}
 
+	public Item(IngredientItem item) {
+		this.tileValue = null;
+		this.ingredientItemValue = item;
+		this.tile = false;
+		this.meta = (byte) 0;
+	}
+
 	public Item(Tile tile, int meta) {
 		this.tileValue = tile;
+		this.ingredientItemValue = null;
 		this.tile = true;
 		this.meta = (byte) meta;
 	}
@@ -21,6 +29,7 @@ public class Item {
 
 	public Item(int id, byte meta, int count) {
 		this.tileValue = id < 256 ? Tile.BY_ID[id] : null;
+		this.ingredientItemValue = id > 255 ? IngredientItem.BY_ID[id] : null;
 		this.tile = id < 256;
 		this.meta = meta;
 		this.count = count;
@@ -29,6 +38,8 @@ public class Item {
 	private final boolean tile;
 	@Nullable
 	private final Tile tileValue;
+	@Nullable
+	private final IngredientItem ingredientItemValue;
 	private final byte meta;
 	private int count = 1;
 	@Nullable
@@ -42,6 +53,11 @@ public class Item {
 	@Nullable
 	public Tile tileValue() {
 		return this.tileValue;
+	}
+
+	@Nullable
+	public IngredientItem ingredientItemValue() {
+		return this.ingredientItemValue;
 	}
 
 	public byte getMeta() {
@@ -88,16 +104,16 @@ public class Item {
 	public int id() {
 		if (this.tile) {
 			return this.tileValue.id;
+		} else {
+			return this.ingredientItemValue.id + 256;
 		}
-
-		return 0; // TODO non tile Item types
 	}
 
-	public String[] asStringArray() {
+	public String[] translationStringArray() {
 		if (this.tile) {
 			return new String[] {this.tileValue.toString(), String.valueOf(this.count)};
 		} else {
-			return new String[] {"item.missingno", String.valueOf(this.count)};
+			return new String[] {this.ingredientItemValue.toString(), String.valueOf(this.count)};
 		}
 	}
 }
