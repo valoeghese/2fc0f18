@@ -5,10 +5,10 @@ import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.ALC10;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
-import tk.valoeghese.fc0.client.render.gui.Hotbar;
-import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.gui.Hotbar;
+import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.render.screen.GameScreen;
 import tk.valoeghese.fc0.client.render.screen.Screen;
@@ -25,13 +25,16 @@ import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.gen.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 import java.util.Random;
+import java.util.function.Function;
 
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
@@ -155,6 +158,16 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
 		glfwSetCursorPosCallback(this.window.glWindow, this);
+
+		// load in the atlases!
+		Textures.loadGeneratedAtlases();
+		Function<String, Vec2i> uvRequests = name -> new Vec2i(Textures.TILE_ATLAS_OBJ.imageLocationMap.get(name));
+
+		for (Tile tile : Tile.BY_ID) {
+			if (tile != null) {
+				tile.requestUV(uvRequests);
+			}
+		}
 
 		this.prevYPos = this.window.height / 2.0f;
 		this.prevXPos = this.window.width / 2.0f;

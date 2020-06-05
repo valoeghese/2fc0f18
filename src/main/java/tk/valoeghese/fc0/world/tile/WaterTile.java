@@ -1,8 +1,8 @@
 package tk.valoeghese.fc0.world.tile;
 
 public class WaterTile extends Tile {
-	public WaterTile(int id, int u, int v, float iota, float kappa) {
-		super(id, u, v, iota, kappa);
+	public WaterTile(String textureName, int id, float iota, float kappa) {
+		super(textureName, id, iota, kappa);
 	}
 
 	@Override
