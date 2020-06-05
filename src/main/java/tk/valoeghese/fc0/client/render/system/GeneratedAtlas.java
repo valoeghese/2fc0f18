@@ -46,11 +46,14 @@ public class GeneratedAtlas {
 
 		this.name = name;
 		System.out.println("Successfully Generated Atlas \"" + name + "\"");
-		File temp = new File("./temp.png");
-		try {
-			ImageIO.write(image, "png", temp);
-		} catch (Exception e) {
-			System.exit(-3);
+
+		if (DEBUG) {
+			File temp = new File("./temp_" + name + ".png");
+			try {
+				ImageIO.write(image, "png", temp);
+			} catch (Exception e) {
+				System.exit(-3);
+			}
 		}
 	}
 
@@ -80,4 +83,6 @@ public class GeneratedAtlas {
 			return this.y;
 		}
 	}
+
+	private static final boolean DEBUG = false;
 }
