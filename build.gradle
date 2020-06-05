@@ -41,6 +41,8 @@ dependencies {
     implementation "org.joml:joml:${project.joml_version}"
     // fastutil
     implementation "it.unimi.dsi:fastutil:${project.fastutil_version}"
+    // netty
+    implementation "io.netty:netty-all:${project.netty_version}"
     // lwjgl natives
     runtimeOnly "org.lwjgl:lwjgl:${project.lwjgl_version}:${project.ext.natives}"
     runtimeOnly "org.lwjgl:lwjgl-assimp:${project.lwjgl_version}:${project.ext.natives}"
