@@ -10,7 +10,7 @@ import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -37,7 +37,7 @@ public class Textures {
 	private static GeneratedAtlas loadAtlas(String name, Consumer<Set<String>> populator) {
 		try {
 			List<GeneratedAtlas.ImageEntry> images = new ArrayList<>();
-			Set<String> entries = new HashSet<>();
+			Set<String> entries = new LinkedHashSet<>();
 			populator.accept(entries);
 
 			for (String entry : entries) {
@@ -60,10 +60,12 @@ public class Textures {
 			entries.add("missingno");
 
 			for (Tile tile : Tile.BY_ID) {
-				tile.requestUV(str -> { // dummy code to collect textures
-					entries.add(str);
-					return new Vec2i(0, 0);
-				});
+				if (tile != null) {
+					tile.requestUV(str -> { // dummy code to collect textures
+						entries.add(str);
+						return new Vec2i(0, 0);
+					});
+				}
 			}
 		});
 		TILE_ATLAS = load(TILE_ATLAS_OBJ);

@@ -25,11 +25,11 @@ public class GrassTile extends Tile {
 	public int getV(int faceAxis, byte meta) {
 		if (faceAxis == 4) {
 			return Tile.STONE.getV(faceAxis, meta);
-		} else if (meta == 0) {
+		} else if (meta == 1) {
 			if (faceAxis == 1) {
-				return this.snowSideUV.getY();
-			} else {
 				return this.snowTopUV.getY();
+			} else {
+				return this.snowSideUV.getY();
 			}
 		} else if (faceAxis == 1) {
 			return super.getV(faceAxis, meta);
@@ -42,11 +42,11 @@ public class GrassTile extends Tile {
 	public int getU(int faceAxis, byte meta) {
 		if (faceAxis == 4) {
 			return Tile.STONE.getU(faceAxis, meta);
-		} else if (meta == 0) {
+		} else if (meta == 1) {
 			if (faceAxis == 1) {
-				return this.snowSideUV.getX();
-			} else {
 				return this.snowTopUV.getX();
+			} else {
+				return this.snowSideUV.getX();
 			}
 		} else if (faceAxis == 1) {
 			return super.getU(faceAxis, meta);

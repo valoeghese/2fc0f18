@@ -29,6 +29,6 @@ public class ColumnTile extends Tile {
 
 	@Override
 	public int getV(int faceAxis, byte meta) {
-		return faceAxis == 1 || faceAxis == 4 ? this.endV : super.getU(faceAxis, meta);
+		return faceAxis == 1 || faceAxis == 4 ? this.endV : super.getV(faceAxis, meta);
 	}
 }

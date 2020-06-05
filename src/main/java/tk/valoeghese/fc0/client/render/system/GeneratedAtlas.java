@@ -1,12 +1,14 @@
 package tk.valoeghese.fc0.client.render.system;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 public class GeneratedAtlas {
 	public GeneratedAtlas(String name, ImageEntry[] images) {
-		int x = 0;
+		int x = -1;
 		int y = 0;
 		this.image = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
 
@@ -14,12 +16,12 @@ public class GeneratedAtlas {
 			BufferedImage image = iEntry.image;
 			++x;
 
-			if (x > 16) {
+			if (x > 15) {
 				x = 0;
 				++y;
 			}
 
-			if (y > 16) {
+			if (y > 15) {
 				throw new RuntimeException("Generated Atlas \"" + name + "\" is too large!");
 			}
 
@@ -29,7 +31,7 @@ public class GeneratedAtlas {
 
 			this.imageLocationMap.put(iEntry.name, new ImageUV(x, y));
 			int startX = x << 4;
-			int startY = y << 4;
+			int startY = (15 - y) << 4;
 
 			for (int xo = 0; xo < 16; ++xo) {
 				int totalX = startX + xo;
@@ -44,6 +46,12 @@ public class GeneratedAtlas {
 
 		this.name = name;
 		System.out.println("Successfully Generated Atlas \"" + name + "\"");
+		File temp = new File("./temp.png");
+		try {
+			ImageIO.write(image, "png", temp);
+		} catch (Exception e) {
+			System.exit(-3);
+		}
 	}
 
 	public final String name;
