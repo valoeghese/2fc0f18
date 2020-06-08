@@ -101,7 +101,7 @@ public class GameScreen extends Screen {
 		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FORWARDS.isPressed();
 
 		if (Keybinds.RUN.isPressed()) {
-			slowness /= 1.67;
+			slowness /= 1.48; // nerfed from previous versions
 		}
 
 		if (player.isSwimming()) {

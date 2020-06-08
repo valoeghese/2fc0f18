@@ -53,7 +53,15 @@ public class Player {
 	public void changeWorld(LoadableWorld world, @Nullable Save save) {
 		this.world = world;
 		this.setPos(Pos.ZERO);
-		this.move(0, world.getHeight(0, 0) + 1f, 0);
+
+		if (save == null) {
+			this.move(0, world.getHeight(0, 0) + 1f, 0);
+		} else {
+			int x = (world.getSpawnPos().x << 4) + 8;
+			int z = (world.getSpawnPos().z << 4) + 8;
+			this.move(x, world.getHeight(x, z) + 1f, z);
+		}
+
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}

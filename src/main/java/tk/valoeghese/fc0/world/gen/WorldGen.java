@@ -37,21 +37,17 @@ public final class WorldGen {
 				int totalZ = z + blockZ;
 				EcoZone zone = getEcoZoneByPosition(totalX, totalZ);
 
-				// details and ridges
-				int height = (int) (3.5 * noise.sample(totalX / 29.0, totalZ / 29.0));
-				height += (int) ((height + 7) * 1.3 * ridges.sample(totalX / 75.0, totalZ / 75.0)) ;
+				// ridges
+				int height = (int) (10.0 * ridges.sample(totalX / 75.0, totalZ / 75.0)) ;
+
+				double scaleFactor = (1 + noise.sample((totalX - 18) / 290.0, totalZ / 310.0)) / 1.5;
 
 				// main shape
 				double mainNoise = noise.sample(totalX / 140.0, totalZ / 140.0);
-				height += (int) ((mainNoise > 0) ? 23.0 * mainNoise : 10.0 * mainNoise);
+				height += (int) ((mainNoise > 0) ? 23.0 * scaleFactor * mainNoise : 10.0 * scaleFactor * mainNoise);
 				height += 50;
 
 				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
-				double cliff = noise.sample(totalX / 86.0, totalZ / 86.0);
-
-				if (cliff > noise.sample((totalX + 121) / 66.5, (totalZ + 121) / 66.5)) {
-					height += cliff;
-				}
 
 				if (height >= World.WORLD_HEIGHT) {
 					height = World.WORLD_HEIGHT - 1;

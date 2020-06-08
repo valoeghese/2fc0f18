@@ -30,10 +30,14 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		this.minBound = (-size + 1) << 4;
 		this.maxBound = size << 4;
+
+		RANDOM.setSeed(seed);
+		this.spawnChunk = new ChunkPos(RANDOM.nextInt(16) - 8, RANDOM.nextInt(16) - 8);
 	}
 
 	private final int minBound;
 	private final int maxBound;
+	private final ChunkPos spawnChunk;
 	private final Long2ObjectMap<T> chunks;
 	private final Random genRand;
 	private final long seed;
@@ -235,6 +239,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this.seed;
 	}
 
+	@Override
+	public ChunkPos getSpawnPos() {
+		return this.spawnChunk;
+	}
+
 	private class GeneratorWorldAccess implements GenWorld {
 		@Override
 		public boolean isInWorld(int x, int y, int z) {
@@ -261,4 +270,5 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	private static final int CHUNK_RENDER_DIST = 5;
 	private static final int CHUNK_LOAD_DIST = CHUNK_RENDER_DIST + 3;
+	private static final Random RANDOM = new Random();
 }
