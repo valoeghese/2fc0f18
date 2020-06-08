@@ -54,7 +54,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			return result;
 		}
 
-		if (save == null) {
+		if (this.save == null) {
 			this.genRand.setSeed(seed + 134 * x + -529 * z);
 			return WorldGen.generateChunk(this.constructor, this, x, z, seed, this.genRand);
 		} else {
