@@ -96,7 +96,7 @@ public final class WorldGen {
 		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
 
 		for (Map.Entry<Generator, GeneratorSettings> generator : zone.getGenerators()) {
-			generator.getKey().generate(world, generator.getValue(), chunk.x << 4, chunk.z << 4, rand);
+			generator.getKey().generate(world, generator.getValue(), chunk.startX, chunk.startZ, rand);
 		}
 	}
 
