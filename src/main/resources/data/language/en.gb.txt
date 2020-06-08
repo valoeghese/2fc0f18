@@ -13,11 +13,11 @@ keybind.fov_up=FOV Up
 keybind.fov_down=FOV Down
 
 # EcoZones
-ecozone.temperate_grassland=Grassland
-ecozone.tropical_grassland=Steppe
+ecozone.grassland=Grassland
+ecozone.steppe=Steppe
 ecozone.tropical_rainforest=Tropical Rainforest
 ecozone.temperate_rainforest=Temperate Rainforest
-ecozone.temperate_woodland=Woodland
+ecozone.woodland=Woodland
 ecozone.tundra=Tundra
 ecozone.desert=Desert
 ecozone.cold_woodland=Cold Woodland
@@ -35,3 +35,6 @@ tile.bricks=Bricks
 tile.stone_bricks=Stone Bricks
 tile.ice=Ice
 tile.galena=Galena
+
+# GUI
+gui.version=2fc0f18-v0.2.3

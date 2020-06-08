@@ -31,5 +31,5 @@ public class ScatteredOreGenerator extends Generator<HeightCountGeneratorSetting
 		}
 	}
 
-	public static final HeightCountGeneratorSettings SETTINGS = new HeightCountGeneratorSettings(40, 1, 60);
+	public static final HeightCountGeneratorSettings GALENA = new HeightCountGeneratorSettings(152, 1, 60);
 }

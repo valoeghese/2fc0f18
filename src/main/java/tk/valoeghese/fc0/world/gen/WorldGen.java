@@ -5,6 +5,7 @@ import tk.valoeghese.fc0.util.noise.RidgedNoise;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -68,14 +69,14 @@ public final class WorldGen {
 					int index = Chunk.index(x, y, z);
 					tiles[index] = toSet;
 
-					if (toSet == Tile.GRASS.id && zone == EcoZone.TUNDRA) {
+					if (toSet == Tile.GRASS.id && zone.isCold()) {
 						meta[index] = 1;
 					}
 				}
 
 				if (height < 52) {
 					for (int y = height; y < 52; ++y) {
-						if (y == 51 && zone == EcoZone.TUNDRA) {
+						if (y == 51 && zone.isCold()) {
 							tiles[Chunk.index(x, y, z)] = Tile.ICE.id;
 						} else {
 							tiles[Chunk.index(x, y, z)] = Tile.WATER.id;
