@@ -63,7 +63,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	public void generateSpawnChunks(ChunkPos around) {
-		long time = System.currentTimeMillis();
+		// TODO fix
+		/*long time = System.currentTimeMillis();
 
 		if (this.save != null) {
 			System.out.println("Generating World Spawn.");
@@ -77,7 +78,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		if (this.save != null) {
 			System.out.println("Generated World Spawn in " + (System.currentTimeMillis() - time) + "ms.");
-		}
+		}*/
 	}
 
 	public Iterator<T> getChunks() {

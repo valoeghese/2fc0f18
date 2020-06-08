@@ -25,9 +25,10 @@ import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.IngredientItem;
 import tk.valoeghese.fc0.world.save.Save;
@@ -143,10 +144,18 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 		EcoZone zone = WorldGen.getEcoZoneByPosition(this.player.getX(), this.player.getZ());
 
-		if (!isTitleScreen && zone != this.player.cachedZone) {
-			this.player.cachedZone = zone;
-			String newValue = this.language.translate(zone.toString());
-			this.gameScreen.biomeWidget.changeText(newValue);
+		if (!isTitleScreen) {
+			TilePos tilePos = this.player.getTilePos();
+
+			if (this.player.cachedPos != tilePos) {
+				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
+			}
+
+			if (zone != this.player.cachedZone) {
+				this.player.cachedZone = zone;
+				String newValue = this.language.translate(zone.toString());
+				this.gameScreen.biomeWidget.changeText(newValue);
+			}
 		}
 
 		++this.time;

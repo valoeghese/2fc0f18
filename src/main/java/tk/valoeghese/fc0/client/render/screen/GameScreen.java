@@ -30,12 +30,14 @@ public class GameScreen extends Screen {
 		this.version = new Text(getInstance().language.translate("gui.version"), -0.92f, 0.9f, 1.7f);
 		this.crosshair = new Crosshair();
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
+		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 	}
 
 	private final GUI crosshair;
 	private final GUI version;
 	public final Text biomeWidget;
+	public final Text coordsWidget;
 	public Hotbar hotbarRenderer;
 
 	@Override
@@ -43,6 +45,7 @@ public class GameScreen extends Screen {
 		this.version.render();
 		this.crosshair.render();
 		this.biomeWidget.render();
+		this.coordsWidget.render();
 
 		Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
 		this.hotbarRenderer.render();

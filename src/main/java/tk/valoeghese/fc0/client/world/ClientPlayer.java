@@ -23,6 +23,7 @@ public class ClientPlayer extends Player  {
 
 	private final Camera camera;
 	public EcoZone cachedZone;
+	public TilePos cachedPos;
 
 	public Camera getCamera() {
 		return this.camera;
