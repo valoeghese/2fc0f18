@@ -14,16 +14,19 @@ import java.util.Map;
 import java.util.Random;
 
 public final class WorldGen {
-	public static void updateSeed(long seed) {
-		if (noise == null || seed != cachedSeed) {
-			noise = new Noise(new Random(seed));
-			ridges = new RidgedNoise(new Random(seed + 12));
-			sand = new Noise(new Random(seed - 29));
-			ecoZone = new Noise(new Random(seed + 31));
-		}
+	public WorldGen(long seed) {
+		noise = new Noise(new Random(seed));
+		ridges = new RidgedNoise(new Random(seed + 12));
+		sand = new Noise(new Random(seed - 29));
+		ecoZone = new Noise(new Random(seed + 31));
 	}
 
-	public static <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, long seed, Random rand) {
+	private final Noise noise;
+	private final Noise ridges;
+	private final Noise sand;
+	private final Noise ecoZone;
+
+	public <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, Random rand) {
 		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
 
@@ -92,7 +95,7 @@ public final class WorldGen {
 		return constructor.create(parent, chunkX, chunkZ, tiles, meta);
 	}
 
-	public static void populateChunk(GenWorld world, Chunk chunk, Random rand) {
+	public void populateChunk(GenWorld world, Chunk chunk, Random rand) {
 		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
 
 		for (Map.Entry<Generator, GeneratorSettings> generator : zone.getGenerators()) {
@@ -100,11 +103,11 @@ public final class WorldGen {
 		}
 	}
 
-	public static EcoZone getEcoZoneByPosition(double x, double z) {
+	public EcoZone getEcoZoneByPosition(double x, double z) {
 		return getEcoZone(ecoZone.sample(x * 0.0012, z * 0.0012), ecoZone.sample(x * 0.002 + 4.08, z * 0.002));
 	}
 
-	public static EcoZone getEcoZone(double temp, double humidity) {
+	public EcoZone getEcoZone(double temp, double humidity) {
 		if (temp < -0.39) {
 			return EcoZone.TUNDRA;
 		} else if (temp < -0.27) {
@@ -132,15 +135,9 @@ public final class WorldGen {
 		}
 	}
 
-	public static double sampleNoise(double x, double y) {
+	public double sampleNoise(double x, double y) {
 		return noise.sample(x, y);
 	}
-
-	private static Noise noise;
-	private static Noise ridges;
-	private static Noise sand;
-	private static Noise ecoZone;
-	private static long cachedSeed = 0;
 
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {

@@ -12,7 +12,7 @@ public class PomeloPlantGenerator extends Generator<TreeGeneratorSettings> {
 
 	@Override
 	public void generate(GenWorld world, TreeGeneratorSettings settings, int startX, int startZ, Random rand) {
-		int count = settings.getCount(rand, startX, startZ);
+		int count = settings.getCount(world, rand, startX, startZ);
 
 		if (rand.nextInt(8) == 0) {
 			++count;

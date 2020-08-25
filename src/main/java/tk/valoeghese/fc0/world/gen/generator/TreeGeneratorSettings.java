@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
+import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 
 import java.util.Random;
@@ -22,8 +24,8 @@ public class TreeGeneratorSettings implements GeneratorSettings {
 	private final int potentialHeightIncrease;
 
 	@Override
-	public int getCount(Random rand, int startX, int startZ) {
-		return this.baseTreeCount + (int) (this.treeCountVariation * WorldGen.sampleNoise(startX / 64.0, startZ / 64.0));
+	public int getCount(GenWorld world, Random rand, int startX, int startZ) {
+		return this.baseTreeCount + (int) (this.treeCountVariation * world.sampleNoise(startX / 64.0, startZ / 64.0));
 	}
 
 	public int getHeight(Random rand) {

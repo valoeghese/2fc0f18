@@ -10,6 +10,7 @@ public interface GenWorld {
 	boolean isInWorld(int x, int y, int z);
 	@Nullable
 	Chunk getChunk(int x, int z);
+	double sampleNoise(double x, double y);
 
 	default byte readTile(int x, int y, int z) {
 		return this.getChunk(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);

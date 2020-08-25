@@ -1,5 +1,8 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
+import tk.valoeghese.fc0.world.gen.GenWorld;
+import tk.valoeghese.fc0.world.gen.WorldGen;
+
 import java.util.Random;
 
 public class HeightCountGeneratorSettings implements GeneratorSettings {
@@ -14,7 +17,7 @@ public class HeightCountGeneratorSettings implements GeneratorSettings {
 	private final int dY;
 
 	@Override
-	public int getCount(Random rand, int startX, int startZ) {
+	public int getCount(GenWorld world, Random rand, int startX, int startZ) {
 		return this.count;
 	}
 

@@ -62,6 +62,11 @@ public abstract class Chunk implements World {
 	private boolean dirty = false;
 
 	@Override
+	public double sampleNoise(double x, double y) {
+		return 0;
+	}
+
+	@Override
 	public byte readTile(int x, int y, int z) {
 		return this.tiles[index(x, y, z)];
 	}

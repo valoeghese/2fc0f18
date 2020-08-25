@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -20,7 +21,7 @@ import java.util.concurrent.Executors;
 
 public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkAccess {
 	public GameplayWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
-		WorldGen.updateSeed(seed);
+		this.worldGen = new WorldGen(seed);
 		this.seed = seed;
 
 		this.chunks = new Long2ObjectArrayMap<>();
@@ -46,6 +47,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Nullable
 	private final Save save;
 	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
+	private final WorldGen worldGen;
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);
@@ -56,9 +58,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		if (this.save == null) {
 			this.genRand.setSeed(seed + 134 * x + -529 * z);
-			return WorldGen.generateChunk(this.constructor, this, x, z, seed, this.genRand);
+			return this.worldGen.generateChunk(this.constructor, this, x, z, this.genRand);
 		} else {
-			return this.save.getOrCreateChunk(this, x, z, this.constructor);
+			return this.save.getOrCreateChunk(this.worldGen, this, x, z, this.constructor);
 		}
 	}
 
@@ -86,6 +88,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
+	public double sampleNoise(double x, double y) {
+		return this.worldGen.sampleNoise(x, y);
+	}
+
+	public EcoZone getEcozone(double x, double z) {
+		return this.worldGen.getEcoZoneByPosition(x, z);
+	}
+
+	@Override
 	@Nullable
 	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
 		if (!this.isInWorld(x << 4, 50, z << 4)) {
@@ -101,9 +112,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		case TICK: // render chunks are also ticking chunks
 		case POPULATE: // ticking chunks are also populated
 			if (!result.populated) {
-				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
-				WorldGen.populateChunk(this.genWorld, result, this.genRand);
 				result.populated = true;
+				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
+				this.worldGen.populateChunk(this.genWorld, result, this.genRand);
 			}
 			break;
 		}
@@ -262,6 +273,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			if (Tile.BY_ID[tile].canPlaceAt(this, x, y, z)) {
 				GenWorld.super.wgWriteTile(x, y, z, tile);
 			}
+		}
+
+		@Override
+		public double sampleNoise(double x, double y) {
+			return GameplayWorld.this.sampleNoise(x, y);
 		}
 	}
 

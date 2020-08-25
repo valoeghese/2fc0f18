@@ -12,7 +12,7 @@ public class GroundFoliageGenerator extends Generator<GroundFoliageGeneratorSett
 
 	@Override
 	public void generate(GenWorld world, GroundFoliageGeneratorSettings settings, int startX, int startZ, Random rand) {
-		int count = settings.getCount(rand, startX, startZ);
+		int count = settings.getCount(world, rand, startX, startZ);
 
 		while (count --> 0) {
 			int x = startX + rand.nextInt(16);

@@ -31,7 +31,7 @@ repositories {
 dependencies {
     // lwjgl
     implementation "org.lwjgl:lwjgl:${project.ext.lwjgl_version}"
-    implementation "org.lwjgl:lwjgl-assimp:${project.ext.lwjgl_version}"
+    //implementation "org.lwjgl:lwjgl-assimp:${project.ext.lwjgl_version}"
     //implementation "org.lwjgl:lwjgl-jawt:${project.lwjgl_version}"
     implementation "org.lwjgl:lwjgl-opengl:${project.ext.lwjgl_version}"
     implementation "org.lwjgl:lwjgl-glfw:${project.ext.lwjgl_version}"

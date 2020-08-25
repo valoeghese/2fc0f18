@@ -198,7 +198,7 @@ public class Save {
 		return result;
 	}
 
-	public <T extends Chunk> T getOrCreateChunk(ChunkAccess parent, int x, int z, WorldGen.ChunkConstructor<T> constructor) {
+	public <T extends Chunk> T getOrCreateChunk(WorldGen worldGen, ChunkAccess parent, int x, int z, WorldGen.ChunkConstructor<T> constructor) {
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -215,7 +215,7 @@ public class Save {
 			return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
 		} else {
 			Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-			return WorldGen.generateChunk(constructor, parent, x, z, parent.getSeed(), genRand);
+			return worldGen.generateChunk(constructor, parent, x, z, genRand);
 		}
 	}
 

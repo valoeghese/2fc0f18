@@ -12,7 +12,7 @@ public class ScatteredOreGenerator extends Generator<HeightCountGeneratorSetting
 
 	@Override
 	public void generate(GenWorld world, HeightCountGeneratorSettings generatorSettings, int startX, int startZ, Random rand) {
-		int count = generatorSettings.getCount(rand, startX, startZ);
+		int count = generatorSettings.getCount(world, rand, startX, startZ);
 		int extraAttempts = 3;
 
 		while (count --> 0) {

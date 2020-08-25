@@ -142,7 +142,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.handleKeybinds();
 		this.player.tick();
 
-		EcoZone zone = WorldGen.getEcoZoneByPosition(this.player.getX(), this.player.getZ());
+		EcoZone zone = this.world.getEcozone(this.player.getX(), this.player.getZ());
 
 		if (!isTitleScreen) {
 			TilePos tilePos = this.player.getTilePos();
