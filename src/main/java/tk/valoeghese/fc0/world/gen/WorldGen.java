@@ -13,18 +13,20 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import java.util.Map;
 import java.util.Random;
 
-public final class WorldGen {
-	public WorldGen(long seed) {
-		noise = new Noise(new Random(seed));
-		ridges = new RidgedNoise(new Random(seed + 12));
-		sand = new Noise(new Random(seed - 29));
-		ecoZone = new Noise(new Random(seed + 31));
+public abstract class WorldGen {
+	public WorldGen(long seed, int plane) {
+		this.noise = new Noise(new Random(seed));
+		this.ridges = new RidgedNoise(new Random(seed + 12));
+		this.sand = new Noise(new Random(seed - 29));
+		this.ecoZone = new Noise(new Random(seed + 31));
+		this.plane = (double) plane / 3;
 	}
 
 	private final Noise noise;
 	private final Noise ridges;
 	private final Noise sand;
 	private final Noise ecoZone;
+	private final double plane;
 
 	public <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, Random rand) {
 		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
@@ -41,14 +43,7 @@ public final class WorldGen {
 				EcoZone zone = getEcoZoneByPosition(totalX, totalZ);
 
 				// ridges
-				int height = (int) (10.0 * ridges.sample(totalX / 75.0, totalZ / 75.0)) ;
-
-				double scaleFactor = (1 + noise.sample((totalX - 18) / 290.0, totalZ / 310.0)) / 1.5;
-
-				// main shape
-				double mainNoise = noise.sample(totalX / 140.0, totalZ / 140.0);
-				height += (int) ((mainNoise > 0) ? 23.0 * scaleFactor * mainNoise : 10.0 * scaleFactor * mainNoise);
-				height += 50;
+				int height = (int) this.sampleHeight(totalX, totalZ);
 
 				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
 
@@ -95,6 +90,8 @@ public final class WorldGen {
 		return constructor.create(parent, chunkX, chunkZ, tiles, meta);
 	}
 
+	protected abstract double sampleHeight(double x, double z);
+
 	public void populateChunk(GenWorld world, Chunk chunk, Random rand) {
 		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
 
@@ -136,11 +133,40 @@ public final class WorldGen {
 	}
 
 	public double sampleNoise(double x, double y) {
-		return noise.sample(x, y);
+		return this.noise.sample(x, y, this.plane);
 	}
 
+	protected double sampleRidge(double x, double y) {
+		return this.ridges.sample(x, y, this.plane);
+	}
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
 		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta);
+	}
+
+	/**
+	 * World Generator for Earth Plane 0.
+	 */
+	public static class EarthPlane0 extends WorldGen {
+		public EarthPlane0(long seed) {
+			super(seed, 0);
+		}
+
+		@Override
+		protected double sampleHeight(double x, double z) {
+			// Stage one: sample continent shape
+			double continent = 43 + 23 * this.sampleNoise((x / 810.0) - 0.3, (z / 810.0) - 0.3);
+
+			// Stage two: sample mountains and hills
+			double mountainDir = 1.0 + 0.5 * this.sampleNoise(x / 720.0, z / 720.0);
+			double mountains = 45 + 45 * this.sampleRidge((x * mountainDir) / 410.0, (z / mountainDir) / 410.0);
+			mountains += 23 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
+
+			double hills = 20 * this.sampleNoise(x / 90.0, z / 90.0) + 12 * this.sampleNoise(x / 32.0, z / 32.0);
+
+			// Stage three: bias mountains and hills
+			double bias = 0.5 + 0.5 * this.sampleNoise(x / 600.0, (z / 600.0) - 1);
+			return continent + (bias * hills) + ((1.0 - bias) * mountains);
+		}
 	}
 }
