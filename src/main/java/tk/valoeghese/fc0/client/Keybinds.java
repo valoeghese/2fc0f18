@@ -29,4 +29,6 @@ public final class Keybinds {
 	public static final Keybind SELECT_9 = new Keybind("select_9", GLFW_KEY_9, false);
 	public static final Keybind SET_SPAWN = new Keybind("set_spawn", GLFW_KEY_T, false);
 	public static final Keybind INVENTORY = new Keybind("inventory", GLFW_KEY_I, false);
+	public static final Keybind NO_CLIP = new Keybind("no_clip", GLFW_KEY_G, false);
+	public static final Keybind NO_CLIP_DOWN = new Keybind("no_clip_down", GLFW_KEY_LEFT_CONTROL, false);
 }

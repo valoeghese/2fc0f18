@@ -116,6 +116,10 @@ public class GameScreen extends Screen {
 			slowness = org.joml.Math.sqrt(2 * (slowness * slowness));
 		}
 
+		if (player.isNoClip()) {
+			slowness *= 0.3;
+		}
+
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
 			player.addVelocity(-sin(yaw) / slowness, 0.0f, cos(yaw) / slowness);
 		} else if (Keybinds.MOVE_FORWARDS.isPressed()) {
@@ -128,16 +132,24 @@ public class GameScreen extends Screen {
 			player.addVelocity(-sin(yaw - HALF_PI) / slowness, 0.0f, cos(yaw - HALF_PI) / slowness);
 		}
 
-		if (Keybinds.JUMP.isPressed()) {
-			long time = System.currentTimeMillis();
+		if (player.isNoClip()) {
+			if (Keybinds.JUMP.isPressed()) {
+				player.addVelocity(0.0, 0.02, 0.0);
+			} else if (Keybinds.NO_CLIP_DOWN.isPressed()) {
+				player.addVelocity(0.0, -0.02, 0.0);
+			}
+		} else {
+			if (Keybinds.JUMP.isPressed()) {
+				long time = System.currentTimeMillis();
 
-			if (player.isSwimming() && time > player.lockSwim) {
-				player.addVelocity(0.0f, player.getJumpStrength() * 0.03f, 0.0f);
-			} else {
-				player.lockSwim = time + 18;
+				if (player.isSwimming() && time > player.lockSwim) {
+					player.addVelocity(0.0f, player.getJumpStrength() * 0.03f, 0.0f);
+				} else {
+					player.lockSwim = time + 18;
 
-				if (player.isOnGround()) {
-					player.addVelocity(0.0f, player.getJumpStrength(), 0.0f);
+					if (player.isOnGround()) {
+						player.addVelocity(0.0f, player.getJumpStrength(), 0.0f);
+					}
 				}
 			}
 		}
@@ -198,6 +210,10 @@ public class GameScreen extends Screen {
 
 		if (Keybinds.SET_SPAWN.hasBeenPressed()) {
 			this.game.spawnLoc = player.getPos();
+		}
+
+		if (Keybinds.NO_CLIP.hasBeenPressed()) {
+			player.setNoClip(!player.isNoClip());
 		}
 	}
 

@@ -36,6 +36,7 @@ public class Player {
 	@Nonnull
 	private final Inventory inventory;
 	private double friction = 0.85;
+	private boolean noClip = false;
 
 	private void addDevItems() {
 		this.inventory.putItemAt(0, new Item(Tile.STONE));
@@ -97,19 +98,22 @@ public class Player {
 	public boolean move(double x, double y, double z) {
 		Pos next = this.pos.ofAdded(x, y, z);
 		Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.03, y, z + MathsUtils.sign(z) * 0.03);
-		TilePos tilePos = new TilePos(test);
 
-		if (this.world.isInWorld(tilePos)) {
-			if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
-				return false;
+		if (!this.noClip) {
+			TilePos tilePos = new TilePos(test);
+
+			if (this.world.isInWorld(tilePos)) {
+				if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
+					return false;
+				}
 			}
-		}
 
-		tilePos = new TilePos(test.ofAdded(0, 1.8, 0));
+			tilePos = new TilePos(test.ofAdded(0, 1.8, 0));
 
-		if (this.world.isInWorld(tilePos)) {
-			if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
-				return false;
+			if (this.world.isInWorld(tilePos)) {
+				if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
+					return false;
+				}
 			}
 		}
 
@@ -121,7 +125,7 @@ public class Player {
 	public void tick() {
 		TilePos below = this.getTilePos().down();
 
-		if (this.world.isInWorld(below)) {
+		if (!this.noClip && this.world.isInWorld(below)) {
 			byte tile = this.world.readTile(below);
 
 			if (tile != Tile.AIR.id) {
@@ -131,7 +135,10 @@ public class Player {
 			}
 		}
 
-		this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.025f);
+		if (!this.noClip) {
+			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.025f);
+		}
+
 		this.velocity.mul(this.friction, 0.96, this.friction);
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
@@ -187,6 +194,14 @@ public class Player {
 		}
 
 		return false;
+	}
+
+	public void setNoClip(boolean noClip) {
+		this.noClip = noClip;
+	}
+
+	public boolean isNoClip() {
+		return this.noClip;
 	}
 
 	public boolean isUnderwater() {
