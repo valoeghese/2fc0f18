@@ -19,6 +19,10 @@ public class MathsUtils {
 		}
 	}
 
+	public static int clamp(int i, int low, int high) {
+		return i < low ? low : (i > high ? high : i);
+	}
+
 	public static int sign(double d) {
 		if (d == 0) {
 			return 0;

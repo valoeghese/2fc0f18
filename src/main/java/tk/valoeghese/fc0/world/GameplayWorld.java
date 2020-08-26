@@ -110,6 +110,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			break;
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
+			if (result.needsLightingCalcOnLoad) {
+				result.updateLighting(new ArrayList<>());
+				result.needsLightingCalcOnLoad = false;
+			}
 		case POPULATE: // ticking chunks are also populated
 			if (!result.populated) {
 				result.populated = true;
@@ -118,6 +122,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			}
 			break;
 		}
+
+		result.status = status;
 
 		if (result != null) {
 			this.chunks.put(key(x, z), result);

@@ -13,6 +13,7 @@ import tk.valoeghese.sod.DataSection;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -21,6 +22,7 @@ public abstract class Chunk implements World {
 		this.parent = parent;
 		this.tiles = tiles;
 		this.meta = meta;
+		this.lighting = new byte[tiles.length];
 		this.x = x;
 		this.z = z;
 		this.startX = x << 4;
@@ -46,6 +48,7 @@ public abstract class Chunk implements World {
 
 	protected byte[] tiles;
 	protected byte[] meta;
+	protected byte[] lighting;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -56,8 +59,10 @@ public abstract class Chunk implements World {
 	protected ChunkAccess parent;
 	private float iota = 0.0f;
 	public boolean populated = false;
+	public ChunkLoadStatus status = ChunkLoadStatus.GENERATE;
+	public boolean needsLightingCalcOnLoad = true; // false if the chunk has ever been in the TICKING stage before.
 	public boolean render = false;
-	// whether the chunk will have to save. Can be caused by an entity, meta, or tile change.
+	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;
 
@@ -76,28 +81,120 @@ public abstract class Chunk implements World {
 		return this.meta[index(x, y, z)];
 	}
 
-	@Override
-	public void writeTile(int x, int y, int z, byte tile) {
-		this.dirty = true;
-		int i = index(x, y, z);
+	@Nullable
+	private Chunk loadLightingChunk(int chunkX, int chunkZ) {
+		return this.parent.loadChunk(chunkX, chunkZ, ChunkLoadStatus.GENERATE);
+	}
 
-		this.iota -= Tile.BY_ID[this.tiles[i]].iota;
-		this.tiles[i] = tile;
-		this.iota += Tile.BY_ID[tile].iota;
+	public byte getLightLevel(int x, int y, int z) {
+		return this.lighting[index(x, y, z)];
+	}
 
-		if (Tile.BY_ID[tile].dontOptimiseOut()) {
-			this.heightsToRender.add(y);
-		} else {
-			search: {
-				for (int checx = 0; checx < 16; ++checx) {
-					for (int checz = 0; checz < 16; ++checz) {
-						if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
-							break search;
+	// This method is first called as part of first bringing a chunk to TICK
+	public void updateLighting(List<Chunk> chunks) {
+		// Recalculate in this and all surrounding chunks which could update this chunk.
+		chunks.add(this);
+		chunks.add(this.loadLightingChunk(this.x - 1, this.z));
+		chunks.add(this.loadLightingChunk(this.x - 1, this.z - 1));
+		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
+		chunks.add(this.loadLightingChunk(this.x + 1, this.z - 1));
+		chunks.add(this.loadLightingChunk(this.x + 1, this.z));
+		chunks.add(this.loadLightingChunk(this.x + 1, this.z + 1));
+		chunks.add(this.loadLightingChunk(this.x, this.z + 1));
+		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
+
+		// Reset chunk lighting in updated chunks
+		for (Chunk c : chunks) {
+			Arrays.fill(c.lighting, (byte) 0);
+		}
+
+		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
+		for (Chunk c : chunks) {
+			c.calculateLighting();
+		}
+	}
+
+	private void calculateLighting() {
+		int light;
+
+		for (int y : this.heightsToRender) {
+			for (int x = 0; x < 16; ++x) {
+				for (int z = 0; z < 16; ++z) {
+					if ((light = Tile.BY_ID[this.readTile(x, y, z)].getLight()) > 0) {
+						if (this.propagateLight(x, y, z, light, false)) {
+							this.dirty = true; // Save new lighting.
 						}
 					}
 				}
+			}
+		}
+	}
 
-				this.heightsToRender.remove(y);
+	private boolean propagateLight(int x, int y, int z, int light, boolean checkOpaque) {
+		boolean isPrevChunk;
+
+		// Check if this is out of chunk
+		if ((isPrevChunk = x < 0) || x > 15) {
+			return this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z).propagateLight(isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
+		} else if ((isPrevChunk = z < 0) || z > 15) {
+			return this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1).propagateLight(x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
+		}
+
+		int idx = index(x, y, z);
+
+		if (y < 0 || y > WORLD_HEIGHT || light == 0 || (checkOpaque && !Tile.BY_ID[this.tiles[idx]].isOpaque())) {
+			return false;
+		}
+
+		if (this.lighting[idx] < light) {
+			this.lighting[idx] = (byte) light;
+
+			if (light > 1) {
+				this.propagateLight(x - 1, y, z, light - 1, true);
+				this.propagateLight(x + 1, y, z, light - 1, true);
+				this.propagateLight(x, y - 1, z, light - 1, true);
+				this.propagateLight(x, y + 1, z, light - 1, true);
+				this.propagateLight(x, y, z - 1, light - 1, true);
+				this.propagateLight(x, y, z + 1, light - 1, true);
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public void writeTile(int x, int y, int z, byte tile) {
+		int i = index(x, y, z);
+		byte oldTile = this.tiles[i];
+
+		if (tile != oldTile) {
+			this.dirty = true;
+
+			this.iota -= Tile.BY_ID[this.tiles[i]].iota;
+			this.tiles[i] = tile;
+			this.iota += Tile.BY_ID[tile].iota;
+
+			if (Tile.BY_ID[tile].dontOptimiseOut()) {
+				this.heightsToRender.add(y);
+			} else {
+				search:
+				{
+					for (int checx = 0; checx < 16; ++checx) {
+						for (int checz = 0; checz < 16; ++checz) {
+							if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
+								break search;
+							}
+						}
+					}
+
+					this.heightsToRender.remove(y);
+				}
+			}
+
+			if (this.status.isFull()) {
+				this.updateLighting(new ArrayList<>());
 			}
 		}
 	}
@@ -165,19 +262,23 @@ public abstract class Chunk implements World {
 
 	public void write(BinaryData data) {
 		ByteArrayDataSection tiles = new ByteArrayDataSection();
+		ByteArrayDataSection lighting = new ByteArrayDataSection();
 
 		for (int i = 0; i < this.tiles.length; ++i) {
 			tiles.writeByte(this.tiles[i]);
 			tiles.writeByte(this.meta[i]);
+			lighting.writeByte(this.lighting[i]);
 		}
 
 		DataSection properties = new DataSection();
 		properties.writeInt(this.x);
 		properties.writeInt(this.z);
 		properties.writeBoolean(this.populated);
+		properties.writeBoolean(this.needsLightingCalcOnLoad);
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
+		data.put("lighting", lighting);
 	}
 
 	@Nullable
@@ -204,6 +305,20 @@ public abstract class Chunk implements World {
 		DataSection properties = data.get("properties");
 		T result = constructor.create(parent, properties.readInt(0), properties.readInt(1), tiles, meta);
 		result.populated = properties.readBoolean(2);
+
+		try {
+			result.needsLightingCalcOnLoad = properties.readBoolean(3);
+		} catch (Exception ignored) { // @reason support between versions
+		}
+
+		if (data.containsSection("lighting")) {
+			ByteArrayDataSection lighting = data.getByteArray("lighting");
+
+			for (int i = 0; i < tileData.size(); ++i) {
+				result.lighting[i] = lighting.readByte(i);
+			}
+		}
+
 		return result;
 	}
 

@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.tile;
 
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.player.Item;
@@ -19,13 +20,14 @@ public class Tile {
 	public final byte id;
 	protected int u;
 	protected int v;
-	// TODO use this
+	// TODO use this (funni unstability magic system)
 	public final float iota;
 	private boolean opaque = true;
 	private boolean render = true;
 	private boolean cross = false;
 	private boolean translucent = false;
 	private boolean solid = true;
+	private int light = 0;
 	protected String translationKey = "tile.missingno";
 	private final String textureName;
 
@@ -76,6 +78,11 @@ public class Tile {
 		return this;
 	}
 
+	protected Tile lightLevel(int light) {
+		this.light = MathsUtils.clamp(light, 0, 0xF);
+		return this;
+	}
+
 	@Nullable
 	public Item getDrop(Random rand, byte meta) {
 		return new Item(this, meta);
@@ -83,6 +90,10 @@ public class Tile {
 
 	public final boolean isOpaque() {
 		return this.isOpaque(false);
+	}
+
+	public int getLight() {
+		return this.light;
 	}
 
 	public boolean isOpaque(boolean waterRenderLayer) {

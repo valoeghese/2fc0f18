@@ -3,9 +3,11 @@ package tk.valoeghese.fc0.client.world;
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class ClientChunk extends Chunk implements RenderedChunk {
 	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
@@ -133,5 +135,40 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		if (this.mesh != null) {
 			this.mesh.destroy();
 		}
+	}
+
+	@Override
+	public void updateLighting(List<Chunk> chunks) {
+		super.updateLighting(chunks);
+
+		// rebuild meshes to account for new lighting
+		for (Chunk c : chunks) {
+			if (c instanceof ClientChunk) {
+				((ClientChunk) c).rebuildMesh();
+			}
+		}
+	}
+
+	@Override
+	public float getRenderLightingFactor(int x, int y, int z) {
+		if (y < 0 || y > World.WORLD_HEIGHT) {
+			return 0.1f;
+		}
+
+		boolean isPrevChunk;
+
+		// Check if this is out of chunk
+		if ((isPrevChunk = x < 0) || x > 15) {
+			return renderLighting(this.getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z).getLightLevel(isPrevChunk ? 15 : 0, y, z));
+		} else if ((isPrevChunk = z < 0) || z > 15) {
+			return renderLighting(this.getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1).getLightLevel(x, y, isPrevChunk ? 15 : 0));
+		}
+
+		return renderLighting(this.getLightLevel(x, y, z));
+	}
+
+	// Maps from [0,15] to [0.1,1]
+	private static float renderLighting(int level) {
+		return 0.06f * level + 0.1f;
 	}
 }

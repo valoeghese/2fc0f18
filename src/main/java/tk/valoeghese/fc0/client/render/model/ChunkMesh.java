@@ -71,7 +71,7 @@ public class ChunkMesh {
 										new Vector3f(x + 0.5f, y + 1f, z + 0.5f),
 										1,
 										instance,
-										0.95f,
+										0.95f * this.chunk.getRenderLightingFactor(x, y + 1, z),
 										meta));
 							}
 
@@ -80,7 +80,7 @@ public class ChunkMesh {
 										new Vector3f(x + 0.5f, y, z + 0.5f),
 										4,
 										instance,
-										0.85f,
+										0.85f * this.chunk.getRenderLightingFactor(x, y - 1, z),
 										meta));
 							}
 
@@ -89,7 +89,7 @@ public class ChunkMesh {
 										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
 										2,
 										instance,
-										1.05f,
+										1.05f * this.chunk.getRenderLightingFactor(x, y, z + 1),
 										meta));
 							}
 
@@ -98,7 +98,7 @@ public class ChunkMesh {
 										new Vector3f(x + 0.5f, y + 0.5f, z),
 										5,
 										instance,
-										0.75f,
+										0.75f * this.chunk.getRenderLightingFactor(x, y, z - 1),
 										meta));
 							}
 
@@ -107,7 +107,7 @@ public class ChunkMesh {
 										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
 										instance,
-										0.9f,
+										0.9f * this.chunk.getRenderLightingFactor(x + 1, y, z),
 										meta));
 							}
 
@@ -116,7 +116,7 @@ public class ChunkMesh {
 										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,
 										instance,
-										0.9f,
+										0.9f * this.chunk.getRenderLightingFactor(x - 1, y, z),
 										meta));
 							}
 						}
