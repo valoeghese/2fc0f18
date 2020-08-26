@@ -47,7 +47,7 @@ public class Player {
 		this.inventory.putItemAt(5, new Item(Tile.DAISY));
 		this.inventory.putItemAt(6, new Item(Tile.TALLGRASS));
 		this.inventory.putItemAt(7, new Item(Tile.BRICKS));
-		this.inventory.putItemAt(8, new Item(Tile.STONE_BRICKS));
+		this.inventory.putItemAt(8, new Item(Tile.TORCH));
 		this.inventory.putItemAt(9, new Item(Tile.ICE));
 	}
 

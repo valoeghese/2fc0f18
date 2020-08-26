@@ -148,7 +148,7 @@ public abstract class Chunk implements World {
 
 		int idx = index(x, y, z);
 
-		if (y < 0 || y > WORLD_HEIGHT || light == 0 || (checkOpaque && !Tile.BY_ID[this.tiles[idx]].isOpaque())) {
+		if (y < 0 || y > WORLD_HEIGHT || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaque())) {
 			return false;
 		}
 
@@ -178,9 +178,11 @@ public abstract class Chunk implements World {
 		if (tile != oldTile) {
 			this.dirty = true;
 
-			this.iota -= Tile.BY_ID[this.tiles[i]].iota;
+			Tile oldTileO = Tile.BY_ID[this.tiles[i]];
+			Tile newTileO = Tile.BY_ID[tile];
+			this.iota -= oldTileO.iota;
 			this.tiles[i] = tile;
-			this.iota += Tile.BY_ID[tile].iota;
+			this.iota += newTileO.iota;
 
 			if (Tile.BY_ID[tile].dontOptimiseOut()) {
 				this.heightsToRender.add(y);
@@ -199,7 +201,8 @@ public abstract class Chunk implements World {
 				}
 			}
 
-			if (this.status.isFull()) {
+			if (this.status.isFull() && (oldTileO.getLight() != newTileO.getLight())) {
+				System.out.println("Updating lighting");
 				this.updateLighting(new ArrayList<>());
 			}
 		}
@@ -320,7 +323,7 @@ public abstract class Chunk implements World {
 		if (data.containsSection("lighting")) {
 			ByteArrayDataSection lighting = data.getByteArray("lighting");
 
-			for (int i = 0; i < tileData.size(); ++i) {
+			for (int i = 0; i < lighting.size(); ++i) {
 				result.lighting[i] = lighting.readByte(i);
 			}
 		}

@@ -123,7 +123,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			break;
 		}
 
-		result.status = status;
+		result.status = result.status.upgrade(status);
 
 		if (result != null) {
 			this.chunks.put(key(x, z), result);

@@ -230,7 +230,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		Shaders.terrain.bind();
 		// time and stuff
 		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-		Shaders.terrain.uniformFloat("lighting", lighting);
+		Shaders.terrain.uniformFloat("lighting", 1.0f); // Update chunk lighting to change lighting now.
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// defaults
@@ -389,5 +389,5 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private static Client2fc instance;
 	// why did I add this again?
 	private static Object lock = new Object();
-	private static final boolean DEV = false;
+	private static final boolean DEV = true;
 }
