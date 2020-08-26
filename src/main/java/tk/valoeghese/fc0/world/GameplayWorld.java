@@ -111,7 +111,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
 			if (result.needsLightingCalcOnLoad) {
-				result.updateLighting(new ArrayList<>());
+				result.updateLighting();
 				result.needsLightingCalcOnLoad = false;
 			}
 		case POPULATE: // ticking chunks are also populated

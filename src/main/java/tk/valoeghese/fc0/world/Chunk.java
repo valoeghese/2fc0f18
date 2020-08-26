@@ -2,6 +2,8 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -66,8 +68,37 @@ public abstract class Chunk implements World {
 	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;
+
+	// Threading
 	private static final Object lightLock = new Object();
-//	private static final ReadiableThread lightingThread = new ReadiableThread();
+	private static List<Chunk> threadChunks;
+
+	private static final ReadiableThread lightingThread = new ReadiableThread(() -> {
+		Set<Chunk> updated = new HashSet<>();
+
+		// Reset chunk lighting in updated chunks
+		for (int i = threadChunks.size() - 1; i >= 0; --i) {
+			Chunk c = threadChunks.get(i);
+
+			if (c == null) {
+				threadChunks.remove(i);
+			} else {
+				Arrays.fill(c.nextLighting, (byte) 0);
+			}
+		}
+
+		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
+		for (Chunk c : threadChunks) {
+			c.calculateLighting(updated);
+			c.dirty = true;
+		}
+
+		Client2fc.getInstance().runLater(() -> {
+			for (Chunk c : updated) {
+				c.refreshLighting();
+			}
+		});
+	});
 
 	@Override
 	public double sampleNoise(double x, double y) {
@@ -113,7 +144,9 @@ public abstract class Chunk implements World {
 	}
 
 	// This method is first called as part of first bringing a chunk to TICK
-	public void updateLighting(List<Chunk> chunks) {
+	public void updateLighting() {
+		List<Chunk> chunks = new ArrayList<>();
+
 		// Recalculate in this and all surrounding chunks which could update this chunk.
 		chunks.add(this);
 		chunks.add(this.loadLightingChunk(this.x - 1, this.z));
@@ -125,27 +158,9 @@ public abstract class Chunk implements World {
 		chunks.add(this.loadLightingChunk(this.x, this.z + 1));
 		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
 
-		Set<Chunk> updated = new HashSet<>();
-
-		// Reset chunk lighting in updated chunks
-		for (int i = chunks.size() - 1; i >= 0; --i) {
-			Chunk c = chunks.get(i);
-
-			if (c == null) {
-				chunks.remove(i);
-			} else {
-				Arrays.fill(c.nextLighting, (byte) 0);
-			}
-		}
-
-		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
-		for (Chunk c : chunks) {
-			c.calculateLighting(updated);
-			c.dirty = true;
-		}
-
-		for (Chunk c : updated) {
-			c.refreshLighting();
+		synchronized (lightLock) {
+			threadChunks = chunks;
+			lightingThread.run();
 		}
 	}
 
@@ -249,7 +264,7 @@ public abstract class Chunk implements World {
 
 			if ((this.status.isFull() && (oldTileO.getLight() != newTileO.getLight()))
 					|| (!newTileO.isOpaque() && shouldUpdateLight(x, y, z))) {
-				this.updateLighting(new ArrayList<>());
+				this.updateLighting();
 			}
 		}
 	}
