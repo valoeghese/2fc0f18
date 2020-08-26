@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world.save;
 
 import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
@@ -63,7 +64,7 @@ public class Save {
 	public final Pos lastSavePos;
 	@Nullable
 	public final Pos spawnLocPos;
-	private static WorldSaveThread thread;
+	private static ReadiableThread thread;
 	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
@@ -84,7 +85,7 @@ public class Save {
 			}
 		}
 
-		thread = new WorldSaveThread(() -> {
+		thread = new ReadiableThread(() -> {
 			while (chunks.hasNext()) {
 				Chunk c = chunks.next();
 
@@ -100,7 +101,7 @@ public class Save {
 			}
 
 			synchronized (lock) {
-				WorldSaveThread.setReady();
+				ReadiableThread.setReady();
 				lock.notifyAll();
 			}
 		});
@@ -119,7 +120,7 @@ public class Save {
 			}
 		}
 
-		thread = new WorldSaveThread(() -> {
+		thread = new ReadiableThread(() -> {
 			System.out.println("Saving Chunks");
 
 			while (chunks.hasNext()) {
@@ -165,7 +166,7 @@ public class Save {
 			}
 
 			synchronized (lock) {
-				WorldSaveThread.setReady();
+				ReadiableThread.setReady();
 				lock.notifyAll();
 			}
 		});
