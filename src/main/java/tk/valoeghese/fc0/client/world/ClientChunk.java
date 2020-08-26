@@ -159,9 +159,19 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			return renderLighting(this.getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z).getLightLevel(isPrevChunk ? 15 : 0, y, z));
+			Chunk c = this.getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+
+			if (c == null) {
+				return 0.1f;
+			}
+			return renderLighting(c.getLightLevel(isPrevChunk ? 15 : 0, y, z));
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			return renderLighting(this.getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1).getLightLevel(x, y, isPrevChunk ? 15 : 0));
+			Chunk c = this.getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+
+			if (c == null) {
+				return 0.1f;
+			}
+			return renderLighting(c.getLightLevel(x, y, isPrevChunk ? 15 : 0));
 		}
 
 		return renderLighting(this.getLightLevel(x, y, z));
