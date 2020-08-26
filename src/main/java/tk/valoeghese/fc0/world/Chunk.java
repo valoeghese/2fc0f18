@@ -138,16 +138,21 @@ public abstract class Chunk implements World {
 			}
 		}
 
+		Set<Chunk> updated = new HashSet<>();
+
 		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
 		for (Chunk c : chunks) {
-			c.calculateLighting();
+			c.calculateLighting(updated);
 			c.dirty = true;
+		}
+
+		for (Chunk c : updated) {
+			c.refeshLighting();
 		}
 	}
 
-	private void calculateLighting() {
+	private void calculateLighting(Set<Chunk> updated) {
 		int light;
-		Set<Chunk> updated = new HashSet<>();
 		updated.add(this);
 
 		for (int y : this.heightsToRender) {
@@ -158,10 +163,6 @@ public abstract class Chunk implements World {
 					}
 				}
 			}
-		}
-
-		for (Chunk c : updated) {
-			c.refeshLighting();
 		}
 	}
 
