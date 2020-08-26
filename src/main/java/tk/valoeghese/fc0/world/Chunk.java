@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -12,9 +13,8 @@ import tk.valoeghese.sod.ByteArrayDataSection;
 import tk.valoeghese.sod.DataSection;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.function.Predicate;
 
 public abstract class Chunk implements World {
@@ -23,6 +23,7 @@ public abstract class Chunk implements World {
 		this.tiles = tiles;
 		this.meta = meta;
 		this.lighting = new byte[tiles.length];
+		this.nextLighting = new byte[tiles.length];
 		this.x = x;
 		this.z = z;
 		this.startX = x << 4;
@@ -49,6 +50,7 @@ public abstract class Chunk implements World {
 	protected byte[] tiles;
 	protected byte[] meta;
 	protected byte[] lighting;
+	protected byte[] nextLighting;
 	private int skyLight = 0;
 	public final int x;
 	public final int z;
@@ -66,6 +68,8 @@ public abstract class Chunk implements World {
 	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;
+	private static final Object lightLock = new Object();
+//	private static final ReadiableThread lightingThread = new ReadiableThread();
 
 	@Override
 	public double sampleNoise(double x, double y) {
@@ -130,7 +134,7 @@ public abstract class Chunk implements World {
 			if (c == null) {
 				chunks.remove(i);
 			} else {
-				Arrays.fill(c.lighting, (byte) 0);
+				Arrays.fill(c.nextLighting, (byte) 0);
 			}
 		}
 
@@ -143,28 +147,50 @@ public abstract class Chunk implements World {
 
 	private void calculateLighting() {
 		int light;
+		Set<Chunk> updated = new HashSet<>();
+		updated.add(this);
 
 		for (int y : this.heightsToRender) {
 			for (int x = 0; x < 16; ++x) {
 				for (int z = 0; z < 16; ++z) {
 					if ((light = Tile.BY_ID[this.readTile(x, y, z)].getLight()) > 0) {
-						this.propagateLight(x, y, z, light, false);
+						this.propagateLight(updated, x, y, z, light, false);
 					}
 				}
 			}
 		}
+
+		for (Chunk c : updated) {
+			c.refeshLighting();
+		}
 	}
 
-	private boolean propagateLight(int x, int y, int z, int light, boolean checkOpaque) {
+	private void refeshLighting() {
+		System.arraycopy(this.nextLighting, 0, this.lighting, 0, this.nextLighting.length);
+	}
+
+	private boolean propagateLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
 		boolean isPrevChunk;
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
 			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
-			return c == null ? false : c.propagateLight(isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
+
+			if (c == null) {
+				return false;
+			} else {
+				updated.add(c);
+				return c.propagateLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
+			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
 			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
-			return c == null ? false : c.propagateLight(x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
+
+			if (c == null) {
+				return false;
+			} else {
+				updated.add(c);
+				return c.propagateLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
+			}
 		}
 
 		int idx = index(x, y, z);
@@ -173,16 +199,16 @@ public abstract class Chunk implements World {
 			return false;
 		}
 
-		if (this.lighting[idx] < light) {
-			this.lighting[idx] = (byte) light;
+		if (this.nextLighting[idx] < light) {
+			this.nextLighting[idx] = (byte) light;
 
 			if (light > 1) {
-				this.propagateLight(x - 1, y, z, light - 1, true);
-				this.propagateLight(x + 1, y, z, light - 1, true);
-				this.propagateLight(x, y - 1, z, light - 1, true);
-				this.propagateLight(x, y + 1, z, light - 1, true);
-				this.propagateLight(x, y, z - 1, light - 1, true);
-				this.propagateLight(x, y, z + 1, light - 1, true);
+				this.propagateLight(updated, x - 1, y, z, light - 1, true);
+				this.propagateLight(updated, x + 1, y, z, light - 1, true);
+				this.propagateLight(updated, x, y - 1, z, light - 1, true);
+				this.propagateLight(updated, x, y + 1, z, light - 1, true);
+				this.propagateLight(updated, x, y, z - 1, light - 1, true);
+				this.propagateLight(updated, x, y, z + 1, light - 1, true);
 			}
 
 			return true;
