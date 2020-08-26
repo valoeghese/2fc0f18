@@ -48,6 +48,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final Save save;
 	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 	private final WorldGen worldGen;
+	private int skyLight = 0;
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);
@@ -110,9 +111,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			break;
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
-			if (result.needsLightingCalcOnLoad) {
-				result.updateLighting(new ArrayList<>());
-				result.needsLightingCalcOnLoad = false;
+			if (!result.assureSkyLight(this.skyLight, false)) {
+				if (result.needsLightingCalcOnLoad) {
+					result.updateLighting(new ArrayList<>(), false);
+					result.needsLightingCalcOnLoad = false;
+				}
 			}
 		case POPULATE: // ticking chunks are also populated
 			if (!result.populated) {
@@ -133,11 +136,13 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	public void setChunkSkyLight(int skyLight) {
-		this.chunks.values().forEach(chunk -> {
+		this.skyLight = skyLight;
+
+		new Thread(() -> this.chunks.values().forEach(chunk -> {
 			if (chunk.status.isFull()) {
-				chunk.assureSkyLight(skyLight);
+				chunk.assureSkyLight(skyLight, true);
 			}
-		});
+		})).start();
 	}
 	@Nullable
 	private T accessChunk(int x, int z) {

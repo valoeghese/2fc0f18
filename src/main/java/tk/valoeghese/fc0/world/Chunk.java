@@ -109,7 +109,7 @@ public abstract class Chunk implements World {
 	}
 
 	// This method is first called as part of first bringing a chunk to TICK
-	public void updateLighting(List<Chunk> chunks) {
+	public void updateLighting(List<Chunk> chunks, boolean offThread) {
 		// Recalculate in this and all surrounding chunks which could update this chunk.
 		chunks.add(this);
 		chunks.add(this.loadLightingChunk(this.x - 1, this.z));
@@ -204,9 +204,9 @@ public abstract class Chunk implements World {
 	 * @param skyLight the sky light to set in the chunk.
 	 * @return whether the chunk recalculated its lighting.
 	 */
-	public boolean assureSkyLight(int skyLight) {
+	public boolean assureSkyLight(int skyLight, boolean offThread) {
 		if (this.skyLight != skyLight) {
-			this.updateLighting(new ArrayList<>());
+			this.updateLighting(new ArrayList<>(), offThread);
 			return true;
 		}
 
@@ -262,7 +262,7 @@ public abstract class Chunk implements World {
 			}
 
 			if (this.status.isFull() && (oldTileO.getLight() != newTileO.getLight())) {
-				this.updateLighting(new ArrayList<>());
+				this.updateLighting(new ArrayList<>(), false);
 			}
 		}
 	}

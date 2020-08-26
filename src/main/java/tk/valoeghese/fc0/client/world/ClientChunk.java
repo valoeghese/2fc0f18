@@ -31,13 +31,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x - 1, this.z);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.rebuildMesh(false);
 			}
 		} else if (x == 15) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x + 1, this.z);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.rebuildMesh(false);
 			}
 		}
 
@@ -45,13 +45,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z - 1);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.rebuildMesh(false);
 			}
 		} else if (z == 15) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z + 1);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.rebuildMesh(false);
 			}
 		}
 	}
@@ -105,9 +105,9 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	private void rebuildMesh() {
+	private void rebuildMesh(boolean offThread) {
 		if (this.mesh != null) {
-			this.mesh.buildMesh();
+			this.mesh.buildMesh(offThread);
 		}
 	}
 
@@ -138,13 +138,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	}
 
 	@Override
-	public void updateLighting(List<Chunk> chunks) {
-		super.updateLighting(chunks);
+	public void updateLighting(List<Chunk> chunks, boolean offThread) {
+		super.updateLighting(chunks, offThread);
 
 		// rebuild meshes to account for new lighting
 		for (Chunk c : chunks) {
 			if (c instanceof ClientChunk) {
-				((ClientChunk) c).rebuildMesh();
+				((ClientChunk) c).rebuildMesh(offThread);
 			}
 		}
 	}
@@ -180,15 +180,5 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	// Maps from [0,15] to [0.1,1]
 	private static float renderLighting(int level) {
 		return 0.06f * level + 0.1f;
-	}
-
-	@Override
-	public boolean assureSkyLight(int skyLight) {
-		if (super.assureSkyLight(skyLight)) {
-			this.rebuildMesh();
-			return true;
-		} else {
-			return false;
-		}
 	}
 }

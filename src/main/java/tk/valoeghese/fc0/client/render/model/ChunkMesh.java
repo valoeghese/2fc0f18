@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.client.render.model;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.world.ClientChunk;
@@ -20,7 +21,7 @@ public class ChunkMesh {
 		this.tiles = tiles;
 		this.meta = meta;
 		this.chunk = chunk;
-		this.buildMesh();
+		this.buildMesh(false);
 	}
 
 	private final int x;
@@ -38,12 +39,12 @@ public class ChunkMesh {
 			this.tiles[index] = tile;
 		}
 
-		this.buildMesh();
+		this.buildMesh(false);
 	}
 
 	private final Object meshBuildLock = new Object();
 
-	public void buildMesh() {
+	public void buildMesh(boolean offThread) {
 		List<RenderedTileFace> faces = new ArrayList<>();
 		List<RenderedTileFace> waterFaces = new ArrayList<>();
 		List<RenderedTileFace> translucentFaces = new ArrayList<>();
@@ -134,15 +135,29 @@ public class ChunkMesh {
 		}
 
 		synchronized (this) {
-			if (this.solid != null) {
-				this.solid.destroy();
-				this.translucent.destroy();
-				this.water.destroy();
-			}
+			if (offThread) {
+				Client2fc.getInstance().runLater(() -> {
+					if (this.solid != null) {
+						this.solid.destroy();
+						this.translucent.destroy();
+						this.water.destroy();
+					}
 
-			this.solid = new ChunkMeshModel(faces);
-			this.translucent = new ChunkMeshModel(translucentFaces);
-			this.water = new ChunkMeshModel(waterFaces);
+					this.solid = new ChunkMeshModel(faces);
+					this.translucent = new ChunkMeshModel(translucentFaces);
+					this.water = new ChunkMeshModel(waterFaces);
+				});
+			} else {
+				if (this.solid != null) {
+					this.solid.destroy();
+					this.translucent.destroy();
+					this.water.destroy();
+				}
+
+				this.solid = new ChunkMeshModel(faces);
+				this.translucent = new ChunkMeshModel(translucentFaces);
+				this.water = new ChunkMeshModel(waterFaces);
+			}
 		}
 	}
 
