@@ -104,8 +104,14 @@ public abstract class Chunk implements World {
 		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
 
 		// Reset chunk lighting in updated chunks
-		for (Chunk c : chunks) {
-			Arrays.fill(c.lighting, (byte) 0);
+		for (int i = chunks.size() - 1; i >= 0; --i) {
+			Chunk c = chunks.get(i);
+
+			if (c == null) {
+				chunks.remove(i);
+			} else {
+				Arrays.fill(c.lighting, (byte) 0);
+			}
 		}
 
 		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
