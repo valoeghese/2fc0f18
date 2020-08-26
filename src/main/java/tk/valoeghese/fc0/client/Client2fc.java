@@ -34,7 +34,7 @@ import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 
 import static org.joml.Math.sin;
@@ -76,10 +76,17 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private final Window window;
 	private double prevYPos = 0;
 	private double prevXPos = 0;
+	private Queue<Runnable> later = new LinkedList<>();
 	public static final Random RANDOM = new Random();
 
 	public static Client2fc getInstance() {
 		return instance;
+	}
+
+	public void runLater(Runnable callback) {
+		synchronized (this.later) {
+			this.later.add(callback);
+		}
 	}
 
 	@Override
@@ -132,6 +139,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
+		List<Runnable> tasks = new ArrayList<>();
+
+		synchronized (this.later) {
+			int count = Math.min(3, this.later.size());
+
+			for (int i = 0; i < count; ++i) {
+				tasks.add(this.later.remove());
+			}
+		}
+
+		for (Runnable task : tasks) {
+			task.run();
+		}
+
 		boolean isTitleScreen = this.currentScreen == this.titleScreen;
 
 		if (isTitleScreen) {
@@ -390,6 +411,4 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
-	// why did I add this again?
-	private static Object lock = new Object();
 }
