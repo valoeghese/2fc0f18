@@ -132,6 +132,13 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return result;
 	}
 
+	public void setChunkSkyLight(int skyLight) {
+		this.chunks.values().forEach(chunk -> {
+			if (chunk.status.isFull()) {
+				chunk.assureSkyLight(skyLight);
+			}
+		});
+	}
 	@Nullable
 	private T accessChunk(int x, int z) {
 		return this.chunks.get(key(x, z));

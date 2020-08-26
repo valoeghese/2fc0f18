@@ -77,6 +77,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private double prevYPos = 0;
 	private double prevXPos = 0;
 	public static final Random RANDOM = new Random();
+	private int skyLight = 0;
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -220,10 +221,24 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
+	public int getSkyLight() {
+		return this.skyLight;
+	}
+
+	private void updateSkyLight(int newSkyLight) {
+		if (this.skyLight != newSkyLight) {
+			this.skyLight = newSkyLight;
+			this.world.setChunkSkyLight(newSkyLight);
+		}
+	}
+
+	private static final float SKY_CHANGE_RATE = 17.0f;
+
 	private void render() {
 		long time = System.nanoTime();
 		float zeitGrellheit = sin((float) this.time / 9216.0f);
 		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+		this.updateSkyLight(MathsUtils.clamp(MathsUtils.floor(20.0f * zeitGrellheit + 7.5f), 0, 15));
 
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
@@ -318,7 +333,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void saveWorld() {
 		if (this.save != null) {
-			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
+			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time, this.skyLight);
 		}
 	}
 

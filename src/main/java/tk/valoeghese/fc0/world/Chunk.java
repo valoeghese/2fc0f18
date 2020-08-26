@@ -23,6 +23,7 @@ public abstract class Chunk implements World {
 		this.tiles = tiles;
 		this.meta = meta;
 		this.lighting = new byte[tiles.length];
+		this.heightmap = new int[16 * 16];
 		this.x = x;
 		this.z = z;
 		this.startX = x << 4;
@@ -44,11 +45,14 @@ public abstract class Chunk implements World {
 				}
 			}
 		}
+
+		this.computeHeightmap();
 	}
 
 	protected byte[] tiles;
 	protected byte[] meta;
 	protected byte[] lighting;
+	private final int[] heightmap;
 	private int skyLight = 0;
 	public final int x;
 	public final int z;
@@ -91,6 +95,19 @@ public abstract class Chunk implements World {
 		return this.lighting[index(x, y, z)];
 	}
 
+	public void computeHeightmap() {
+		for (int bx = 0; bx < 16; ++bx) {
+			for (int bz = 0; bz < 16; ++bz) {
+				for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
+					if (Tile.BY_ID[this.readTile(bx, by, bz)].shouldRender()) {
+						this.heightmap[bx * 16 + bz] = by;
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	// This method is first called as part of first bringing a chunk to TICK
 	public void updateLighting(List<Chunk> chunks) {
 		// Recalculate in this and all surrounding chunks which could update this chunk.
@@ -125,6 +142,16 @@ public abstract class Chunk implements World {
 	private void calculateLighting() {
 		int light;
 
+		// Sky Light
+		for (int x = 0; x < 16; ++x) {
+			int extX = x * 16;
+
+			for (int z = 0; z < 16; ++z) {
+				this.propagateLight(x, this.heightmap[extX + z] + 1, z, this.skyLight, true);
+			}
+		}
+
+		// Block Light
 		for (int y : this.heightsToRender) {
 			for (int x = 0; x < 16; ++x) {
 				for (int z = 0; z < 16; ++z) {
@@ -150,7 +177,7 @@ public abstract class Chunk implements World {
 
 		int idx = index(x, y, z);
 
-		if (y < 0 || y > WORLD_HEIGHT || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaque())) {
+		if (y < 0 || y > WORLD_HEIGHT - 1 || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaque())) {
 			return false;
 		}
 
@@ -166,6 +193,20 @@ public abstract class Chunk implements World {
 				this.propagateLight(x, y, z + 1, light - 1, true);
 			}
 
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Assure the sky light in the chunk is equal to the given sky light.
+	 * @param skyLight the sky light to set in the chunk.
+	 * @return whether the chunk recalculated its lighting.
+	 */
+	public boolean assureSkyLight(int skyLight) {
+		if (this.skyLight != skyLight) {
+			this.updateLighting(new ArrayList<>());
 			return true;
 		}
 
@@ -200,6 +241,23 @@ public abstract class Chunk implements World {
 					}
 
 					this.heightsToRender.remove(y);
+				}
+			}
+
+			int horizontalLoc = x * 16 + z;
+			int height = this.heightmap[horizontalLoc];
+
+			if (height > y) {
+				if (newTileO.shouldRender()) {
+					this.heightmap[horizontalLoc] = y;
+				}
+			} else if (height == y){
+				if (!newTileO.shouldRender()) {
+					for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
+						if (Tile.BY_ID[this.readTile(x, by, z)].shouldRender()) {
+							this.heightmap[horizontalLoc] = by;
+						}
+					}
 				}
 			}
 

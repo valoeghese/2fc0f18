@@ -151,7 +151,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public float getRenderLightingFactor(int x, int y, int z) {
-		if (y < 0 || y > World.WORLD_HEIGHT) {
+		if (y < 0 || y > World.WORLD_HEIGHT - 1) {
 			return 0.1f;
 		}
 
@@ -180,5 +180,15 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	// Maps from [0,15] to [0.1,1]
 	private static float renderLighting(int level) {
 		return 0.06f * level + 0.1f;
+	}
+
+	@Override
+	public boolean assureSkyLight(int skyLight) {
+		if (super.assureSkyLight(skyLight)) {
+			this.rebuildMesh();
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

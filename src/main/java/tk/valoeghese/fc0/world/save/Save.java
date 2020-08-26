@@ -20,6 +20,8 @@ import java.util.Random;
 public class Save {
 	// client specific stuff is here. will need to change on server
 	public Save(String name, long seed) {
+		boolean devMode = false;
+		int skyLight = 0;
 		this.parentDir = new File("./saves/" + name);
 		this.parentDir.mkdirs();
 
@@ -36,9 +38,9 @@ public class Save {
 			this.spawnLocPos = new Pos(playerData.readDouble(3), playerData.readDouble(4), playerData.readDouble(5));
 
 			try {
-				this.loadedDevMode = playerData.readBoolean(6);
-			} catch (Exception ignored) {
-				// @reason compat between save versions
+				devMode = playerData.readBoolean(6);
+				skyLight = mainData.readInt(2);
+			} catch (Exception e) { // @reason compat between save versions
 			}
 
 			if (data.containsSection("playerInventory")) {
@@ -52,8 +54,10 @@ public class Save {
 			this.lastSavePos = null;
 			this.spawnLocPos = null;
 			this.loadedInventory = null;
-			this.loadedDevMode = false;
 		}
+
+		this.loadedDevMode = devMode;
+		this.loadedSkyLight = skyLight;
 	}
 
 	private final File parentDir;
@@ -67,7 +71,8 @@ public class Save {
 	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
-	public boolean loadedDevMode = false;
+	public final boolean loadedDevMode;
+	public final int loadedSkyLight;
 
 	public long getSeed() {
 		return this.seed;
@@ -108,7 +113,7 @@ public class Save {
 		thread.start();
 	}
 
-	public void writeForClient(Player player, Iterator<? extends Chunk> chunks, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+	public void writeForClient(Player player, Iterator<? extends Chunk> chunks, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time, int skyLight) {
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -136,6 +141,7 @@ public class Save {
 				DataSection mainData = new DataSection();
 				mainData.writeLong(this.seed);
 				mainData.writeLong(time);
+				mainData.writeInt(skyLight);
 				data.put("data", mainData);
 
 				// the "self" player, for the client version, is the only player stored
