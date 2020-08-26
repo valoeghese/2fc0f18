@@ -138,15 +138,9 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	}
 
 	@Override
-	public void updateLighting(List<Chunk> chunks) {
-		super.updateLighting(chunks);
-
-		// rebuild meshes to account for new lighting
-		for (Chunk c : chunks) {
-			if (c instanceof ClientChunk) {
-				((ClientChunk) c).rebuildMesh();
-			}
-		}
+	protected void refreshLighting() {
+		super.refreshLighting();
+		this.rebuildMesh(); // rebuild mesh to account for new lighting
 	}
 
 	@Override

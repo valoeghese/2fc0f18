@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
-import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -13,7 +12,6 @@ import tk.valoeghese.sod.ByteArrayDataSection;
 import tk.valoeghese.sod.DataSection;
 
 import javax.annotation.Nullable;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -127,6 +125,8 @@ public abstract class Chunk implements World {
 		chunks.add(this.loadLightingChunk(this.x, this.z + 1));
 		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
 
+		Set<Chunk> updated = new HashSet<>();
+
 		// Reset chunk lighting in updated chunks
 		for (int i = chunks.size() - 1; i >= 0; --i) {
 			Chunk c = chunks.get(i);
@@ -138,8 +138,6 @@ public abstract class Chunk implements World {
 			}
 		}
 
-		Set<Chunk> updated = new HashSet<>();
-
 		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
 		for (Chunk c : chunks) {
 			c.calculateLighting(updated);
@@ -147,7 +145,7 @@ public abstract class Chunk implements World {
 		}
 
 		for (Chunk c : updated) {
-			c.refeshLighting();
+			c.refreshLighting();
 		}
 	}
 
@@ -166,7 +164,7 @@ public abstract class Chunk implements World {
 		}
 	}
 
-	private void refeshLighting() {
+	protected void refreshLighting() {
 		System.arraycopy(this.nextLighting, 0, this.lighting, 0, this.nextLighting.length);
 	}
 
