@@ -56,7 +56,7 @@ public class ChunkMesh {
 							layer.add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
 											instance,
-											0.95f,
+											0.95f * this.chunk.getRenderLightingFactor(x, y, z),
 											meta));
 						} else if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y + 1, z)]];
