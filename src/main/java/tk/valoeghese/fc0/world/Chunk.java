@@ -91,6 +91,25 @@ public abstract class Chunk implements World {
 		return this.lighting[index(x, y, z)];
 	}
 
+	private byte getLightLevelOverflowing(int x, int y, int z) {
+		boolean isPrevChunk;
+
+		// Check if this is out of chunk
+		if ((isPrevChunk = x < 0) || x > 15) {
+			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			return c == null ? 0 : c.getLightLevel(isPrevChunk ? 15 : 0, y, z);
+		} else if ((isPrevChunk = z < 0) || z > 15) {
+			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			return c == null ? 0 : c.getLightLevel(x, y, isPrevChunk ? 15 : 0);
+		}
+
+		if (y < 0 || y >= WORLD_HEIGHT) {
+			return 0;
+		} else {
+			return this.getLightLevel(x, y, z);
+		}
+	}
+
 	// This method is first called as part of first bringing a chunk to TICK
 	public void updateLighting(List<Chunk> chunks) {
 		// Recalculate in this and all surrounding chunks which could update this chunk.
@@ -129,9 +148,7 @@ public abstract class Chunk implements World {
 			for (int x = 0; x < 16; ++x) {
 				for (int z = 0; z < 16; ++z) {
 					if ((light = Tile.BY_ID[this.readTile(x, y, z)].getLight()) > 0) {
-						if (this.propagateLight(x, y, z, light, false)) {
-							this.dirty = true; // Save new lighting.
-						}
+						this.propagateLight(x, y, z, light, false);
 					}
 				}
 			}
@@ -143,14 +160,16 @@ public abstract class Chunk implements World {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			return this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z).propagateLight(isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
+			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			return c == null ? false : c.propagateLight(isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			return this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1).propagateLight(x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
+			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			return c == null ? false : c.propagateLight(x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
 		}
 
 		int idx = index(x, y, z);
 
-		if (y < 0 || y > WORLD_HEIGHT || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaque())) {
+		if (y < 0 || y >= WORLD_HEIGHT || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaque())) {
 			return false;
 		}
 
@@ -203,10 +222,17 @@ public abstract class Chunk implements World {
 				}
 			}
 
-			if (this.status.isFull() && (oldTileO.getLight() != newTileO.getLight())) {
+			if ((this.status.isFull() && (oldTileO.getLight() != newTileO.getLight()))
+					|| (!newTileO.isOpaque() && shouldUpdateLight(x, y, z))) {
 				this.updateLighting(new ArrayList<>());
 			}
 		}
+	}
+
+	protected boolean shouldUpdateLight(int x, int y, int z) {
+		return this.getLightLevelOverflowing(x, y + 1, z) > 1 || this.getLightLevelOverflowing(x, y - 1, z) > 1 ||
+				this.getLightLevelOverflowing(x + 1, y, z) > 1 || this.getLightLevelOverflowing(x - 1, y, z) > 1 ||
+				this.getLightLevelOverflowing(x, y, z + 1) > 1 || this.getLightLevelOverflowing(x, y, z - 1) > 1;
 	}
 
 	@Override
