@@ -34,7 +34,7 @@ import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.Random;
 import java.util.function.Function;
 
 import static org.joml.Math.sin;
@@ -77,7 +77,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private double prevYPos = 0;
 	private double prevXPos = 0;
 	public static final Random RANDOM = new Random();
-	private int skyLight = 0;
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -133,20 +132,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
-		List<Runnable> tasks = new ArrayList<>();
-
-		synchronized (this.later) {
-			int count = Math.min(3, this.later.size());
-
-			for (int i = 0; i < count; ++i) {
-				tasks.add(this.later.remove());
-			}
-		}
-
-		for (Runnable task : tasks) {
-			task.run();
-		}
-
 		boolean isTitleScreen = this.currentScreen == this.titleScreen;
 
 		if (isTitleScreen) {
@@ -235,24 +220,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
-	public int getSkyLight() {
-		return this.skyLight;
-	}
-
-	private void updateSkyLight(int newSkyLight) {
-		if (this.skyLight != newSkyLight) {
-			this.skyLight = newSkyLight;
-			this.world.setChunkSkyLight(newSkyLight);
-		}
-	}
-
-	private static final float SKY_CHANGE_RATE = 17.0f;
-
 	private void render() {
 		long time = System.nanoTime();
 		float zeitGrellheit = sin((float) this.time / 9216.0f);
 		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
-		this.updateSkyLight(MathsUtils.clamp(MathsUtils.floor(20.0f * zeitGrellheit + 7.5f), 0, 15));
 
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
@@ -347,7 +318,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void saveWorld() {
 		if (this.save != null) {
-			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time, this.skyLight);
+			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
@@ -415,15 +386,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.currentScreen.onFocus();
 	}
 
-	public void runLater(Runnable callback) {
-		synchronized (this.later) {
-			this.later.add(callback);
-		}
-	}
-
 	public static final float PI = (float) Math.PI;
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
-	private Queue<Runnable> later = new LinkedList<>();
+	// why did I add this again?
+	private static Object lock = new Object();
 }

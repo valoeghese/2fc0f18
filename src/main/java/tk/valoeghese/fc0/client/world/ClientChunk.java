@@ -31,13 +31,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x - 1, this.z);
 
 			if (chunk != null) {
-				chunk.rebuildMesh(false);
+				chunk.rebuildMesh();
 			}
 		} else if (x == 15) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x + 1, this.z);
 
 			if (chunk != null) {
-				chunk.rebuildMesh(false);
+				chunk.rebuildMesh();
 			}
 		}
 
@@ -45,13 +45,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z - 1);
 
 			if (chunk != null) {
-				chunk.rebuildMesh(false);
+				chunk.rebuildMesh();
 			}
 		} else if (z == 15) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z + 1);
 
 			if (chunk != null) {
-				chunk.rebuildMesh(false);
+				chunk.rebuildMesh();
 			}
 		}
 	}
@@ -105,9 +105,9 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	private void rebuildMesh(boolean offThread) {
+	private void rebuildMesh() {
 		if (this.mesh != null) {
-			this.mesh.buildMesh(offThread);
+			this.mesh.buildMesh();
 		}
 	}
 
@@ -138,20 +138,20 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	}
 
 	@Override
-	public void updateLighting(List<Chunk> chunks, boolean offThread) {
-		super.updateLighting(chunks, offThread);
+	public void updateLighting(List<Chunk> chunks) {
+		super.updateLighting(chunks);
 
 		// rebuild meshes to account for new lighting
 		for (Chunk c : chunks) {
 			if (c instanceof ClientChunk) {
-				((ClientChunk) c).rebuildMesh(offThread);
+				((ClientChunk) c).rebuildMesh();
 			}
 		}
 	}
 
 	@Override
 	public float getRenderLightingFactor(int x, int y, int z) {
-		if (y < 0 || y > World.WORLD_HEIGHT - 1) {
+		if (y < 0 || y > World.WORLD_HEIGHT) {
 			return 0.1f;
 		}
 
