@@ -204,7 +204,6 @@ public abstract class Chunk implements World {
 			}
 
 			if (this.status.isFull() && (oldTileO.getLight() != newTileO.getLight())) {
-				System.out.println("Updating lighting");
 				this.updateLighting(new ArrayList<>());
 			}
 		}
