@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.Item;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.DataSection;
 
@@ -34,6 +35,12 @@ public class Save {
 			this.lastSavePos = new Pos(playerData.readDouble(0), playerData.readDouble(1), playerData.readDouble(2));
 			this.spawnLocPos = new Pos(playerData.readDouble(3), playerData.readDouble(4), playerData.readDouble(5));
 
+			try {
+				this.loadedDevMode = playerData.readBoolean(6);
+			} catch (Exception ignored) {
+				// @reason compat between save versions
+			}
+
 			if (data.containsSection("playerInventory")) {
 				DataSection playerInventoryData = data.get("playerInventory");
 				this.loadedInventory = this.loadInventory(playerInventoryData);
@@ -45,6 +52,7 @@ public class Save {
 			this.lastSavePos = null;
 			this.spawnLocPos = null;
 			this.loadedInventory = null;
+			this.loadedDevMode = false;
 		}
 	}
 
@@ -59,6 +67,7 @@ public class Save {
 	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
+	public boolean loadedDevMode = false;
 
 	public long getSeed() {
 		return this.seed;
@@ -99,7 +108,7 @@ public class Save {
 		thread.start();
 	}
 
-	public void writeForClient(Iterator<? extends Chunk> chunks, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+	public void writeForClient(Player player, Iterator<? extends Chunk> chunks, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -137,6 +146,7 @@ public class Save {
 				clientPlayerData.writeDouble(spawnPos.getX());
 				clientPlayerData.writeDouble(spawnPos.getY());
 				clientPlayerData.writeDouble(spawnPos.getZ());
+				clientPlayerData.writeBoolean(player.dev);
 				data.put("player", clientPlayerData);
 
 				DataSection clientPlayerInventory = new DataSection();
@@ -166,7 +176,7 @@ public class Save {
 	private void storeInventory(DataSection playerInventoryData, Iterator<Item> inventory, int size) {
 		playerInventoryData.writeInt(size);
 
-		for (; inventory.hasNext();) {
+		while (inventory.hasNext()) {
 			Item item = inventory.next();
 
 			if (item == null) { // for compactness just write 0

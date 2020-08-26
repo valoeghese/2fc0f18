@@ -49,6 +49,7 @@ public abstract class Chunk implements World {
 	protected byte[] tiles;
 	protected byte[] meta;
 	protected byte[] lighting;
+	private int skyLight = 0;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -117,6 +118,7 @@ public abstract class Chunk implements World {
 		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
 		for (Chunk c : chunks) {
 			c.calculateLighting();
+			c.dirty = true;
 		}
 	}
 
@@ -284,6 +286,7 @@ public abstract class Chunk implements World {
 		properties.writeInt(this.z);
 		properties.writeBoolean(this.populated);
 		properties.writeBoolean(this.needsLightingCalcOnLoad);
+		properties.writeInt(this.skyLight);
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
@@ -317,6 +320,7 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
+			((Chunk) result).skyLight = properties.readInt(4);
 		} catch (Exception ignored) { // @reason support between versions
 		}
 

@@ -27,7 +27,6 @@ import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.IngredientItem;
@@ -205,7 +204,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.setFOV(64);
 
 		this.world = new ClientWorld(null, 0, 4);
-		this.player = new ClientPlayer(new Camera(), this, DEV);
+		this.player = new ClientPlayer(new Camera(), this, false);
 		this.player.changeWorld(this.world, this.save);
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
@@ -223,14 +222,16 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	private void render() {
 		long time = System.nanoTime();
-		float lighting = MathsUtils.clampMap(sin((float) this.time / 9216.0f), -1, 1, 0.125f, 1.15f);
+		float zeitGrellheit = sin((float) this.time / 9216.0f);
+		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
 		// bind shader
 		Shaders.terrain.bind();
 		// time and stuff
 		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-		Shaders.terrain.uniformFloat("lighting", 1.0f); // Update chunk lighting to change lighting now.
+		Shaders.terrain.uniformFloat("lighting", 1.0f); // We Update chunk lighting to change lighting now.
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// defaults
@@ -317,7 +318,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void saveWorld() {
 		if (this.save != null) {
-			this.save.writeForClient(this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
+			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
@@ -340,6 +341,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		} else {
 			this.player.changeWorld(this.world, this.save);
 		}
+
+		this.player.dev = this.save.loadedDevMode;
 	}
 
 	public void generateSpawnChunks() {
@@ -389,5 +392,4 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private static Client2fc instance;
 	// why did I add this again?
 	private static Object lock = new Object();
-	private static final boolean DEV = true;
 }
