@@ -10,15 +10,18 @@ public class Text extends GUI {
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
 		this.size = STEP * size;
+		this.text = value;
 		this.setText(value.toCharArray());
 	}
 
-	private final float xOffset;
-	private final float yOffset;
+	protected float xOffset;
+	protected float yOffset;
+	protected String text;
 	private final float size;
 
 	public void changeText(String newText) {
 		this.destroy();
+		this.text = newText;
 		this.setText(newText.toCharArray());
 	}
 
@@ -90,6 +93,26 @@ public class Text extends GUI {
 		}
 
 		this.generateBuffers();
+	}
+
+	public static class Moveable extends Text {
+		public Moveable(String value, float xOffset, float yOffset, float size) {
+			super(value, xOffset, yOffset, size);
+		}
+
+		public void setOffsets(float xOffset, float yOffset) {
+			this.xOffset = xOffset;
+			this.yOffset = yOffset;
+			this.changeText(this.text);
+		}
+
+		public float getXOffset() {
+			return this.xOffset;
+		}
+
+		public float getYOffset() {
+			return this.yOffset;
+		}
 	}
 
 	private static final float STEP = 0.05f;

@@ -32,7 +32,7 @@ public class GameScreen extends Screen {
 		this.crosshair = new Crosshair();
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
-		this.modesWidget = new Text("", -0.92f, 0.58f, 1.0f);
+		this.modesWidget = new Text.Moveable("", -0.92f, -0.78f, 1.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 	}
 
@@ -40,7 +40,7 @@ public class GameScreen extends Screen {
 	private final GUI version;
 	public final Text biomeWidget;
 	public final Text coordsWidget;
-	public final Text modesWidget;
+	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
 	private boolean[] abilityCaches = new boolean[2];
 
@@ -87,6 +87,14 @@ public class GameScreen extends Screen {
 		Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
 		this.hotbarRenderer.render();
 		Shaders.gui.uniformFloat("lighting", 1.0f);
+	}
+
+	public void onShowDebug(boolean showDebug) {
+		if (showDebug) {
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.58f);
+		} else {
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.78f);
+		}
 	}
 
 	@Override
@@ -259,6 +267,11 @@ public class GameScreen extends Screen {
 
 		if (Keybinds.DEV_MODE.hasBeenPressed()) {
 			player.toggleDev();
+		}
+
+		if (Keybinds.HIDE_DEBUG.hasBeenPressed()) {
+			Client2fc i = Client2fc.getInstance();
+			i.setShowDebug(!i.showDebug());
 		}
 	}
 

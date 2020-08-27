@@ -78,7 +78,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private double prevYPos = 0;
 	private double prevXPos = 0;
 	private Queue<Runnable> later = new LinkedList<>();
-	public static final Random RANDOM = new Random();
+	private boolean showDebug = false;
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -346,6 +346,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	public void createWorld(String saveName) {
+		this.setShowDebug(false);
 		this.world.destroy();
 		this.saveWorld();
 		this.time = 0;
@@ -409,8 +410,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.currentScreen.onFocus();
 	}
 
+	public void setShowDebug(boolean showDebug) {
+		if (this.showDebug != showDebug) {
+			this.showDebug = showDebug;
+			this.gameScreen.onShowDebug(showDebug);
+		}
+	}
+
+	public boolean showDebug() {
+		return this.showDebug;
+	}
+
 	public static final float PI = (float) Math.PI;
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
+	public static final Random RANDOM = new Random();
 }
