@@ -171,8 +171,10 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		return renderLighting(this.getLightLevel(x, y, z));
 	}
 
-	// Maps from [0,15] to [0.1,1]
+	// Maps from [0,15] to approximately [root(0.1),1], then squares it
+	// https://www.desmos.com/calculator/xmmyzvljzt
 	private static float renderLighting(int level) {
-		return 0.06f * level + 0.1f;
+		float base = (0.045584f * level + 0.316228f);
+		return base * base;
 	}
 }

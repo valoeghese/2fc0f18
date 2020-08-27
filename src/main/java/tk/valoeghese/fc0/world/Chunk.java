@@ -3,7 +3,6 @@ package tk.valoeghese.fc0.world;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -12,10 +11,10 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.ByteArrayDataSection;
 import tk.valoeghese.sod.DataSection;
+import tk.valoeghese.sod.IntArrayDataSection;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -49,12 +48,15 @@ public abstract class Chunk implements World {
 				}
 			}
 		}
+
+		this.computeHeightmap();
 	}
 
 	protected byte[] tiles;
 	protected byte[] meta;
 	protected byte[] lighting;
 	protected byte[] nextLighting;
+	private final int[] heightmap = new int[16 * 16];
 	private byte skyLight = 0;
 	public final int x;
 	public final int z;
@@ -229,6 +231,19 @@ public abstract class Chunk implements World {
 		return false;
 	}
 
+	public void computeHeightmap() {
+		for (int bx = 0; bx < 16; ++bx) {
+			for (int bz = 0; bz < 16; ++bz) {
+				for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
+					if (Tile.BY_ID[this.readTile(bx, by, bz)].shouldRender()) {
+						this.heightmap[bx * 16 + bz] = by;
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
 		int i = index(x, y, z);
@@ -257,6 +272,26 @@ public abstract class Chunk implements World {
 					}
 
 					this.heightsToRender.remove(y);
+				}
+			}
+
+			// Modify Heightmap
+
+			int horizontalLoc = x * 16 + z;
+			int height = this.heightmap[horizontalLoc];
+
+			if (height > y) {
+				if (newTileO.shouldRender()) {
+					this.heightmap[horizontalLoc] = y;
+				}
+			} else if (height == y){
+				if (!newTileO.shouldRender()) {
+					// Recompute for y
+					for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
+						if (Tile.BY_ID[this.readTile(x, by, z)].shouldRender()) {
+							this.heightmap[horizontalLoc] = by;
+						}
+					}
 				}
 			}
 
@@ -344,6 +379,12 @@ public abstract class Chunk implements World {
 			lighting.writeByte(this.lighting[i]);
 		}
 
+		IntArrayDataSection heightmap = new IntArrayDataSection();
+
+		for (int i : this.heightmap) {
+			heightmap.writeInt(i);
+		}
+
 		DataSection properties = new DataSection();
 		properties.writeInt(this.x);
 		properties.writeInt(this.z);
@@ -354,6 +395,7 @@ public abstract class Chunk implements World {
 		data.put("tiles", tiles);
 		data.put("properties", properties);
 		data.put("lighting", lighting);
+		data.put("heightmap", heightmap);
 	}
 
 	@Nullable
@@ -381,9 +423,11 @@ public abstract class Chunk implements World {
 		T result = constructor.create(parent, properties.readInt(0), properties.readInt(1), tiles, meta);
 		result.populated = properties.readBoolean(2);
 
+		Chunk resultAsChunk = result;
+
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
-			((Chunk) result).skyLight = properties.readByte(4);
+			resultAsChunk.skyLight = properties.readByte(4);
 		} catch (Exception ignored) { // @reason support between versions
 		}
 
@@ -392,6 +436,14 @@ public abstract class Chunk implements World {
 
 			for (int i = 0; i < lighting.size(); ++i) {
 				result.lighting[i] = lighting.readByte(i);
+			}
+		}
+
+		if (data.containsSection("heightmap")) {
+			IntArrayDataSection heightmap = data.getIntArray("heightmap");
+
+			for (int i = 0; i < heightmap.size(); ++i) {
+				resultAsChunk.heightmap[i] = heightmap.readInt(i);
 			}
 		}
 
