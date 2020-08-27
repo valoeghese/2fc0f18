@@ -18,6 +18,7 @@ import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public abstract class Chunk implements World {
@@ -73,7 +74,7 @@ public abstract class Chunk implements World {
 	private boolean dirty = false;
 
 	// Threading
-	private static final Executor lightingExecutor = Executors.newSingleThreadExecutor();
+	private static final ExecutorService lightingExecutor = Executors.newSingleThreadExecutor();
 
 	@Override
 	public double sampleNoise(double x, double y) {
@@ -395,6 +396,19 @@ public abstract class Chunk implements World {
 		}
 
 		return result;
+	}
+
+	public static void shutdown() {
+		lightingExecutor.shutdownNow();
+
+		try {
+			if (!lightingExecutor.awaitTermination(100, TimeUnit.MICROSECONDS)) {
+				System.out.println("Forcing Lighting Thread Shutdown");
+				System.exit(0);
+			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static int index(int x, int y, int z) {

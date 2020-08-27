@@ -27,6 +27,7 @@ import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
+import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.IngredientItem;
@@ -136,6 +137,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.world.destroy();
 		this.window.destroy();
 		ALC10.alcCloseDevice(Audio.getDevice());
+		Chunk.shutdown();
 	}
 
 	private void tick() {
