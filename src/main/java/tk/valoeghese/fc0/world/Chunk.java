@@ -408,6 +408,17 @@ public abstract class Chunk implements World {
 		return this.dirty;
 	}
 
+	public void assertSkylight(byte skyLight) {
+		if (this.skyLight != skyLight) {
+			this.skyLight = skyLight;
+			this.updateLighting(); // Since executor is single thread, should not cause problems
+		}
+	}
+
+	public void setSkylight(byte skyLight) {
+		this.skyLight = skyLight;
+	}
+
 	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
 		ByteArrayDataSection tileData = data.getByteArray("tiles");
 		byte[] tiles = new byte[16 * 16 * WORLD_HEIGHT];

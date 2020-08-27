@@ -89,6 +89,12 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	public void assertSkylight(byte skyLight) {
 		if (skyLight != this.skyLight) {
 			this.skyLight = skyLight;
+
+			for (Chunk chunk : this.chunks.values()) {
+				if (chunk.status.isFull()) {
+					chunk.assertSkylight(skyLight);
+				}
+			}
 		}
 	}
 
@@ -120,8 +126,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
 			if (result.needsLightingCalcOnLoad) {
+				result.setSkylight(this.skyLight); // just in case
 				result.updateLighting();
 				result.needsLightingCalcOnLoad = false;
+			} else if (!result.status.isFull()) {
+				result.assertSkylight(this.skyLight);
 			}
 		case POPULATE: // ticking chunks are also populated
 			if (!result.populated) {
