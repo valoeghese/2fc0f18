@@ -48,8 +48,11 @@ public class GameScreen extends Screen {
 	public void renderGUI(float lighting) {
 		this.version.render();
 		this.crosshair.render();
-		this.biomeWidget.render();
-		this.coordsWidget.render();
+
+		if (Client2fc.getInstance().showDebug()) {
+			this.biomeWidget.render();
+			this.coordsWidget.render();
+		}
 
 		Player player = Client2fc.getInstance().getPlayer();
 
