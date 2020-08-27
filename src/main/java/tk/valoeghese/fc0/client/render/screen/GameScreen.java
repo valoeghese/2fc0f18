@@ -17,6 +17,7 @@ import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import static org.joml.Math.cos;
@@ -31,6 +32,7 @@ public class GameScreen extends Screen {
 		this.crosshair = new Crosshair();
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
+		this.modesWidget = new Text.Moveable("", -0.92f, -0.78f, 1.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 	}
 
@@ -38,18 +40,64 @@ public class GameScreen extends Screen {
 	private final GUI version;
 	public final Text biomeWidget;
 	public final Text coordsWidget;
+	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
+	private boolean[] abilityCaches = new boolean[2];
 
 	@Override
 	public void renderGUI(float lighting) {
 		this.version.render();
 		this.crosshair.render();
-		this.biomeWidget.render();
-		this.coordsWidget.render();
+
+		if (Client2fc.getInstance().showDebug()) {
+			this.biomeWidget.render();
+			this.coordsWidget.render();
+		}
+
+		Player player = Client2fc.getInstance().getPlayer();
+
+		if (player.dev != this.abilityCaches[0] || player.isNoClip() != this.abilityCaches[1]) {
+			this.abilityCaches[0] = player.dev;
+			this.abilityCaches[1] = player.isNoClip();
+
+			StringBuilder next = new StringBuilder();
+			boolean first = true;
+
+			for (int i = 0; i < this.abilityCaches.length; ++i) {
+				if (this.abilityCaches[i]) {
+					if (first) {
+						first = false;
+					} else {
+						next.append(", ");
+					}
+
+					switch (i) {
+					case 0:
+						next.append("[DevMode]");
+						break;
+					case 1:
+						next.append("[NoClip]");
+						break;
+					}
+				}
+			}
+
+			this.modesWidget.changeText(next.toString());
+		}
+
+		this.modesWidget.render();
 
 		Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
 		this.hotbarRenderer.render();
 		Shaders.gui.uniformFloat("lighting", 1.0f);
+	}
+
+	public void onShowDebug(boolean showDebug) {
+		if (showDebug) {
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.58f);
+		} else {
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.78f);
+		}
 	}
 
 	@Override
@@ -214,6 +262,19 @@ public class GameScreen extends Screen {
 
 		if (Keybinds.NO_CLIP.hasBeenPressed()) {
 			player.setNoClip(!player.isNoClip());
+		}
+
+		if (player.dev && Keybinds.DEV_ITEMS.hasBeenPressed()) {
+			player.addDevItems();
+		}
+
+		if (Keybinds.DEV_MODE.hasBeenPressed()) {
+			player.toggleDev();
+		}
+
+		if (Keybinds.HIDE_DEBUG.hasBeenPressed()) {
+			Client2fc i = Client2fc.getInstance();
+			i.setShowDebug(!i.showDebug());
 		}
 	}
 

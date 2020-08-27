@@ -8,4 +8,5 @@ public interface RenderedChunk {
 	Tile south(int x, int y);
 	Tile east(int z, int y);
 	Tile west(int z, int y);
+	float getRenderLightingFactor(int x, int y, int z);
 }

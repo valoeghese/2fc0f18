@@ -27,7 +27,7 @@ import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.IngredientItem;
@@ -35,6 +35,8 @@ import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -77,10 +79,17 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	private final Window window;
 	private double prevYPos = 0;
 	private double prevXPos = 0;
-	public static final Random RANDOM = new Random();
+	private Queue<Runnable> later = new LinkedList<>();
+	private boolean showDebug = false;
 
 	public static Client2fc getInstance() {
 		return instance;
+	}
+
+	public void runLater(Runnable callback) {
+		synchronized (this.later) {
+			this.later.add(callback);
+		}
 	}
 
 	@Override
@@ -108,6 +117,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.initGameRendering();
 		this.initGameAudio();
 
+
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
@@ -130,9 +140,22 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.world.destroy();
 		this.window.destroy();
 		ALC10.alcCloseDevice(Audio.getDevice());
+		Chunk.shutdown();
 	}
 
 	private void tick() {
+		Runnable task = null;
+
+		synchronized (this.later) {
+			if (!this.later.isEmpty()) {
+				task = this.later.remove();
+			}
+		}
+
+		if (task != null) {
+			task.run();
+		}
+
 		boolean isTitleScreen = this.currentScreen == this.titleScreen;
 
 		if (isTitleScreen) {
@@ -205,7 +228,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.setFOV(64);
 
 		this.world = new ClientWorld(null, 0, 4);
-		this.player = new ClientPlayer(new Camera(), this, DEV);
+		this.player = new ClientPlayer(new Camera(), this, false);
 		this.player.changeWorld(this.world, this.save);
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
@@ -221,16 +244,21 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
+	private static final float SKY_CHANGE_RATE = 17.0f;
+
 	private void render() {
 		long time = System.nanoTime();
-		float lighting = MathsUtils.clampMap(sin((float) this.time / 9216.0f), -1, 1, 0.125f, 1.15f);
+		float zeitGrellheit = sin((float) this.time / 9216.0f);
+		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 8));
+
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
 		// bind shader
 		Shaders.terrain.bind();
 		// time and stuff
 		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-		Shaders.terrain.uniformFloat("lighting", lighting);
+		Shaders.terrain.uniformFloat("lighting", 1.0f); // We Update chunk lighting to change lighting now.
 		// projection
 		Shaders.terrain.uniformMat4f("projection", this.projection);
 		// defaults
@@ -317,11 +345,12 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 	public void saveWorld() {
 		if (this.save != null) {
-			this.save.writeForClient(this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
+			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
 	public void createWorld(String saveName) {
+		this.setShowDebug(false);
 		this.world.destroy();
 		this.saveWorld();
 		this.time = 0;
@@ -340,6 +369,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		} else {
 			this.player.changeWorld(this.world, this.save);
 		}
+
+		this.player.dev = this.save.loadedDevMode;
 	}
 
 	public void generateSpawnChunks() {
@@ -383,11 +414,20 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.currentScreen.onFocus();
 	}
 
+	public void setShowDebug(boolean showDebug) {
+		if (this.showDebug != showDebug) {
+			this.showDebug = showDebug;
+			this.gameScreen.onShowDebug(showDebug);
+		}
+	}
+
+	public boolean showDebug() {
+		return this.showDebug;
+	}
+
 	public static final float PI = (float) Math.PI;
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
-	// why did I add this again?
-	private static Object lock = new Object();
-	private static final boolean DEV = false;
+	public static final Random RANDOM = new Random();
 }

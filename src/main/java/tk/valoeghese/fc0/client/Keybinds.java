@@ -31,4 +31,7 @@ public final class Keybinds {
 	public static final Keybind INVENTORY = new Keybind("inventory", GLFW_KEY_I, false);
 	public static final Keybind NO_CLIP = new Keybind("no_clip", GLFW_KEY_G, false);
 	public static final Keybind NO_CLIP_DOWN = new Keybind("no_clip_down", GLFW_KEY_LEFT_CONTROL, false);
+	public static final Keybind DEV_MODE = new Keybind("dev_mode", GLFW_KEY_F1, false);
+	public static final Keybind DEV_ITEMS = new Keybind("dev_items", GLFW_KEY_F2, false);
+	public static final Keybind HIDE_DEBUG = new Keybind("hide_debug", GLFW_KEY_TAB, false);
 }

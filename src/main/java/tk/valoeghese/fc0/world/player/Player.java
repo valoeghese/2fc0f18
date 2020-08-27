@@ -32,13 +32,13 @@ public class Player {
 	@Nullable
 	public Chunk chunk = null;
 	public long lockSwim = 0;
-	public final boolean dev;
+	public boolean dev;
 	@Nonnull
 	private final Inventory inventory;
 	private double friction = 0.85;
 	private boolean noClip = false;
 
-	private void addDevItems() {
+	public void addDevItems() {
 		this.inventory.putItemAt(0, new Item(Tile.STONE));
 		this.inventory.putItemAt(1, new Item(Tile.GRASS));
 		this.inventory.putItemAt(2, new Item(Tile.LOG));
@@ -47,8 +47,12 @@ public class Player {
 		this.inventory.putItemAt(5, new Item(Tile.DAISY));
 		this.inventory.putItemAt(6, new Item(Tile.TALLGRASS));
 		this.inventory.putItemAt(7, new Item(Tile.BRICKS));
-		this.inventory.putItemAt(8, new Item(Tile.STONE_BRICKS));
+		this.inventory.putItemAt(8, new Item(Tile.TORCH));
 		this.inventory.putItemAt(9, new Item(Tile.ICE));
+	}
+
+	public void toggleDev() {
+		this.dev = !this.dev;
 	}
 
 	public void changeWorld(LoadableWorld world, @Nullable Save save) {

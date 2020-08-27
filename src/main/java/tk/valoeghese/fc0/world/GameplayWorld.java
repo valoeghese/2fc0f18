@@ -29,6 +29,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.constructor = constructor;
 		this.save = save;
 
+		this.skyLight = save == null ? 0 : save.loadedSkyLight;
+
 		this.minBound = (-size + 1) << 4;
 		this.maxBound = size << 4;
 
@@ -48,6 +50,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final Save save;
 	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 	private final WorldGen worldGen;
+	private byte skyLight;
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);
@@ -83,6 +86,18 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}*/
 	}
 
+	public void assertSkylight(byte skyLight) {
+		if (skyLight != this.skyLight) {
+			this.skyLight = skyLight;
+
+			for (Chunk chunk : this.chunks.values()) {
+				if (chunk.status.isFull()) {
+					chunk.assertSkylight(skyLight);
+				}
+			}
+		}
+	}
+
 	public Iterator<T> getChunks() {
 		return this.chunks.values().iterator();
 	}
@@ -110,6 +125,13 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			break;
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
+			if (result.needsLightingCalcOnLoad) {
+				result.setSkylight(this.skyLight); // just in case
+				result.updateLighting();
+				result.needsLightingCalcOnLoad = false;
+			} else if (!result.status.isFull()) {
+				result.assertSkylight(this.skyLight);
+			}
 		case POPULATE: // ticking chunks are also populated
 			if (!result.populated) {
 				result.populated = true;
@@ -118,6 +140,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			}
 			break;
 		}
+
+		result.status = result.status.upgrade(status);
 
 		if (result != null) {
 			this.chunks.put(key(x, z), result);
