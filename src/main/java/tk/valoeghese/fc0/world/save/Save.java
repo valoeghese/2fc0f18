@@ -26,6 +26,9 @@ public class Save {
 
 		this.saveDat = new File(this.parentDir, "save.gsod");
 
+		boolean devMode = false;
+		byte skyLight = 0;
+
 		if (this.saveDat.exists()) {
 			BinaryData data = BinaryData.readGzipped(this.saveDat);
 			DataSection mainData = data.get("data");
@@ -37,7 +40,8 @@ public class Save {
 			this.spawnLocPos = new Pos(playerData.readDouble(3), playerData.readDouble(4), playerData.readDouble(5));
 
 			try {
-				this.loadedDevMode = playerData.readBoolean(6);
+				devMode = playerData.readBoolean(6);
+				skyLight = mainData.readByte(2);
 			} catch (Exception ignored) {
 				// @reason compat between save versions
 			}
@@ -53,8 +57,10 @@ public class Save {
 			this.lastSavePos = null;
 			this.spawnLocPos = null;
 			this.loadedInventory = null;
-			this.loadedDevMode = false;
 		}
+
+		this.loadedDevMode = devMode;
+		this.loadedSkyLight = skyLight;
 	}
 
 	private final File parentDir;
@@ -68,7 +74,8 @@ public class Save {
 	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
-	public boolean loadedDevMode = false;
+	public final boolean loadedDevMode;
+	public final byte loadedSkyLight;
 
 	public long getSeed() {
 		return this.seed;

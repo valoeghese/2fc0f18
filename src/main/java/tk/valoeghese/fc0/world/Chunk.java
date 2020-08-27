@@ -15,6 +15,9 @@ import tk.valoeghese.sod.DataSection;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 
 public abstract class Chunk implements World {
@@ -51,7 +54,7 @@ public abstract class Chunk implements World {
 	protected byte[] meta;
 	protected byte[] lighting;
 	protected byte[] nextLighting;
-	private int skyLight = 0;
+	private byte skyLight = 0;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -70,35 +73,7 @@ public abstract class Chunk implements World {
 	private boolean dirty = false;
 
 	// Threading
-	private static final Object lightLock = new Object();
-	private static List<Chunk> threadChunks;
-
-	private static final ReadiableThread lightingThread = new ReadiableThread(() -> {
-		Set<Chunk> updated = new HashSet<>();
-
-		// Reset chunk lighting in updated chunks
-		for (int i = threadChunks.size() - 1; i >= 0; --i) {
-			Chunk c = threadChunks.get(i);
-
-			if (c == null) {
-				threadChunks.remove(i);
-			} else {
-				Arrays.fill(c.nextLighting, (byte) 0);
-			}
-		}
-
-		// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
-		for (Chunk c : threadChunks) {
-			c.calculateLighting(updated);
-			c.dirty = true;
-		}
-
-		Client2fc.getInstance().runLater(() -> {
-			for (Chunk c : updated) {
-				c.refreshLighting();
-			}
-		});
-	});
+	private static final Executor lightingExecutor = Executors.newSingleThreadExecutor();
 
 	@Override
 	public double sampleNoise(double x, double y) {
@@ -158,10 +133,32 @@ public abstract class Chunk implements World {
 		chunks.add(this.loadLightingChunk(this.x, this.z + 1));
 		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
 
-		synchronized (lightLock) {
-			threadChunks = chunks;
-			lightingThread.run();
-		}
+		lightingExecutor.execute(() -> {
+			Set<Chunk> updated = new HashSet<>();
+
+			// Reset chunk lighting in updated chunks
+			for (int i = chunks.size() - 1; i >= 0; --i) {
+				Chunk c = chunks.get(i);
+
+				if (c == null) {
+					chunks.remove(i);
+				} else {
+					Arrays.fill(c.nextLighting, (byte) 0);
+				}
+			}
+
+			// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
+			for (Chunk c : chunks) {
+				c.calculateLighting(updated);
+				c.dirty = true;
+			}
+
+			Client2fc.getInstance().runLater(() -> {
+				for (Chunk c : updated) {
+					c.refreshLighting();
+				}
+			});
+		});
 	}
 
 	private void calculateLighting(Set<Chunk> updated) {
@@ -385,7 +382,7 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
-			((Chunk) result).skyLight = properties.readInt(4);
+			((Chunk) result).skyLight = properties.readByte(4);
 		} catch (Exception ignored) { // @reason support between versions
 		}
 

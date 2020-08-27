@@ -29,6 +29,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.constructor = constructor;
 		this.save = save;
 
+		this.skyLight = save == null ? 0 : save.loadedSkyLight;
+
 		this.minBound = (-size + 1) << 4;
 		this.maxBound = size << 4;
 
@@ -48,6 +50,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final Save save;
 	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 	private final WorldGen worldGen;
+	private byte skyLight;
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);
@@ -81,6 +84,12 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		if (this.save != null) {
 			System.out.println("Generated World Spawn in " + (System.currentTimeMillis() - time) + "ms.");
 		}*/
+	}
+
+	public void assertSkylight(byte skyLight) {
+		if (skyLight != this.skyLight) {
+			this.skyLight = skyLight;
+		}
 	}
 
 	public Iterator<T> getChunks() {
