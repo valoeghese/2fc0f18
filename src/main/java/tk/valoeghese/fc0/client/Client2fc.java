@@ -35,7 +35,9 @@ import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
 import java.util.function.Function;
 
 import static org.joml.Math.sin;
@@ -115,6 +117,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.initGameRendering();
 		this.initGameAudio();
 
+
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
@@ -141,17 +144,15 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	}
 
 	private void tick() {
-		List<Runnable> tasks = new ArrayList<>();
+		Runnable task = null;
 
 		synchronized (this.later) {
-			int count = Math.min(3, this.later.size());
-
-			for (int i = 0; i < count; ++i) {
-				tasks.add(this.later.remove());
+			if (!this.later.isEmpty()) {
+				task = this.later.remove();
 			}
 		}
 
-		for (Runnable task : tasks) {
+		if (task != null) {
 			task.run();
 		}
 
@@ -243,10 +244,13 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
+	private static final float SKY_CHANGE_RATE = 17.0f;
+
 	private void render() {
 		long time = System.nanoTime();
 		float zeitGrellheit = sin((float) this.time / 9216.0f);
 		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 8));
 
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
