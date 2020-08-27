@@ -168,6 +168,13 @@ public abstract class Chunk implements World {
 		int light;
 		updated.add(this);
 
+		for (int x = 0; x < 16; ++x) {
+			for (int z = 0; z < 16; ++z) {
+				int y = this.heightmap[x * 16 + z] + 1;
+				this.propagateLight(updated, x, y, z, this.skyLight, false);
+			}
+		}
+
 		for (int y : this.heightsToRender) {
 			for (int x = 0; x < 16; ++x) {
 				for (int z = 0; z < 16; ++z) {
