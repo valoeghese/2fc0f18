@@ -56,7 +56,7 @@ public abstract class Chunk implements World {
 	protected byte[] meta;
 	protected byte[] lighting;
 	protected byte[] nextLighting;
-	private final int[] heightmap = new int[16 * 16];
+	private final int[] heightmap = new int[16 * 16]; // heightmap of opaque blocks for lighting calculations
 	private byte skyLight = -1;
 	public final int x;
 	public final int z;
@@ -263,7 +263,7 @@ public abstract class Chunk implements World {
 		for (int bx = 0; bx < 16; ++bx) {
 			for (int bz = 0; bz < 16; ++bz) {
 				for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
-					if (Tile.BY_ID[this.readTile(bx, by, bz)].shouldRender()) {
+					if (Tile.BY_ID[this.readTile(bx, by, bz)].isOpaque()) {
 						this.heightmap[bx * 16 + bz] = by;
 						break;
 					}
@@ -309,7 +309,7 @@ public abstract class Chunk implements World {
 			int height = this.heightmap[horizontalLoc];
 
 			if (height > y) {
-				if (newTileO.shouldRender()) {
+				if (newTileO.isOpaque()) {
 					this.heightmap[horizontalLoc] = y;
 
 					if (this.status.isFull()) {
@@ -317,10 +317,10 @@ public abstract class Chunk implements World {
 					}
 				}
 			} else if (height == y){
-				if (!newTileO.shouldRender()) {
+				if (!newTileO.isOpaque()) {
 					// Recompute for y
 					for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
-						if (Tile.BY_ID[this.readTile(x, by, z)].shouldRender()) {
+						if (Tile.BY_ID[this.readTile(x, by, z)].isOpaque()) {
 							this.heightmap[horizontalLoc] = by;
 						}
 					}

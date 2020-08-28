@@ -15,10 +15,11 @@ public enum TorchRenderer implements TileRenderer {
 	public void addFaces(Tile instance, List<ChunkMesh.RenderedTileFace> layer, byte[] tiles, RenderedChunk chunk, int x, int y, int z, byte meta) {
 		Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[tiles[TileRenderer.index(x, y + 1, z)]];
 		Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[tiles[TileRenderer.index(x, y - 1, z)]];
+		float lf = chunk.getRenderLightingFactor(x, y, z);
 
 		if (!tileUp.isOpaque()) {
 			layer.add(new Face(
-					new Vector3f(x + 0.5f, y + 1f, z + 0.5f),
+					new Vector3f(x, y + 1f, z),
 					1,
 					instance,
 					0.95f * chunk.getRenderLightingFactor(x, y + 1, z),
@@ -27,7 +28,7 @@ public enum TorchRenderer implements TileRenderer {
 
 		if (!tileDown.isOpaque()) {
 			layer.add(new Face(
-					new Vector3f(x + 0.5f, y, z + 0.5f),
+					new Vector3f(x, y, z),
 					4,
 					instance,
 					0.85f * chunk.getRenderLightingFactor(x, y - 1, z),
@@ -35,31 +36,31 @@ public enum TorchRenderer implements TileRenderer {
 		}
 
 		layer.add(new Face(
-				new Vector3f(x + 0.5f, y + 0.5f, z + 0.5f + 0.5f * 0.25f),
+				new Vector3f(x, y, z + 0.5f * 0.25f),
 				2,
 				instance,
-				1.05f * chunk.getRenderLightingFactor(x, y, z + 1),
+				1.05f * lf,
 				meta));
 
 		layer.add(new Face(
-				new Vector3f(x + 0.5f, y + 0.5f, z + 0.5f - 0.5f * 0.25f),
+				new Vector3f(x, y, z - 0.5f * 0.25f),
 				5,
 				instance,
-				0.75f * chunk.getRenderLightingFactor(x, y, z - 1),
+				0.75f * lf,
 				meta));
 
 		layer.add(new Face(
-				new Vector3f(x + 0.5f + 0.5f * 0.25f, y + 0.5f, z + 0.5f),
+				new Vector3f(x + 0.5f * 0.25f, y, z),
 				0,
 				instance,
-				0.9f * chunk.getRenderLightingFactor(x + 1, y, z),
+				0.9f * lf,
 				meta));
 
 		layer.add(new Face(
-				new Vector3f(x + 0.5f - 0.5f * 0.25f, y + 0.5f, z + 0.5f),
+				new Vector3f(x - 0.5f * 0.25f, y, z),
 				3,
 				instance,
-				0.9f * chunk.getRenderLightingFactor(x - 1, y, z),
+				0.9f * lf,
 				meta));
 	}
 

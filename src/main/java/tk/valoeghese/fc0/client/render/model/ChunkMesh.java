@@ -57,7 +57,7 @@ public class ChunkMesh {
 
 						if (custom != null && instance.shouldRender()) {
 							custom.addFaces(instance, layer, this.tiles, this.chunk, x, y, z, meta);
-						} if (instance.shouldRender() && instance.isCross()) {
+						} else if (instance.shouldRender() && instance.isCross()) {
 							layer.add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
 											instance,
