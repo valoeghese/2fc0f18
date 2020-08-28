@@ -74,7 +74,6 @@ public abstract class Chunk implements World {
 	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;
-	private boolean queued = false;
 
 	// Threading
 	private static final ExecutorService lightingExecutor = Executors.newSingleThreadExecutor();
@@ -144,10 +143,9 @@ public abstract class Chunk implements World {
 			for (int i = chunks.size() - 1; i >= 0; --i) {
 				Chunk c = chunks.get(i);
 
-				if (c == null || c.isQueued()) {
+				if (c == null) {
 					chunks.remove(i);
 				} else {
-					c.setQueued(true);
 					Arrays.fill(c.nextLighting, (byte) 0);
 				}
 			}
@@ -156,7 +154,6 @@ public abstract class Chunk implements World {
 			for (Chunk c : chunks) {
 				c.calculateLighting(updated);
 				c.dirty = true;
-				c.setQueued(false);
 			}
 
 			Client2fc.getInstance().runLater(() -> {
@@ -167,41 +164,21 @@ public abstract class Chunk implements World {
 		});
 	}
 
-	private final Object qLock = new Object();
-
-	private boolean isQueued() {
-		synchronized (this.qLock) {
-			return this.queued;
-		}
-	}
-
-	private void setQueued(boolean queued) {
-		synchronized (this.qLock) {
-			this.queued = queued;
-		}
-	}
-
 	public void updateLightingSingle() {
-		if (!this.isQueued()) {
-			this.setQueued(true);
+		lightingExecutor.execute(() -> {
+			Set<Chunk> updated = new HashSet<>();
 
-			lightingExecutor.execute(() -> {
-				Set<Chunk> updated = new HashSet<>();
+			// Reset chunk lighting
+			Arrays.fill(this.nextLighting, (byte) 0);
+			this.calculateLighting(updated);
+			this.dirty = true;
 
-				// Reset chunk lighting
-				Arrays.fill(this.nextLighting, (byte) 0);
-				this.calculateLighting(updated);
-				this.dirty = true;
-
-				this.setQueued(false);
-
-				Client2fc.getInstance().runLater(() -> {
-					for (Chunk c : updated) {
-						c.refreshLighting();
-					}
-				});
+			Client2fc.getInstance().runLater(() -> {
+				for (Chunk c : updated) {
+					c.refreshLighting();
+				}
 			});
-		}
+		});
 	}
 
 	private void calculateLighting(Set<Chunk> updated) {

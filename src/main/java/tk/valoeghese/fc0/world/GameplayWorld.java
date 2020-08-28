@@ -171,7 +171,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (c.render) {
-			c.assertSkylightSingle(this.skyLight);
 			return c;
 		}
 
