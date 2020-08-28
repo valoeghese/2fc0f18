@@ -35,28 +35,28 @@ public enum TorchRenderer implements TileRenderer {
 		}
 
 		layer.add(new Face(
-				new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
+				new Vector3f(x + 0.5f, y + 0.5f, z + 0.5f + 0.5f * 0.25f),
 				2,
 				instance,
 				1.05f * chunk.getRenderLightingFactor(x, y, z + 1),
 				meta));
 
 		layer.add(new Face(
-				new Vector3f(x + 0.5f, y + 0.5f, z),
+				new Vector3f(x + 0.5f, y + 0.5f, z + 0.5f - 0.5f * 0.25f),
 				5,
 				instance,
 				0.75f * chunk.getRenderLightingFactor(x, y, z - 1),
 				meta));
 
 		layer.add(new Face(
-				new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
+				new Vector3f(x + 0.5f + 0.5f * 0.25f, y + 0.5f, z + 0.5f),
 				0,
 				instance,
 				0.9f * chunk.getRenderLightingFactor(x + 1, y, z),
 				meta));
 
 		layer.add(new Face(
-				new Vector3f(x, y + 0.5f, z + 0.5f),
+				new Vector3f(x + 0.5f - 0.5f * 0.25f, y + 0.5f, z + 0.5f),
 				3,
 				instance,
 				0.9f * chunk.getRenderLightingFactor(x - 1, y, z),
