@@ -280,6 +280,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this.spawnChunk;
 	}
 
+	@Override
+	public GameplayWorld<?> getGameplayWorld() {
+		return this;
+	}
+
+	public byte getSkyLight() {
+		return this.skyLight;
+	}
+
 	private class GeneratorWorldAccess implements GenWorld {
 		@Override
 		public boolean isInWorld(int x, int y, int z) {

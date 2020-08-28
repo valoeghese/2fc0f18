@@ -57,7 +57,7 @@ public abstract class Chunk implements World {
 	protected byte[] lighting;
 	protected byte[] nextLighting;
 	private final int[] heightmap = new int[16 * 16];
-	private byte skyLight = 0;
+	private byte skyLight = -1;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -182,6 +182,10 @@ public abstract class Chunk implements World {
 	}
 
 	private void calculateLighting(Set<Chunk> updated) {
+		if (this.skyLight == -1) {
+			this.skyLight = this.parent.getGameplayWorld().getSkyLight();
+		}
+
 		int light;
 		updated.add(this);
 
