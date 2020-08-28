@@ -71,7 +71,7 @@ public class ChunkMesh {
 							Tile tileSouth = z == 0 ? this.chunk.south(x, y) : Tile.BY_ID[this.tiles[index(x, y, z - 1)]];
 							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
 
-							if (!tileUp.isOpaque(waterLayer)) {
+							if (!tileUp.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 1f, z + 0.5f),
 										1,
@@ -80,7 +80,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileDown.isOpaque(waterLayer)) {
+							if (!tileDown.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y, z + 0.5f),
 										4,
@@ -89,7 +89,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileNorth.isOpaque(waterLayer)) {
+							if (!tileNorth.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
 										2,
@@ -98,7 +98,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileSouth.isOpaque(waterLayer)) {
+							if (!tileSouth.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z),
 										5,
@@ -107,7 +107,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileEast.isOpaque(waterLayer)) {
+							if (!tileEast.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
@@ -116,7 +116,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileWest.isOpaque(waterLayer)) {
+							if (!tileWest.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,

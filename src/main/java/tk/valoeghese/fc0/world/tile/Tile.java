@@ -92,7 +92,19 @@ public class Tile {
 	}
 
 	public final boolean isOpaque() {
-		return this.isOpaque(false);
+		return this.isOpaque(false, null);
+	}
+
+	public final boolean isOpaque(boolean waterRenderLayer) {
+		return this.isOpaque(waterRenderLayer, null);
+	}
+
+	/**
+	 * @param waterRenderLayer whether we are on the water render layer.
+	 * @param comparableTo the tile to be rendered, if the face of that tile is against this tile.
+	 */
+	public boolean isOpaque(boolean waterRenderLayer, @Nullable Tile comparableTo) {
+		return this.opaque;
 	}
 
 	public boolean isOpaqueToLight() {
@@ -101,10 +113,6 @@ public class Tile {
 
 	public int getLight() {
 		return this.light;
-	}
-
-	public boolean isOpaque(boolean waterRenderLayer) {
-		return this.opaque;
 	}
 
 	public boolean dontOptimiseOut() {
