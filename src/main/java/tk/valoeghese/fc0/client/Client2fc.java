@@ -142,7 +142,7 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		ALC10.alcCloseDevice(Audio.getDevice());
 		Chunk.shutdown();
 	}
-
+ 
 	private void tick() {
 		Runnable task = null;
 

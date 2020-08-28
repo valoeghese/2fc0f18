@@ -57,7 +57,7 @@ public abstract class Chunk implements World {
 	protected byte[] lighting;
 	protected byte[] nextLighting;
 	private final int[] heightmap = new int[16 * 16];
-	private byte skyLight = 0;
+	private byte skyLight = -1;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -164,7 +164,28 @@ public abstract class Chunk implements World {
 		});
 	}
 
+	public void updateLightingSingle() {
+		lightingExecutor.execute(() -> {
+			Set<Chunk> updated = new HashSet<>();
+
+			// Reset chunk lighting
+			Arrays.fill(this.nextLighting, (byte) 0);
+			this.calculateLighting(updated);
+			this.dirty = true;
+
+			Client2fc.getInstance().runLater(() -> {
+				for (Chunk c : updated) {
+					c.refreshLighting();
+				}
+			});
+		});
+	}
+
 	private void calculateLighting(Set<Chunk> updated) {
+		if (this.skyLight == -1) {
+			this.skyLight = this.parent.getGameplayWorld().getSkyLight();
+		}
+
 		int light;
 		updated.add(this);
 
@@ -419,6 +440,13 @@ public abstract class Chunk implements World {
 		if (this.skyLight != skyLight) {
 			this.skyLight = skyLight;
 			this.updateLighting(); // Since executor is single thread, should not cause problems
+		}
+	}
+
+	public void assertSkylightSingle(byte skyLight) {
+		if (this.skyLight != skyLight) {
+			this.skyLight = skyLight;
+			this.updateLightingSingle(); // Since executor is single thread, should not cause problems
 		}
 	}
 

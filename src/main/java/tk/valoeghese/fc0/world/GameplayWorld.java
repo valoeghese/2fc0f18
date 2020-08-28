@@ -92,7 +92,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 			for (Chunk chunk : this.chunks.values()) {
 				if (chunk.status.isFull()) {
-					chunk.assertSkylight(skyLight);
+					chunk.assertSkylightSingle(skyLight);
 				}
 			}
 		}
@@ -278,6 +278,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Override
 	public ChunkPos getSpawnPos() {
 		return this.spawnChunk;
+	}
+
+	@Override
+	public GameplayWorld<?> getGameplayWorld() {
+		return this;
+	}
+
+	public byte getSkyLight() {
+		return this.skyLight;
 	}
 
 	private class GeneratorWorldAccess implements GenWorld {

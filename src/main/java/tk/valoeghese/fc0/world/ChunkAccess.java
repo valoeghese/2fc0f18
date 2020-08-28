@@ -11,4 +11,8 @@ public interface ChunkAccess {
 	@Nullable
 	Chunk getRenderChunk(int x, int z);
 	long getSeed();
+	/**
+	 * @return the gameplay world associated with this ChunkAccess. Returns itself if the object a GameplayWorld already.
+	 */
+	GameplayWorld<?> getGameplayWorld();
 }
