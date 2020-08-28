@@ -54,7 +54,13 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 			this.ncTick = !this.ncTick;
 
 			if (this.ncTick) {
-				this.chunksForRendering.add(this.toAddForRendering.remove());
+				ClientChunk c = this.toAddForRendering.remove();
+
+				if (c.mesh != null) { // TODO is this neccesary? (paired with the related check in ClientChunk#refreshLighting)
+					c.rebuildMesh();
+				}
+
+				this.chunksForRendering.add(c);
 			}
 		}
 	}
