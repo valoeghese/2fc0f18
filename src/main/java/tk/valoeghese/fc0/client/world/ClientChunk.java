@@ -3,11 +3,11 @@ package tk.valoeghese.fc0.client.world;
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
-import java.util.List;
 
 public class ClientChunk extends Chunk implements RenderedChunk {
 	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
@@ -105,7 +105,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	private void rebuildMesh() {
+	void rebuildMesh() {
 		if (this.mesh != null) {
 			this.mesh.buildMesh();
 		}
@@ -140,7 +140,10 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	@Override
 	protected void refreshLighting() {
 		super.refreshLighting();
-		this.rebuildMesh(); // rebuild mesh to account for new lighting
+
+		if (this.status == ChunkLoadStatus.RENDER) { // Is this neccesary?
+			this.rebuildMesh(); // rebuild mesh to account for new lighting
+		}
 	}
 
 	@Override

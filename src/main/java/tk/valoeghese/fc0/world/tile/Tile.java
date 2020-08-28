@@ -24,6 +24,7 @@ public class Tile {
 	// TODO use this (funni unstability magic system)
 	public final float iota;
 	private boolean opaque = true;
+	private boolean opaqueToLight = true;
 	private boolean render = true;
 	private boolean cross = false;
 	private boolean translucent = false;
@@ -54,6 +55,7 @@ public class Tile {
 
 	protected Tile cutout() {
 		this.opaque = false;
+		this.opaqueToLight = false;
 		return this;
 	}
 
@@ -65,7 +67,7 @@ public class Tile {
 
 	protected Tile translucent() {
 		this.translucent = true;
-		this.cutout();
+		this.opaque = false;
 		return this;
 	}
 
@@ -90,15 +92,27 @@ public class Tile {
 	}
 
 	public final boolean isOpaque() {
-		return this.isOpaque(false);
+		return this.isOpaque(false, null);
+	}
+
+	public final boolean isOpaque(boolean waterRenderLayer) {
+		return this.isOpaque(waterRenderLayer, null);
+	}
+
+	/**
+	 * @param waterRenderLayer whether we are on the water render layer.
+	 * @param comparableTo the tile to be rendered, if the face of that tile is against this tile.
+	 */
+	public boolean isOpaque(boolean waterRenderLayer, @Nullable Tile comparableTo) {
+		return this.opaque;
+	}
+
+	public boolean isOpaqueToLight() {
+		return this.opaqueToLight;
 	}
 
 	public int getLight() {
 		return this.light;
-	}
-
-	public boolean isOpaque(boolean waterRenderLayer) {
-		return this.opaque;
 	}
 
 	public boolean dontOptimiseOut() {
@@ -155,5 +169,5 @@ public class Tile {
 	public static final Tile ICE = new IceTile("ice", 12, 0.0f).translucent().setName("ice");
 	public static final Tile GALENA = new Tile("galena", 13, 0.0f).setName("galena");
 	// TODO proper torch texture
-	public static final Tile TORCH = new TorchTile("bricks", 14, 0.0f).setName("torch").cutout().lightLevel(10);
+	public static final Tile TORCH = new TorchTile("bricks", 14, 0.0f).setName("torch").cutout().noCollision().lightLevel(10);
 }
