@@ -311,6 +311,7 @@ public abstract class Chunk implements World {
 			if (height > y) {
 				if (newTileO.shouldRender()) {
 					this.heightmap[horizontalLoc] = y;
+					this.updateLighting();
 				}
 			} else if (height == y){
 				if (!newTileO.shouldRender()) {
@@ -320,6 +321,8 @@ public abstract class Chunk implements World {
 							this.heightmap[horizontalLoc] = by;
 						}
 					}
+
+					this.updateLighting();
 				}
 			}
 
