@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.tile;
 
+import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.gen.GenWorld;
@@ -133,6 +134,11 @@ public class Tile {
 		return this.translationKey;
 	}
 
+	@Nullable
+	public TileRenderer getCustomTileRenderer() {
+		return null;
+	}
+
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile("stone", 0, 0.0f).dontRender().noCollision();
 	public static final Tile STONE = new Tile("stone", 1, 0.0f).setName("stone");
@@ -149,5 +155,5 @@ public class Tile {
 	public static final Tile ICE = new IceTile("ice", 12, 0.0f).translucent().setName("ice");
 	public static final Tile GALENA = new Tile("galena", 13, 0.0f).setName("galena");
 	// TODO proper torch texture
-	public static final Tile TORCH = new Tile("bricks", 14, 0.0f).setName("torch").cutout().lightLevel(10);
+	public static final Tile TORCH = new TorchTile("bricks", 14, 0.0f).setName("torch").cutout().lightLevel(10);
 }
