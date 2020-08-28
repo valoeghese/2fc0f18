@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.system.Camera;
+import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -52,7 +53,11 @@ public class ChunkMesh {
 						boolean waterLayer = instance == Tile.WATER;
 						List<RenderedTileFace> layer = waterLayer ? waterFaces : (instance.isTranslucent() ? translucentFaces : faces);
 
-						if (instance.shouldRender() && instance.isCross()) {
+						TileRenderer custom = instance.getCustomTileRenderer();
+
+						if (custom != null && instance.shouldRender()) {
+							custom.addFaces(instance, layer, this.tiles, this.chunk, x, y, z, meta);
+						} if (instance.shouldRender() && instance.isCross()) {
 							layer.add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
 											instance,
@@ -185,8 +190,8 @@ public class ChunkMesh {
 		}
 	}
 
-	static class RenderedTileFace {
-		RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light, byte meta) {
+	public static class RenderedTileFace {
+		public RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light, byte meta) {
 			this.pos = offset;
 			this.u = tile.getU(faceAxis, meta);
 			this.v = tile.getV(faceAxis, meta);
@@ -194,13 +199,13 @@ public class ChunkMesh {
 			this.l = light;
 		}
 
-		final Vector3f pos;
-		int u;
-		int v;
-		private int f;
-		float l;
+		protected final Vector3f pos;
+		protected int u;
+		protected int v;
+		protected int f;
+		protected float l;
 
-		static final float SIZE = 0.5f;
+		public static final float SIZE = 0.5f;
 
 		public void addTo(ExternallyEditableModel model) {
 			final float startU = (this.u / 16.0f);
@@ -240,5 +245,6 @@ public class ChunkMesh {
 	public void destroy() {
 		this.solid.destroy();
 		this.water.destroy();
+		this.translucent.destroy();
 	}
 }
