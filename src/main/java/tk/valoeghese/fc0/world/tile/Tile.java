@@ -24,6 +24,7 @@ public class Tile {
 	// TODO use this (funni unstability magic system)
 	public final float iota;
 	private boolean opaque = true;
+	private boolean opaqueToLight = true;
 	private boolean render = true;
 	private boolean cross = false;
 	private boolean translucent = false;
@@ -54,6 +55,7 @@ public class Tile {
 
 	protected Tile cutout() {
 		this.opaque = false;
+		this.opaqueToLight = false;
 		return this;
 	}
 
@@ -65,7 +67,7 @@ public class Tile {
 
 	protected Tile translucent() {
 		this.translucent = true;
-		this.cutout();
+		this.opaque = false;
 		return this;
 	}
 
@@ -91,6 +93,10 @@ public class Tile {
 
 	public final boolean isOpaque() {
 		return this.isOpaque(false);
+	}
+
+	public boolean isOpaqueToLight() {
+		return this.opaqueToLight;
 	}
 
 	public int getLight() {

@@ -235,7 +235,7 @@ public abstract class Chunk implements World {
 
 		int idx = index(x, y, z);
 
-		if (y < 0 || y >= WORLD_HEIGHT || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaque())) {
+		if (y < 0 || y >= WORLD_HEIGHT || light == 0 || (checkOpaque && Tile.BY_ID[this.tiles[idx]].isOpaqueToLight())) {
 			return false;
 		}
 
@@ -261,7 +261,7 @@ public abstract class Chunk implements World {
 		for (int bx = 0; bx < 16; ++bx) {
 			for (int bz = 0; bz < 16; ++bz) {
 				for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
-					if (Tile.BY_ID[this.readTile(bx, by, bz)].isOpaque()) {
+					if (Tile.BY_ID[this.readTile(bx, by, bz)].isOpaqueToLight()) {
 						this.heightmap[bx * 16 + bz] = by;
 						break;
 					}
@@ -310,16 +310,16 @@ public abstract class Chunk implements World {
 				int height = this.heightmap[horizontalLoc];
 
 				if (height > y) {
-					if (newTileO.isOpaque()) {
+					if (newTileO.isOpaqueToLight()) {
 						this.heightmap[horizontalLoc] = y;
 						hasUpdatedLighting = true;
 						this.updateLighting();
 					}
 				} else if (height == y) {
-					if (!newTileO.isOpaque()) {
+					if (!newTileO.isOpaqueToLight()) {
 						// Recompute for y
 						for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
-							if (Tile.BY_ID[this.readTile(x, by, z)].isOpaque()) {
+							if (Tile.BY_ID[this.readTile(x, by, z)].isOpaqueToLight()) {
 								this.heightmap[horizontalLoc] = by;
 							}
 						}
@@ -331,7 +331,7 @@ public abstract class Chunk implements World {
 
 				if (!hasUpdatedLighting) {
 					if ((this.status.isFull() && (oldTileO.getLight() != newTileO.getLight()))
-							|| (!newTileO.isOpaque() && shouldUpdateLight(x, y, z))) {
+							|| (!newTileO.isOpaqueToLight() && shouldUpdateLight(x, y, z))) {
 						this.updateLighting();
 					}
 				}
