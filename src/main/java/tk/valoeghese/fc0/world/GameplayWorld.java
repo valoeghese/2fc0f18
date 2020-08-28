@@ -125,6 +125,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			break;
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
+			if (!result.status.isFull()) {
+				result.computeHeightmap();
+			}
+
 			if (result.needsLightingCalcOnLoad) {
 				result.setSkylight(this.skyLight); // just in case
 				result.updateLighting();

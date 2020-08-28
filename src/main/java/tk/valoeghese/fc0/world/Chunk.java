@@ -48,8 +48,6 @@ public abstract class Chunk implements World {
 				}
 			}
 		}
-
-		this.computeHeightmap();
 	}
 
 	protected byte[] tiles;
@@ -305,35 +303,38 @@ public abstract class Chunk implements World {
 
 			// Modify Heightmap
 
-			int horizontalLoc = x * 16 + z;
-			int height = this.heightmap[horizontalLoc];
+			boolean hasUpdatedLighting = false;
 
-			if (height > y) {
-				if (newTileO.isOpaque()) {
-					this.heightmap[horizontalLoc] = y;
+			if (status.isFull()) {
+				int horizontalLoc = x * 16 + z;
+				int height = this.heightmap[horizontalLoc];
 
-					if (this.status.isFull()) {
+				if (height > y) {
+					if (newTileO.isOpaque()) {
+						this.heightmap[horizontalLoc] = y;
+						hasUpdatedLighting = true;
 						this.updateLighting();
 					}
-				}
-			} else if (height == y){
-				if (!newTileO.isOpaque()) {
-					// Recompute for y
-					for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
-						if (Tile.BY_ID[this.readTile(x, by, z)].isOpaque()) {
-							this.heightmap[horizontalLoc] = by;
+				} else if (height == y) {
+					if (!newTileO.isOpaque()) {
+						// Recompute for y
+						for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
+							if (Tile.BY_ID[this.readTile(x, by, z)].isOpaque()) {
+								this.heightmap[horizontalLoc] = by;
+							}
 						}
-					}
 
-					if (this.status.isFull()) {
+						hasUpdatedLighting = true;
 						this.updateLighting();
 					}
 				}
-			}
 
-			if ((this.status.isFull() && (oldTileO.getLight() != newTileO.getLight()))
-					|| (!newTileO.isOpaque() && shouldUpdateLight(x, y, z))) {
-				this.updateLighting();
+				if (!hasUpdatedLighting) {
+					if ((this.status.isFull() && (oldTileO.getLight() != newTileO.getLight()))
+							|| (!newTileO.isOpaque() && shouldUpdateLight(x, y, z))) {
+						this.updateLighting();
+					}
+				}
 			}
 		}
 	}
