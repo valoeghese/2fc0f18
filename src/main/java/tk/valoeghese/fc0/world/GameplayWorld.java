@@ -92,7 +92,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 			for (Chunk chunk : this.chunks.values()) {
 				if (chunk.status.isFull()) {
-					chunk.assertSkylight(skyLight);
+					chunk.assertSkylightSingle(skyLight);
 				}
 			}
 		}
@@ -171,6 +171,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (c.render) {
+			c.assertSkylightSingle(this.skyLight);
 			return c;
 		}
 
