@@ -169,5 +169,5 @@ public class Tile {
 	public static final Tile ICE = new IceTile("ice", 12, 0.0f).translucent().setName("ice");
 	public static final Tile GALENA = new Tile("galena", 13, 0.0f).setName("galena");
 	// TODO proper torch texture
-	public static final Tile TORCH = new TorchTile("bricks", 14, 0.0f).setName("torch").cutout().noCollision().lightLevel(10);
+	public static final Tile TORCH = new TorchTile("planks", 14, 0.0f).setName("torch").cutout().noCollision().lightLevel(10);
 }

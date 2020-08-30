@@ -17,6 +17,18 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	protected ChunkMesh mesh;
 
 	@Override
+	public void writeMeta(int x, int y, int z, byte meta) {
+		int i = index(x, y, z);
+
+		if (this.meta[i] == meta) {
+			return;
+		}
+
+		super.writeMeta(x, y, z, meta);
+		this.rebuildMesh();
+	}
+
+	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
 		int i = index(x, y, z);
 

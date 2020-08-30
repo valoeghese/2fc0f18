@@ -347,8 +347,14 @@ public abstract class Chunk implements World {
 
 	@Override
 	public void writeMeta(int x, int y, int z, byte meta) {
+		int i = index(x, y, z);
+
+		if (this.meta[i] == meta) {
+			return;
+		}
+
 		this.dirty = true;
-		this.meta[index(x, y, z)] = meta;
+		this.meta[i] = meta;
 	}
 
 	@Override
