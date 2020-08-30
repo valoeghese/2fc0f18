@@ -266,8 +266,14 @@ public class GameScreen extends Screen {
 			player.setNoClip(!player.isNoClip());
 		}
 
-		if (player.dev && Keybinds.DEV_ITEMS.hasBeenPressed()) {
-			player.addDevItems();
+		if (player.dev) {
+			if (Keybinds.DEV_ITEMS.hasBeenPressed()) {
+				player.addDevItems();
+			}
+
+			if (Keybinds.ADD_TIME.hasBeenPressed()) {
+				Client2fc.getInstance().time += 200;
+			}
 		}
 
 		if (Keybinds.DEV_MODE.hasBeenPressed()) {
