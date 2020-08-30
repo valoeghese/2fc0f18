@@ -246,6 +246,8 @@ public class GameScreen extends Screen {
 							} else {
 								world.writeTile(pos, tile.id);
 							}
+
+							tile.onPlace(world, pos);
 						}
 					}
 				}

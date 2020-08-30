@@ -25,8 +25,8 @@ public abstract class Chunk implements World {
 		this.parent = parent;
 		this.tiles = tiles;
 		this.meta = meta;
-		this.lighting = new byte[tiles.length];
-		this.nextLighting = new byte[tiles.length];
+		this.blockLighting = new byte[tiles.length];
+		this.nextBlockLighting = new byte[tiles.length];
 		this.x = x;
 		this.z = z;
 		this.startX = x << 4;
@@ -52,8 +52,10 @@ public abstract class Chunk implements World {
 
 	protected byte[] tiles;
 	protected byte[] meta;
-	protected byte[] lighting;
-	protected byte[] nextLighting;
+	protected byte[] blockLighting;
+	protected byte[] nextBlockLighting;
+	protected byte[] skyLighting;
+	protected byte[] nextSkyLighting;
 	private final int[] heightmap = new int[16 * 16]; // heightmap of opaque blocks for lighting calculations
 	private byte skyLight = -1;
 	public final int x;
@@ -97,7 +99,7 @@ public abstract class Chunk implements World {
 	}
 
 	public byte getLightLevel(int x, int y, int z) {
-		return this.lighting[index(x, y, z)];
+		return this.blockLighting[index(x, y, z)];
 	}
 
 	private byte getLightLevelOverflowing(int x, int y, int z) {
@@ -144,13 +146,15 @@ public abstract class Chunk implements World {
 				if (c == null) {
 					chunks.remove(i);
 				} else {
-					Arrays.fill(c.nextLighting, (byte) 0);
+					Arrays.fill(c.nextBlockLighting, (byte) 0);
+					Arrays.fill(c.nextSkyLighting, (byte) 0);
 				}
 			}
 
 			// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
 			for (Chunk c : chunks) {
-				c.calculateLighting(updated);
+				c.calculateSkyLighting(updated);
+				c.calculateBlockLighting(updated);
 				c.dirty = true;
 			}
 
@@ -162,13 +166,13 @@ public abstract class Chunk implements World {
 		});
 	}
 
-	public void updateLightingSingle() {
+	public void updateSkyLighting() {
 		lightingExecutor.execute(() -> {
 			Set<Chunk> updated = new HashSet<>();
 
 			// Reset chunk lighting
-			Arrays.fill(this.nextLighting, (byte) 0);
-			this.calculateLighting(updated);
+			Arrays.fill(this.nextBlockLighting, (byte) 0);
+			this.calculateSkyLighting(updated);
 			this.dirty = true;
 
 			Client2fc.getInstance().runLater(() -> {
@@ -179,7 +183,7 @@ public abstract class Chunk implements World {
 		});
 	}
 
-	private void calculateLighting(Set<Chunk> updated) {
+	private void calculateBlockLighting(Set<Chunk> updated) {
 		if (this.skyLight == -1) {
 			this.skyLight = this.parent.getGameplayWorld().getSkyLight();
 		}
@@ -206,7 +210,7 @@ public abstract class Chunk implements World {
 	}
 
 	protected void refreshLighting() {
-		System.arraycopy(this.nextLighting, 0, this.lighting, 0, this.nextLighting.length);
+		System.arraycopy(this.nextBlockLighting, 0, this.blockLighting, 0, this.nextBlockLighting.length);
 	}
 
 	private boolean propagateLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
@@ -239,8 +243,8 @@ public abstract class Chunk implements World {
 			return false;
 		}
 
-		if (this.nextLighting[idx] < light) {
-			this.nextLighting[idx] = (byte) light;
+		if (this.nextBlockLighting[idx] < light) {
+			this.nextBlockLighting[idx] = (byte) light;
 
 			if (light > 1) {
 				this.propagateLight(updated, x - 1, y, z, light - 1, true);
@@ -419,7 +423,7 @@ public abstract class Chunk implements World {
 		for (int i = 0; i < this.tiles.length; ++i) {
 			tiles.writeByte(this.tiles[i]);
 			tiles.writeByte(this.meta[i]);
-			lighting.writeByte(this.lighting[i]);
+			lighting.writeByte(this.blockLighting[i]);
 		}
 
 		IntArrayDataSection heightmap = new IntArrayDataSection();
@@ -461,7 +465,7 @@ public abstract class Chunk implements World {
 	public void assertSkylightSingle(byte skyLight) {
 		if (this.skyLight != skyLight) {
 			this.skyLight = skyLight;
-			this.updateLightingSingle(); // Since executor is single thread, should not cause problems
+			this.updateSkyLighting(); // Since executor is single thread, should not cause problems
 		}
 	}
 
@@ -496,7 +500,7 @@ public abstract class Chunk implements World {
 			ByteArrayDataSection lighting = data.getByteArray("lighting");
 
 			for (int i = 0; i < lighting.size(); ++i) {
-				result.lighting[i] = lighting.readByte(i);
+				result.blockLighting[i] = lighting.readByte(i);
 			}
 		}
 

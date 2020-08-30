@@ -23,6 +23,7 @@ public class CraftingManager {
 	public static void addCraftingRecipes() {
 		CRAFTING.addCraftingRecipe(Tile.STONE.id, new Item(Tile.STONE_BRICKS));
 		CRAFTING.addCraftingRecipe(Tile.STONE.id, new Item(Tile.BRICKS));
+		CRAFTING.addCraftingRecipe(Tile.LOG.id, new Item(Tile.PLANKS));
 	}
 
 	public static final CraftingManager CRAFTING = new CraftingManager();

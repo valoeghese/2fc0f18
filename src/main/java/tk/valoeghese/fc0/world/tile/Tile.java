@@ -2,11 +2,14 @@ package tk.valoeghese.fc0.world.tile;
 
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
+import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
+import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.player.Item;
 
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -135,6 +138,8 @@ public class Tile {
 		return this.translucent;
 	}
 
+	public void onPlace(World world, TilePos pos) {}
+
 	public boolean isSolid() {
 		return this.solid;
 	}
@@ -170,4 +175,5 @@ public class Tile {
 	public static final Tile GALENA = new Tile("galena", 13, 0.0f).setName("galena");
 	// TODO proper torch texture
 	public static final Tile TORCH = new TorchTile("planks", 14, 0.0f).setName("torch").cutout().noCollision().lightLevel(10);
+	public static final Tile PLANKS = new MetaPlacementTile(Arrays.asList("planks", "planks_2"), 15, 0.0f).setName("planks");
 }

@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.client;
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.ALC10;
+import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.render.Shaders;
@@ -45,7 +46,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static tk.valoeghese.fc0.client.render.Textures.TILE_ATLAS;
 
-public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
+public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
 		long time = System.currentTimeMillis();
 		instance = this;
@@ -60,13 +61,10 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 	}
 
-	private ClientWorld world;
 	private Matrix4f projection;
 	private final Matrix4f guiProjection;
-	private ClientPlayer player;
 	private long nextUpdate = 0;
 	private GUI waterOverlay;
-	public long time = 0;
 	private int fov;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
@@ -123,6 +121,19 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
+
+				Runnable task = null;
+
+				synchronized (this.later) {
+					if (!this.later.isEmpty()) {
+						task = this.later.remove();
+					}
+				}
+
+				if (task != null) {
+					task.run();
+				}
+
 				this.tick();
 			}
 
@@ -142,20 +153,9 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		ALC10.alcCloseDevice(Audio.getDevice());
 		Chunk.shutdown();
 	}
- 
-	private void tick() {
-		Runnable task = null;
 
-		synchronized (this.later) {
-			if (!this.later.isEmpty()) {
-				task = this.later.remove();
-			}
-		}
-
-		if (task != null) {
-			task.run();
-		}
-
+	@Override
+	protected void tick() {
 		boolean isTitleScreen = this.currentScreen == this.titleScreen;
 
 		if (isTitleScreen) {
@@ -163,7 +163,8 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 		}
 
 		this.handleKeybinds();
-		this.player.tick();
+
+		super.tick();
 
 		EcoZone zone = this.world.getEcozone(this.player.getX(), this.player.getZ());
 
@@ -180,8 +181,6 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 				this.gameScreen.biomeWidget.changeText(newValue);
 			}
 		}
-
-		++this.time;
 	}
 
 	private void initGameRendering() {
@@ -429,5 +428,4 @@ public class Client2fc implements Runnable, GLFWCursorPosCallbackI {
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
-	public static final Random RANDOM = new Random();
 }
