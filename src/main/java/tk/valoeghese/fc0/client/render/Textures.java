@@ -130,7 +130,7 @@ public class Textures {
 
 			entries.add("./$break"); // key for tile end, item begin
 
-			for (ItemType item : ItemType.BY_ID) {
+			for (ItemType item : ItemType.ITEMS) {
 				if (item != null) {
 					item.requestUV(str -> { // dummy code to collect textures yet once more
 						entries.add(str);

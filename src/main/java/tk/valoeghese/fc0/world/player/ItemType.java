@@ -2,12 +2,20 @@ package tk.valoeghese.fc0.world.player;
 
 import tk.valoeghese.fc0.util.maths.Vec2i;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class ItemType {
 	public ItemType(String textureName, int id) {
 		this.id = id;
-		BY_ID[id] = this;
+
+		if (id != -1) {
+			BY_ID[id] = this;
+		}
+
+		ITEMS.add(this);
+
 		this.textureName = textureName;
 	}
 
@@ -41,7 +49,9 @@ public class ItemType {
 		return this.translationKey;
 	}
 
+	public static final List<ItemType> ITEMS = new ArrayList<>();
 	public static final ItemType[] BY_ID = new ItemType[128];
+	// An ID of negative one symbolises a delegate item.
+	public static final ItemType TORCH = new ItemType("torch", -1).setName("torch");
 	public static final ItemType POMELO = new ItemType("pomelo", 0).setName("pomelo");
-	public static final ItemType TORCH = new ItemType("torch", 1).setName("torch");
 }

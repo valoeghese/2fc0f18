@@ -204,7 +204,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		uvRequests = name -> new Vec2i(Textures.ITEM_ATLAS_OBJ.imageLocationMap.get(name));
 
-		for (ItemType item : ItemType.BY_ID) {
+		for (ItemType item : ItemType.ITEMS) {
 			if (item != null) {
 				item.requestUV(uvRequests);
 			}
