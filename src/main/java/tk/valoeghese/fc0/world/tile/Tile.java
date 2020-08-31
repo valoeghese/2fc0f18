@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
+import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.player.Item;
 
 import javax.annotation.Nullable;
@@ -146,6 +147,11 @@ public class Tile {
 
 	public float getFrictionConstant() {
 		return 1.0f;
+	}
+
+	@Nullable
+	public ItemType delegateItem() {
+		return null;
 	}
 
 	@Override

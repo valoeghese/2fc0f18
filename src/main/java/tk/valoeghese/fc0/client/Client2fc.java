@@ -31,7 +31,7 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.CraftingManager;
-import tk.valoeghese.fc0.world.player.IngredientItem;
+import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -173,6 +173,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			if (this.player.cachedPos != tilePos) {
 				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
+				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 			}
 
 			if (zone != this.player.cachedZone) {
@@ -203,7 +204,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		uvRequests = name -> new Vec2i(Textures.ITEM_ATLAS_OBJ.imageLocationMap.get(name));
 
-		for (IngredientItem item : IngredientItem.BY_ID) {
+		for (ItemType item : ItemType.BY_ID) {
 			if (item != null) {
 				item.requestUV(uvRequests);
 			}
@@ -249,7 +250,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		long time = System.nanoTime();
 		float zeitGrellheit = sin((float) this.time / 9216.0f);
 		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
-		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 8));
+		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 10));
 
 		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 

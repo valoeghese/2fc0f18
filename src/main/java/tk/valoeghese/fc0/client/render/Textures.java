@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.client.render.system.GeneratedAtlas;
 import tk.valoeghese.fc0.client.render.system.util.ResourceLoader;
 import tk.valoeghese.fc0.client.render.system.util.TextureLoader;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.player.IngredientItem;
+import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.imageio.ImageIO;
@@ -130,7 +130,7 @@ public class Textures {
 
 			entries.add("./$break"); // key for tile end, item begin
 
-			for (IngredientItem item : IngredientItem.BY_ID) {
+			for (ItemType item : ItemType.BY_ID) {
 				if (item != null) {
 					item.requestUV(str -> { // dummy code to collect textures yet once more
 						entries.add(str);

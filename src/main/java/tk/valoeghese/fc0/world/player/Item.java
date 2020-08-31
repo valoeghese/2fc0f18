@@ -9,7 +9,7 @@ public class Item {
 		this(tile, 0);
 	}
 
-	public Item(IngredientItem item) {
+	public Item(ItemType item) {
 		this.tileValue = null;
 		this.ingredientItemValue = item;
 		this.tile = false;
@@ -29,7 +29,7 @@ public class Item {
 
 	public Item(int id, byte meta, int count) {
 		this.tileValue = id < 256 ? Tile.BY_ID[id] : null;
-		this.ingredientItemValue = id > 255 ? IngredientItem.BY_ID[id - 256] : null;
+		this.ingredientItemValue = id > 255 ? ItemType.BY_ID[id - 256] : null;
 		this.tile = id < 256;
 		this.meta = meta;
 		this.count = count;
@@ -39,7 +39,7 @@ public class Item {
 	@Nullable
 	private final Tile tileValue;
 	@Nullable
-	private final IngredientItem ingredientItemValue;
+	private final ItemType ingredientItemValue;
 	private final byte meta;
 	private int count = 1;
 	@Nullable
@@ -56,7 +56,7 @@ public class Item {
 	}
 
 	@Nullable
-	public IngredientItem ingredientItemValue() {
+	public ItemType ingredientItemValue() {
 		return this.ingredientItemValue;
 	}
 

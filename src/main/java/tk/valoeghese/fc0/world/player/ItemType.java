@@ -4,8 +4,8 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 
 import java.util.function.Function;
 
-public class IngredientItem {
-	public IngredientItem(String textureName, int id) {
+public class ItemType {
+	public ItemType(String textureName, int id) {
 		this.id = id;
 		BY_ID[id] = this;
 		this.textureName = textureName;
@@ -31,7 +31,7 @@ public class IngredientItem {
 		return this.v;
 	}
 
-	protected IngredientItem setName(String name) {
+	protected ItemType setName(String name) {
 		this.translationKey = "item." + name;
 		return this;
 	}
@@ -41,6 +41,7 @@ public class IngredientItem {
 		return this.translationKey;
 	}
 
-	public static final IngredientItem[] BY_ID = new IngredientItem[128];
-	public static final IngredientItem POMELO = new IngredientItem("pomelo", 0).setName("pomelo");
+	public static final ItemType[] BY_ID = new ItemType[128];
+	public static final ItemType POMELO = new ItemType("pomelo", 0).setName("pomelo");
+	public static final ItemType TORCH = new ItemType("torch", 1).setName("torch");
 }

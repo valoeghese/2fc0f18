@@ -24,9 +24,12 @@ public class CraftingManager {
 		CRAFTING.addCraftingRecipe(Tile.STONE.id, new Item(Tile.STONE_BRICKS));
 		CRAFTING.addCraftingRecipe(Tile.STONE.id, new Item(Tile.BRICKS));
 		CRAFTING.addCraftingRecipe(Tile.LOG.id, new Item(Tile.PLANKS));
+		CRAFTING.addCraftingRecipe(Tile.PLANKS.id, new Item(Tile.TORCH));
 	}
 
 	public static final CraftingManager CRAFTING = new CraftingManager();
 	// todo smelting
 	// todo magic - perhaps this should be separate, since magic will be the main focus of the game
+	// todo magic is done via a corruption/purification method. Iota is the level of purification, negative is corruption.
+	// players also specialise in one of the 6 elements: Fire, Air, Earth, Water, Nature, Electricity, which each have a corruption and purification side.
 }

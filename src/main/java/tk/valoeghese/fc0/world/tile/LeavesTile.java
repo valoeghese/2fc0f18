@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.world.tile;
 
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.player.IngredientItem;
+import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.player.Item;
 
 import javax.annotation.Nullable;
@@ -38,7 +38,7 @@ public class LeavesTile extends Tile {
 	@Override
 	public Item getDrop(Random rand, byte meta) {
 		if (meta == 1) {
-			return new Item(IngredientItem.POMELO);
+			return new Item(ItemType.POMELO);
 		} else {
 			return super.getDrop(rand, meta);
 		}
