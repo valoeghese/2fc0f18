@@ -18,4 +18,8 @@ public abstract class Lifeform extends Entity {
 
 	@Nonnull
 	protected final Inventory inventory;
+
+	public Inventory getInventory() {
+		return this.inventory;
+	}
 }

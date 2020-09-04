@@ -90,6 +90,25 @@ public abstract class Entity {
 	}
 
 	// checkers
+	public boolean isNoClip() {
+		return this.noClip;
+	}
+
+	public boolean isOnGround() {
+		if (this.falling) {
+			return false;
+		}
+
+		TilePos check = new TilePos(this.pos).down();
+
+		if (this.world.isInWorld(check)) {
+			if (Tile.BY_ID[this.world.readTile(check)].isSolid()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	public boolean isSwimming() {
 		TilePos pos = this.getTilePos();

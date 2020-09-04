@@ -1,7 +1,6 @@
 package tk.valoeghese.fc0.world.player;
 
 import tk.valoeghese.fc0.util.maths.Pos;
-import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.entity.Lifeform;
@@ -106,30 +105,8 @@ public class Player extends Lifeform {
 		this.world.updateChunkOf(this);
 	}
 
-	// checkers
-
-	public boolean isOnGround() {
-		if (this.falling) {
-			return false;
-		}
-
-		TilePos check = new TilePos(this.pos).down();
-
-		if (this.world.isInWorld(check)) {
-			if (Tile.BY_ID[this.world.readTile(check)].isSolid()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	public void setNoClip(boolean noClip) {
 		this.noClip = noClip;
-	}
-
-	public boolean isNoClip() {
-		return this.noClip;
 	}
 
 	// getters
@@ -140,9 +117,5 @@ public class Player extends Lifeform {
 
 	public double getJumpStrength() {
 		return 11.0 / 30.0;
-	}
-
-	public Inventory getInventory() {
-		return this.inventory;
 	}
 }
