@@ -8,6 +8,7 @@ import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.render.screen.CraftingScreen;
@@ -29,6 +30,7 @@ import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
@@ -44,6 +46,7 @@ import java.util.function.Function;
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static tk.valoeghese.fc0.client.render.Textures.ENTITY_ATLAS;
 import static tk.valoeghese.fc0.client.render.Textures.TILE_ATLAS;
 
 public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Runnable, GLFWCursorPosCallbackI {
@@ -278,11 +281,25 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
 		}
 
+		Shaders.terrain.uniformInt("waveMode", 1);
+
 		for(ClientChunk chunk : this.world.getChunksForRendering()){
 			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
 		}
 
+		Shaders.terrain.uniformInt("waveMode", 0);
 		GLUtils.disableBlend();
+
+		// render entities
+		GLUtils.bindTexture(ENTITY_ATLAS);
+
+		for (Entity entity : this.world.getEntities(this.player.getX(), this.player.getZ(), 20)) {
+			EntityRenderer renderer = entity.getRenderer();
+
+			if (renderer != null) {
+				//renderer.getOrCreateModel();
+			}
+		}
 
 		// bind shader
 		Shaders.gui.bind();

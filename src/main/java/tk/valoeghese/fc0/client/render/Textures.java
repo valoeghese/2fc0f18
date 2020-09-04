@@ -147,6 +147,7 @@ public class Textures {
 	public static GeneratedAtlas ITEM_ATLAS_OBJ;
 	public static int TILE_ATLAS = 0;
 	public static int ITEM_ATLAS = 0;
+	public static int ENTITY_ATLAS = 0;
 	public static final int WATER_OVERLAY = load("water_overlay", true);
 	public static final int FONT_ATLAS = load("font_atlas", false);
 	public static final int STARTUP = load("startup", false);

@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.client.render.model;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.system.Camera;
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
@@ -150,9 +149,7 @@ public class ChunkMesh {
 	}
 
 	public void renderWater(Camera camera) {
-		Shaders.terrain.uniformInt("waveMode", 1);
 		camera.render(this.water, this.transform);
-		Shaders.terrain.uniformInt("waveMode", 0);
 	}
 
 	private static int index(int x, int y, int z) { // @see Chunk.index

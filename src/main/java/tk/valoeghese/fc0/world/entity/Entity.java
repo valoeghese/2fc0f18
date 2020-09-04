@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.world.entity;
 
+import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
+import tk.valoeghese.fc0.client.render.system.Model;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;
@@ -7,11 +9,18 @@ import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import javax.annotation.Nullable;
+
 public abstract class Entity {
 	protected Entity(float height) {
 		this.pos = new MutablePos(0 ,0, 0);
 		this.velocity = new MutablePos(0, 0, 0);
 		this.height = height;
+	}
+
+	protected Entity(LoadableWorld world, float height) {
+		this(height);
+		this.world = world;
 	}
 
 	protected final MutablePos pos;
@@ -146,5 +155,10 @@ public abstract class Entity {
 
 	public Pos getPos() {
 		return new Pos(this.pos);
+	}
+
+	@Nullable
+	public EntityRenderer getRenderer() {
+		return null;
 	}
 }

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
@@ -51,6 +52,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 	private final WorldGen worldGen;
 	private byte skyLight;
+	private List<Entity> entities = new ArrayList<>();
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);
@@ -269,6 +271,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	protected abstract void onChunkRemove(Chunk c);
 
+	public void addEntity(Entity entity) {
+		this.entities.add(entity);
+	}
+
 	@Override
 	public void destroy() {
 		this.chunkSaveExecutor.shutdown();
@@ -291,6 +297,22 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	public byte getSkyLight() {
 		return this.skyLight;
+	}
+
+	public List<Entity> getEntities(int x, int z, int radius) {
+		List<Entity> result = new ArrayList<>();
+
+		for (Entity entity : this.entities) {
+			if (entity.getTilePos().horizontalManhattanDist(x, z) <= radius) {
+				result.add(entity);
+			}
+		}
+
+		return result;
+	}
+
+	public List<Entity> getAllEntities() {
+		return new ArrayList<>(this.entities);
 	}
 
 	private class GeneratorWorldAccess implements GenWorld {

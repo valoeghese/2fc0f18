@@ -39,6 +39,12 @@ public class TilePos {
 		return new TilePos(this.x + x, this.y + y, this.z + z);
 	}
 
+	public int horizontalManhattanDist(int x, int z) {
+		int dx = Math.abs(x - this.x);
+		int dz = Math.abs(z - this.z);
+		return dx + dz;
+	}
+
 	@Override
 	public String toString() {
 		return "TilePos(" + this.x
