@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
-import tk.valoeghese.fc0.world.entity.Entity;
+import tk.valoeghese.fc0.world.entity.Lifeform;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -12,23 +12,16 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.IntFunction;
 
-public class Player extends Entity {
+public class Player extends Lifeform {
 	public Player(boolean dev, IntFunction<Inventory> inventoryConstructor) {
-		super(1.8f);
+		super(1.8f, inventoryConstructor.apply(10));
 		this.dev = dev;
-		this.inventory = inventoryConstructor.apply(10);
-
-		if (this.inventory == null) {
-			throw new NullPointerException("Inventory cannot be null!");
-		}
 	}
 
 	@Nullable
 	public Chunk chunk = null;
 	public long lockSwim = 0;
 	public boolean dev;
-	@Nonnull
-	private final Inventory inventory;
 
 	public void addDevItems() {
 		this.inventory.putItemAt(0, new Item(Tile.STONE));
@@ -107,12 +100,9 @@ public class Player extends Entity {
 
 	// setters and adders etc.
 
-	public void addVelocity(double x, double y, double z) {
-		this.velocity.offset(x, y, z);
-	}
-
+	@Override
 	public void setPos(Pos pos) {
-		this.pos.set(pos);
+		super.setPos(pos);
 		this.world.updateChunkOf(this);
 	}
 

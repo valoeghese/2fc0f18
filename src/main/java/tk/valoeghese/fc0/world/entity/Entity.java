@@ -79,6 +79,16 @@ public abstract class Entity {
 		return true;
 	}
 
+	// setters and adders, etc.
+
+	public void setPos(Pos pos) {
+		this.pos.set(pos);
+	}
+
+	public void addVelocity(double x, double y, double z) {
+		this.velocity.offset(x, y, z);
+	}
+
 	// checkers
 
 	public boolean isSwimming() {
