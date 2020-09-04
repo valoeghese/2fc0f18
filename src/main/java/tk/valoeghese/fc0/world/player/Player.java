@@ -1,11 +1,10 @@
 package tk.valoeghese.fc0.world.player;
 
-import tk.valoeghese.fc0.util.maths.MathsUtils;
-import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
+import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -13,10 +12,9 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.IntFunction;
 
-public class Player {
+public class Player extends Entity {
 	public Player(boolean dev, IntFunction<Inventory> inventoryConstructor) {
-		this.pos = new MutablePos(0, 0, 0);
-		this.velocity = new MutablePos(0, 0, 0);
+		super(1.8f);
 		this.dev = dev;
 		this.inventory = inventoryConstructor.apply(10);
 
@@ -25,18 +23,12 @@ public class Player {
 		}
 	}
 
-	protected final MutablePos pos;
-	protected LoadableWorld world;
-	protected final MutablePos velocity;
-	protected boolean falling = false;
 	@Nullable
 	public Chunk chunk = null;
 	public long lockSwim = 0;
 	public boolean dev;
 	@Nonnull
 	private final Inventory inventory;
-	private double friction = 0.85;
-	private boolean noClip = false;
 
 	public void addDevItems() {
 		this.inventory.putItemAt(0, new Item(Tile.STONE));
@@ -99,62 +91,14 @@ public class Player {
 		}
 	}
 
+	@Override
 	public boolean move(double x, double y, double z) {
-		Pos next = this.pos.ofAdded(x, y, z);
-		Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.03, y, z + MathsUtils.sign(z) * 0.03);
-
-		if (!this.noClip) {
-			TilePos tilePos = new TilePos(test);
-
-			if (this.world.isInWorld(tilePos)) {
-				if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
-					return false;
-				}
-			}
-
-			tilePos = new TilePos(test.ofAdded(0, 1.8, 0));
-
-			if (this.world.isInWorld(tilePos)) {
-				if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
-					return false;
-				}
-			}
+		if (super.move(x, y, z)) {
+			this.world.updateChunkOf(this);
+			return true;
 		}
 
-		this.pos.set(next);
-		this.world.updateChunkOf(this);
-		return true;
-	}
-
-	public void tick() {
-		TilePos below = this.getTilePos().down();
-
-		if (!this.noClip && this.world.isInWorld(below)) {
-			byte tile = this.world.readTile(below);
-
-			if (tile != Tile.AIR.id) {
-				this.friction = 0.85;
-				this.friction /= Tile.BY_ID[tile].getFrictionConstant();
-				this.friction = Math.min(1.0, this.friction);
-			}
-		}
-
-		if (!this.noClip) {
-			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.025f);
-		}
-
-		this.velocity.mul(this.friction, 0.96, this.friction);
-		this.move(this.velocity.getX(), 0.0, 0.0);
-		this.move(0.0, 0.0, this.velocity.getZ());
-
-		if (Math.abs(this.velocity.getY()) > 0.03) {
-			this.falling = true;
-		}
-
-		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
-			this.falling = false;
-			this.velocity.setY(0.0);
-		}
+		return false;
 	}
 
 	public final void move(Pos pos) {
@@ -173,16 +117,6 @@ public class Player {
 	}
 
 	// checkers
-
-	public boolean isSwimming() {
-		TilePos pos = this.getTilePos();
-
-		if (this.world.isInWorld(pos)) {
-			return this.world.readTile(pos) == Tile.WATER.id;
-		} else {
-			return false;
-		}
-	}
 
 	public boolean isOnGround() {
 		if (this.falling) {
@@ -208,21 +142,7 @@ public class Player {
 		return this.noClip;
 	}
 
-	public boolean isUnderwater() {
-		TilePos pos = new TilePos(this.pos.ofAdded(0, 1.8, 0));
-
-		if (this.world.isInWorld(pos)) {
-			return this.world.readTile(pos) == Tile.WATER.id;
-		} else {
-			return false;
-		}
-	}
-
 	// getters
-
-	public TilePos getTilePos() {
-		return new TilePos(this.pos);
-	}
 
 	public float getHorizontalSlowness() {
 		return 52.0f;
@@ -230,18 +150,6 @@ public class Player {
 
 	public double getJumpStrength() {
 		return 11.0 / 30.0;
-	}
-
-	public int getX() {
-		return new TilePos(this.pos).x;
-	}
-
-	public int getZ() {
-		return new TilePos(this.pos).z;
-	}
-
-	public Pos getPos() {
-		return new Pos(this.pos);
 	}
 
 	public Inventory getInventory() {
