@@ -106,10 +106,14 @@ public abstract class Chunk implements World {
 	}
 
 	public String getLightLevelText(int x, int y, int z) {
-		int i = index(x, y, z);
-		byte block = this.blockLighting[i];
-		byte sky = this.skyLighting[i];
-		return "Lighting: " + Math.max(this.blockLighting[i], this.skyLighting[i]) + "(block: " + block + ", sky:" + sky + ")";
+		if (isInWorld(x, y, z)) {
+			int i = index(x, y, z);
+			byte block = this.blockLighting[i];
+			byte sky = this.skyLighting[i];
+			return "Lighting: " + Math.max(this.blockLighting[i], this.skyLighting[i]) + "(block: " + block + ", sky:" + sky + ")";
+		} else {
+			return "Lighting: N/A (out of world)";
+		}
 	}
 
 	private byte getLightLevelOverflowing(int x, int y, int z) {
