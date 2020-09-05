@@ -48,15 +48,8 @@ public class ClientPlayer extends Player  {
 
 	public RaycastResult rayCast(double maxDistance) {
 		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
-
-		// https://github.com/jearmstrong21/GLMC3_COMMON/blob/master/common/entity/entity_player.cpp#L54
-		// This code written by p0nki / jearmstrong21
-		// Don't touch it unless you know what you're doing
-		// I don't even know what I'm doing as I write this
-
 		Vector3f start = new Vector3f((float) toUse.getX(), (float) toUse.getY(), (float) toUse.getZ());
-//		start.add(0.5F, 0.5F, 0.5F);
-		Vector3f dir = this.camera.getNormalisedDirection();
+		Vector3f dir = this.camera.getGoodDirection();
 		Vector3f end = new Vector3f(start).add(new Vector3f(dir).mul((float) maxDistance));
 
 		final float x1 = start.x;
@@ -151,7 +144,7 @@ public class ClientPlayer extends Player  {
 			}
 		}
 
-		return new RaycastResult(new TilePos((int) end.x, (int) end.y, (int) end.z),null);
+		return new RaycastResult(new TilePos((int) end.x, (int) end.y, (int) end.z), null);
 	}
 
 	@Override
@@ -159,7 +152,4 @@ public class ClientPlayer extends Player  {
 		super.tick();
 		this.camera.wrapYaw();
 	}
-
-	private static double HALF_PI = Math.PI / 2;
-	private static double THREE_HALF_PI = 3 * Math.PI / 2;
 }

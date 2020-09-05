@@ -20,6 +20,8 @@ import static org.lwjgl.openal.EXTEfx.ALC_MAX_AUXILIARY_SENDS;
 import static tk.valoeghese.fc0.client.render.system.util.GLUtils.NULL;
 
 public final class Audio {
+	private static boolean active;
+
 	private Audio(int id, String file) {
 		// TODO actually touch the file object
 		this.id = id;
@@ -36,6 +38,12 @@ public final class Audio {
 
 	public final int id;
 	private static final IntList sources = new IntArrayList();
+
+	public static void shutdown() {
+		if(active){
+			Audio.shutdown();
+		}
+	}
 
 	public void playAudio(float pitch, float gain, float x, float y, float z) {
 		int source = AL10.alGenSources();
@@ -56,30 +64,34 @@ public final class Audio {
 	}
 
 	public static void initAL() {
-		device = alcOpenDevice((ByteBuffer) null);
+		try{
+			device = alcOpenDevice((ByteBuffer) null);
 
-		ALCCapabilities capabilities = ALC.createCapabilities(device);
-		IntBuffer attributes = BufferUtils.createIntBuffer(16);
-		// I don't know what half these parameters do
-		attributes.put(ALC_REFRESH);
-		attributes.put(60);
+			ALCCapabilities capabilities = ALC.createCapabilities(device);
+			IntBuffer attributes = BufferUtils.createIntBuffer(16);
+			// I don't know what half these parameters do
+			attributes.put(ALC_REFRESH);
+			attributes.put(60);
 
-		attributes.put(ALC_SYNC);
-		attributes.put(ALC_FALSE);
+			attributes.put(ALC_SYNC);
+			attributes.put(ALC_FALSE);
 
-		attributes.put(ALC_MAX_AUXILIARY_SENDS);
-		attributes.put(2);
+			attributes.put(ALC_MAX_AUXILIARY_SENDS);
+			attributes.put(2);
 
-		attributes.put(0);
-		attributes.flip();
+			attributes.put(0);
+			attributes.flip();
 
-		context = alcCreateContext(device, attributes);
+			context = alcCreateContext(device, attributes);
 
-		if (!alcMakeContextCurrent(context)) {
-			throw new RuntimeException("Error making audio context current while initialising OpenAL!");
+			if (!alcMakeContextCurrent(context)) {
+				throw new RuntimeException("Error making audio context current while initialising OpenAL!");
+			}
+			AL.createCapabilities(capabilities);
+			active = true;
+		}catch (Exception e){
+			System.out.println("Open AL was unable to start.");
 		}
-
-		AL.createCapabilities(capabilities);
 	}
 
 	public static Audio createAudioSystem(String file) {
