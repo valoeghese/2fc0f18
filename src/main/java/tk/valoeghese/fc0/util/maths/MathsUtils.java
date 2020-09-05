@@ -32,7 +32,8 @@ public class MathsUtils {
 	}
 
 	public static int floor(float f) {
-		return (int) Math.floor(f);
+		int i = (int) f;
+		return f < i ? i - 1 : i;
 	}
 
 	public static int floor(double f) {
