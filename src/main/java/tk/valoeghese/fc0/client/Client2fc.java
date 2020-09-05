@@ -80,7 +80,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private final Window window;
 	private double prevYPos = 0;
 	private double prevXPos = 0;
-	private Queue<Runnable> later = new LinkedList<>();
+	private final Queue<Runnable> later = new LinkedList<>();
 	private boolean showDebug = false;
 
 	public static Client2fc getInstance() {
@@ -153,7 +153,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.world.destroy();
 		this.window.destroy();
-		ALC10.alcCloseDevice(Audio.getDevice());
+		Audio.shutdown();
 		Chunk.shutdown();
 	}
 
