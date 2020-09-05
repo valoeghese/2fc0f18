@@ -40,8 +40,8 @@ public final class Audio {
 	private static final IntList sources = new IntArrayList();
 
 	public static void shutdown() {
-		if(active){
-			Audio.shutdown();
+		if (active) {
+			alcCloseDevice(Audio.getDevice());
 		}
 	}
 
