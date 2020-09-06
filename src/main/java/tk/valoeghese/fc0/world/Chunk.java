@@ -345,7 +345,7 @@ public abstract class Chunk implements World {
 				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true);
 				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true);
 				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true);
-				this.propagateSkyLight(updated, x, y + 1, z, light, true);
+				this.propagateSkyLight(updated, x, y + 1, z, (y & 0b1) == 0 ? light - 1 : light, true);
 				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true);
 				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true);
 			}
