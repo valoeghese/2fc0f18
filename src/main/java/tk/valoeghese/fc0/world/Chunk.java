@@ -577,7 +577,7 @@ public abstract class Chunk implements World {
 		ByteArrayDataSection tileData = data.getByteArray("tiles");
 		byte[] tiles = new byte[16 * 16 * WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
-		int[] kingdoms = null;
+		int[] kingdoms = new int[16 * 16];
 
 		if (data.containsSection("kingdoms")) {
 			IntArrayDataSection kingdomsSec = data.getIntArray("kingdoms");

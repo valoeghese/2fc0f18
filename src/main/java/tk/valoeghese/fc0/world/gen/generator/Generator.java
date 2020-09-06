@@ -57,5 +57,5 @@ public abstract class Generator<T extends GeneratorSettings> {
 	public static final Generator<GroundFoliageGeneratorSettings> GROUND_FOLIAGE = new GroundFoliageGenerator();
 	public static final Generator<HeightCountGeneratorSettings> SCATTERED_ORE = new ScatteredOreGenerator();
 	public static final Generator<TreeGeneratorSettings> POMELO_PLANT = new PomeloPlantGenerator();
-	public static final Generator<NoneGeneratorSettings> CITY_WALL = new CityWallGenerator();
+	public static final Generator<NoneGeneratorSettings> CITY = new CityGenerator();
 }

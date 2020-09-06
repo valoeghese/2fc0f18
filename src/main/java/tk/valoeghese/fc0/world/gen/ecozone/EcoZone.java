@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.world.gen.ecozone;
 
 import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
+import tk.valoeghese.fc0.world.gen.generator.NoneGeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.LinkedHashMap;
@@ -17,6 +18,8 @@ public abstract class EcoZone {
 		this.name = name;
 		this.surface = surface.id;
 		this.beach = beach.id;
+
+		this.addGenerator(Generator.CITY, NoneGeneratorSettings.INSTANCE);
 	}
 
 	private final String name;
