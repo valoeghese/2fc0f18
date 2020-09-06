@@ -177,6 +177,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (this.player.cachedPos != tilePos) {
 				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
 				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
+				this.gameScreen.kingdomWidget.changeText(this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF).toString());
 			}
 
 			if (zone != this.player.cachedZone) {

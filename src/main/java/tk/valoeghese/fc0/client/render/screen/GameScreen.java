@@ -33,6 +33,7 @@ public class GameScreen extends Screen {
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
+		this.kingdomWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 	}
@@ -42,6 +43,7 @@ public class GameScreen extends Screen {
 	public final Text biomeWidget;
 	public final Text coordsWidget;
 	public final Text lightingWidget;
+	public final Text kingdomWidget;
 	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
 	private boolean[] abilityCaches = new boolean[2];
@@ -55,6 +57,7 @@ public class GameScreen extends Screen {
 			this.biomeWidget.render();
 			this.coordsWidget.render();
 			this.lightingWidget.render();
+			this.kingdomWidget.render();
 		}
 
 		Player player = Client2fc.getInstance().getPlayer();
@@ -97,7 +100,7 @@ public class GameScreen extends Screen {
 
 	public void onShowDebug(boolean showDebug) {
 		if (showDebug) {
-			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.48f);
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.38f);
 		} else {
 			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.78f);
 		}

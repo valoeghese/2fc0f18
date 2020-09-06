@@ -14,7 +14,7 @@ public final class Kingdom {
 		this.cityLoc = new Vec2i((int) (voronoi.getX() * SCALE), (int) (voronoi.getY() * SCALE));
 
 		Random rand = new Random(world.getSeed() ^ id);
-		List<String> onsetPre = Arrays.asList("m", "n", "p", "t", "k");
+		List<String> onsetPre = new ArrayList<>(Arrays.asList("m", "n", "p", "t", "k"));
 		List<String> codaPre = new ArrayList<>();
 
 		this.addPhonemes(onsetPre, codaPre, rand);
@@ -22,16 +22,20 @@ public final class Kingdom {
 		this.vowels = rand.nextInt(2) + 5;
 		this.onset = onsetPre.toArray(new String[0]);
 		this.coda = codaPre.toArray(new String[0]);
-		this.title = "Kingdom of " + this.pickName(rand);
+		this.name = this.pickName(rand);
 		this.id = id;
 	}
 
 	private final Vec2i cityLoc;
-	private final String title;
+	private final String name;
 	private final String[] onset;
 	private final String[] coda;
 	private final int vowels;
 	public final int id;
+
+	public Vec2i getCityCentre() {
+		return this.cityLoc;
+	}
 
 	private void addPhonemes(List<String> onsetPre, List<String> codePre, Random rand) {
 		int consonants = rand.nextInt(0b11111111);
@@ -162,6 +166,11 @@ public final class Kingdom {
 		return sb.toString();
 	}
 
-	public static final float SCALE = 620.0f;
+	@Override
+	public String toString() {
+		return "Kingdom of " + this.name;
+	}
+
+	public static final float SCALE = 1250.0f;
 	private static final char[] VOWELS = {'i', 'e', 'a', 'o', 'u', 'y'};
 }

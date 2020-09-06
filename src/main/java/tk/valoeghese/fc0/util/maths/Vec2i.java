@@ -25,6 +25,10 @@ public class Vec2i {
 		return this.y;
 	}
 
+	public int manhattan(int x, int y) {
+		return MathsUtils.manhattan(this.x, this.y, x, y);
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) {

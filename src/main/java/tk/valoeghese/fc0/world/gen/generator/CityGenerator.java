@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.world.gen.GenWorld;
+import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -19,10 +19,12 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 			for (int zo = 0; zo < 16; ++zo) {
 				int z = startZ + zo;
-				int dist = MathsUtils.manhattan(0,0, x, z);
+				Kingdom kingdom = world.getKingdom(x, z);
 
-				if (dist >= 50 && dist <= 53) {
-					final int height = (dist == 50 || dist == 53) ? 7 : 6;
+				int dist = kingdom.getCityCentre().manhattan(x, z);
+
+				if (dist >= 35 && dist <= 40) {
+					final int height = (dist == 35 || dist == 40) ? 7 : 6;
 					int startY = getHeightForGeneration(world, x, z);
 
 					for (int yo = 0; yo < height; ++yo) {
