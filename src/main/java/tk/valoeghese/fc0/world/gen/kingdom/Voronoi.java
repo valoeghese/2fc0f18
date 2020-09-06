@@ -31,8 +31,8 @@ public final class Voronoi {
 				int gridY = baseY + yo;
 
 				// ensure more evenly distributed
-				float vx = baseX + (randomFloat(gridX, gridY, seed) + 0.5f) * 0.5f;
-				float vy = baseY + (randomFloat(gridX, gridY, seed + 1) + 0.5f) * 0.5f;
+				float vx = gridX + (randomFloat(gridX, gridY, seed) + 0.5f) * 0.5f;
+				float vy = gridY + (randomFloat(gridX, gridY, seed + 1) + 0.5f) * 0.5f;
 				float vdist = MathsUtils.squaredDist(x, y, vx, vy);
 
 				if (vdist < rdist) {
