@@ -524,10 +524,10 @@ public abstract class Chunk implements World {
 			heightmap.writeInt(i);
 		}
 
-		IntArrayDataSection kingdom = new IntArrayDataSection();
+		IntArrayDataSection kingdoms = new IntArrayDataSection();
 
 		for (int i : this.kingdoms) {
-			kingdom.writeInt(i);
+			kingdoms.writeInt(i);
 		}
 
 		DataSection properties = new DataSection();
@@ -542,6 +542,7 @@ public abstract class Chunk implements World {
 		data.put("lighting", lighting);
 		data.put("lightingSky", lightingSky);
 		data.put("heightmap", heightmap);
+		data.put("kingdoms", kingdoms);
 	}
 
 	@Nullable
