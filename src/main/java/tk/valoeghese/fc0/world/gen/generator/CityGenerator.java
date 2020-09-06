@@ -7,9 +7,14 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import java.util.Random;
 
 public class CityGenerator extends Generator<NoneGeneratorSettings> {
-	protected CityGenerator() {
+	protected CityGenerator(int size) {
 		super("city");
+		this.size = size;
+		this.sizeOuter = size + 5;
 	}
+
+	private final int size;
+	private final int sizeOuter;
 
 	@Override
 	public void generate(GenWorld world, NoneGeneratorSettings generatorSettings, int startX, int startZ, Random rand) {
@@ -23,8 +28,8 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 				int dist = kingdom.getCityCentre().manhattan(x, z);
 
-				if (dist >= 35 && dist <= 40) {
-					final int height = (dist == 35 || dist == 40) ? 7 : 6;
+				if (dist >= this.size && dist <= this.sizeOuter) {
+					final int height = (dist == this.size || dist == this.sizeOuter) ? 7 : 6;
 					int startY = getHeightForGeneration(world, x, z);
 
 					for (int yo = 0; yo < height; ++yo) {

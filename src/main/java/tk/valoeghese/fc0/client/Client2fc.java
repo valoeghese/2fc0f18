@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.Matrix4f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
-import org.lwjgl.openal.ALC10;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
@@ -25,6 +24,7 @@ import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
+import tk.valoeghese.fc0.util.TimerSwitch;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -82,6 +82,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private double prevXPos = 0;
 	private final Queue<Runnable> later = new LinkedList<>();
 	private boolean showDebug = false;
+	private final TimerSwitch timerSwitch = new TimerSwitch();
+	private GUI setupScreen;
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -95,7 +97,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	@Override
 	public void run() {
-		GUI setupScreen = new Overlay(Textures.STARTUP);
+		this.setupScreen = new Overlay(Textures.STARTUP);
 		Shaders.loadShaders();
 
 		Thread t = new Thread(this::init);
@@ -108,7 +110,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.gui.bind();
 			Shaders.gui.uniformMat4f("projection", this.guiProjection);
 			Shaders.gui.uniformFloat("lighting", 1.0f);
-			setupScreen.render();
+			this.setupScreen.render();
 			Shader.unbind();
 
 			this.window.swapBuffers();
@@ -186,6 +188,22 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 				this.gameScreen.biomeWidget.changeText(newValue);
 			}
 		}
+
+		if (this.timerSwitch.isOn()) {
+			this.timerSwitch.update();
+
+			if (!this.timerSwitch.isOn()) {
+				boolean b;
+
+				synchronized (this.later) {
+					b = this.later.size() > 10;
+				}
+
+				if (b) {
+					this.timerSwitch.switchOn(2000);
+				}
+			}
+		}
 	}
 
 	private void initGameRendering() {
@@ -256,64 +274,73 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
 		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 10));
 
-		glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
+		if (this.timerSwitch.isOn()) {
+			Shaders.gui.bind();
+			Shaders.gui.uniformMat4f("projection", this.guiProjection);
+			Shaders.gui.uniformFloat("lighting", 1.0f);
+			this.setupScreen.render();
+			Shader.unbind();
+		} else {
+			glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
 
-		// bind shader
-		Shaders.terrain.bind();
-		// time and stuff
-		Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-		Shaders.terrain.uniformFloat("lighting", 1.0f); // We Update chunk lighting to change lighting now.
-		// projection
-		Shaders.terrain.uniformMat4f("projection", this.projection);
-		// defaults
-		Shaders.terrain.uniformInt("waveMode", 0);
-		// render world
-		GLUtils.bindTexture(TILE_ATLAS);
+			// bind shader
+			Shaders.terrain.bind();
+			// time and stuff
+			Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
+			Shaders.terrain.uniformFloat("lighting", 1.0f); // We Update chunk lighting to change lighting now.
+			// projection
+			Shaders.terrain.uniformMat4f("projection", this.projection);
+			// defaults
+			Shaders.terrain.uniformInt("waveMode", 0);
+			// render world
+			GLUtils.bindTexture(TILE_ATLAS);
 
-		this.world.updateChunksForRendering();
+			this.world.updateChunksForRendering();
 
-		for(ClientChunk chunk : this.world.getChunksForRendering()){
-			chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
-		}
-
-		GLUtils.enableBlend();
-
-		for(ClientChunk chunk : this.world.getChunksForRendering()){
-			chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
-		}
-
-		Shaders.terrain.uniformInt("waveMode", 1);
-
-		for(ClientChunk chunk : this.world.getChunksForRendering()){
-			chunk.getOrCreateMesh().renderWater(this.player.getCamera());
-		}
-
-		Shaders.terrain.uniformInt("waveMode", 0);
-		GLUtils.disableBlend();
-
-		// render entities
-		GLUtils.bindTexture(ENTITY_ATLAS);
-
-		for (Entity entity : this.world.getEntities(this.player.getX(), this.player.getZ(), 20)) {
-			EntityRenderer renderer = entity.getRenderer();
-
-			if (renderer != null) {
-				//renderer.getOrCreateModel();
+			for (ClientChunk chunk : this.world.getChunksForRendering()) {
+				chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
 			}
+
+			GLUtils.enableBlend();
+
+			for (ClientChunk chunk : this.world.getChunksForRendering()) {
+				chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
+			}
+
+			Shaders.terrain.uniformInt("waveMode", 1);
+
+			for (ClientChunk chunk : this.world.getChunksForRendering()) {
+				chunk.getOrCreateMesh().renderWater(this.player.getCamera());
+			}
+
+			Shaders.terrain.uniformInt("waveMode", 0);
+			GLUtils.disableBlend();
+
+			// render entities
+			GLUtils.bindTexture(ENTITY_ATLAS);
+
+			for (Entity entity : this.world.getEntities(this.player.getX(), this.player.getZ(), 20)) {
+				EntityRenderer renderer = entity.getRenderer();
+
+				if (renderer != null) {
+					//renderer.getOrCreateModel();
+				}
+			}
+
+			// bind shader
+			Shaders.gui.bind();
+			// projection
+			Shaders.gui.uniformMat4f("projection", this.guiProjection);
+			// defaults
+			Shaders.gui.uniformFloat("lighting", 1.0f);
+			// render gui
+			this.renderGUI(lighting);
+			// unbind shader
+			GLUtils.bindTexture(0);
+
+			Shader.unbind();
 		}
 
-		// bind shader
-		Shaders.gui.bind();
-		// projection
-		Shaders.gui.uniformMat4f("projection", this.guiProjection);
-		// defaults
-		Shaders.gui.uniformFloat("lighting", 1.0f);
-		// render gui
-		this.renderGUI(lighting);
-		// unbind shader
-		GLUtils.bindTexture(0);
-
-		Shader.unbind();
 		long elapsed = (System.nanoTime() - time) / 1000000;
 
 		if (elapsed > 180) {
@@ -368,6 +395,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void createWorld(String saveName) {
+		this.timerSwitch.switchOn(7500);
 		this.setShowDebug(false);
 		this.world.destroy();
 		this.saveWorld();
