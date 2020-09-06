@@ -107,7 +107,7 @@ public class TitleScreen extends DelegatingScreen {
 					this.parent.switchScreen(0);
 					this.game.switchScreen(this.game.gameScreen);
 					this.game.createWorld("save_" + selected);
-					this.game.generateSpawnChunks();
+//					this.game.generateSpawnChunks();
 				}
 			}
 		}
