@@ -1,13 +1,14 @@
 package tk.valoeghese.fc0.world.gen.ecozone;
 
+import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
 import tk.valoeghese.fc0.world.gen.generator.NoneGeneratorSettings;
+import tk.valoeghese.fc0.world.gen.generator.ScatteredOreGenerator;
 import tk.valoeghese.fc0.world.tile.Tile;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class EcoZone {
 	protected EcoZone(String name) {
@@ -20,24 +21,27 @@ public abstract class EcoZone {
 		this.beach = beach.id;
 
 		this.addGenerator(Generator.CITY, NoneGeneratorSettings.INSTANCE);
+		this.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.GALENA);
+		this.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.MAGNETITE);
+		this.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.COAL);
 	}
 
 	private final String name;
 	public final byte surface;
 	public final byte beach;
-	private Map<Generator, GeneratorSettings> generators = new LinkedHashMap<>();
+	private List<Pair<Generator, GeneratorSettings>> generators = new ArrayList<>();
 	private boolean cold = false;
 
 	public <T extends GeneratorSettings> void addGenerator(Generator<T> generator, T settings) {
-		this.generators.put(generator, settings);
+		this.generators.add(new Pair<>(generator, settings));
 	}
 
 	protected void cold() {
 		this.cold = true;
 	}
 
-	public Set<Map.Entry<Generator, GeneratorSettings>> getGenerators() {
-		return this.generators.entrySet();
+	public List<Pair<Generator, GeneratorSettings>> getGenerators() {
+		return this.generators;
 	}
 
 	public boolean isCold() {

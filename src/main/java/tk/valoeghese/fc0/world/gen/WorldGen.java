@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.gen;
 
+import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.util.noise.RidgedNoise;
 import tk.valoeghese.fc0.world.Chunk;
@@ -11,7 +12,6 @@ import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
-import java.util.Map;
 import java.util.Random;
 
 public abstract class WorldGen {
@@ -96,8 +96,8 @@ public abstract class WorldGen {
 	public void populateChunk(GenWorld world, Chunk chunk, Random rand) {
 		EcoZone zone = getEcoZoneByPosition(chunk.startX, chunk.startZ);
 
-		for (Map.Entry<Generator, GeneratorSettings> generator : zone.getGenerators()) {
-			generator.getKey().generate(world, generator.getValue(), chunk.startX, chunk.startZ, rand);
+		for (Pair<Generator, GeneratorSettings> generator : zone.getGenerators()) {
+			generator.getLeft().generate(world, generator.getRight(), chunk.startX, chunk.startZ, rand);
 		}
 	}
 

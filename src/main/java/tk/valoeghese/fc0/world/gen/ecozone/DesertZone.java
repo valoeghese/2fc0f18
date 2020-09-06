@@ -9,7 +9,6 @@ public class DesertZone extends EcoZone {
 	DesertZone() {
 		super("desert", Tile.SAND, Tile.SAND);
 
-		this.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.GALENA);
 		this.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(3, 5, Tile.CACTUS));
 	}
 }

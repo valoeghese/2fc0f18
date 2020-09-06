@@ -182,4 +182,8 @@ public class Tile {
 	// TODO proper torch texture
 	public static final Tile TORCH = new TorchTile("planks", 14, 0.0f).setName("torch").cutout().noCollision().lightLevel(10);
 	public static final Tile PLANKS = new MetaPlacementTile(Arrays.asList("planks", "planks_2"), 15, 0.0f).setName("planks");
+	public static final Tile COAL = new Tile("coal", 16, 0.0f).setName("coal");
+	public static final Tile MAGNETITE = new Tile("magnetite", 17, 0.0f).setName("magnetite");
+	public static final Tile BRUNNERA = new PlantTile("brunnera", 18, 0.0f, t -> t == GRASS).cross().noCollision().setName("brunnera");
+	public static final Tile DANDELION = new PlantTile("dandelion", 19, 0.0f, t -> t == GRASS).cross().noCollision().setName("dandelion");
 }

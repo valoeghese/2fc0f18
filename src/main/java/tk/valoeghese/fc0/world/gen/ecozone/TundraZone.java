@@ -11,7 +11,6 @@ public class TundraZone extends EcoZone {
 		super("tundra", Tile.GRASS, Tile.STONE);
 
 		this.cold();
-		this.addGenerator(Generator.SCATTERED_ORE, new HeightCountGeneratorSettings(200, 1, 60));
 		this.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(0, 1, Tile.TALLGRASS));
 		this.addGenerator(Generator.TREE, new TreeGeneratorSettings(-1, 0));
 	}

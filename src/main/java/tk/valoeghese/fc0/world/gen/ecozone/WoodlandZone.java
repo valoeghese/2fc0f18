@@ -10,8 +10,7 @@ public class WoodlandZone extends EcoZone {
 	WoodlandZone() {
 		super("woodland");
 
-		this.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.GALENA);
-		this.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(6, 8, Tile.DAISY, Tile.DAISY, Tile.TALLGRASS));
+		this.addGenerator(Generator.GROUND_FOLIAGE, new GroundFoliageGeneratorSettings(6, 8, Tile.BRUNNERA, Tile.DAISY, Tile.TALLGRASS));
 		this.addGenerator(Generator.TREE, new TreeGeneratorSettings(2, 2.0f));
 	}
 }

@@ -12,6 +12,8 @@ public class GrassTile extends Tile {
 	private Vec2i sideUV;
 	private Vec2i snowTopUV;
 	private Vec2i snowSideUV;
+	private Vec2i pathTopUV;
+	private Vec2i pathSideUV;
 
 	@Override
 	public void requestUV(Function<String, Vec2i> uvs) {
@@ -19,6 +21,8 @@ public class GrassTile extends Tile {
 		this.sideUV = uvs.apply("grass_side");
 		this.snowTopUV = uvs.apply("snow_grass");
 		this.snowSideUV = uvs.apply("snow_grass_side");
+		this.pathTopUV = uvs.apply("path");
+		this.pathSideUV = uvs.apply("path_side");
 	}
 
 	@Override
@@ -30,6 +34,12 @@ public class GrassTile extends Tile {
 				return this.snowTopUV.getY();
 			} else {
 				return this.snowSideUV.getY();
+			}
+		} else if (meta == 2) {
+			if (faceAxis == 1) {
+				return this.pathTopUV.getY();
+			} else {
+				return this.pathSideUV.getY();
 			}
 		} else if (faceAxis == 1) {
 			return super.getV(faceAxis, meta);
