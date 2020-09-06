@@ -36,4 +36,8 @@ public interface GenWorld {
 	default Kingdom getKingdom(int x, int z) {
 		return this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
 	}
+
+	default int getKingdomId(int x, int z) {
+		return this.getChunk(x >> 4, z >> 4).getKingdomId(x & 0xF, z & 0xF);
+	}
 }

@@ -303,6 +303,11 @@ public abstract class Chunk implements World {
 		return this.parent.kingdomById(this.kingdoms[x * 16 + z], this.startX + x, this.startZ + z);
 	}
 
+	@Override
+	public int getKingdomId(int x, int z) {
+		return this.kingdoms[x * 16 + z];
+	}
+
 	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
 		boolean isPrevChunk;
 
@@ -340,7 +345,7 @@ public abstract class Chunk implements World {
 				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true);
 				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true);
 				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true);
-				this.propagateSkyLight(updated, x, y + 1, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y + 1, z, light, true);
 				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true);
 				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true);
 			}
