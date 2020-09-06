@@ -6,6 +6,8 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
+import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.gen.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.tile.Tile;
 import tk.valoeghese.sod.BinaryData;
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 public abstract class Chunk implements World {
-	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
+	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		this.parent = parent;
 		this.tiles = tiles;
 		this.meta = meta;
@@ -50,6 +52,23 @@ public abstract class Chunk implements World {
 				}
 			}
 		}
+
+		long seed = parent.getSeed();
+
+		if (kingdoms == null) {
+			this.kingdoms = new int[16 * 16];
+
+			for (int kx = 0; kx < 16; ++kx) {
+				float sampleX = (this.startX + kx) / Kingdom.SCALE;
+
+				for (int kz = 0; kz < 16; ++kz) {
+					float sampleZ = (this.startZ + kz) / Kingdom.SCALE;
+					this.kingdoms[kx * 16 + kz] = Voronoi.sample(sampleX, sampleZ, (int) seed).hashCode();
+				}
+			}
+		} else {
+			this.kingdoms = kingdoms;
+		}
 	}
 
 	protected byte[] tiles;
@@ -58,6 +77,7 @@ public abstract class Chunk implements World {
 	protected byte[] nextBlockLighting;
 	protected byte[] skyLighting;
 	protected byte[] nextSkyLighting;
+	private final int[] kingdoms;
 	private final int[] heightmap = new int[16 * 16]; // heightmap of opaque blocks for lighting calculations
 	private byte skyLight = -1;
 	public final int x;
@@ -276,6 +296,11 @@ public abstract class Chunk implements World {
 		}
 
 		return false;
+	}
+
+	@Override
+	public Kingdom getKingdom(int x, int z) {
+		return this.parent.kingdomById(this.kingdoms[x * 16 + z], this.startX + x, this.startZ + z);
 	}
 
 	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
@@ -545,6 +570,15 @@ public abstract class Chunk implements World {
 		ByteArrayDataSection tileData = data.getByteArray("tiles");
 		byte[] tiles = new byte[16 * 16 * WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
+		int[] kingdoms = null;
+
+		if (data.containsSection("kingdoms")) {
+			IntArrayDataSection kingdomsSec = data.getIntArray("kingdoms");
+
+			for (int i = 0; i < 256; ++i) {
+				kingdoms[i] = kingdomsSec.readInt(i);
+			}
+		}
 
 		for (int i = 0; i < tileData.size() / 2; ++i) {
 			int j = i * 2;
@@ -553,7 +587,7 @@ public abstract class Chunk implements World {
 		}
 
 		DataSection properties = data.get("properties");
-		T result = constructor.create(parent, properties.readInt(0), properties.readInt(1), tiles, meta);
+		T result = constructor.create(parent, properties.readInt(0), properties.readInt(1), tiles, meta, kingdoms);
 		result.populated = properties.readBoolean(2);
 
 		Chunk resultAsChunk = result;

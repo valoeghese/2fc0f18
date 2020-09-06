@@ -10,8 +10,8 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import javax.annotation.Nullable;
 
 public class ClientChunk extends Chunk implements RenderedChunk {
-	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta) {
-		super(parent, x, z, tiles, meta);
+	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
+		super(parent, x, z, tiles, meta, kingdoms);
 	}
 
 	protected ChunkMesh mesh;

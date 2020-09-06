@@ -36,6 +36,18 @@ public class MathsUtils {
 		return f < i ? i - 1 : i;
 	}
 
+	public static int manhattan(int x0, int y0, int x1, int y1) {
+		int dx = Math.abs(x1 - x0);
+		int dy = Math.abs(y1 - y0);
+		return dx + dy;
+	}
+
+	public static float squaredDist(float x0, float y0, float x1, float y1) {
+		float dx = Math.abs(x1 - x0);
+		float dy = Math.abs(y1 - y0);
+		return dx * dx + dy * dy;
+	}
+
 	public static int floor(double f) {
 		return (int) Math.floor(f);
 	}

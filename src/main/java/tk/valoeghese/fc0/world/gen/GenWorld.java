@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world.gen;
 
 import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -30,5 +31,9 @@ public interface GenWorld {
 
 	default byte readMeta(int x, int y, int z) {
 		return this.getChunk(x >> 4, z >> 4).readMeta(x & 0xF, y, z & 0xF);
+	}
+
+	default Kingdom getKingdom(int x, int z) {
+		return this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
 	}
 }

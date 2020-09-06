@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.world;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
@@ -8,6 +10,8 @@ import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
+import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.gen.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -53,6 +57,17 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final WorldGen worldGen;
 	private byte skyLight;
 	private List<Entity> entities = new ArrayList<>();
+	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
+
+	// Note: If a kingdom is generated in two locations
+	// It could change the Voronoi location and thus city loc
+	// perhaps causing world gen problems for partial cities and stuff
+	// Perhaps I should just save this per world instead of genning at runtime
+	// meh
+	@Override
+	public Kingdom kingdomById(int kingdom, int x, int z) {
+		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this, id, Voronoi.sample(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed)));
+	}
 
 	private T getOrCreateChunk(int x, int z) {
 		T result = this.accessChunk(x, z);

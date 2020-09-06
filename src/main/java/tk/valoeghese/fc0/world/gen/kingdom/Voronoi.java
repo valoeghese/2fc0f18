@@ -17,12 +17,6 @@ public final class Voronoi {
 		return (float) random(x, y, seed, 0xFFFF) / (float) 0xFFFF;
 	}
 
-	private static float squaredDist(float x0, float y0, float x1, float y1) {
-		float dx = Math.abs(x1 - x0);
-		float dy = Math.abs(y1 - y0);
-		return dx * dx + dy * dy;
-	}
-
 	public static Vec2f sample(float x, float y, int seed) {
 		final int baseX = MathsUtils.floor(x);
 		final int baseY = MathsUtils.floor(y);
@@ -36,9 +30,10 @@ public final class Voronoi {
 			for (int yo = -1; yo <= 1; ++yo) {
 				int gridY = baseY + yo;
 
-				float vx = baseX + randomFloat(gridX, gridY, seed);
-				float vy = baseY + randomFloat(gridX, gridY, seed + 1);
-				float vdist = squaredDist(x, y, vx, vy);
+				// ensure more evenly distributed
+				float vx = baseX + (randomFloat(gridX, gridY, seed) + 0.5f) * 0.5f;
+				float vy = baseY + (randomFloat(gridX, gridY, seed + 1) + 0.5f) * 0.5f;
+				float vdist = MathsUtils.squaredDist(x, y, vx, vy);
 
 				if (vdist < rdist) {
 					rx = vx;

@@ -13,12 +13,12 @@ public class Vec2f {
 	protected float x;
 	protected float y;
 
-	public double getX() {
-		return x;
+	public float getX() {
+		return this.x;
 	}
 
-	public double getY() {
-		return y;
+	public float getY() {
+		return this.y;
 	}
 
 	public Vec2f ofAdded(float x, float y) {

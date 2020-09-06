@@ -10,6 +10,7 @@ import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
 
+import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.Random;
 
@@ -87,7 +88,7 @@ public abstract class WorldGen {
 			}
 		}
 
-		return constructor.create(parent, chunkX, chunkZ, tiles, meta);
+		return constructor.create(parent, chunkX, chunkZ, tiles, meta, null);
 	}
 
 	protected abstract double sampleHeight(double x, double z);
@@ -141,7 +142,7 @@ public abstract class WorldGen {
 	}
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
-		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta);
+		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);
 	}
 
 	/**
