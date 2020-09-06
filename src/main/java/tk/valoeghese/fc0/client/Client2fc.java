@@ -234,7 +234,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.world = new ClientWorld(null, 0, 4);
 		this.player = new ClientPlayer(new Camera(), this, false);
 		this.player.changeWorld(this.world, this.save);
-		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
+//		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
 
 		CraftingManager.addCraftingRecipes();
@@ -391,9 +391,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.player.dev = this.save.loadedDevMode;
 	}
 
-	public void generateSpawnChunks() {
+	/*public void generateSpawnChunks() {
 		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
-	}
+	}*/
 
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;

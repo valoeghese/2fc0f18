@@ -35,6 +35,12 @@ tile.bricks=Bricks
 tile.stone_bricks=Stone Bricks
 tile.ice=Ice
 tile.galena=Galena
+tile.planks=Planks
+tile.torch=Torch
+tile.magnetite=Magnetite
+tile.coal=Coal
+tile.dandelion=Dandelion
+tile.brunnera=Brunnera
 
 # GUI
-gui.version=2fc0f18-v0.2.3
+gui.version=2fc0f18-v0.2.4
