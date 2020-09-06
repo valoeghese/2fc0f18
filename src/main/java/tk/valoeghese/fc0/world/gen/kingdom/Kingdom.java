@@ -162,6 +162,6 @@ public final class Kingdom {
 		return sb.toString();
 	}
 
-	public static final float SCALE = 500.0f;
+	public static final float SCALE = 620.0f;
 	private static final char[] VOWELS = {'i', 'e', 'a', 'o', 'u', 'y'};
 }

@@ -524,6 +524,12 @@ public abstract class Chunk implements World {
 			heightmap.writeInt(i);
 		}
 
+		IntArrayDataSection kingdom = new IntArrayDataSection();
+
+		for (int i : this.kingdoms) {
+			kingdom.writeInt(i);
+		}
+
 		DataSection properties = new DataSection();
 		properties.writeInt(this.x);
 		properties.writeInt(this.z);
