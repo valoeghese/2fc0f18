@@ -225,7 +225,7 @@ public abstract class Chunk implements World {
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
 				int y = this.heightmap[x * 16 + z] + 1;
-				this.propagateSkyLight(updated, x, y, z, this.skyLight, false);
+				this.propagateSkyLight(updated, x, y, z, this.skyLight, false, true);
 			}
 		}
 	}
@@ -308,7 +308,7 @@ public abstract class Chunk implements World {
 		return this.kingdoms[x * 16 + z];
 	}
 
-	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
+	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque, boolean slowUpDecay) {
 		boolean isPrevChunk;
 
 		// Check if this is out of chunk
@@ -319,7 +319,7 @@ public abstract class Chunk implements World {
 				return false;
 			} else {
 				updated.add(c);
-				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
+				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque, false);
 			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
 			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
@@ -328,7 +328,7 @@ public abstract class Chunk implements World {
 				return false;
 			} else {
 				updated.add(c);
-				return c.propagateSkyLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
+				return c.propagateSkyLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque, false);
 			}
 		}
 
@@ -342,12 +342,12 @@ public abstract class Chunk implements World {
 			this.nextSkyLighting[idx] = (byte) light;
 
 			if (light > 1) {
-				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true);
-				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true);
-				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true);
-				this.propagateSkyLight(updated, x, y + 1, z, (y & 0b1) == 0 ? light - 1 : light, true);
-				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true);
-				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true);
+				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true, false);
+				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true, false);
+				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true, false);
+				this.propagateSkyLight(updated, x, y + 1, z, (slowUpDecay && (y & 0b1) == 1) ? light : light - 1, true, slowUpDecay);
+				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true, false);
+				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true, false);
 			}
 
 			return true;
