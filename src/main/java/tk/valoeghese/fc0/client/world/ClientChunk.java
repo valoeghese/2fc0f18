@@ -150,7 +150,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	}
 
 	@Override
-	protected void refreshLighting() {
+	public void refreshLighting() {
 		super.refreshLighting();
 
 		if (this.status == ChunkLoadStatus.RENDER) { // Is this neccesary?

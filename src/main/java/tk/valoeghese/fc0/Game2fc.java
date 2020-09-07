@@ -15,7 +15,13 @@ public class Game2fc<W extends World, P extends Player> {
 	protected W world;
 	protected P player;
 	private final Queue<Runnable> later = new LinkedList<>();
-	protected final Queue<Chunk> toUpdateLighting = new LinkedList<>();
+	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
+
+	protected int getLightingQueueSize() {
+		synchronized (this.toUpdateLighting) {
+			return this.toUpdateLighting.size();
+		}
+	}
 
 	protected void updateNextLighting() {
 		Chunk c = null;
@@ -27,7 +33,7 @@ public class Game2fc<W extends World, P extends Player> {
 		}
 
 		if (c != null) {
-			c.updateLighting();
+			c.refreshLighting();
 		}
 	}
 

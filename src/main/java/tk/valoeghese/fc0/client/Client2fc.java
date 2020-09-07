@@ -120,6 +120,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 				this.runNextQueued();
 				this.updateNextLighting();
+//				System.out.println(this.getLightingQueueSize());
 				this.tick();
 			}
 
@@ -178,11 +179,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.timerSwitch.update();
 
 			if (!this.timerSwitch.isOn()) {
-				boolean b;
-
-				synchronized (this.toUpdateLighting) {
-					b = this.toUpdateLighting.size() > 10;
-				}
+				boolean b = this.getLightingQueueSize() > 12;
 
 				if (b) {
 					this.timerSwitch.switchOn(2000);
@@ -388,14 +385,17 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void createWorld(String saveName) {
-		this.timerSwitch.switchOn(7500);
+		this.timerSwitch.switchOn(6500);
 		this.setShowDebug(false);
 		this.world.destroy();
 		this.saveWorld();
 		this.time = 0;
 		this.save = new Save(saveName, new Random().nextLong());
-		// 240000 * 240000 world.
-		this.world = new ClientWorld(this.save, this.save.getSeed(), 750);
+		// idek how big this is it's probably more than the game can handle if you go out that far
+		// TODO should I clear toUpdateLighting here? Or will that f*k up lighting in saved chunks?
+		// I mean in the case of title screen it's fine probably
+		// but if from world to world directly or sth
+		this.world = new ClientWorld(this.save, this.save.getSeed(), 1500);
 
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;

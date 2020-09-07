@@ -255,7 +255,7 @@ public abstract class Chunk implements World {
 		}
 	}
 
-	protected void refreshLighting() {
+	public void refreshLighting() {
 		System.arraycopy(this.nextBlockLighting, 0, this.blockLighting, 0, this.nextBlockLighting.length);
 		System.arraycopy(this.nextSkyLighting, 0, this.skyLighting, 0, this.nextSkyLighting.length);
 	}
