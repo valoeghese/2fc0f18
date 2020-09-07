@@ -38,8 +38,6 @@ import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -80,19 +78,12 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private final Window window;
 	private double prevYPos = 0;
 	private double prevXPos = 0;
-	private final Queue<Runnable> later = new LinkedList<>();
 	private boolean showDebug = false;
 	private final TimerSwitch timerSwitch = new TimerSwitch();
 	private GUI setupScreen;
 
 	public static Client2fc getInstance() {
 		return instance;
-	}
-
-	public void runLater(Runnable callback) {
-		synchronized (this.later) {
-			this.later.add(callback);
-		}
 	}
 
 	@Override
@@ -127,18 +118,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
 
-				Runnable task = null;
-
-				synchronized (this.later) {
-					if (!this.later.isEmpty()) {
-						task = this.later.remove();
-					}
-				}
-
-				if (task != null) {
-					task.run();
-				}
-
+				this.runNextQueued();
+				this.updateNextLighting();
 				this.tick();
 			}
 
@@ -199,8 +180,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (!this.timerSwitch.isOn()) {
 				boolean b;
 
-				synchronized (this.later) {
-					b = this.later.size() > 10;
+				synchronized (this.toUpdateLighting) {
+					b = this.toUpdateLighting.size() > 10;
 				}
 
 				if (b) {

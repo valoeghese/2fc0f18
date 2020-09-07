@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.world;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -201,11 +202,11 @@ public abstract class Chunk implements World {
 				c.dirty = true;
 			}
 
-			Client2fc.getInstance().runLater(() -> {
-				for (Chunk c : updated) {
-					c.refreshLighting();
-				}
-			});
+			Game2fc game = Game2fc.getInstance();
+
+			for (Chunk c : updated) {
+				game.needsLightingUpdate(c);
+			}
 		});
 	}
 
