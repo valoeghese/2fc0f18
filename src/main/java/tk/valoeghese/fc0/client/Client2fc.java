@@ -164,7 +164,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		boolean isTitleScreen = this.currentScreen == this.titleScreen;
 
 		if (isTitleScreen) {
-			this.player.getCamera().rotateYaw(0.002f);
+			if (NEW_TITLE) {
+				this.player.move(0, 0, 0.01f);
+			} else {
+				//this.player.getCamera().rotateYaw(0.002f);
+			}
 		}
 
 		this.handleKeybinds();
@@ -249,9 +253,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		long time = System.currentTimeMillis();
 		this.setFOV(64);
 
-		this.world = new ClientWorld(null, 0, 4);
+		this.world = new ClientWorld(null, 0, TITLE_WORLD_SIZE);
 		this.player = new ClientPlayer(new Camera(), this, false);
 		this.player.changeWorld(this.world, this.save);
+
+		if (NEW_TITLE) {
+			this.player.setNoClip(true);
+			this.player.move(0, 20, 0);
+		}
+
 //		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
 
@@ -477,4 +487,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 100 / 20;
 	private static Client2fc instance;
+	public static final int TITLE_WORLD_SIZE = 1000;
+	public static final boolean NEW_TITLE = true;
 }

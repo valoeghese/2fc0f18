@@ -42,7 +42,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.maxBound = size << 4;
 
 		RANDOM.setSeed(seed);
-		this.spawnChunk = new ChunkPos(RANDOM.nextInt(16) - 8, RANDOM.nextInt(16) - 8);
+		this.spawnChunk = save == null ? new ChunkPos(0, 0) : this.searchForSpawn();
 	}
 
 	private final int minBound;
@@ -60,6 +60,35 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private byte skyLight;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
+
+	private ChunkPos searchForSpawn() {
+		int startCX = RANDOM.nextInt(16) - 8;
+		int startCZ = RANDOM.nextInt(16) - 8;
+		int chunkX = startCX;
+		int chunkZ = startCZ;
+		int height = 0;
+
+		for (int xo = 0; xo < 4; ++xo) {
+			int x = startCX + 2 * xo;
+
+			for (int zo = 0; zo < 4; ++zo) {
+				int z = startCZ + 2 * zo;
+
+				Chunk c = this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
+				int y = c.getHeight(0, 0);
+
+				if (y > 51) {
+					return new ChunkPos(x, z);
+				} else if (y > height) {
+					height = y;
+					chunkX = x;
+					chunkZ = z;
+				}
+			}
+		}
+
+		return new ChunkPos(chunkX, chunkZ);
+	}
 
 	// Note: If a kingdom is generated in two locations
 	// It could change the Voronoi location and thus city loc

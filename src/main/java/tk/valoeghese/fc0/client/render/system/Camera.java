@@ -81,11 +81,15 @@ public class Camera {
 
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 
-    public Vector3f getGoodDirection() {
+	public Vector3f getGoodDirection() {
 		double calcYaw = this.yaw + Math.PI;
 		double dxCalc = -Math.sin(calcYaw);
 		double dyCalc = -Math.tan(this.pitch);
 		double dzCalc = Math.cos(calcYaw);
 		return new Vector3f((float) dxCalc, (float) dyCalc, (float) dzCalc);
+	}
+
+	public void setPitch(float f) {
+		this.pitch = f;
 	}
 }

@@ -178,6 +178,6 @@ public final class Kingdom {
 		return "Kingdom of " + this.name;
 	}
 
-	public static final float SCALE = 1250.0f;
+	public static final float SCALE = 1050.0f;
 	private static final char[] VOWELS = {'i', 'e', 'a', 'o', 'u', 'y'};
 }

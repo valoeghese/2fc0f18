@@ -298,9 +298,17 @@ public class GameScreen extends Screen {
 		this.game.getWorld().destroy();
 		this.game.save = null;
 
-		ClientWorld world = new ClientWorld(null, 0, 4);
+		ClientWorld world = new ClientWorld(null, 0, Client2fc.TITLE_WORLD_SIZE);
 		this.game.setWorld(world);
-		this.game.getPlayer().changeWorld(world, this.game.save);
+		ClientPlayer player = this.game.getPlayer();
+		player.changeWorld(world, this.game.save);
+		player.getCamera().setPitch(0);
+
+		if (NEW_TITLE) {
+			player.setNoClip(true);
+			player.move(0, 20, 0);
+		}
+
 		this.game.switchScreen(this.game.titleScreen);
 	}
 
