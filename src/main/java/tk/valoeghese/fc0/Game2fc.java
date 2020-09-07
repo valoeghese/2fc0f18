@@ -24,16 +24,18 @@ public class Game2fc<W extends World, P extends Player> {
 	}
 
 	protected void updateNextLighting() {
-		Chunk c = null;
+		List<Chunk> c = new ArrayList<>();
 
 		synchronized (this.toUpdateLighting) {
-			if (!toUpdateLighting.isEmpty()) {
-				c = this.toUpdateLighting.remove();
+			int count = Math.min(8, toUpdateLighting.size());
+
+			for (int i = 0; i < count; ++i) {
+				c.add(this.toUpdateLighting.remove());
 			}
 		}
 
-		if (c != null) {
-			c.refreshLighting();
+		for (Chunk chunk : c) {
+			chunk.refreshLighting();
 		}
 	}
 
