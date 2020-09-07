@@ -58,6 +58,12 @@ public class GrassTile extends Tile {
 			} else {
 				return this.snowSideUV.getX();
 			}
+		} else if (meta == 2) {
+			if (faceAxis == 1) {
+				return this.pathTopUV.getX();
+			} else {
+				return this.pathSideUV.getX();
+			}
 		} else if (faceAxis == 1) {
 			return super.getU(faceAxis, meta);
 		} else {

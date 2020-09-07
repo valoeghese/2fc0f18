@@ -17,6 +17,12 @@ public final class Voronoi {
 		return (float) random(x, y, seed, 0xFFFF) / (float) 0xFFFF;
 	}
 
+	public static Vec2f sampleGrid(int x, int y, int seed) {
+		float vx = x + (randomFloat(x, y, seed) + 0.5f) * 0.5f;
+		float vy = y + (randomFloat(x, y, seed + 1) + 0.5f) * 0.5f;
+		return new Vec2f(vx, vy);
+	}
+
 	public static Vec2f sample(float x, float y, int seed) {
 		final int baseX = MathsUtils.floor(x);
 		final int baseY = MathsUtils.floor(y);

@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.gen.kingdom;
 
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2f;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.GameplayWorld;
@@ -12,6 +13,7 @@ import java.util.Random;
 public final class Kingdom {
 	public Kingdom(GameplayWorld world, int id, Vec2f voronoi) {
 		this.cityLoc = new Vec2i((int) (voronoi.getX() * SCALE), (int) (voronoi.getY() * SCALE));
+		this.gridLoc = new Vec2i(MathsUtils.floor(voronoi.getX()), MathsUtils.floor(voronoi.getY()));
 
 		Random rand = new Random(world.getSeed() ^ id);
 		List<String> onsetPre = new ArrayList<>(Arrays.asList("m", "n", "p", "t", "k"));
@@ -27,6 +29,7 @@ public final class Kingdom {
 	}
 
 	private final Vec2i cityLoc;
+	private final Vec2i gridLoc;
 	private final String name;
 	private final String[] onset;
 	private final String[] coda;
@@ -35,6 +38,10 @@ public final class Kingdom {
 
 	public Vec2i getCityCentre() {
 		return this.cityLoc;
+	}
+
+	public Vec2f neighbourKingdomVec(int xoff, int yoff, int seed) {
+		return Voronoi.sampleGrid(xoff + this.gridLoc.getX(), yoff + this.gridLoc.getY(), seed);
 	}
 
 	private void addPhonemes(List<String> onsetPre, List<String> codePre, Random rand) {

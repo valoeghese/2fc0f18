@@ -63,7 +63,7 @@ public abstract class Chunk implements World {
 
 				for (int kz = 0; kz < 16; ++kz) {
 					float sampleZ = (this.startZ + kz) / Kingdom.SCALE;
-					this.kingdoms[kx * 16 + kz] = Voronoi.sample(sampleX, sampleZ, (int) seed).hashCode();
+					this.kingdoms[kx * 16 + kz] = Voronoi.sample(sampleX, sampleZ, (int) seed).id();
 				}
 			}
 		} else {
@@ -99,6 +99,15 @@ public abstract class Chunk implements World {
 
 	// Threading
 	private static final ExecutorService lightingExecutor = Executors.newSingleThreadExecutor();
+
+	@Override
+	public GameplayWorld getGameplayWorld() {
+		if (this.parent instanceof GameplayWorld) {
+			return (GameplayWorld) this.parent;
+		} else {
+			return null;
+		}
+	}
 
 	@Override
 	public double sampleNoise(double x, double y) {
@@ -505,6 +514,11 @@ public abstract class Chunk implements World {
 
 	@Override
 	public void destroy() {
+	}
+
+	@Override
+	public long getSeed() {
+		return this.parent.getSeed();
 	}
 
 	public ChunkPos getPos() {

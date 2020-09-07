@@ -67,4 +67,8 @@ public class Vec2f {
 				+ ", " + this.y
 				+ ')';
 	}
+
+	public int id() {
+		return this.hashCode();
+	}
 }

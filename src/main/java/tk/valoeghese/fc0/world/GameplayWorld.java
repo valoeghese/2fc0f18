@@ -6,10 +6,12 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.util.maths.Vec2f;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
+import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.gen.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
@@ -67,6 +69,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Override
 	public Kingdom kingdomById(int kingdom, int x, int z) {
 		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this, id, Voronoi.sample(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed)));
+	}
+
+	public Kingdom kingdomById(Vec2f sample) {
+		return this.kingdomIdMap.computeIfAbsent(sample.id(), id -> new Kingdom(this, id, sample));
 	}
 
 	private T getOrCreateChunk(int x, int z) {
@@ -358,6 +364,16 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		@Override
 		public double sampleNoise(double x, double y) {
 			return GameplayWorld.this.sampleNoise(x, y);
+		}
+
+		@Override
+		public long getSeed() {
+			return GameplayWorld.this.getSeed();
+		}
+
+		@Override
+		public GameplayWorld<?> getGameplayWorld() {
+			return GameplayWorld.this;
 		}
 	}
 

@@ -361,17 +361,19 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	private void handleKeybinds() {
-		this.currentScreen.handleKeybinds();
+		if (!this.timerSwitch.isOn()) {
+			this.currentScreen.handleKeybinds();
 
-		if (Keybinds.FOV_DOWN.hasBeenPressed()) {
-			if (this.fov > 30) {
-				this.setFOV(this.fov - 5);
+			if (Keybinds.FOV_DOWN.hasBeenPressed()) {
+				if (this.fov > 30) {
+					this.setFOV(this.fov - 5);
+				}
 			}
-		}
 
-		if (Keybinds.FOV_UP.hasBeenPressed()) {
-			if (this.fov < 90) {
-				this.setFOV(this.fov + 5);
+			if (Keybinds.FOV_UP.hasBeenPressed()) {
+				if (this.fov < 90) {
+					this.setFOV(this.fov + 5);
+				}
 			}
 		}
 	}

@@ -1,6 +1,10 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
+import tk.valoeghese.fc0.util.maths.Vec2f;
+import tk.valoeghese.fc0.util.maths.Vec2i;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.GenWorld;
+import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -18,7 +22,10 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 	@Override
 	public void generate(GenWorld world, NoneGeneratorSettings generatorSettings, int startX, int startZ, Random rand) {
-		// Generate Walls
+		int seed = (int) world.getSeed();
+		GameplayWorld gw = world.getGameplayWorld();
+
+		// Generate Walls and paths
 		for (int xo = 0; xo < 16; ++xo) {
 			int x = startX + xo;
 
@@ -26,18 +33,44 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 				int z = startZ + zo;
 				Kingdom kingdom = world.getKingdom(x, z);
 
-				int dist = kingdom.getCityCentre().manhattan(x, z);
+				Vec2i centre = kingdom.getCityCentre();
+				int dist = centre.manhattan(x, z);
 
-				if (dist >= this.size && dist <= this.sizeOuter) {
-					final int height = (dist == this.size || dist == this.sizeOuter) ? 7 : 6;
+				if (dist > this.sizeOuter) {
+					int y = getHeightForGeneration(world, x, z) - 1;
+
+					if (y > 51) {
+						Vec2i north = gw.kingdomById(kingdom.neighbourKingdomVec(0, 1, seed)).getCityCentre();
+						Vec2i east = gw.kingdomById(kingdom.neighbourKingdomVec(1, 0, seed)).getCityCentre();
+						Vec2i south = gw.kingdomById(kingdom.neighbourKingdomVec(0, -1, seed)).getCityCentre();
+						Vec2i west = gw.kingdomById(kingdom.neighbourKingdomVec(-1, 0, seed)).getCityCentre();
+
+						// write path
+						if (isNear(centre, north, x, z) || isNear(centre, east, x, z)
+								|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
+							world.wgWriteTile(x, y, z, Tile.AIR.id);
+							world.wgWriteTile(x, y - 1, z, Tile.GRASS.id);
+							world.writeMeta(x, y - 1, z, (byte) 2);
+						}
+					}
+				} else if (dist >= this.size) {
+					final int height = (dist == this.size || dist == this.sizeOuter) ? 9 : 8;
 					int startY = getHeightForGeneration(world, x, z);
 
-					for (int yo = 0; yo < height; ++yo) {
-						int y = startY + yo;
-						world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+					if (startY > 51) {
+						for (int yo = 0; yo < height; ++yo) {
+							int y = startY + yo;
+							world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+						}
 					}
 				}
 			}
 		}
+	}
+
+	private static boolean isNear(Vec2i locA, Vec2i locB, int x, int y) {
+		float m = (float) (locB.getY() - locA.getY()) / (float) (locB.getX() - locA.getX());
+		float targetY = m * x + locA.getY() - m * locA.getX();
+		return Math.abs(y - targetY) < 5;
 	}
 }
