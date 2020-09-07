@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.save;
 
+import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.Pos;
@@ -230,7 +231,14 @@ public class Save {
 		File file = new File(this.parentDir, "c" + x + "." + z + ".gsod");
 
 		if (file.exists()) {
-			return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
+			try {
+				return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
+			} catch (Exception e) {
+				System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
+				file.renameTo(new File(this.parentDir, "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
+				Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
+				return worldGen.generateChunk(constructor, parent, x, z, genRand);
+			}
 		} else {
 			Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
 			return worldGen.generateChunk(constructor, parent, x, z, genRand);

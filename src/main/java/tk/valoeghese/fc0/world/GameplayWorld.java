@@ -11,7 +11,6 @@ import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
-import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.gen.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
@@ -185,7 +184,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				result.setSkylight(this.skyLight); // just in case
 				result.updateLighting();
 				result.needsLightingCalcOnLoad = false;
-			} else if (!result.status.isFull()) {
+			} else if (!result.status.isFull()) { // if otherwise loading from older to a full status, make sure skyLight is correct
 				result.assertSkylight(this.skyLight);
 			}
 		case POPULATE: // ticking chunks are also populated
@@ -260,7 +259,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
-			this.getChunk(cPos.x, cPos.z).updateChunkOf(player);
+			// ensure rendered
+			this.loadChunk(cPos.x, cPos.z, ChunkLoadStatus.RENDER).updateChunkOf(player);
 		} else if (player.chunk != null) {
 			player.chunk.removePlayer(player);
 			player.chunk = null;

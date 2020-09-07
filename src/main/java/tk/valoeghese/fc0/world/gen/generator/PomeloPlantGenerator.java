@@ -28,7 +28,7 @@ public class PomeloPlantGenerator extends Generator<TreeGeneratorSettings> {
 			int y = getHeightForGeneration(world, x, z);
 			int height = settings.getHeight(rand);
 
-			if (world.readTile(x, y - 1, z) != Tile.GRASS.id) {
+			if (y < 52 || world.readTile(x, y - 1, z) != Tile.GRASS.id || world.readMeta(x, y - 1, z) == 2) {
 				continue;
 			}
 

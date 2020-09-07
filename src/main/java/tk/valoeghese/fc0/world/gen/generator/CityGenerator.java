@@ -58,9 +58,23 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 					int startY = getHeightForGeneration(world, x, z);
 
 					if (startY > 51) {
-						for (int yo = 0; yo < height; ++yo) {
-							int y = startY + yo;
-							world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+						Vec2i north = gw.kingdomById(kingdom.neighbourKingdomVec(0, 1, seed)).getCityCentre();
+						Vec2i east = gw.kingdomById(kingdom.neighbourKingdomVec(1, 0, seed)).getCityCentre();
+						Vec2i south = gw.kingdomById(kingdom.neighbourKingdomVec(0, -1, seed)).getCityCentre();
+						Vec2i west = gw.kingdomById(kingdom.neighbourKingdomVec(-1, 0, seed)).getCityCentre();
+
+						// write gates
+						if (isNear(centre, north, x, z) || isNear(centre, east, x, z)
+								|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
+							for (int yo = 4; yo < height; ++yo) {
+								int y = startY + yo;
+								world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+							}
+						} else { // write wall
+							for (int yo = 0; yo < height; ++yo) {
+								int y = startY + yo;
+								world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+							}
 						}
 					}
 				}

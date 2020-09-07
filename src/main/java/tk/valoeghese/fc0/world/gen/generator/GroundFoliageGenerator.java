@@ -20,8 +20,8 @@ public class GroundFoliageGenerator extends Generator<GroundFoliageGeneratorSett
 			int y = getHeightForGeneration(world, x, z);
 			Tile tile = settings.pickTile(rand);
 
-			if (world.isInWorld(x, y, z)) {
-				if (world.readTile(x, y, z) == Tile.WATER.id) {
+			if (y > 51 && world.isInWorld(x, y, z)) {
+				if (world.readTile(x, y, z) == Tile.WATER.id || (world.readTile(x, y - 1, z) == Tile.GRASS.id && world.readMeta(x, y - 1, z) == 2)) {
 					continue;
 				}
 
