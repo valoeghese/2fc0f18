@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.world;
 
 public enum ChunkLoadStatus {
+	UNLOADED(-1, false),
 	GENERATE(0, false),
 	POPULATE(1, false),
 	TICK(2, true),

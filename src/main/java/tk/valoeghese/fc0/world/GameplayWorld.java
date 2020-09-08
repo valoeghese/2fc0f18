@@ -165,6 +165,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Override
 	@Nullable
 	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
+		if (status == ChunkLoadStatus.UNLOADED) {
+			throw new RuntimeException("Cannot load a chunk with status \"Unloaded\"");
+		}
+
 		if (!this.isInWorld(x << 4, 50, z << 4)) {
 			return null;
 		}
@@ -280,6 +284,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				this.onChunkRemove(c);
 				toWrite.add(c);
 				this.chunks.remove(key(c.x, c.z));
+				c.status = ChunkLoadStatus.UNLOADED;
 			}
 		}
 

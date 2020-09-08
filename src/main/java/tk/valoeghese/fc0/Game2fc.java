@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0;
 
 import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.player.Player;
 
@@ -35,7 +36,9 @@ public class Game2fc<W extends World, P extends Player> {
 		}
 
 		for (Chunk chunk : c) {
-			chunk.refreshLighting();
+			if (chunk.status != ChunkLoadStatus.UNLOADED) {
+				chunk.refreshLighting();
+			}
 		}
 	}
 
