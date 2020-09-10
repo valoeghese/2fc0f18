@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.client.render.screen;
 
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.client.render.system.Window;
+import valoeghese.scalpel.Window;
 
 public abstract class Screen {
 	public Screen(Client2fc game) {

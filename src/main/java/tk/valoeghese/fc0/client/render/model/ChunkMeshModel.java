@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.client.render.model;
 
 import tk.valoeghese.fc0.client.render.Shaders;
-import tk.valoeghese.fc0.client.render.system.Model;
+import valoeghese.scalpel.Model;
 
 import java.util.List;
 

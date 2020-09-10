@@ -2,7 +2,7 @@ package tk.valoeghese.fc0.client.render.model;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import tk.valoeghese.fc0.client.render.system.Camera;
+import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.RenderedChunk;

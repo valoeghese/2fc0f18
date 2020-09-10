@@ -1,7 +1,6 @@
 package tk.valoeghese.fc0.world.entity;
 
 import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
-import tk.valoeghese.fc0.client.render.system.Model;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;

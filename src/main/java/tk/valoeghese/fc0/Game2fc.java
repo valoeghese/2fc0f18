@@ -28,7 +28,7 @@ public class Game2fc<W extends World, P extends Player> {
 		List<Chunk> c = new ArrayList<>();
 
 		synchronized (this.toUpdateLighting) {
-			int count = Math.min(8, toUpdateLighting.size());
+			int count = Math.min(9, toUpdateLighting.size());
 
 			for (int i = 0; i < count; ++i) {
 				c.add(this.toUpdateLighting.remove());

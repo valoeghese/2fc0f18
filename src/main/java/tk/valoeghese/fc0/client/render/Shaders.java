@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.client.render;
 
-import tk.valoeghese.fc0.client.render.system.Shader;
+import valoeghese.scalpel.Shader;
 
 public final class Shaders {
 	public static Shader terrain;

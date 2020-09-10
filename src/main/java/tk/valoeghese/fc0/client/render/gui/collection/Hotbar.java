@@ -5,8 +5,8 @@ import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.ItemGUI;
 import tk.valoeghese.fc0.client.render.gui.MoveableSquare;
 import tk.valoeghese.fc0.client.render.gui.Text;
-import tk.valoeghese.fc0.client.render.system.gui.GUICollection;
-import tk.valoeghese.fc0.client.render.system.gui.PseudoGUI;
+import valoeghese.scalpel.gui.GUICollection;
+import valoeghese.scalpel.gui.PseudoGUI;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
 

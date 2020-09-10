@@ -3,8 +3,8 @@ package tk.valoeghese.fc0.client.render.gui.collection;
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.ButtonSquare;
 import tk.valoeghese.fc0.client.render.gui.Text;
-import tk.valoeghese.fc0.client.render.system.gui.GUICollection;
-import tk.valoeghese.fc0.client.render.system.gui.PseudoGUI;
+import valoeghese.scalpel.gui.GUICollection;
+import valoeghese.scalpel.gui.PseudoGUI;
 
 public class WorldSave extends GUICollection<WorldSave.WorldSaveEntry> {
 	public WorldSave(String... saves) {

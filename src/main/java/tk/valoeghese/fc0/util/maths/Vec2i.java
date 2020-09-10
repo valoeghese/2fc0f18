@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.util.maths;
 
-import tk.valoeghese.fc0.client.render.system.GeneratedAtlas;
+import valoeghese.scalpel.GeneratedAtlas;
 
 import java.util.Objects;
 

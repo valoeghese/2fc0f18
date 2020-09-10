@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.client.render.entity;
 
-import tk.valoeghese.fc0.client.render.system.Model;
+import valoeghese.scalpel.Model;
 
 public abstract class EntityRenderer {
 	private Model model;

@@ -4,9 +4,9 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.gui.collection.WorldSave;
-import tk.valoeghese.fc0.client.render.system.Window;
-import tk.valoeghese.fc0.client.render.system.gui.GUI;
-import tk.valoeghese.fc0.client.render.system.util.GLUtils;
+import valoeghese.scalpel.Window;
+import tk.valoeghese.fc0.client.render.gui.GUI;
+import valoeghese.scalpel.util.GLUtils;
 
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 

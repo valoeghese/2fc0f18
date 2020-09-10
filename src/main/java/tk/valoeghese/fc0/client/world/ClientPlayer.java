@@ -2,7 +2,7 @@ package tk.valoeghese.fc0.client.world;
 
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.client.render.system.Camera;
+import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;

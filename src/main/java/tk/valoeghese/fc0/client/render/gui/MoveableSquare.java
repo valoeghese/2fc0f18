@@ -1,7 +1,6 @@
 package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.client.render.system.gui.GUI;
 
 public class MoveableSquare extends GUI {
 	public MoveableSquare(int texture, float size) {

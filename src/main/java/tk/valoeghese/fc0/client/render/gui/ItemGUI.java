@@ -1,7 +1,6 @@
 package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.render.Textures;
-import tk.valoeghese.fc0.client.render.system.gui.GUI;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.tile.Tile;
 

@@ -1,17 +1,16 @@
 package tk.valoeghese.fc0.client;
 
-import tk.valoeghese.fc0.client.render.system.Model;
-import tk.valoeghese.fc0.client.render.system.Window;
+import valoeghese.scalpel.Model;
+import valoeghese.scalpel.Window;
 
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
-import static tk.valoeghese.fc0.client.render.system.util.GLUtils.NULL;
+import static valoeghese.scalpel.util.GLUtils.NULL;
 
 public class Tests {
 	public static void runLegacyTest(Window window) {

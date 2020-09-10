@@ -6,9 +6,9 @@ import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.CraftingMenu;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import tk.valoeghese.fc0.client.render.system.Window;
-import tk.valoeghese.fc0.client.render.system.gui.GUI;
-import tk.valoeghese.fc0.client.render.system.util.GLUtils;
+import valoeghese.scalpel.Window;
+import tk.valoeghese.fc0.client.render.gui.GUI;
+import valoeghese.scalpel.util.GLUtils;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
 
