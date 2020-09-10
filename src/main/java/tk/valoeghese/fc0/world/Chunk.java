@@ -219,11 +219,11 @@ public abstract class Chunk implements World {
 			this.calculateSkyLighting(updated);
 			this.dirty = true;
 
-			Client2fc.getInstance().runLater(() -> {
-				for (Chunk c : updated) {
-					c.refreshLighting();
-				}
-			});
+			Game2fc game = Game2fc.getInstance();
+
+			for (Chunk c : updated) {
+				game.needsLightingUpdate(c);
+			}
 		});
 	}
 

@@ -64,12 +64,6 @@ public class Game2fc<W extends World, P extends Player> {
 		}
 	}
 
-	public void runLater(Runnable callback) {
-		synchronized (this.later) {
-			this.later.add(callback);
-		}
-	}
-
 	protected void tick() {
 		this.player.tick();
 		++this.time;

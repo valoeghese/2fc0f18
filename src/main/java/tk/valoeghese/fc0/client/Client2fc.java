@@ -92,6 +92,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		Shaders.loadShaders();
 
 		Thread t = new Thread(this::init);
+		t.setDaemon(true);
 		t.start();
 
 		while (t.isAlive()) {
