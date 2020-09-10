@@ -411,6 +411,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 	}
 
+	@Override
+	protected void finalize() {
+		this.destroy();
+	}
+
 	public static long key(int x, int z) {
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}

@@ -350,6 +350,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	private void handleKeybinds() {
+		/*if (Keybinds.RUN.hasBeenPressed()) {
+			System.out.println(this.world.chunks.size());
+		}*/
+
 		if (!this.timerSwitch.isOn()) {
 			this.currentScreen.handleKeybinds();
 
