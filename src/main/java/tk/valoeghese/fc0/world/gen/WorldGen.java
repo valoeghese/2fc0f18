@@ -146,22 +146,22 @@ public abstract class WorldGen {
 	}
 
 	/**
-	 * World Generator for Earth Plane 0.
+	 * World Generator for Earth.
 	 */
-	public static class EarthPlane0 extends WorldGen {
-		public EarthPlane0(long seed) {
-			super(seed, 0);
+	public static class Earth extends WorldGen {
+		public Earth(long seed, int plane) {
+			super(seed, plane);
 		}
 
 		@Override
 		protected double sampleHeight(double x, double z) {
 			// Stage one: sample continent shape
-			double continent = 43 + 23 * this.sampleNoise((x / 810.0) - 0.3, (z / 810.0) - 0.3);
+			double continent = 43 + 20 * this.sampleNoise((x / 810.0) - 0.3, (z / 810.0) - 0.3);
 
 			// Stage two: sample mountains and hills
 			double mountainDir = 1.0 + 0.5 * this.sampleNoise(x / 720.0, z / 720.0);
-			double mountains = 45 + 45 * this.sampleRidge((x * mountainDir) / 410.0, (z / mountainDir) / 410.0);
-			mountains += 23 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
+			double mountains = 45 + 68 * this.sampleRidge((x * mountainDir) / 410.0, (z / mountainDir) / 410.0);
+			mountains += 36 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
 
 			double hills = 20 * this.sampleNoise(x / 90.0, z / 90.0) + 12 * this.sampleNoise(x / 32.0, z / 32.0);
 

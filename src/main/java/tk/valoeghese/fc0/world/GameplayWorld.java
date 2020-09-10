@@ -27,7 +27,7 @@ import java.util.concurrent.Executors;
 
 public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkAccess {
 	public GameplayWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
-		this.worldGen = new WorldGen.EarthPlane0(seed);
+		this.worldGen = new WorldGen.Earth(seed, 0);
 		this.seed = seed;
 
 		this.chunks = new Long2ObjectArrayMap<>();
