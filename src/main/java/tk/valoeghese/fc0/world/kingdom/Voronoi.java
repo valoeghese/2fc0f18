@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world.gen.kingdom;
+package tk.valoeghese.fc0.world.kingdom;
 
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2f;

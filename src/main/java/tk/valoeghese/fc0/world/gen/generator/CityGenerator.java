@@ -1,11 +1,9 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.util.maths.Vec2f;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.GenWorld;
-import tk.valoeghese.fc0.world.gen.WorldGen;
-import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;

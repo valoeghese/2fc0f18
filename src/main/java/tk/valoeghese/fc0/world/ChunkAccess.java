@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.world;
 
 import tk.valoeghese.fc0.world.gen.SeedWorld;
-import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 
 import javax.annotation.Nullable;
 

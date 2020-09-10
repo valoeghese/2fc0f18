@@ -1,8 +1,7 @@
 package tk.valoeghese.fc0.world.gen;
 
 import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.GameplayWorld;
-import tk.valoeghese.fc0.world.gen.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;

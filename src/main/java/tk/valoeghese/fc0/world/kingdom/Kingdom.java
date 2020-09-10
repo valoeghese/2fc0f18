@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world.gen.kingdom;
+package tk.valoeghese.fc0.world.kingdom;
 
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2f;
@@ -153,10 +153,12 @@ public final class Kingdom {
 
 	private String pickName(Random rand) {
 		int syllables = rand.nextInt(3) + rand.nextInt(3) + 1;
+		final boolean lessKingdomOfA = syllables == 1;
+
 		StringBuilder sb = new StringBuilder();
 
 		while (syllables --> 0) {
-			boolean onset = rand.nextInt(3) > 0;
+			boolean onset = rand.nextInt(lessKingdomOfA ? 5 : 3) > 0;
 			boolean coda = this.coda.length > 0 && rand.nextInt(3) == 0;
 
 			if (onset) {
