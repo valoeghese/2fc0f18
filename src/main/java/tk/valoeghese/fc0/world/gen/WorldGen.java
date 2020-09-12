@@ -20,6 +20,8 @@ public abstract class WorldGen {
 		this.ridges = new RidgedNoise(new Random(seed + 12));
 		this.sand = new Noise(new Random(seed - 29));
 		this.ecoZone = new Noise(new Random(seed + 31));
+		this.cavesHorizontal = new Noise(new Random(seed + 79));
+		this.cavesMain = new Noise(new Random(seed - 79));
 		this.plane = (double) plane / 3;
 	}
 
@@ -27,12 +29,46 @@ public abstract class WorldGen {
 	private final Noise ridges;
 	private final Noise sand;
 	private final Noise ecoZone;
+
+	// Caves
+
+	private final Noise cavesHorizontal;
+	private final Noise cavesMain;
+
 	private final double plane;
 
 	public <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, Random rand) {
 		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
 
+		double[] noise = generateNoise(chunkX, chunkZ);
+		shapeChunk(chunkX, chunkZ, noise, tiles, meta);
+		carveCaves(chunkX, chunkZ, noise, tiles, meta);
+
+		return constructor.create(parent, chunkX, chunkZ, tiles, meta, null);
+	}
+
+	private double[] generateNoise(int chunkX, int chunkZ) {
+		int blockX = chunkX << 4;
+		int blockZ = chunkZ << 4;
+
+		double[] noise = new double[256];
+
+		for (int x = 0; x < 16; ++x) {
+			int totalX = x + blockX;
+
+			for (int z = 0; z < 16; ++z) {
+				int totalZ = z + blockZ;
+
+				noise[x * 16 + z] = this.sampleHeight(totalX, totalZ);
+
+			}
+		}
+
+		return noise;
+	}
+
+	private void shapeChunk(int chunkX, int chunkZ, double[] heightmap, byte[] tiles, byte[] meta) {
 		int blockX = chunkX << 4;
 		int blockZ = chunkZ << 4;
 
@@ -44,7 +80,7 @@ public abstract class WorldGen {
 				EcoZone zone = getEcoZoneByPosition(totalX, totalZ);
 
 				// ridges
-				int height = (int) this.sampleHeight(totalX, totalZ);
+				int height = (int) heightmap[x * 16 + z];
 
 				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
 
@@ -87,8 +123,38 @@ public abstract class WorldGen {
 				}
 			}
 		}
+	}
 
-		return constructor.create(parent, chunkX, chunkZ, tiles, meta, null);
+	private void carveCaves(int chunkX, int chunkZ, double[] heightmap, byte[] tiles, byte[] meta) {
+		int blockX = chunkX << 4;
+		int blockZ = chunkZ << 4;
+
+		for (int x = 0; x < 16; ++x) {
+			int totalX = x + blockX;
+
+			for (int z = 0; z < 16; ++z) {
+				int totalZ = z + blockZ;
+
+				double height = heightmap[x * 16 + z];
+
+				double threshold = horizontalThresholdAt(cavesHorizontal.sample(totalX / 35.0, totalZ / 35.0));
+
+				for (int y = 0; y < (int) height; y++) {
+					if ((noiseFalloffAt(y, height) + (cavesMain.sample(totalX / 40.0, y / 20.0, totalZ / 40.0) * 2.5)) < threshold) {
+						tiles[Chunk.index(x, y, z)] = Tile.AIR.id;
+						meta[Chunk.index(x, y, z)] = 0;
+					}
+				}
+			}
+		}
+	}
+
+	private static double horizontalThresholdAt(double noise) {
+		return (7.5 * noise * noise);
+	}
+
+	private static double noiseFalloffAt(int y, double maxHeight) {
+		return (16.0 / y) - (16.0 / (y - maxHeight));
 	}
 
 	protected abstract double sampleHeight(double x, double z);
