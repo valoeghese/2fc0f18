@@ -150,11 +150,11 @@ public abstract class WorldGen {
 	}
 
 	private static double horizontalThresholdAt(double noise) {
-		return (7.5 * noise * noise);
+		return (14.5 * noise * noise);
 	}
 
 	private static double noiseFalloffAt(int y, double maxHeight) {
-		return (16.0 / y) - (16.0 / (y - maxHeight));
+		return (48.0 / y) - (48.0 / (y - maxHeight));
 	}
 
 	protected abstract double sampleHeight(double x, double z);
