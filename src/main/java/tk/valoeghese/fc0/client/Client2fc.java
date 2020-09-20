@@ -380,6 +380,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void setWorld(ClientWorld world) {
+		this.world.destroy();
 		this.world = world;
 	}
 
@@ -401,7 +402,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		// TODO should I clear toUpdateLighting here? Or will that f*k up lighting in saved chunks?
 		// I mean in the case of title screen it's fine probably
 		// but if from world to world directly or sth
-		this.world = new ClientWorld(this.save, this.save.getSeed(), 1500);
+		this.setWorld(new ClientWorld(this.save, this.save.getSeed(), 1500));
 
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2f;
@@ -409,11 +410,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		public GameplayWorld<?> getGameplayWorld() {
 			return GameplayWorld.this;
 		}
-	}
-
-	@Override
-	protected void finalize() {
-		this.destroy();
 	}
 
 	public static long key(int x, int z) {
