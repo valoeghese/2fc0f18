@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.world.gen.generator;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -118,22 +119,31 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 						}
 
 						// Roof
-						for (int yy = 0; yy < 2; --yy) {
+						for (int yy = 0; yy < 2; ++yy) {
 							int width = 6 - yy;
+							int finalY = y + yy + houseHeight;
 
 							for (int xoo = -width; xoo < width; ++xoo) {
+								int finalX = x + xoo;
+
 								for (int zoo = -width; zoo < width; ++zoo) {
-									world.wgWriteTile(xoo, y + yy + houseHeight, zoo, Tile.STONE_BRICKS.id);
+									int finalZ = z + zoo;
+
+									if (world.isInWorld(finalX, finalY, finalZ)) {
+										world.wgWriteTile(finalX, finalY, finalZ, Tile.STONE_BRICKS.id);
+									}
 								}
 							}
 						}
 
 						// Pillars
 						for (int yy = 0; yy < houseHeight; ++yy) {
-							world.wgWriteTile(x - 6, y + yy, z - 6, Tile.LOG.id);
-							world.wgWriteTile(x + 5, y + yy, z + 5, Tile.LOG.id);
-							world.wgWriteTile(x + 5, y + yy, z - 6, Tile.LOG.id);
-							world.wgWriteTile(x - 6, y + yy, z + 5, Tile.LOG.id);
+							if (y + yy < World.WORLD_HEIGHT) {
+								world.wgWriteTile(x - 6, y + yy, z - 6, Tile.LOG.id);
+								world.wgWriteTile(x + 5, y + yy, z + 5, Tile.LOG.id);
+								world.wgWriteTile(x + 5, y + yy, z - 6, Tile.LOG.id);
+								world.wgWriteTile(x - 6, y + yy, z + 5, Tile.LOG.id);
+							}
 						}
 					}
 
