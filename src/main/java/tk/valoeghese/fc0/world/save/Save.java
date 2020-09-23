@@ -82,6 +82,10 @@ public class Save {
 		return this.seed;
 	}
 
+	public static boolean isThreadAlive() {
+		return thread.isAlive();
+	}
+
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
 		synchronized (lock) {
 			try {

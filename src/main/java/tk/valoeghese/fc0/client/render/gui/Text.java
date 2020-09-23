@@ -94,6 +94,34 @@ public class Text extends GUI {
 		this.generateBuffers();
 	}
 
+	public static float widthOf(char[] text) {
+		float width = 0;
+		float prevMaxWidth = 0;
+
+		for (char c : text) {
+			if (c == '\n') {
+				if (width > prevMaxWidth) {
+					prevMaxWidth = width;
+				}
+
+				width = 0;
+				continue;
+			}
+
+			if (c < 32) {
+				throw new RuntimeException("Text cannot contain non-newline characters lower than 32!");
+			}
+
+			if (c == ' ' || c == '`' || c == '.') {
+				width += 0.43f * STEP;
+			} else {
+				width += 0.63f * STEP;
+			}
+		}
+
+		return Math.max(width, prevMaxWidth);
+	}
+
 	public static class Moveable extends Text {
 		public Moveable(String value, float xOffset, float yOffset, float size) {
 			super(value, xOffset, yOffset, size);
@@ -103,6 +131,12 @@ public class Text extends GUI {
 			this.xOffset = xOffset;
 			this.yOffset = yOffset;
 			this.changeText(this.text);
+		}
+
+		public void changeText(String text, float xOffset, float yOffset) {
+			this.xOffset = xOffset;
+			this.yOffset = yOffset;
+			this.changeText(text);
 		}
 
 		public float getXOffset() {

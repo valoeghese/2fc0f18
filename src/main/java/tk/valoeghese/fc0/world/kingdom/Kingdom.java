@@ -180,8 +180,8 @@ public final class Kingdom {
 		return "Kingdom of " + this.name;
 	}
 
-	public String widgetString() {
-		return this.toString() + ", centre: " + this.getCityCentre().toString();
+	public String debugString() {
+		return this.toString() + "\nCity Centre: " + this.getCityCentre().toString();
 	}
 
 	public static final float SCALE = 1050.0f;

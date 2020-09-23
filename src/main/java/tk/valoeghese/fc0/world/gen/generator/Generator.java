@@ -39,7 +39,7 @@ public abstract class Generator<T extends GeneratorSettings> {
 	public abstract void generate(GenWorld world, T generatorSettings, int startX, int startZ, Random rand);
 
 	protected static int getHeightForGeneration(GenWorld world, int x, int z) {
-		return world.getHeight(x, z, tile -> tile.isOpaque() && tile != Tile.LOG) + 1;
+		return world.getHeight(x, z, tile -> tile.canSustainGeneration()) + 1;
 	}
 
 	protected boolean writeTile(GenWorld world, int x, int y, int z, byte tile) {
@@ -57,5 +57,5 @@ public abstract class Generator<T extends GeneratorSettings> {
 	public static final Generator<GroundFoliageGeneratorSettings> GROUND_FOLIAGE = new GroundFoliageGenerator();
 	public static final Generator<OreGeneratorSettings> SCATTERED_ORE = new ScatteredOreGenerator();
 	public static final Generator<TreeGeneratorSettings> POMELO_PLANT = new PomeloPlantGenerator();
-	public static final Generator<NoneGeneratorSettings> CITY = new CityGenerator(52);
+	public static final Generator<NoneGeneratorSettings> CITY = new CityGenerator(85);
 }

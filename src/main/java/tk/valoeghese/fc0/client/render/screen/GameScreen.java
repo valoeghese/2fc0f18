@@ -1,24 +1,28 @@
 package tk.valoeghese.fc0.client.render.screen;
 
+import org.joml.Math;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.gui.Crosshair;
+import tk.valoeghese.fc0.client.render.gui.GUI;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import valoeghese.scalpel.Camera;
-import valoeghese.scalpel.Window;
-import tk.valoeghese.fc0.client.render.gui.GUI;
-import valoeghese.scalpel.util.GLUtils;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.tile.Tile;
+import valoeghese.scalpel.Camera;
+import valoeghese.scalpel.Window;
+import valoeghese.scalpel.util.GLUtils;
+
+import javax.annotation.Nullable;
 
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
@@ -33,8 +37,9 @@ public class GameScreen extends Screen {
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
-		this.kingdomWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
+		this.cityWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
+		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 	}
 
@@ -43,9 +48,12 @@ public class GameScreen extends Screen {
 	public final Text biomeWidget;
 	public final Text coordsWidget;
 	public final Text lightingWidget;
-	public final Text kingdomWidget;
+	private final Text cityWidget;
+	private final Text.Moveable kingdomWidget;
+	private Kingdom currentKingdom;
 	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
+	private float kingdomShowTime = 0.0f;
 	private boolean[] abilityCaches = new boolean[2];
 
 	@Override
@@ -57,7 +65,7 @@ public class GameScreen extends Screen {
 			this.biomeWidget.render();
 			this.coordsWidget.render();
 			this.lightingWidget.render();
-			this.kingdomWidget.render();
+			this.cityWidget.render();
 		}
 
 		Player player = Client2fc.getInstance().getPlayer();
@@ -96,6 +104,15 @@ public class GameScreen extends Screen {
 		Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
 		this.hotbarRenderer.render();
 		Shaders.gui.uniformFloat("lighting", 1.0f);
+
+		if (this.kingdomShowTime > 0.0f) {
+			this.kingdomShowTime -= 0.01f;
+			Shaders.gui.uniformFloat("opacity", this.kingdomShowTime);
+			GLUtils.enableBlend();
+			this.kingdomWidget.render();
+			GLUtils.disableBlend();
+			Shaders.gui.uniformFloat("opacity", 1.0f);
+		}
 	}
 
 	public void onShowDebug(boolean showDebug) {
@@ -303,6 +320,7 @@ public class GameScreen extends Screen {
 		ClientPlayer player = this.game.getPlayer();
 		player.changeWorld(world, this.game.save);
 		player.getCamera().setPitch(0);
+		player.getCamera().setYaw(PI);
 
 		if (NEW_TITLE) {
 			player.setNoClip(true);
@@ -315,5 +333,19 @@ public class GameScreen extends Screen {
 	@Override
 	public void onFocus() {
 		GLUtils.disableMouse(Client2fc.getInstance().getWindowId());
+	}
+
+	@Nullable
+	public Kingdom getCurrentKingdom() {
+		return this.currentKingdom;
+	}
+
+	public void setCurrentKingdom(Kingdom kingdom) {
+		this.currentKingdom = kingdom;
+		this.cityWidget.changeText(kingdom.debugString());
+
+		String text = kingdom.toString();
+		this.kingdomWidget.changeText(text, Text.widthOf(text.toCharArray()) * -1f, 0.7f);
+		this.kingdomShowTime = 1.0f;
 	}
 }

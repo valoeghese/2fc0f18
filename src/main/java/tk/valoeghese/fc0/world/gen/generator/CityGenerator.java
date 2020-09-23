@@ -98,7 +98,7 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 					if (dist < houseLimit && xo == 8 && zo == 8) {
 						final int houseHeight = 5;
-						final int wallHeight = houseHeight - 1;
+						final int wallHeight = houseHeight;
 
 						// Generate City House
 						// Floor and Walls
@@ -119,9 +119,12 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 						}
 
 						// Roof
-						for (int yy = 0; yy < 2; ++yy) {
+						for (int yy = -1; yy < 2; ++yy) {
 							int width = 6 - yy;
 							int finalY = y + yy + houseHeight;
+
+							int l = -width;
+							int h = width - 1;
 
 							for (int xoo = -width; xoo < width; ++xoo) {
 								int finalX = x + xoo;
@@ -129,8 +132,10 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 								for (int zoo = -width; zoo < width; ++zoo) {
 									int finalZ = z + zoo;
 
-									if (world.isInWorld(finalX, finalY, finalZ)) {
-										world.wgWriteTile(finalX, finalY, finalZ, Tile.STONE_BRICKS.id);
+									if (yy > -1 || zoo == l || zoo == h || xoo == l || xoo == h) {
+										if (world.isInWorld(finalX, finalY, finalZ)) {
+											world.wgWriteTile(finalX, finalY, finalZ, Tile.STONE_BRICKS.id);
+										}
 									}
 								}
 							}

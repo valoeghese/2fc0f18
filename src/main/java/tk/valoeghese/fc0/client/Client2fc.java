@@ -27,6 +27,7 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.save.Save;
@@ -90,6 +91,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public void run() {
 		this.setupScreen = new Overlay(Textures.STARTUP);
 		Shaders.loadShaders();
+		Shaders.gui.uniformFloat("opacity", 1.0f);
 
 		Thread t = new Thread(this::init);
 		t.setDaemon(true);
@@ -150,11 +152,21 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (NEW_TITLE) {
 				this.player.move(0, 0, 0.01f);
 			} else {
-				//this.player.getCamera().rotateYaw(0.002f);
+				this.player.getCamera().rotateYaw(0.002f);
 			}
 		}
 
-		this.handleKeybinds();
+		if (this.timerSwitch.isOn()) {
+			this.timerSwitch.update();
+
+			if (!this.timerSwitch.isOn()) {
+				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
+					this.timerSwitch.switchOn(2000);
+				}
+			}
+		} else {
+			this.handleKeybinds();
+		}
 
 		super.tick();
 
@@ -166,25 +178,18 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (this.player.cachedPos != tilePos) {
 				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
 				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
-				this.gameScreen.kingdomWidget.changeText(this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF).widgetString());
+
+				Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF);
+
+				if (this.gameScreen.getCurrentKingdom() != kingdom) {
+					this.gameScreen.setCurrentKingdom(kingdom);
+				}
 			}
 
 			if (zone != this.player.cachedZone) {
 				this.player.cachedZone = zone;
 				String newValue = this.language.translate(zone.toString());
 				this.gameScreen.biomeWidget.changeText(newValue);
-			}
-		}
-
-		if (this.timerSwitch.isOn()) {
-			this.timerSwitch.update();
-
-			if (!this.timerSwitch.isOn()) {
-				boolean b = this.getLightingQueueSize() > 12;
-
-				if (b) {
-					this.timerSwitch.switchOn(2000);
-				}
 			}
 		}
 	}
