@@ -17,6 +17,7 @@ public class MoveableSquare extends GUI {
 	}
 
 	protected final float size;
+	protected final float[][] protoVertices;
 
 	public void setPosition(float xOffset, float yOffset) {
 		this.destroy();
@@ -33,6 +34,4 @@ public class MoveableSquare extends GUI {
 
 		this.generateBuffers();
 	}
-
-	private final float[][] protoVertices;
 }

@@ -4,9 +4,8 @@ import org.joml.Math;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Shaders;
-import tk.valoeghese.fc0.client.render.gui.Crosshair;
-import tk.valoeghese.fc0.client.render.gui.GUI;
-import tk.valoeghese.fc0.client.render.gui.Text;
+import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.gui.*;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
@@ -41,6 +40,7 @@ public class GameScreen extends Screen {
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
+		this.healthBar = new ResizableRect(Textures.HEALTH);
 	}
 
 	private final GUI crosshair;
@@ -50,16 +50,28 @@ public class GameScreen extends Screen {
 	public final Text lightingWidget;
 	private final Text cityWidget;
 	private final Text.Moveable kingdomWidget;
+	private final ResizableRect healthBar;
 	private Kingdom currentKingdom;
 	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
 	private float kingdomShowTime = 0.0f;
 	private boolean[] abilityCaches = new boolean[2];
+	private float currentHPPr = 0;
 
 	@Override
 	public void renderGUI(float lighting) {
 		this.version.render();
 		this.crosshair.render();
+		Player player = Client2fc.getInstance().getPlayer();
+		float hpPr = (float) player.getHealth() / (float) player.getMaxHealth();
+
+		if (hpPr != this.currentHPPr) {
+			this.currentHPPr = hpPr;
+			this.healthBar.setSize(0.3f * hpPr, 0.04f);
+			this.healthBar.setPosition(0.6f - 0.3f + 0.3f*hpPr, -0.8f);
+		}
+
+		this.healthBar.render();
 
 		if (Client2fc.getInstance().showDebug()) {
 			this.biomeWidget.render();
@@ -67,8 +79,6 @@ public class GameScreen extends Screen {
 			this.lightingWidget.render();
 			this.cityWidget.render();
 		}
-
-		Player player = Client2fc.getInstance().getPlayer();
 
 		if (player.dev != this.abilityCaches[0] || player.isNoClip() != this.abilityCaches[1]) {
 			this.abilityCaches[0] = player.dev;

@@ -402,6 +402,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.time = 0;
 		this.save = new Save(saveName, new Random().nextLong());
 		this.player.setNoClip(false);
+		this.player.setMaxHealth(this.save.loadedMaxHP);
+		this.player.setHealth(this.save.loadedHP);
 		// idek how big this is it's probably more than the game can handle if you go out that far
 		// TODO should I clear toUpdateLighting here? Or will that f*k up lighting in saved chunks?
 		// I mean in the case of title screen it's fine probably

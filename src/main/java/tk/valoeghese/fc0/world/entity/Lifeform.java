@@ -28,8 +28,26 @@ public abstract class Lifeform extends Entity {
 
 	@Nonnull
 	protected final Inventory inventory;
+	protected int maxHealth = 100;
+	private int health = this.maxHealth;
 
 	public Inventory getInventory() {
 		return this.inventory;
+	}
+
+	public int getHealth() {
+		return this.health;
+	}
+
+	public int getMaxHealth() {
+		return this.maxHealth;
+	}
+
+	public void setHealth(int health) {
+		this.health = Math.min(health, this.maxHealth);
+	}
+
+	public void setMaxHealth(int maxHealth) {
+		this.maxHealth = maxHealth;
 	}
 }

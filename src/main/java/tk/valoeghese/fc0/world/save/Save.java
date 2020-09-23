@@ -29,6 +29,8 @@ public class Save {
 
 		boolean devMode = false;
 		byte skyLight = 0;
+		int hp = 100;
+		int maxHp = 100;
 
 		if (this.saveDat.exists()) {
 			BinaryData data = BinaryData.readGzipped(this.saveDat);
@@ -43,6 +45,8 @@ public class Save {
 			try {
 				devMode = playerData.readBoolean(6);
 				skyLight = mainData.readByte(2);
+				hp = playerData.readInt(7);
+				maxHp = playerData.readInt(8);
 			} catch (Exception ignored) {
 				// @reason compat between save versions
 			}
@@ -62,6 +66,8 @@ public class Save {
 
 		this.loadedDevMode = devMode;
 		this.loadedSkyLight = skyLight;
+		this.loadedHP = hp;
+		this.loadedMaxHP = maxHp;
 	}
 
 	private final File parentDir;
@@ -77,6 +83,8 @@ public class Save {
 	public final Item[] loadedInventory;
 	public final boolean loadedDevMode;
 	public final byte loadedSkyLight;
+	public final int loadedHP;
+	public final int loadedMaxHP;
 
 	public long getSeed() {
 		return this.seed;
@@ -160,6 +168,8 @@ public class Save {
 				clientPlayerData.writeDouble(spawnPos.getY());
 				clientPlayerData.writeDouble(spawnPos.getZ());
 				clientPlayerData.writeBoolean(player.dev);
+				clientPlayerData.writeInt(player.getHealth());
+				clientPlayerData.writeInt(player.getMaxHealth());
 				data.put("player", clientPlayerData);
 
 				DataSection clientPlayerInventory = new DataSection();
