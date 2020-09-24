@@ -416,6 +416,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;
 		} else {
+			// TODO match player spawn
 			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
 		}
 
