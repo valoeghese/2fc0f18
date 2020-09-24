@@ -69,10 +69,10 @@ public class GameScreen extends Screen {
 
 		if (hpPr != this.currentHPPr) {
 			this.currentHPPr = hpPr;
-			this.healthBar.setProportions(0f, 0.04f, 0.6f * Math.min(0.0f, hpPr), 0.04f);
+			this.healthBar.setProportions(0f, 0.04f, 0.6f * Math.max(0f, hpPr), 0.04f);
 			this.healthBar.setPosition(0.3f, -0.8f);
-			this.unhealthBar.setProportions(0.6f * Math.max(1f, (1f - hpPr)), 0.04f, 0f, 0.04f);
-			this.unhealthBar.setPosition(0.6f, -0.8f);
+			this.unhealthBar.setProportions(0.6f * Math.min(1f, (1f - hpPr)), 0.04f, 0f, 0.04f);
+			this.unhealthBar.setPosition(0.3f + 0.6f / Client2fc.getInstance().getWindowAspect(), -0.8f);
 		}
 
 		this.unhealthBar.render();
@@ -361,7 +361,7 @@ public class GameScreen extends Screen {
 		this.cityWidget.changeText(kingdom.debugString());
 
 		String text = kingdom.toString();
-		this.kingdomWidget.changeText(text, Text.widthOf(text.toCharArray()) * -1f, 0.7f);
+		this.kingdomWidget.changeText(text, -Text.widthOf(text.toCharArray()), 0.7f);
 		this.kingdomShowTime = 1.0f;
 	}
 }

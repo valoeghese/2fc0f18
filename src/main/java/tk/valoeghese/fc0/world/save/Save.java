@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.Item;
 import tk.valoeghese.fc0.world.player.Player;
@@ -48,6 +49,7 @@ public class Save {
 				hp = playerData.readInt(7);
 				maxHp = playerData.readInt(8);
 			} catch (Exception ignored) {
+				//ignored.printStackTrace();
 				// @reason compat between save versions
 			}
 
@@ -129,7 +131,9 @@ public class Save {
 		thread.start();
 	}
 
-	public void writeForClient(Player player, Iterator<? extends Chunk> chunks, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+		Iterator<? extends Chunk> chunks = world.getChunks();
+
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -157,6 +161,7 @@ public class Save {
 				DataSection mainData = new DataSection();
 				mainData.writeLong(this.seed);
 				mainData.writeLong(time);
+				mainData.writeByte(world.getSkyLight());
 				data.put("data", mainData);
 
 				// the "self" player, for the client version, is the only player stored
