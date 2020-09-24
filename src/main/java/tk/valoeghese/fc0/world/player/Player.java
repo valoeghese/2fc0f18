@@ -116,7 +116,7 @@ public class Player extends Lifeform {
 	}
 
 	public double getJumpStrength() {
-		return 9.0 / 30.0;
+		return 8.0 / 30.0;
 	}
 
 	public double getUpwardsSwimStrength() {

@@ -61,7 +61,8 @@ public abstract class Lifeform extends Entity {
 
 	@Override
 	public void hitGround() {
-		int val = (int) (-this.velocity.getY() * 20);
+		double aval = -this.velocity.getY();
+		int val = (int) (aval * aval * 36);
 
 		if (val > 5) {
 			this.damage(val);

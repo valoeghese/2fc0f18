@@ -45,9 +45,9 @@ public class Save {
 
 			try {
 				devMode = playerData.readBoolean(6);
-				skyLight = mainData.readByte(2);
 				hp = playerData.readInt(7);
 				maxHp = playerData.readInt(8);
+				skyLight = mainData.readByte(2);
 			} catch (Exception ignored) {
 				//ignored.printStackTrace();
 				// @reason compat between save versions

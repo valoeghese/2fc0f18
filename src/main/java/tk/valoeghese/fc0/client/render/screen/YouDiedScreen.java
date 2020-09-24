@@ -14,7 +14,7 @@ public class YouDiedScreen extends Screen {
 		super(game);
 
 		this.overlay = new Overlay(Textures.DEATH_OVERLAY);
-		this.title = new Text(YOU_DIED, -Text.widthOf(YOU_DIED.toCharArray()), 0.7f, 2.5f);
+		this.title = new Text(YOU_DIED, -1.5f*Text.widthOf(YOU_DIED.toCharArray()), 0.7f, 2.5f);
 		this.subtitle = new Text(TUTORIAL, -Text.widthOf(TUTORIAL.toCharArray()), 0.5f, 1.0f);
 	}
 
@@ -42,6 +42,7 @@ public class YouDiedScreen extends Screen {
 			player.setHealth(player.getMaxHealth());
 			player.setPos(this.game.spawnLoc);
 			this.game.switchScreen(this.game.gameScreen);
+			this.game.activateLoadScreen();
 		}
 	}
 

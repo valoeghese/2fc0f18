@@ -159,7 +159,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			if (!this.timerSwitch.isOn()) {
 				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
-					this.timerSwitch.switchOn(2000);
+					this.activateLoadScreen();
 				}
 			}
 		} else {
@@ -462,6 +462,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.currentScreen.handleMouseInput(dx, dy);
 		this.prevYPos = ypos;
 		this.prevXPos = xpos;
+	}
+
+	public void activateLoadScreen() {
+		this.timerSwitch.switchOn(2000);
 	}
 
 	public void switchScreen(Screen screen) {

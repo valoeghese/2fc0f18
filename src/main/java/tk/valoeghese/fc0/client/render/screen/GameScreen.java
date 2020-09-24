@@ -297,9 +297,9 @@ public class GameScreen extends Screen {
 			player.setPos(this.game.spawnLoc);
 		}
 
-		if (Keybinds.SET_SPAWN.hasBeenPressed()) {
+		/*if (Keybinds.SET_SPAWN.hasBeenPressed()) {
 			this.game.spawnLoc = player.getPos();
-		}
+		}*/
 
 		if (Keybinds.NO_CLIP.hasBeenPressed()) {
 			player.setNoClip(!player.isNoClip());
