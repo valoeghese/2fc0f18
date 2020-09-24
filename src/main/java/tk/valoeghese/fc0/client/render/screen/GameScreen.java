@@ -41,6 +41,7 @@ public class GameScreen extends Screen {
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 		this.healthBar = new ResizableRect(Textures.HEALTH);
+		this.unhealthBar = new ResizableRect(0);
 	}
 
 	private final GUI crosshair;
@@ -51,6 +52,7 @@ public class GameScreen extends Screen {
 	private final Text cityWidget;
 	private final Text.Moveable kingdomWidget;
 	private final ResizableRect healthBar;
+	private final ResizableRect unhealthBar;
 	private Kingdom currentKingdom;
 	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
@@ -67,10 +69,13 @@ public class GameScreen extends Screen {
 
 		if (hpPr != this.currentHPPr) {
 			this.currentHPPr = hpPr;
-			this.healthBar.setSize(0.3f * hpPr, 0.04f);
-			this.healthBar.setPosition(0.6f - 0.3f + 0.3f*hpPr, -0.8f);
+			this.healthBar.setProportions(0f, 0.04f, 0.6f * Math.min(0.0f, hpPr), 0.04f);
+			this.healthBar.setPosition(0.3f, -0.8f);
+			this.unhealthBar.setProportions(0.6f * Math.max(1f, (1f - hpPr)), 0.04f, 0f, 0.04f);
+			this.unhealthBar.setPosition(0.6f, -0.8f);
 		}
 
+		this.unhealthBar.render();
 		this.healthBar.render();
 
 		if (Client2fc.getInstance().showDebug()) {
@@ -198,7 +203,7 @@ public class GameScreen extends Screen {
 		}
 
 		if (player.isNoClip()) {
-			slowness *= 0.3;
+			slowness *= 0.42;
 		}
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
@@ -224,7 +229,7 @@ public class GameScreen extends Screen {
 				long time = System.currentTimeMillis();
 
 				if (player.isSwimming() && time > player.lockSwim) {
-					player.addVelocity(0.0f, player.getJumpStrength() * 0.03f, 0.0f);
+					player.addVelocity(0.0f, player.getUpwardsSwimStrength() * 0.03f, 0.0f);
 				} else {
 					player.lockSwim = time + 18;
 
@@ -287,7 +292,8 @@ public class GameScreen extends Screen {
 			}
 		}
 
-		if (Keybinds.RESPAWN.hasBeenPressed() || player.getTilePos().y < -20) {
+		// respawn if fall out of world
+		if (player.getTilePos().y < -20) {
 			player.setPos(this.game.spawnLoc);
 		}
 

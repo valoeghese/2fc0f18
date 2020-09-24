@@ -44,10 +44,10 @@ public abstract class Entity {
 		}
 
 		if (!this.noClip) {
-			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.025f);
+			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.02f);
 		}
 
-		this.velocity.mul(this.friction, 0.96, this.friction);
+		this.velocity.mul(this.friction, this.noClip ? 0.96 : 0.98, this.friction);
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
@@ -56,8 +56,7 @@ public abstract class Entity {
 		}
 
 		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
-			this.falling = false;
-			this.velocity.setY(0.0);
+			this.hitGround();
 		}
 	}
 
@@ -159,5 +158,10 @@ public abstract class Entity {
 	@Nullable
 	public EntityRenderer getRenderer() {
 		return null;
+	}
+
+	public void hitGround() {
+		this.falling = false;
+		this.velocity.setY(0.0);
 	}
 }

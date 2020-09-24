@@ -14,6 +14,15 @@ public class ResizableRect extends MoveableSquare {
 				0, this.protoVertices, 0, this.protoVertices.length);
 	}
 
+	public void setProportions(float xSizeL, float ySizeL, float xSizeR, float ySizeR) {
+		System.arraycopy(new float[][]{
+						{-xSizeL, ySizeR},
+						{-xSizeL, -ySizeL},
+						{xSizeR, ySizeR},
+						{xSizeR, -ySizeL}},
+				0, this.protoVertices, 0, this.protoVertices.length);
+	}
+
 	@Override
 	public void setPosition(float xOffset, float yOffset) {
 		super.setPosition(xOffset, yOffset);

@@ -43,11 +43,34 @@ public abstract class Lifeform extends Entity {
 		return this.maxHealth;
 	}
 
+	public int damage(int amount) {
+		return (this.health -= amount);
+	}
+
+	public boolean isAlive() {
+		return this.health > 0;
+	}
+
 	public void setHealth(int health) {
 		this.health = Math.min(health, this.maxHealth);
 	}
 
 	public void setMaxHealth(int maxHealth) {
 		this.maxHealth = maxHealth;
+	}
+
+	@Override
+	public void hitGround() {
+		int val = (int) (-this.velocity.getY() * 10);
+
+		if (val > 0) {
+			System.out.println(val);
+		}
+
+		if (val > 5) {
+			this.damage(val);
+		}
+
+		super.hitGround();
 	}
 }
