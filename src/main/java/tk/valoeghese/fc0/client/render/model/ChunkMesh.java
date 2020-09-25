@@ -12,32 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChunkMesh {
-	public ChunkMesh(ClientChunk chunk, byte[] tiles, byte[] meta, int x, int z) {
+	public ChunkMesh(ClientChunk chunk, int x, int z) {
 		this.x = x << 4;
 		this.z = z << 4;
 		this.transform = new Matrix4f().translate(this.x, 0, this.z);
-		this.tiles = tiles;
-		this.meta = meta;
 		this.chunk = chunk;
-		this.buildMesh();
 	}
 
 	private final int x;
 	private final int z;
 	private final Matrix4f transform;
-	private final byte[] tiles;
-	private final byte[] meta;
 	private final RenderedChunk chunk;
 	private ChunkMeshModel solid;
 	private ChunkMeshModel translucent;
 	private ChunkMeshModel water;
 
-	public void updateTile(int index, byte tile) {
-		this.tiles[index] = tile;
-		this.buildMesh();
-	}
-
-	public void buildMesh() {
+	public void buildMesh(byte[] tiles, byte[] metas) {
 		List<RenderedTileFace> faces = new ArrayList<>();
 		List<RenderedTileFace> waterFaces = new ArrayList<>();
 		List<RenderedTileFace> translucentFaces = new ArrayList<>();
@@ -46,8 +36,8 @@ public class ChunkMesh {
 			for (int z = 0; z < 16; ++z) {
 				for (int y = 0; y < 128; ++y) {
 					if (this.chunk.renderHeight(y)) {
-						int tile = this.tiles[index(x, y, z)];
-						byte meta = this.meta[index(x, y, z)];
+						int tile = tiles[index(x, y, z)];
+						byte meta = metas[index(x, y, z)];
 						Tile instance = Tile.BY_ID[tile];
 						boolean waterLayer = instance == Tile.WATER;
 						List<RenderedTileFace> layer = waterLayer ? waterFaces : (instance.isTranslucent() ? translucentFaces : faces);
@@ -55,7 +45,7 @@ public class ChunkMesh {
 						TileRenderer custom = instance.getCustomTileRenderer();
 
 						if (custom != null && instance.shouldRender()) {
-							custom.addFaces(instance, layer, this.tiles, this.chunk, x, y, z, meta);
+							custom.addFaces(instance, layer, tiles, this.chunk, x, y, z, meta);
 						} else if (instance.shouldRender() && instance.isCross()) {
 							layer.add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
@@ -63,12 +53,12 @@ public class ChunkMesh {
 											0.95f * this.chunk.getRenderLightingFactor(x, y, z),
 											meta));
 						} else if (instance.shouldRender() || waterLayer) {
-							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y + 1, z)]];
-							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[this.tiles[index(x, y - 1, z)]];
-							Tile tileWest = x == 0 ? this.chunk.west(z, y) : Tile.BY_ID[this.tiles[index(x - 1, y, z)]];
-							Tile tileEast = x == 15 ? this.chunk.east(z, y) : Tile.BY_ID[this.tiles[index(x + 1, y, z)]];
-							Tile tileSouth = z == 0 ? this.chunk.south(x, y) : Tile.BY_ID[this.tiles[index(x, y, z - 1)]];
-							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[this.tiles[index(x, y, z + 1)]];
+							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y + 1, z)]];
+							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y - 1, z)]];
+							Tile tileWest = x == 0 ? this.chunk.west(z, y) : Tile.BY_ID[tiles[index(x - 1, y, z)]];
+							Tile tileEast = x == 15 ? this.chunk.east(z, y) : Tile.BY_ID[tiles[index(x + 1, y, z)]];
+							Tile tileSouth = z == 0 ? this.chunk.south(x, y) : Tile.BY_ID[tiles[index(x, y, z - 1)]];
+							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[tiles[index(x, y, z + 1)]];
 
 							if (!tileUp.isOpaque(waterLayer, instance)) {
 								layer.add(new RenderedTileFace(

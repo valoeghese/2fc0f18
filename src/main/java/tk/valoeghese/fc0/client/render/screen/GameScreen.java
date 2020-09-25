@@ -283,6 +283,7 @@ public class GameScreen extends Screen {
 								world.writeTile(pos, Tile.CACTUS.id);
 							} else {
 								world.writeTile(pos, tile.id);
+								world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
 							}
 
 							tile.onPlace(world, pos);

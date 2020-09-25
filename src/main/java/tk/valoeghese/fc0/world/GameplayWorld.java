@@ -333,6 +333,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void destroy() {
+		for (Chunk c : this.chunks.values()) {
+			c.destroy();
+		}
+
 		this.chunkSaveExecutor.shutdown();
 	}
 
