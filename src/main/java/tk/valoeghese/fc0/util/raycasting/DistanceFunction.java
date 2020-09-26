@@ -5,9 +5,9 @@ import static java.lang.Math.min;
 
 public interface DistanceFunction {
 
-	double length(Vec3d point);
+	double length(Pos point);
 
-	default DistanceFunction translate(Vec3d origin) {
+	default DistanceFunction translate(Pos origin) {
 		return point -> length(point.subtract(origin));
 	}
 
@@ -28,7 +28,7 @@ public interface DistanceFunction {
 			double qx = Math.abs(point.x) - length;
 			double qy = Math.abs(point.x) - width;
 			double qz = Math.abs(point.x) - depth;
-			return new Vec3d(max(qx, 0.0), max(qy, 0.0), max(qz, 0.0)).length() + min(max(qx, max(qy, qz)), 0.0);
+			return new Pos(max(qx, 0.0), max(qy, 0.0), max(qz, 0.0)).length() + min(max(qx, max(qy, qz)), 0.0);
 		};
 	}
 
@@ -37,7 +37,7 @@ public interface DistanceFunction {
 			double qx = Math.abs(point.x) - length;
 			double qy = Math.abs(point.x) - width;
 			double qz = Math.abs(point.x) - depth;
-			return new Vec3d(max(qx, 0.0), max(qy, 0.0), max(qz, 0.0)).length() + min(max(qx, max(qy, qz)), 0.0) - r;
+			return new Pos(max(qx, 0.0), max(qy, 0.0), max(qz, 0.0)).length() + min(max(qx, max(qy, qz)), 0.0) - r;
 		};
 	}
 }

@@ -13,9 +13,9 @@ public class RayCasting {
 	 * @param function  The distance function
 	 * @return A pair of the final position of the ray and if the ray ever hit anything
 	 */
-	public static Pair<Vec3d, Boolean> rayCast(Vec3d start, Vec3d direction, double maxLength, DistanceFunction function) {
-		Vec3d lastPoint = start;
-		Vec3d point = lastPoint;
+	public static Pair<Pos, Boolean> rayCast(Pos start, Pos direction, double maxLength, DistanceFunction function) {
+		Pos lastPoint = start;
+		Pos point = lastPoint;
 		double rayLength = 0;
 
 		do {

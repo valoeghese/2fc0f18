@@ -13,7 +13,7 @@ public class WorldSolidBlockDistanceFunction implements DistanceFunction {
 	}
 
 	@Override
-	public double length(Vec3d point) {
+	public double length(Pos point) {
 		if (Tile.BY_ID[world.readTile(new TilePos((float) point.x, (float) point.y, (float) point.z))].shouldRender()) {
 			return 0;
 		}

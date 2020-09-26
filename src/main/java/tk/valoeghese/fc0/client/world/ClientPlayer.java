@@ -6,10 +6,9 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.util.RaycastResult;
-import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.raycasting.RayCasting;
-import tk.valoeghese.fc0.util.raycasting.Vec3d;
+import tk.valoeghese.fc0.util.raycasting.Pos;
 import tk.valoeghese.fc0.util.raycasting.WorldSolidBlockDistanceFunction;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.player.Player;
@@ -33,7 +32,7 @@ public class ClientPlayer extends Player {
 	}
 
 	@Override
-	public void setPos(Pos pos) {
+	public void setPos(tk.valoeghese.fc0.util.maths.Pos pos) {
 		super.setPos(pos);
 		this.camera.setPos((float) -pos.getX(), (float) -pos.getY() - 1.8f, (float) -pos.getZ());
 	}
@@ -50,22 +49,22 @@ public class ClientPlayer extends Player {
 	}
 
 	public RaycastResult rayCast(double maxDistance) {
-		Vec3d direction;
-		Pair<Vec3d, Boolean> pair;
+		Pos direction;
+		Pair<Pos, Boolean> pair;
 
 		{
-			Pos toUse = this.pos.ofAdded(0, 1.8, 0);
+			tk.valoeghese.fc0.util.maths.Pos toUse = this.pos.ofAdded(0, 1.8, 0);
 			Vector3d start = new Vector3d(toUse.getX(), toUse.getY(), toUse.getZ());
 			Vector3d dir = getDirectionVector(camera.getYaw(), camera.getPitch());
 			Vector3d end = new Vector3d(start).add(new Vector3d(dir).mul(maxDistance));
 
-			Vec3d from = new Vec3d(start);
-			Vec3d to = new Vec3d(end);
-			Vec3d v = to.subtract(from);
+			Pos from = new Pos(start);
+			Pos to = new Pos(end);
+			Pos v = to.subtract(from);
 			pair = RayCasting.rayCast(from, direction = v.normalize(), v.length(), new WorldSolidBlockDistanceFunction(world));
 		}
 
-		Vec3d hit = pair.getLeft();
+		Pos hit = pair.getLeft();
 		return new RaycastResult(new TilePos((int) hit.x, (int) hit.y, (int) hit.z), pair.getRight() ? Face.findFace(direction) : null);
 	}
 
