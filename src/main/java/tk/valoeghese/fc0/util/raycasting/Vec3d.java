@@ -62,7 +62,7 @@ public class Vec3d {
 
 	@Override
 	public String toString() {
-		return "Vec3d{" +
+		return getClass().getSimpleName() + "{" +
 				"x=" + x +
 				", y=" + y +
 				", z=" + z +

@@ -15,11 +15,9 @@ public class WorldSolidBlockDistanceFunction implements DistanceFunction {
 	@Override
 	public double length(Vec3d point) {
 		if (Tile.BY_ID[world.readTile(new TilePos((float) point.x, (float) point.y, (float) point.z))].shouldRender()) {
-			System.out.println("Solid block at " + point);
 			return 0;
 		}
 
-		System.out.println("Not solid block at " + point);
 		return 0.03125;
 	}
 }

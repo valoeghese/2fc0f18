@@ -49,13 +49,22 @@ public class ClientPlayer extends Player {
 	}
 
 	public RaycastResult rayCast(double maxDistance) {
-		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
-		Vector3d start = new Vector3d(toUse.getX(), toUse.getY(), toUse.getZ());
-		Vector3d dir = getDirectionVector(camera.getYaw(), camera.getPitch());
-		Vector3d end = new Vector3d(start).add(new Vector3d(dir).mul(maxDistance));
-		Vec3d hit = RayCasting.rayCast(new Vec3d(start), new Vec3d(end), new WorldSolidBlockDistanceFunction(world));
+		Vec3d direction;
+		Vec3d hit;
 
-		return new RaycastResult(new TilePos((int) hit.x, (int) hit.y, (int) hit.z), Face.DOWN);
+		{
+			Pos toUse = this.pos.ofAdded(0, 1.8, 0);
+			Vector3d start = new Vector3d(toUse.getX(), toUse.getY(), toUse.getZ());
+			Vector3d dir = getDirectionVector(camera.getYaw(), camera.getPitch());
+			Vector3d end = new Vector3d(start).add(new Vector3d(dir).mul(maxDistance));
+
+			Vec3d from = new Vec3d(start);
+			Vec3d to = new Vec3d(end);
+			Vec3d v = to.subtract(from);
+			hit = RayCasting.rayCast(from, direction = v.normalize(), v.length(), new WorldSolidBlockDistanceFunction(world));
+		}
+
+		return new RaycastResult(new TilePos((int) hit.x, (int) hit.y, (int) hit.z), Face.findFace(direction));
 	}
 
 	private static Vector3d getDirectionVector(float yaw, float pitch) {

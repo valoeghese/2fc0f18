@@ -1,9 +1,12 @@
 package tk.valoeghese.fc0.util;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.UnaryOperator;
+
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
-
-import java.util.function.UnaryOperator;
+import tk.valoeghese.fc0.util.raycasting.Vec3d;
 
 public enum Face implements UnaryOperator<TilePos> {
 	NORTH(0, 0, 1),
@@ -13,7 +16,7 @@ public enum Face implements UnaryOperator<TilePos> {
 	UP(0, 1, 0),
 	DOWN(0, -1, 0);
 
-	Face (int x, int y, int z) {
+	Face(int x, int y, int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -22,6 +25,12 @@ public enum Face implements UnaryOperator<TilePos> {
 	private final int x;
 	private final int y;
 	private final int z;
+
+	public static Face findFace(Vec3d direction) {
+		Face[] faces = Face.values();
+		Arrays.sort(faces, Comparator.comparingDouble(face -> face.x * direction.x + face.y * direction.y + face.z * direction.z));
+		return faces[0];
+	}
 
 	public int getX() {
 		return x;
