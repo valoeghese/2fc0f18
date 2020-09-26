@@ -4,6 +4,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.Face;
+import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -48,9 +49,9 @@ public class ClientPlayer extends Player {
 		return result;
 	}
 
-	public RaycastResult rayCast(boolean place, double maxDistance) {
+	public RaycastResult rayCast(double maxDistance) {
 		Vec3d direction;
-		Vec3d hit;
+		Pair<Vec3d, Boolean> pair;
 
 		{
 			Pos toUse = this.pos.ofAdded(0, 1.8, 0);
@@ -61,10 +62,11 @@ public class ClientPlayer extends Player {
 			Vec3d from = new Vec3d(start);
 			Vec3d to = new Vec3d(end);
 			Vec3d v = to.subtract(from);
-			hit = RayCasting.rayCast(place, from, direction = v.normalize(), v.length(), new WorldSolidBlockDistanceFunction(world));
+			pair = RayCasting.rayCast(from, direction = v.normalize(), v.length(), new WorldSolidBlockDistanceFunction(world));
 		}
 
-		return new RaycastResult(new TilePos((int) hit.x, (int) hit.y, (int) hit.z), Face.findFace(direction));
+		Vec3d hit = pair.getLeft();
+		return new RaycastResult(new TilePos((int) hit.x, (int) hit.y, (int) hit.z), pair.getRight() ? Face.findFace(direction) : null);
 	}
 
 	private static Vector3d getDirectionVector(float yaw, float pitch) {

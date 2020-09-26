@@ -246,7 +246,7 @@ public class GameScreen extends Screen {
 		GameplayWorld<?> world = this.game.getWorld();
 
 		if (Keybinds.DESTROY.hasBeenPressed()) {
-			TilePos pos = player.rayCast(false, 10.0).pos;
+			TilePos pos = player.rayCast(10.0).pos;
 
 			if (world.isInWorld(pos)) {
 				byte tileId = world.readTile(pos);
@@ -266,7 +266,7 @@ public class GameScreen extends Screen {
 
 		if (Keybinds.INTERACT.hasBeenPressed()) {
 			if (selectedItem != null && selectedItem.isTile()) {
-				RaycastResult result = player.rayCast(true, 10.0);
+				RaycastResult result = player.rayCast(10.0);
 
 				if (result.face != null) {
 					TilePos pos = result.face.apply(result.pos);

@@ -1,13 +1,19 @@
 package tk.valoeghese.fc0.util.raycasting;
 
+import tk.valoeghese.fc0.util.Pair;
+
 public class RayCasting {
 
-	public static Vec3d rayCast(boolean place, Vec3d from, Vec3d to, DistanceFunction function) {
-		Vec3d v = to.subtract(from);
-		return rayCast(place, from, v.normalize(), v.length(), function);
-	}
-
-	public static Vec3d rayCast(boolean place, Vec3d start, Vec3d direction, double maxLength, DistanceFunction function) {
+	/**
+	 * Casts a ray
+	 *
+	 * @param start     The starting point of the ray
+	 * @param direction The normalized direction vector of this ray
+	 * @param maxLength The maximum length to travel
+	 * @param function  The distance function
+	 * @return A pair of the final position of the ray and if the ray ever hit anything
+	 */
+	public static Pair<Vec3d, Boolean> rayCast(Vec3d start, Vec3d direction, double maxLength, DistanceFunction function) {
 		Vec3d lastPoint = start;
 		Vec3d point = lastPoint;
 		double rayLength = 0;
@@ -16,11 +22,7 @@ public class RayCasting {
 			double length = function.length(point);
 
 			if (isZero(length)) {
-				if (place) {
-					return lastPoint;
-				} else {
-					return point;
-				}
+				return new Pair<>(point, true);
 			} else {
 				rayLength += length;
 				lastPoint = point;
@@ -28,7 +30,7 @@ public class RayCasting {
 			}
 		} while (rayLength < maxLength);
 
-		return lastPoint;
+		return new Pair<>(lastPoint, false);
 	}
 
 	private static boolean isZero(double d) {
