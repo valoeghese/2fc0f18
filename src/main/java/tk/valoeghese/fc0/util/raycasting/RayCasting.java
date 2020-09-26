@@ -2,12 +2,12 @@ package tk.valoeghese.fc0.util.raycasting;
 
 public class RayCasting {
 
-	public static Vec3d rayCast(Vec3d from, Vec3d to, DistanceFunction function) {
+	public static Vec3d rayCast(boolean place, Vec3d from, Vec3d to, DistanceFunction function) {
 		Vec3d v = to.subtract(from);
-		return rayCast(from, v.normalize(), v.length(), function);
+		return rayCast(place, from, v.normalize(), v.length(), function);
 	}
 
-	public static Vec3d rayCast(Vec3d start, Vec3d direction, double maxLength, DistanceFunction function) {
+	public static Vec3d rayCast(boolean place, Vec3d start, Vec3d direction, double maxLength, DistanceFunction function) {
 		Vec3d lastPoint = start;
 		Vec3d point = lastPoint;
 		double rayLength = 0;
@@ -16,7 +16,11 @@ public class RayCasting {
 			double length = function.length(point);
 
 			if (isZero(length)) {
-				return point;
+				if (place) {
+					return lastPoint;
+				} else {
+					return point;
+				}
 			} else {
 				rayLength += length;
 				lastPoint = point;

@@ -48,7 +48,7 @@ public class ClientPlayer extends Player {
 		return result;
 	}
 
-	public RaycastResult rayCast(double maxDistance) {
+	public RaycastResult rayCast(boolean place, double maxDistance) {
 		Vec3d direction;
 		Vec3d hit;
 
@@ -61,7 +61,7 @@ public class ClientPlayer extends Player {
 			Vec3d from = new Vec3d(start);
 			Vec3d to = new Vec3d(end);
 			Vec3d v = to.subtract(from);
-			hit = RayCasting.rayCast(from, direction = v.normalize(), v.length(), new WorldSolidBlockDistanceFunction(world));
+			hit = RayCasting.rayCast(place, from, direction = v.normalize(), v.length(), new WorldSolidBlockDistanceFunction(world));
 		}
 
 		return new RaycastResult(new TilePos((int) hit.x, (int) hit.y, (int) hit.z), Face.findFace(direction));

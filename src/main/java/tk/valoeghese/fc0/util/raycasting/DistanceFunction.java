@@ -31,4 +31,13 @@ public interface DistanceFunction {
 			return new Vec3d(max(qx, 0.0), max(qy, 0.0), max(qz, 0.0)).length() + min(max(qx, max(qy, qz)), 0.0);
 		};
 	}
+
+	static DistanceFunction cuboidRounded(double length, double width, double depth, double r) {
+		return point -> {
+			double qx = Math.abs(point.x) - length;
+			double qy = Math.abs(point.x) - width;
+			double qz = Math.abs(point.x) - depth;
+			return new Vec3d(max(qx, 0.0), max(qy, 0.0), max(qz, 0.0)).length() + min(max(qx, max(qy, qz)), 0.0) - r;
+		};
+	}
 }

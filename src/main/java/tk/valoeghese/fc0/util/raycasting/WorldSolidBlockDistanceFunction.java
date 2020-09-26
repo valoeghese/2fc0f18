@@ -18,6 +18,6 @@ public class WorldSolidBlockDistanceFunction implements DistanceFunction {
 			return 0;
 		}
 
-		return 0.03125;
+		return 1D / (2 << 6);
 	}
 }
