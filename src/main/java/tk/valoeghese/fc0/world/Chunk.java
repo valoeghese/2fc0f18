@@ -655,7 +655,7 @@ public abstract class Chunk implements World {
 		lightingExecutor.shutdownNow();
 
 		try {
-			if (!lightingExecutor.awaitTermination(300, TimeUnit.MICROSECONDS)) {
+			if (!lightingExecutor.awaitTermination(300, TimeUnit.MILLISECONDS)) {
 				System.out.println("Forcing Lighting Thread Shutdown");
 				System.exit(0);
 			}

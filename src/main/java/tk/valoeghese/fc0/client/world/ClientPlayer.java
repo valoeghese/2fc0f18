@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.client.world;
 
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -49,7 +50,7 @@ public class ClientPlayer extends Player  {
 	public RaycastResult rayCast(double maxDistance) {
 		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
 		Vector3f start = new Vector3f((float) toUse.getX(), (float) toUse.getY(), (float) toUse.getZ());
-		Vector3f dir = this.camera.getGoodDirection();
+		Vector3f dir = this.camera.getDirection();
 		Vector3f end = new Vector3f(start).add(new Vector3f(dir).mul((float) maxDistance));
 
 		final float x1 = start.x;
@@ -59,20 +60,20 @@ public class ClientPlayer extends Player  {
 		final float y2 = end.y;
 		final float z2 = end.z;
 
-		int floorX1 = (int) x1;
-		int floorY1 = (int) y1;
-		int floorZ1 = (int) z1;
+		int floorX1 = MathsUtils.floor(x1);
+		int floorY1 = MathsUtils.floor(y1);
+		int floorZ1 = MathsUtils.floor(z1);
 
 		final int di = Float.compare(x2, x1);
-		final int dj = Float.compare(y2,y1);
-		final int dk = Float.compare(z2,z1);
-		final float dx = 1 / Math.abs(x2-x1);
-		final float dy = 1 / Math.abs(y2-y1);
-		final float dz = 1 / Math.abs(z2-z1);
+		final int dj = Float.compare(y2, y1);
+		final int dk = Float.compare(z2, z1);
+		final float dx = 1 / Math.abs(x2 - x1);
+		final float dy = 1 / Math.abs(y2 - y1);
+		final float dz = 1 / Math.abs(z2 - z1);
 
-		final float minx = (int) x1, maxx = minx + 1;
-		final float miny = (int) y1, maxy = miny + 1;
-		final float minz = (int) z1, maxz = minz + 1;
+		final float minx = MathsUtils.floor(x1), maxx = minx + 1;
+		final float miny = MathsUtils.floor(y1), maxy = miny + 1;
+		final float minz = MathsUtils.floor(z1), maxz = minz + 1;
 
 		float tx = (x1 > x2 ? x1 - minx : maxx - x1) * dx;
 		float ty = (y1 > y2 ? y1 - miny : maxy - y1) * dy;
@@ -80,13 +81,13 @@ public class ClientPlayer extends Player  {
 
 		List<TilePos> list = new ArrayList<>();
 
-		for(int step = 0; step < maxDistance; ++step){
+		for (int step = 0; step < maxDistance; ++step) {
 			list.add(new TilePos(floorX1, floorY1, floorZ1));
 
-			if(tx <= ty && tx <= tz){
+			if (tx <= ty && tx <= tz) {
 				tx += dx;
 				floorX1 += di;
-			} else if(ty <= tz) {
+			} else if (ty <= tz) {
 				ty += dy;
 				floorY1 += dj;
 			} else {
@@ -95,7 +96,7 @@ public class ClientPlayer extends Player  {
 			}
 		}
 
-		for(int ind = 1; ind < maxDistance; ind++){
+		for (int ind = 1; ind < maxDistance; ind++) {
 			TilePos pos = list.get(ind);
 
 			if (this.world.isInWorld(pos.x, pos.y, pos.z)) {
@@ -144,7 +145,7 @@ public class ClientPlayer extends Player  {
 			}
 		}
 
-		return new RaycastResult(new TilePos((int) end.x, (int) end.y, (int) end.z), null);
+		return new RaycastResult(new TilePos(MathsUtils.floor(end.x), MathsUtils.floor(end.y), MathsUtils.floor(end.z)), null);
 	}
 
 	@Override

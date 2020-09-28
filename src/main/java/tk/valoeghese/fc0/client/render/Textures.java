@@ -149,10 +149,12 @@ public class Textures {
 	public static int ITEM_ATLAS = 0;
 	public static int ENTITY_ATLAS = 0;
 	public static final int WATER_OVERLAY = load("water_overlay", true);
+	public static final int DEATH_OVERLAY = load("death_overlay", true);
 	public static final int FONT_ATLAS = load("font_atlas", false);
 	public static final int STARTUP = load("startup", false);
 	public static final int SELECTED = load("selected", true);
 	public static final int CRAFT = load("craft", true);
 	public static final int ENTER = load("enter", true);
 	public static final int CRAFTING = load("crafting", false);
+	public static final int HEALTH = load("stat/health", true);
 }

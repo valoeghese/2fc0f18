@@ -8,7 +8,6 @@ keybind.jump=Jump
 keybind.run=Run
 keybind.destroy=Destroy
 keybind.interact=Interact
-keybind.respawn=Respawn
 keybind.fov_up=FOV Up
 keybind.fov_down=FOV Down
 
@@ -43,4 +42,4 @@ tile.dandelion=Dandelion
 tile.brunnera=Brunnera
 
 # GUI
-gui.version=2fc0f18-v0.2.4
+gui.version=2fc0f18-v0.2.5

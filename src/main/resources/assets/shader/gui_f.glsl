@@ -5,6 +5,7 @@ out vec4 fragmentColour;
 
 uniform sampler2D textureSampler;
 uniform float lighting;
+uniform float opacity;
 
 void main() {
     vec4 textureColour = texture(textureSampler, vec2(uvPass.x, 1.0 - uvPass.y));
@@ -13,5 +14,5 @@ void main() {
         discard;
     }
 
-    fragmentColour = textureColour * vec4(lighting, lighting, lighting, 1.0f);
+    fragmentColour = textureColour * vec4(lighting, lighting, lighting, opacity);
 }

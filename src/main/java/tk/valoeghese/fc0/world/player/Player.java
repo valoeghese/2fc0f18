@@ -100,6 +100,15 @@ public class Player extends Lifeform {
 	// setters and adders etc.
 
 	@Override
+	public int damage(int amount) {
+		if (this.dev) {
+			return this.getHealth();
+		}
+
+		return super.damage(amount);
+	}
+
+	@Override
 	public void setPos(Pos pos) {
 		super.setPos(pos);
 		this.world.updateChunkOf(this);
@@ -116,6 +125,10 @@ public class Player extends Lifeform {
 	}
 
 	public double getJumpStrength() {
+		return 8.0 / 30.0;
+	}
+
+	public double getUpwardsSwimStrength() {
 		return 11.0 / 30.0;
 	}
 }

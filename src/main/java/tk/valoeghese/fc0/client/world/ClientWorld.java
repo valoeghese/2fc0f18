@@ -71,11 +71,11 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 
 	@Override
 	protected void onChunkRemove(Chunk c) {
-		if (c.render) {
-			c.destroy();
+		c.destroy();
 
+		if (c.render) {
 			if (this.toAddToQueue.contains(c)) {
-				this.toAddForRendering.remove(c);
+				this.toAddToQueue.remove(c);
 			} else if (this.toAddForRendering.contains(c)) {
 				this.toAddForRendering.remove(c);
 			} else if (this.chunksForRendering.contains(c)) {

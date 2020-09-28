@@ -33,6 +33,7 @@ public class Tile {
 	private boolean cross = false;
 	private boolean translucent = false;
 	private boolean solid = true;
+	private boolean sustainsGeneration = false;
 	private int light = 0;
 	protected String translationKey = "tile.missingno";
 	private final String textureName;
@@ -50,6 +51,8 @@ public class Tile {
 		this.u = next.getX();
 		this.v = next.getY();
 	}
+
+	// Builders
 
 	protected Tile dontRender() {
 		this.render = false;
@@ -90,6 +93,13 @@ public class Tile {
 		return this;
 	}
 
+	protected Tile sustainsGeneration() {
+		this.sustainsGeneration = true;
+		return this;
+	}
+
+	// End Builders
+
 	@Nullable
 	public Item getDrop(Random rand, byte meta) {
 		return new Item(this, meta);
@@ -117,6 +127,10 @@ public class Tile {
 
 	public int getLight() {
 		return this.light;
+	}
+
+	public boolean canSustainGeneration() {
+		return this.sustainsGeneration;
 	}
 
 	public boolean dontOptimiseOut() {
@@ -166,24 +180,24 @@ public class Tile {
 
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile("stone", 0, 0.0f).dontRender().noCollision();
-	public static final Tile STONE = new Tile("stone", 1, 0.0f).setName("stone");
-	public static final Tile GRASS = new GrassTile("grass", 2, 0.0f).setName("grass");
+	public static final Tile STONE = new Tile("stone", 1, 0.0f).sustainsGeneration().setName("stone");
+	public static final Tile GRASS = new GrassTile("grass", 2, 0.0f).sustainsGeneration().setName("grass");
 	public static final Tile LEAVES = new LeavesTile("leaves", 3, 0.0f).cutout().noCollision().setName("leaves");
 	public static final Tile LOG = new ColumnTile("log", 4, 0.0f).setName("log");
 	public static final Tile WATER = new WaterTile("water", 5, 0.0f).dontRender().noCollision();
-	public static final Tile SAND = new Tile("sand", 6, 0.0f).setName("sand");
+	public static final Tile SAND = new Tile("sand", 6, 0.0f).sustainsGeneration().setName("sand");
 	public static final Tile DAISY = new PlantTile("daisy", 7, 0.0f, t -> t == GRASS).cross().noCollision().setName("daisy");
 	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.0f, t -> t == SAND).cross().noCollision().setName("cactus");
 	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 0.0f, t -> t == GRASS).cross().noCollision().setName("tallgrass");
 	public static final Tile BRICKS = new Tile("bricks", 10, 0.0f).setName("bricks");
 	public static final Tile STONE_BRICKS = new Tile("stone_bricks", 11, 0.0f).setName("stone_bricks");
 	public static final Tile ICE = new IceTile("ice", 12, 0.0f).translucent().setName("ice");
-	public static final Tile GALENA = new Tile("galena", 13, 0.0f).setName("galena");
+	public static final Tile GALENA = new Tile("galena", 13, 0.0f).sustainsGeneration().setName("galena");
 	// TODO proper torch texture
 	public static final Tile TORCH = new TorchTile("planks", 14, 0.0f).setName("torch").cutout().noCollision().lightLevel(10);
 	public static final Tile PLANKS = new MetaPlacementTile(Arrays.asList("planks", "planks_2"), 15, 0.0f).setName("planks");
 	public static final Tile COAL = new Tile("coal", 16, 0.0f).setName("coal");
-	public static final Tile MAGNETITE = new Tile("magnetite", 17, 0.0f).setName("magnetite");
+	public static final Tile MAGNETITE = new Tile("magnetite", 17, 0.0f).sustainsGeneration().setName("magnetite");
 	public static final Tile BRUNNERA = new PlantTile("brunnera", 18, 0.0f, t -> t == GRASS).cross().noCollision().setName("brunnera");
 	public static final Tile DANDELION = new PlantTile("dandelion", 19, 0.0f, t -> t == GRASS).cross().noCollision().setName("dandelion");
 }

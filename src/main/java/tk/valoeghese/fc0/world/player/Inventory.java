@@ -71,7 +71,7 @@ public class Inventory implements Iterable<Item> {
 			Item currentItem = this.items[i];
 
 			if (currentItem != null) {
-				if (currentItem.id() == item.id()) {
+				if (currentItem.id() == item.id() && currentItem.getMeta() == item.getMeta()) {
 					currentItem.increment(item.getCount());
 					return true;
 				}

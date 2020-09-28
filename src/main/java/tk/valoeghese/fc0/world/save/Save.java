@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.Item;
 import tk.valoeghese.fc0.world.player.Player;
@@ -29,6 +30,8 @@ public class Save {
 
 		boolean devMode = false;
 		byte skyLight = 0;
+		int hp = 100;
+		int maxHp = 100;
 
 		if (this.saveDat.exists()) {
 			BinaryData data = BinaryData.readGzipped(this.saveDat);
@@ -42,8 +45,11 @@ public class Save {
 
 			try {
 				devMode = playerData.readBoolean(6);
+				hp = playerData.readInt(7);
+				maxHp = playerData.readInt(8);
 				skyLight = mainData.readByte(2);
 			} catch (Exception ignored) {
+				//ignored.printStackTrace();
 				// @reason compat between save versions
 			}
 
@@ -62,6 +68,8 @@ public class Save {
 
 		this.loadedDevMode = devMode;
 		this.loadedSkyLight = skyLight;
+		this.loadedHP = hp;
+		this.loadedMaxHP = maxHp;
 	}
 
 	private final File parentDir;
@@ -77,9 +85,15 @@ public class Save {
 	public final Item[] loadedInventory;
 	public final boolean loadedDevMode;
 	public final byte loadedSkyLight;
+	public final int loadedHP;
+	public final int loadedMaxHP;
 
 	public long getSeed() {
 		return this.seed;
+	}
+
+	public static boolean isThreadAlive() {
+		return thread.isAlive();
 	}
 
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
@@ -117,7 +131,9 @@ public class Save {
 		thread.start();
 	}
 
-	public void writeForClient(Player player, Iterator<? extends Chunk> chunks, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+		Iterator<? extends Chunk> chunks = world.getChunks();
+
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -145,6 +161,7 @@ public class Save {
 				DataSection mainData = new DataSection();
 				mainData.writeLong(this.seed);
 				mainData.writeLong(time);
+				mainData.writeByte(world.getSkyLight());
 				data.put("data", mainData);
 
 				// the "self" player, for the client version, is the only player stored
@@ -156,6 +173,8 @@ public class Save {
 				clientPlayerData.writeDouble(spawnPos.getY());
 				clientPlayerData.writeDouble(spawnPos.getZ());
 				clientPlayerData.writeBoolean(player.dev);
+				clientPlayerData.writeInt(player.getHealth());
+				clientPlayerData.writeInt(player.getMaxHealth());
 				data.put("player", clientPlayerData);
 
 				DataSection clientPlayerInventory = new DataSection();

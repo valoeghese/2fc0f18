@@ -14,7 +14,6 @@ public final class Keybinds {
 	public static final Keybind RUN = new Keybind("run", GLFW_KEY_LEFT_SHIFT, false);
 	public static final Keybind DESTROY = new Keybind("destroy", GLFW_MOUSE_BUTTON_1, true);
 	public static final Keybind INTERACT = new Keybind("interact", GLFW_MOUSE_BUTTON_2, true);
-	public static final Keybind RESPAWN = new Keybind("respawn", GLFW_KEY_R, false);
 	public static final Keybind FOV_UP = new Keybind("fov_up", GLFW_KEY_RIGHT_BRACKET, false);
 	public static final Keybind FOV_DOWN = new Keybind("fov_down", GLFW_KEY_LEFT_BRACKET, false);
 	public static final Keybind SELECT_0 = new Keybind("select_0", GLFW_KEY_0, false);
@@ -27,7 +26,6 @@ public final class Keybinds {
 	public static final Keybind SELECT_7 = new Keybind("select_7", GLFW_KEY_7, false);
 	public static final Keybind SELECT_8 = new Keybind("select_8", GLFW_KEY_8, false);
 	public static final Keybind SELECT_9 = new Keybind("select_9", GLFW_KEY_9, false);
-	public static final Keybind SET_SPAWN = new Keybind("set_spawn", GLFW_KEY_T, false);
 	public static final Keybind INVENTORY = new Keybind("inventory", GLFW_KEY_I, false);
 	public static final Keybind NO_CLIP = new Keybind("no_clip", GLFW_KEY_G, false);
 	public static final Keybind NO_CLIP_DOWN = new Keybind("no_clip_down", GLFW_KEY_LEFT_CONTROL, false);

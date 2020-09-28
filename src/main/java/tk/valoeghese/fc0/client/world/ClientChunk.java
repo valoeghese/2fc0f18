@@ -15,6 +15,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	}
 
 	protected ChunkMesh mesh;
+	public boolean dirtyForRender = true;
 
 	@Override
 	public void writeMeta(int x, int y, int z, byte meta) {
@@ -24,8 +25,8 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			return;
 		}
 
+		this.dirtyForRender = true;
 		super.writeMeta(x, y, z, meta);
-		this.rebuildMesh();
 	}
 
 	@Override
@@ -36,20 +37,20 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			return;
 		}
 
+		this.dirtyForRender = true;
 		super.writeTile(x, y, z, tile);
-		this.updateMesh(i, tile);
 
 		if (x == 0) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x - 1, this.z);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.dirtyForRender = true;
 			}
 		} else if (x == 15) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x + 1, this.z);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.dirtyForRender = true;
 			}
 		}
 
@@ -57,13 +58,13 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z - 1);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.dirtyForRender = true;
 			}
 		} else if (z == 15) {
 			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z + 1);
 
 			if (chunk != null) {
-				chunk.rebuildMesh();
+				chunk.dirtyForRender = true;
 			}
 		}
 	}
@@ -119,20 +120,23 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	void rebuildMesh() {
 		if (this.mesh != null) {
-			this.mesh.buildMesh();
+			this.mesh.buildMesh(this.tiles, this.meta);
 		}
 	}
 
-	private void updateMesh(int index, byte tile) {
-		if (this.mesh != null) {
-			this.mesh.updateTile(index, tile);
+	private void lebronJames() {
+		if (this.dirtyForRender && this.mesh != null) {
+			this.dirtyForRender = false;
+			this.mesh.buildMesh(this.tiles, this.meta);
 		}
 	}
 
 	public ChunkMesh getOrCreateMesh() {
 		if (this.mesh == null) {
-			this.mesh = new ChunkMesh(this, this.tiles, this.meta, this.x, this.z);
+			this.mesh = new ChunkMesh(this, this.x, this.z);
 		}
+
+		this.lebronJames();
 
 		return this.mesh;
 	}
@@ -153,8 +157,8 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 	public void refreshLighting() {
 		super.refreshLighting();
 
-		if (this.status == ChunkLoadStatus.RENDER) { // Is this neccesary?
-			this.rebuildMesh(); // rebuild mesh to account for new lighting
+		if (this.status == ChunkLoadStatus.RENDER) { // Is this necessary?
+			this.dirtyForRender = true;
 		}
 	}
 

@@ -11,10 +11,7 @@ import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import tk.valoeghese.fc0.client.render.screen.CraftingScreen;
-import tk.valoeghese.fc0.client.render.screen.GameScreen;
-import tk.valoeghese.fc0.client.render.screen.Screen;
-import tk.valoeghese.fc0.client.render.screen.TitleScreen;
+import tk.valoeghese.fc0.client.render.screen.*;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
@@ -27,6 +24,7 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.save.Save;
@@ -73,6 +71,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public Screen titleScreen;
 	public Screen craftingScreen;
 	private Screen currentScreen;
+	private Screen youDiedScreen;
 	@Nullable
 	public Save save = null;
 	private final Window window;
@@ -80,7 +79,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private double prevXPos = 0;
 	private boolean showDebug = false;
 	private final TimerSwitch timerSwitch = new TimerSwitch();
-	private GUI setupScreen;
+	private GUI setupGUI;
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -88,8 +87,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	@Override
 	public void run() {
-		this.setupScreen = new Overlay(Textures.STARTUP);
+		this.setupGUI = new Overlay(Textures.STARTUP);
 		Shaders.loadShaders();
+		Shaders.gui.uniformFloat("opacity", 1.0f);
 
 		Thread t = new Thread(this::init);
 		t.setDaemon(true);
@@ -102,7 +102,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.gui.bind();
 			Shaders.gui.uniformMat4f("projection", this.guiProjection);
 			Shaders.gui.uniformFloat("lighting", 1.0f);
-			this.setupScreen.render();
+			this.setupGUI.render();
 			Shader.unbind();
 
 			this.window.swapBuffers();
@@ -144,35 +144,13 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	@Override
 	protected void tick() {
-		boolean isTitleScreen = this.currentScreen == this.titleScreen;
+		// TODO move screen dependent logic to a Screen::tick method
 
-		if (isTitleScreen) {
+		if (this.currentScreen == this.titleScreen) {
 			if (NEW_TITLE) {
 				this.player.move(0, 0, 0.01f);
 			} else {
-				//this.player.getCamera().rotateYaw(0.002f);
-			}
-		}
-
-		this.handleKeybinds();
-
-		super.tick();
-
-		EcoZone zone = this.world.getEcozone(this.player.getX(), this.player.getZ());
-
-		if (!isTitleScreen) {
-			TilePos tilePos = this.player.getTilePos();
-
-			if (this.player.cachedPos != tilePos) {
-				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
-				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
-				this.gameScreen.kingdomWidget.changeText(this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF).toString());
-			}
-
-			if (zone != this.player.cachedZone) {
-				this.player.cachedZone = zone;
-				String newValue = this.language.translate(zone.toString());
-				this.gameScreen.biomeWidget.changeText(newValue);
+				this.player.getCamera().rotateYaw(0.002f);
 			}
 		}
 
@@ -180,11 +158,40 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.timerSwitch.update();
 
 			if (!this.timerSwitch.isOn()) {
-				boolean b = this.getLightingQueueSize() > 12;
-
-				if (b) {
-					this.timerSwitch.switchOn(2000);
+				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
+					this.activateLoadScreen();
 				}
+			}
+		} else {
+			this.handleKeybinds();
+		}
+
+		super.tick();
+
+		EcoZone zone = this.world.getEcozone(this.player.getX(), this.player.getZ());
+
+		if (this.currentScreen == this.gameScreen) {
+			TilePos tilePos = this.player.getTilePos();
+
+			if (this.player.cachedPos != tilePos) {
+				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
+				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
+
+				Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF);
+
+				if (this.gameScreen.getCurrentKingdom() != kingdom) {
+					this.gameScreen.setCurrentKingdom(kingdom);
+				}
+			}
+
+			if (zone != this.player.cachedZone) {
+				this.player.cachedZone = zone;
+				String newValue = this.language.translate(zone.toString());
+				this.gameScreen.biomeWidget.changeText(newValue);
+			}
+
+			if (!this.player.isAlive()) {
+				this.switchScreen(this.youDiedScreen);
 			}
 		}
 	}
@@ -221,6 +228,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
+		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
@@ -267,7 +275,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.gui.bind();
 			Shaders.gui.uniformMat4f("projection", this.guiProjection);
 			Shaders.gui.uniformFloat("lighting", 1.0f);
-			this.setupScreen.render();
+			this.setupGUI.render();
 			Shader.unbind();
 		} else {
 			glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
@@ -380,32 +388,35 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void setWorld(ClientWorld world) {
+		this.timerSwitch.switchOn(6500);
+		this.world.destroy();
 		this.world = world;
 	}
 
 	public void saveWorld() {
 		if (this.save != null) {
-			this.save.writeForClient(this.player, this.world.getChunks(), this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
+			this.save.writeForClient(this.player, this.world, this.player.getInventory().iterator(), this.player.getInventory().getSize(), this.player.getPos(), this.spawnLoc, this.time);
 		}
 	}
 
 	public void createWorld(String saveName) {
-		this.timerSwitch.switchOn(6500);
 		this.setShowDebug(false);
-		this.world.destroy();
 		this.saveWorld();
 		this.time = 0;
 		this.save = new Save(saveName, new Random().nextLong());
 		this.player.setNoClip(false);
+		this.player.setMaxHealth(this.save.loadedMaxHP);
+		this.player.setHealth(this.save.loadedHP);
 		// idek how big this is it's probably more than the game can handle if you go out that far
 		// TODO should I clear toUpdateLighting here? Or will that f*k up lighting in saved chunks?
 		// I mean in the case of title screen it's fine probably
 		// but if from world to world directly or sth
-		this.world = new ClientWorld(this.save, this.save.getSeed(), 1500);
+		this.setWorld(new ClientWorld(this.save, this.save.getSeed(), 1500));
 
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;
 		} else {
+			// TODO match player spawn
 			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
 		}
 
@@ -452,6 +463,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.currentScreen.handleMouseInput(dx, dy);
 		this.prevYPos = ypos;
 		this.prevXPos = xpos;
+	}
+
+	public void activateLoadScreen() {
+		this.timerSwitch.switchOn(2000);
 	}
 
 	public void switchScreen(Screen screen) {

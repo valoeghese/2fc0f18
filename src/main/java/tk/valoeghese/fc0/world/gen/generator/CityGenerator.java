@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.world.gen.generator;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -93,55 +94,70 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 				} else {
 					int y = getHeightForGeneration(world, x, z) - 1;
 
-					// Generate Cities
+					if (y > 51) {
+						// Generate Cities
+						if (dist < houseLimit && xo == 8 && zo == 8) {
+							final int houseHeight = 5;
+							final int wallHeight = houseHeight;
 
-					if (dist < houseLimit && xo == 8 && zo == 8) {
-						final int houseHeight = 5;
-						final int wallHeight = houseHeight - 1;
+							// Generate City House
+							// Floor and Walls
+							for (int xoo = -5; xoo < 5; ++xoo) {
+								boolean xedge = xoo == -5 || xoo == 4;
+								int xx = x + xoo;
 
-						// Generate City House
-						// Floor and Walls
-						for (int xoo = -5; xoo < 5; ++xoo) {
-							boolean xedge = xoo == -5 || xoo == 4;
-							int xx = x + xoo;
+								for (int zoo = -5; zoo < 5; ++zoo) {
+									int zz = z + zoo;
+									world.wgWriteTile(xx, y, zz, Tile.PLANKS.id);
 
-							for (int zoo = -5; zoo < 5; ++zoo) {
-								int zz = z + zoo;
-								world.wgWriteTile(xx, y, zz, Tile.PLANKS.id);
-
-								if (xedge || zoo == -5 || zoo == 4) {
-									for (int yy = 0; yy < wallHeight; ++yy) {
-										world.wgWriteTile(xx, y + yy, zz, Tile.BRICKS.id);
+									if (xedge || zoo == -5 || zoo == 4) {
+										for (int yy = 0; yy < wallHeight; ++yy) {
+											world.wgWriteTile(xx, y + yy, zz, Tile.BRICKS.id);
+										}
 									}
 								}
 							}
-						}
 
-						// Roof
-						for (int yy = 0; yy < 2; --yy) {
-							int width = 6 - yy;
+							// Roof
+							for (int yy = -1; yy < 2; ++yy) {
+								int width = 6 - yy;
+								int finalY = y + yy + houseHeight;
 
-							for (int xoo = -width; xoo < width; ++xoo) {
-								for (int zoo = -width; zoo < width; ++zoo) {
-									world.wgWriteTile(xoo, y + yy + houseHeight, zoo, Tile.STONE_BRICKS.id);
+								int l = -width;
+								int h = width - 1;
+
+								for (int xoo = -width; xoo < width; ++xoo) {
+									int finalX = x + xoo;
+
+									for (int zoo = -width; zoo < width; ++zoo) {
+										int finalZ = z + zoo;
+
+										if (yy > -1 || zoo == l || zoo == h || xoo == l || xoo == h) {
+											if (world.isInWorld(finalX, finalY, finalZ)) {
+												world.wgWriteTile(finalX, finalY, finalZ, Tile.STONE_BRICKS.id);
+											}
+										}
+									}
+								}
+							}
+
+							// Pillars
+							for (int yy = 0; yy < houseHeight; ++yy) {
+								if (y + yy < World.WORLD_HEIGHT) {
+									world.wgWriteTile(x - 6, y + yy, z - 6, Tile.LOG.id);
+									world.wgWriteTile(x + 5, y + yy, z + 5, Tile.LOG.id);
+									world.wgWriteTile(x + 5, y + yy, z - 6, Tile.LOG.id);
+									world.wgWriteTile(x - 6, y + yy, z + 5, Tile.LOG.id);
 								}
 							}
 						}
 
-						// Pillars
-						for (int yy = 0; yy < houseHeight; ++yy) {
-							world.wgWriteTile(x - 6, y + yy, z - 6, Tile.LOG.id);
-							world.wgWriteTile(x + 5, y + yy, z + 5, Tile.LOG.id);
-							world.wgWriteTile(x + 5, y + yy, z - 6, Tile.LOG.id);
-							world.wgWriteTile(x - 6, y + yy, z + 5, Tile.LOG.id);
+						if ((roadsX && xo < 2) || (roadsZ && zo < 3)) {
+							// Generate City Roads
+							world.wgWriteTile(x, y, z, Tile.AIR.id);
+							world.wgWriteTile(x, y - 1, z, Tile.GRASS.id);
+							world.writeMeta(x, y - 1, z, (byte) 2);
 						}
-					}
-
-					if ((roadsX && xo < 2) || (roadsZ && zo < 3)) {
-						// Generate City Roads
-						world.wgWriteTile(x, y, z, Tile.AIR.id);
-						world.wgWriteTile(x, y - 1, z, Tile.GRASS.id);
-						world.writeMeta(x, y - 1, z, (byte) 2);
 					}
 				}
 			}

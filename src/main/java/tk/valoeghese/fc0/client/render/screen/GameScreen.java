@@ -1,24 +1,27 @@
 package tk.valoeghese.fc0.client.render.screen;
 
+import org.joml.Math;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Shaders;
-import tk.valoeghese.fc0.client.render.gui.Crosshair;
-import tk.valoeghese.fc0.client.render.gui.Text;
+import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.gui.*;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import valoeghese.scalpel.Camera;
-import valoeghese.scalpel.Window;
-import tk.valoeghese.fc0.client.render.gui.GUI;
-import valoeghese.scalpel.util.GLUtils;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.tile.Tile;
+import valoeghese.scalpel.Camera;
+import valoeghese.scalpel.Window;
+import valoeghese.scalpel.util.GLUtils;
+
+import javax.annotation.Nullable;
 
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
@@ -33,9 +36,12 @@ public class GameScreen extends Screen {
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
-		this.kingdomWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
+		this.cityWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
+		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
+		this.healthBar = new ResizableRect(Textures.HEALTH);
+		this.unhealthBar = new ResizableRect(0);
 	}
 
 	private final GUI crosshair;
@@ -43,24 +49,41 @@ public class GameScreen extends Screen {
 	public final Text biomeWidget;
 	public final Text coordsWidget;
 	public final Text lightingWidget;
-	public final Text kingdomWidget;
+	private final Text cityWidget;
+	private final Text.Moveable kingdomWidget;
+	private final ResizableRect healthBar;
+	private final ResizableRect unhealthBar;
+	private Kingdom currentKingdom;
 	private final Text.Moveable modesWidget;
 	public Hotbar hotbarRenderer;
+	private float kingdomShowTime = 0.0f;
 	private boolean[] abilityCaches = new boolean[2];
+	private float currentHPPr = 0;
 
 	@Override
 	public void renderGUI(float lighting) {
 		this.version.render();
 		this.crosshair.render();
+		Player player = Client2fc.getInstance().getPlayer();
+		float hpPr = (float) player.getHealth() / (float) player.getMaxHealth();
+
+		if (hpPr != this.currentHPPr) {
+			this.currentHPPr = hpPr;
+			this.healthBar.setProportions(0f, 0.04f, 0.6f * Math.max(0f, hpPr), 0.04f);
+			this.healthBar.setPosition(0.3f, -0.8f);
+			this.unhealthBar.setProportions(0.6f * Math.min(1f, (1f - hpPr)), 0.04f, 0f, 0.04f);
+			this.unhealthBar.setPosition(0.3f + 0.6f / Client2fc.getInstance().getWindowAspect(), -0.8f);
+		}
+
+		this.unhealthBar.render();
+		this.healthBar.render();
 
 		if (Client2fc.getInstance().showDebug()) {
 			this.biomeWidget.render();
 			this.coordsWidget.render();
 			this.lightingWidget.render();
-			this.kingdomWidget.render();
+			this.cityWidget.render();
 		}
-
-		Player player = Client2fc.getInstance().getPlayer();
 
 		if (player.dev != this.abilityCaches[0] || player.isNoClip() != this.abilityCaches[1]) {
 			this.abilityCaches[0] = player.dev;
@@ -96,6 +119,15 @@ public class GameScreen extends Screen {
 		Shaders.gui.uniformFloat("lighting", (lighting - 1.0f) * 0.5f + 1.0f);
 		this.hotbarRenderer.render();
 		Shaders.gui.uniformFloat("lighting", 1.0f);
+
+		if (this.kingdomShowTime > 0.0f) {
+			this.kingdomShowTime -= 0.01f;
+			Shaders.gui.uniformFloat("opacity", this.kingdomShowTime);
+			GLUtils.enableBlend();
+			this.kingdomWidget.render();
+			GLUtils.disableBlend();
+			Shaders.gui.uniformFloat("opacity", 1.0f);
+		}
 	}
 
 	public void onShowDebug(boolean showDebug) {
@@ -171,7 +203,7 @@ public class GameScreen extends Screen {
 		}
 
 		if (player.isNoClip()) {
-			slowness *= 0.3;
+			slowness *= 0.42;
 		}
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
@@ -197,7 +229,7 @@ public class GameScreen extends Screen {
 				long time = System.currentTimeMillis();
 
 				if (player.isSwimming() && time > player.lockSwim) {
-					player.addVelocity(0.0f, player.getJumpStrength() * 0.03f, 0.0f);
+					player.addVelocity(0.0f, player.getUpwardsSwimStrength() * 0.03f, 0.0f);
 				} else {
 					player.lockSwim = time + 18;
 
@@ -251,6 +283,7 @@ public class GameScreen extends Screen {
 								world.writeTile(pos, Tile.CACTUS.id);
 							} else {
 								world.writeTile(pos, tile.id);
+								world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
 							}
 
 							tile.onPlace(world, pos);
@@ -260,13 +293,14 @@ public class GameScreen extends Screen {
 			}
 		}
 
-		if (Keybinds.RESPAWN.hasBeenPressed() || player.getTilePos().y < -20) {
+		// respawn if fall out of world
+		if (player.getTilePos().y < -20) {
 			player.setPos(this.game.spawnLoc);
 		}
 
-		if (Keybinds.SET_SPAWN.hasBeenPressed()) {
+		/*if (Keybinds.SET_SPAWN.hasBeenPressed()) {
 			this.game.spawnLoc = player.getPos();
-		}
+		}*/
 
 		if (Keybinds.NO_CLIP.hasBeenPressed()) {
 			player.setNoClip(!player.isNoClip());
@@ -303,6 +337,7 @@ public class GameScreen extends Screen {
 		ClientPlayer player = this.game.getPlayer();
 		player.changeWorld(world, this.game.save);
 		player.getCamera().setPitch(0);
+		player.getCamera().setYaw(PI);
 
 		if (NEW_TITLE) {
 			player.setNoClip(true);
@@ -315,5 +350,19 @@ public class GameScreen extends Screen {
 	@Override
 	public void onFocus() {
 		GLUtils.disableMouse(Client2fc.getInstance().getWindowId());
+	}
+
+	@Nullable
+	public Kingdom getCurrentKingdom() {
+		return this.currentKingdom;
+	}
+
+	public void setCurrentKingdom(Kingdom kingdom) {
+		this.currentKingdom = kingdom;
+		this.cityWidget.changeText(kingdom.debugString());
+
+		String text = kingdom.toString();
+		this.kingdomWidget.changeText(text, -Text.widthOf(text.toCharArray()), 0.7f);
+		this.kingdomShowTime = 1.0f;
 	}
 }

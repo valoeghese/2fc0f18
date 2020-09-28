@@ -180,6 +180,10 @@ public final class Kingdom {
 		return "Kingdom of " + this.name;
 	}
 
+	public String debugString() {
+		return this.toString() + "\nCity Centre: " + this.getCityCentre().toString();
+	}
+
 	public static final float SCALE = 1050.0f;
 	private static final char[] VOWELS = {'i', 'e', 'a', 'o', 'u', 'y'};
 }
