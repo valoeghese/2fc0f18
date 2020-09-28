@@ -49,7 +49,7 @@ public class ClientPlayer extends Player  {
 	public RaycastResult rayCast(double maxDistance) {
 		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
 		Vector3f start = new Vector3f((float) toUse.getX(), (float) toUse.getY(), (float) toUse.getZ());
-		Vector3f dir = this.camera.getGoodDirection();
+		Vector3f dir = this.camera.getDirection();
 		Vector3f end = new Vector3f(start).add(new Vector3f(dir).mul((float) maxDistance));
 
 		final float x1 = start.x;
