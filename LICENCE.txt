@@ -9,6 +9,8 @@ You get the right to
 - play the game
 - stream and make youtube videos that are about or involve playing the game
 - share screenshots and gameplay of the game
+- fork the public repository for the purpose of submitting pull requests with bug fixes and similar
 
 I explicity reserve the right to
 - change these terms at any point
+- choose whether I accept or deny your pull request
