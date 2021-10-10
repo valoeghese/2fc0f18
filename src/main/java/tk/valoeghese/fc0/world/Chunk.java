@@ -453,6 +453,7 @@ public abstract class Chunk implements World {
 						for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
 							if (Tile.BY_ID[this.readTile(x, by, z)].isOpaqueToLight()) {
 								this.heightmap[horizontalLoc] = by;
+								break;
 							}
 						}
 
