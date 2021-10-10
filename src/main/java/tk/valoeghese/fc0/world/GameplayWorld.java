@@ -182,6 +182,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				result.populated = true;
 				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
 				this.worldGen.populateChunk(this.genWorld, result, this.genRand);
+				result.calculateBaseSkyLighting(); // initial population :)
+				result.newlyPopulated = true;
 			}
 			break;
 		}

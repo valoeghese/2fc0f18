@@ -96,6 +96,7 @@ public abstract class Chunk implements World {
 	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;
+	public transient boolean newlyPopulated = false;
 
 	// Threading
 	private static final ExecutorService lightingExecutor = Executors.newSingleThreadExecutor();
@@ -126,7 +127,7 @@ public abstract class Chunk implements World {
 
 	@Nullable
 	private Chunk loadLightingChunk(int chunkX, int chunkZ) {
-		return this.parent.loadChunk(chunkX, chunkZ, ChunkLoadStatus.GENERATE);
+		return this.parent.loadChunk(chunkX, chunkZ, ChunkLoadStatus.POPULATE);
 	}
 
 	public byte getLightLevel(int x, int y, int z) {
@@ -190,7 +191,14 @@ public abstract class Chunk implements World {
 					chunks.remove(i);
 				} else {
 					Arrays.fill(c.nextBlockLighting, (byte) 0);
-					Arrays.fill(c.nextSkyLighting, (byte) 0);
+
+					if (c.newlyPopulated) {
+						// if newly populated already has base lighting
+						c.newlyPopulated = false;
+					} else {
+						Arrays.fill(c.nextSkyLighting, (byte) 0);
+						c.calculateBaseSkyLighting();
+					}
 				}
 			}
 
@@ -215,6 +223,7 @@ public abstract class Chunk implements World {
 
 			// Reset chunk lighting
 			Arrays.fill(this.nextSkyLighting, (byte) 0);
+			this.calculateBaseSkyLighting();
 			this.calculateSkyLighting(updated);
 			this.dirty = true;
 
@@ -227,13 +236,13 @@ public abstract class Chunk implements World {
 	}
 
 	// The part of sky lighting calculation that is done at the end of population. There is no propagation, just the base lighting.
-	public void calculateSkyLightingPopulation() {
+	public void calculateBaseSkyLighting() {
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
 				int base = this.heightmap[x * 16 + z] + 1;
 
 				for (int y = base; y < WORLD_HEIGHT; ++y) {
-					this.skyLighting[index(x, y, z)] = 15; // 15, the skylight max.
+					this.nextSkyLighting[index(x, y, z)] = 15; // 15, the skylight max.
 				}
 			}
 		}
