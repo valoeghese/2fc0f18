@@ -37,6 +37,7 @@ public class GameScreen extends Screen {
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
 		this.cityWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
+		this.heightmapWidget = new Text("missingno", -0.92f, 0.38f, 1.0f);
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
@@ -50,6 +51,7 @@ public class GameScreen extends Screen {
 	public final Text coordsWidget;
 	public final Text lightingWidget;
 	private final Text cityWidget;
+	public final Text heightmapWidget;
 	private final Text.Moveable kingdomWidget;
 	private final ResizableRect healthBar;
 	private final ResizableRect unhealthBar;
@@ -83,6 +85,7 @@ public class GameScreen extends Screen {
 			this.coordsWidget.render();
 			this.lightingWidget.render();
 			this.cityWidget.render();
+			this.heightmapWidget.render();
 		}
 
 		if (player.dev != this.abilityCaches[0] || player.isNoClip() != this.abilityCaches[1]) {
@@ -132,7 +135,7 @@ public class GameScreen extends Screen {
 
 	public void onShowDebug(boolean showDebug) {
 		if (showDebug) {
-			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.38f);
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.28f);
 		} else {
 			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.78f);
 		}
@@ -270,23 +273,26 @@ public class GameScreen extends Screen {
 
 				if (result.face != null) {
 					TilePos pos = result.face.apply(result.pos);
+					TilePos playerPos = player.getTilePos();
 
-					if (world.isInWorld(pos)) {
-						Tile tile = selectedItem.tileValue();
+					if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
+						if (world.isInWorld(pos)) {
+							Tile tile = selectedItem.tileValue();
 
-						if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
-							if (!player.dev) {
-								selectedItem.decrement();
+							if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
+								if (!player.dev) {
+									selectedItem.decrement();
+								}
+
+								if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
+									world.writeTile(pos, Tile.CACTUS.id);
+								} else {
+									world.writeTile(pos, tile.id);
+									world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
+								}
+
+								tile.onPlace(world, pos);
 							}
-
-							if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
-								world.writeTile(pos, Tile.CACTUS.id);
-							} else {
-								world.writeTile(pos, tile.id);
-								world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
-							}
-
-							tile.onPlace(world, pos);
 						}
 					}
 				}

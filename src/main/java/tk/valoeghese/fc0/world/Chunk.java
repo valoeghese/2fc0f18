@@ -512,6 +512,10 @@ public abstract class Chunk implements World {
 		return 0;
 	}
 
+	public int getHeightmap(int x, int z) {
+		return this.heightmap[x * 16 + z];
+	}
+
 	void addPlayer(Player player) {
 		if (!this.players.contains(player)) {
 			this.players.add(player);

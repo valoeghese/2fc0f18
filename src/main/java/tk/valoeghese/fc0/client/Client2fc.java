@@ -175,7 +175,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			TilePos tilePos = this.player.getTilePos();
 
 			if (this.player.cachedPos != tilePos) {
-				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
+				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos);
+				this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
 				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 
 				Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF);
@@ -356,10 +357,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	private void handleKeybinds() {
-		/*if (Keybinds.RUN.hasBeenPressed()) {
-			System.out.println(this.world.chunks.size());
-		}*/
-
 		if (!this.timerSwitch.isOn()) {
 			this.currentScreen.handleKeybinds();
 

@@ -62,7 +62,7 @@ public abstract class Entity {
 
 	public boolean move(double x, double y, double z) {
 		Pos next = this.pos.ofAdded(x, y, z);
-		Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.03, y, z + MathsUtils.sign(z) * 0.03);
+		Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.06, y, z + MathsUtils.sign(z) * 0.06);
 
 		if (!this.noClip) {
 			TilePos tilePos = new TilePos(test);
@@ -73,6 +73,7 @@ public abstract class Entity {
 				}
 			}
 
+			// TODO fix problem where player's face gets slammed into block and can move along it
 			tilePos = new TilePos(test.ofAdded(0, this.height, 0));
 
 			if (this.world.isInWorld(tilePos)) {
