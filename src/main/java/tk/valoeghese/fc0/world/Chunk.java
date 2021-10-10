@@ -410,7 +410,7 @@ public abstract class Chunk implements World {
 		if (tile != oldTile) {
 			this.dirty = true;
 
-			Tile oldTileO = Tile.BY_ID[this.tiles[i]];
+			Tile oldTileO = Tile.BY_ID[this.tiles[i]]; // O for object
 			Tile newTileO = Tile.BY_ID[tile];
 			this.iota -= oldTileO.iota;
 			this.tiles[i] = tile;
@@ -419,6 +419,7 @@ public abstract class Chunk implements World {
 			if (Tile.BY_ID[tile].dontOptimiseOut()) {
 				this.heightsToRender.add(y);
 			} else {
+				// Remove a y level from a height to render if everything at the same y is invisible.
 				search:
 				{
 					for (int checx = 0; checx < 16; ++checx) {
@@ -437,11 +438,11 @@ public abstract class Chunk implements World {
 
 			boolean hasUpdatedLighting = false;
 
-			if (status.isFull()) {
+			if (this.status.isFull()) {
 				int horizontalLoc = x * 16 + z;
 				int height = this.heightmap[horizontalLoc];
 
-				if (height > y) {
+				if (y > height) {
 					if (newTileO.isOpaqueToLight()) {
 						this.heightmap[horizontalLoc] = y;
 						hasUpdatedLighting = true;
@@ -631,7 +632,9 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
-			properties.readByte(4); // Consume 4
+			if (properties.readByte(4) != 15) { // if skylight is not 15, is old chunk, and needs to be fixed
+				resultAsChunk.needsLightingCalcOnLoad = true;
+			}
 		} catch (Exception ignored) { // @reason support between versions
 		}
 
