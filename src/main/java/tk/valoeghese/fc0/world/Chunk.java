@@ -63,7 +63,7 @@ public abstract class Chunk implements World {
 
 				for (int kz = 0; kz < 16; ++kz) {
 					float sampleZ = (this.startZ + kz) / Kingdom.SCALE;
-					this.kingdoms[kx * 16 + kz] = Voronoi.sample(sampleX, sampleZ, (int) seed).id();
+					this.kingdoms[kx * 16 + kz] = Voronoi.sampleVoronoi(sampleX, sampleZ, (int) seed, 0.5f).id();
 				}
 			}
 		} else {

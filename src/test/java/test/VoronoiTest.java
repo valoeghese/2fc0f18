@@ -15,7 +15,7 @@ public class VoronoiTest extends JPanel {
 
 		for (int x = 0; x < 500; ++x)
 			for (int z = 0; z < 500; ++z) {
-				Vec2f val = Voronoi.sample((float) x / 90.0f, (float) z / 90.0f, 123);
+				Vec2f val = Voronoi.sampleVoronoi((float) x / 90.0f, (float) z / 90.0f, 123, 0.5f);
 
 				int color = 0;
 
