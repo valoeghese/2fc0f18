@@ -4,9 +4,8 @@ public enum ChunkLoadStatus {
 	UNLOADED(-1, false),
 	GENERATE(0, false),
 	POPULATE(1, false),
-	LIGHT(2, false),
-	TICK(3, true),
-	RENDER(4, true);
+	TICK(2, true),
+	RENDER(3, true);
 
 	ChunkLoadStatus(int i, boolean full) {
 		this.i = i;
