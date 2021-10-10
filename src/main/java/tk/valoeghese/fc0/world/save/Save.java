@@ -47,7 +47,7 @@ public class Save {
 				devMode = playerData.readBoolean(6);
 				hp = playerData.readInt(7);
 				maxHp = playerData.readInt(8);
-				skyLight = mainData.readByte(2);
+				mainData.readByte(2); // consume 2 for old skylight data [compat]
 			} catch (Exception ignored) {
 				//ignored.printStackTrace();
 				// @reason compat between save versions
@@ -67,7 +67,6 @@ public class Save {
 		}
 
 		this.loadedDevMode = devMode;
-		this.loadedSkyLight = skyLight;
 		this.loadedHP = hp;
 		this.loadedMaxHP = maxHp;
 	}
@@ -84,7 +83,6 @@ public class Save {
 	@Nullable
 	public final Item[] loadedInventory;
 	public final boolean loadedDevMode;
-	public final byte loadedSkyLight;
 	public final int loadedHP;
 	public final int loadedMaxHP;
 
@@ -161,7 +159,7 @@ public class Save {
 				DataSection mainData = new DataSection();
 				mainData.writeLong(this.seed);
 				mainData.writeLong(time);
-				mainData.writeByte(world.getSkyLight());
+				mainData.writeByte((byte)15); // TODO should I delete it from chunk format
 				data.put("data", mainData);
 
 				// the "self" player, for the client version, is the only player stored

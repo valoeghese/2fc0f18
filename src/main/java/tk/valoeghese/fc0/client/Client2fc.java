@@ -145,6 +145,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Override
 	protected void tick() {
 		// TODO move screen dependent logic to a Screen::tick method
+		// TODO fix the todo by updating scalpel probably
 
 		if (this.currentScreen == this.titleScreen) {
 			if (NEW_TITLE) {
@@ -263,13 +264,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
-	private static final float SKY_CHANGE_RATE = 17.0f;
-
 	private void render() {
 		long time = System.nanoTime();
 		float zeitGrellheit = sin((float) this.time / 9216.0f);
 		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
-		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 10));
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();

@@ -158,7 +158,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		super.refreshLighting();
 
 		if (this.status == ChunkLoadStatus.RENDER) { // Is this necessary?
-			this.dirtyForRender = true;
+			this.dirtyForRender = true; // TODO Use shadaers for lighting instead?????
 		}
 	}
 

@@ -6,6 +6,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2f;
 import tk.valoeghese.fc0.world.entity.Entity;
@@ -26,6 +27,8 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.joml.Math.sin;
+
 public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkAccess {
 	public GameplayWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		this.worldGen = new WorldGen.Earth(seed, 0);
@@ -35,8 +38,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.genRand = new Random(seed);
 		this.constructor = constructor;
 		this.save = save;
-
-		this.skyLight = save == null ? 0 : save.loadedSkyLight;
 
 		this.minBound = (-size + 1) << 4;
 		this.maxBound = size << 4;
@@ -57,7 +58,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final Save save;
 	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 	private final WorldGen worldGen;
-	private byte skyLight;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
 
@@ -138,18 +138,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}*/
 	}
 
-	public void assertSkylight(byte skyLight) {
-		if (skyLight != this.skyLight) {
-			this.skyLight = skyLight;
-
-			for (Chunk chunk : this.chunks.values()) {
-				if (chunk.status.isFull()) {
-					chunk.assertSkylightSingle(skyLight);
-				}
-			}
-		}
-	}
-
 	public Iterator<T> getChunks() {
 		return this.chunks.values().iterator();
 	}
@@ -186,11 +174,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			}
 
 			if (result.needsLightingCalcOnLoad) {
-				result.setSkylight(this.skyLight); // just in case
 				result.updateLighting();
 				result.needsLightingCalcOnLoad = false;
-			} else if (!result.status.isFull()) { // if otherwise loading from older to a full status, make sure skyLight is correct
-				result.assertSkylight(this.skyLight);
 			}
 		case POPULATE: // ticking chunks are also populated
 			if (!result.populated) {
@@ -356,8 +341,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this;
 	}
 
-	public byte getSkyLight() {
-		return this.skyLight;
+	// TODO when lighting is a shader, don't rebuild the model every time and switch this to float
+	public int getSkyLight() {
+		return MathsUtils.clamp(MathsUtils.floor(Game2fc.SKY_CHANGE_RATE * sin((float) Game2fc.getInstance().time / 9216.0f) + 7.5f), 0, 10);
 	}
 
 	public List<Entity> getEntities(int x, int z, int radius) {

@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.world;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import tk.valoeghese.fc0.Game2fc;
+import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -79,7 +80,6 @@ public abstract class Chunk implements World {
 	protected byte[] nextSkyLighting;
 	private final int[] kingdoms;
 	private final int[] heightmap = new int[16 * 16]; // heightmap of opaque blocks for lighting calculations
-	private byte skyLight = -1;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -226,15 +226,30 @@ public abstract class Chunk implements World {
 		});
 	}
 
-	private void calculateSkyLighting(Set<Chunk> updated) {
-		if (this.skyLight == -1) {
-			this.skyLight = this.parent.getGameplayWorld().getSkyLight();
-		}
-
+	// The part of sky lighting calculation that is done at the end of population. There is no propagation, just the base lighting.
+	public void calculateSkyLightingPopulation() {
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
-				int y = this.heightmap[x * 16 + z] + 1;
-				this.propagateSkyLight(updated, x, y, z, this.skyLight, false, true);
+				int base = this.heightmap[x * 16 + z] + 1;
+
+				for (int y = base; y < WORLD_HEIGHT; ++y) {
+					this.skyLighting[index(x, y, z)] = 15; // 15, the skylight max.
+				}
+			}
+		}
+	}
+
+	private void calculateSkyLighting(Set<Chunk> updated) {
+		for (int x = 0; x < 16; ++x) {
+			for (int z = 0; z < 16; ++z) {
+				int base = this.heightmap[x * 16 + z] + 1;
+
+				for (int y = base; y < WORLD_HEIGHT; ++y) {
+					for (Face face : Face.values()) {
+						// propagate skylight for blocks that are not directly lit.
+						this.propagateSkyLight(updated, x + face.getX(), y + face.getY(), z + face.getZ(), 14, false);
+					}
+				}
 			}
 		}
 	}
@@ -317,7 +332,7 @@ public abstract class Chunk implements World {
 		return this.kingdoms[x * 16 + z];
 	}
 
-	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque, boolean slowUpDecay) {
+	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
 		boolean isPrevChunk;
 
 		// Check if this is out of chunk
@@ -328,7 +343,7 @@ public abstract class Chunk implements World {
 				return false;
 			} else {
 				updated.add(c);
-				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque, false);
+				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
 			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
 			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
@@ -337,7 +352,7 @@ public abstract class Chunk implements World {
 				return false;
 			} else {
 				updated.add(c);
-				return c.propagateSkyLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque, false);
+				return c.propagateSkyLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
 			}
 		}
 
@@ -351,12 +366,12 @@ public abstract class Chunk implements World {
 			this.nextSkyLighting[idx] = (byte) light;
 
 			if (light > 1) {
-				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true, false);
-				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true, false);
-				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true, false);
-				this.propagateSkyLight(updated, x, y + 1, z, (slowUpDecay && (y & 0b1) == 1) ? light : light - 1, true, slowUpDecay);
-				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true, false);
-				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true, false);
+				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true);
+				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y + 1, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true);
+				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true);
 			}
 
 			return true;
@@ -554,7 +569,7 @@ public abstract class Chunk implements World {
 		properties.writeInt(this.z);
 		properties.writeBoolean(this.populated);
 		properties.writeBoolean(this.needsLightingCalcOnLoad);
-		properties.writeInt(this.skyLight);
+		properties.writeInt(15); // Skylight. [Old value]
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
@@ -572,24 +587,6 @@ public abstract class Chunk implements World {
 
 	public boolean isDirty() {
 		return this.dirty;
-	}
-
-	public void assertSkylight(byte skyLight) {
-		if (this.skyLight != skyLight) {
-			this.skyLight = skyLight;
-			this.updateLighting(); // Since executor is single thread, should not cause problems
-		}
-	}
-
-	public void assertSkylightSingle(byte skyLight) {
-		if (this.skyLight != skyLight) {
-			this.skyLight = skyLight;
-			this.updateSkyLighting(); // Since executor is single thread, should not cause problems
-		}
-	}
-
-	public void setSkylight(byte skyLight) {
-		this.skyLight = skyLight;
 	}
 
 	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
@@ -620,7 +617,7 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
-			resultAsChunk.skyLight = properties.readByte(4);
+			properties.readByte(4); // Consume 4
 		} catch (Exception ignored) { // @reason support between versions
 		}
 

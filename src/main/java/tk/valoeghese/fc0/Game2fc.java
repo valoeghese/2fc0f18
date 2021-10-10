@@ -18,6 +18,8 @@ public class Game2fc<W extends World, P extends Player> {
 	private final Queue<Runnable> later = new LinkedList<>();
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
+	public static final float SKY_CHANGE_RATE = 17.0f;
+
 	protected int getLightingQueueSize() {
 		synchronized (this.toUpdateLighting) {
 			return this.toUpdateLighting.size();
