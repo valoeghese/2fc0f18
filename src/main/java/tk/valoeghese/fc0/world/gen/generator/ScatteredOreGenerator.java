@@ -27,6 +27,7 @@ public class ScatteredOreGenerator extends Generator<OreGeneratorSettings> {
 				if (y < World.WORLD_HEIGHT) {
 					if (world.readTile(x, y + 1, z) == Tile.STONE.id) {
 						world.wgWriteTile(x, y + 1, z, generatorSettings.ore);
+						//TODO write meta?
 					}
 				}
 

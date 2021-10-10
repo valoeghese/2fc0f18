@@ -632,6 +632,7 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
+
 			if (properties.readByte(4) != 15) { // if skylight is not 15, is old chunk, and needs to be fixed
 				resultAsChunk.needsLightingCalcOnLoad = true;
 			}
