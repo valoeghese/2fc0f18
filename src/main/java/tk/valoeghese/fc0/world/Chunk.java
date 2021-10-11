@@ -197,7 +197,7 @@ public abstract class Chunk implements World {
 
 			// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
 			for (Chunk c : chunks) {
-				c.calculateSkyLighting(updated);
+				c.calculatePropagatedSkyLighting(updated);
 				c.calculateBlockLighting(updated);
 				c.dirty = true;
 			}
@@ -217,7 +217,7 @@ public abstract class Chunk implements World {
 			// Reset chunk lighting
 			Arrays.fill(this.nextSkyLighting, (byte) 0);
 			this.calculateBaseSkyLighting();
-			this.calculateSkyLighting(updated);
+			this.calculatePropagatedSkyLighting(updated);
 			this.dirty = true;
 
 			Game2fc game = Game2fc.getInstance();
@@ -241,7 +241,7 @@ public abstract class Chunk implements World {
 		}
 	}
 
-	private void calculateSkyLighting(Set<Chunk> updated) {
+	private void calculatePropagatedSkyLighting(Set<Chunk> updated) {
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
 				int base = this.heightmap[x * 16 + z] + 1;
@@ -249,7 +249,7 @@ public abstract class Chunk implements World {
 				for (int y = base; y < WORLD_HEIGHT; ++y) {
 					for (Face face : Face.values()) {
 						// propagate skylight for blocks that are not directly lit.
-						this.propagateSkyLight(updated, x + face.getX(), y + face.getY(), z + face.getZ(), 14, false);
+						this.propagateSkyLight(updated, x + face.getX(), y + face.getY(), z + face.getZ(), 14, true);
 					}
 				}
 			}
@@ -627,8 +627,8 @@ public abstract class Chunk implements World {
 		} catch (Exception ignored) { // @reason support between versions
 		}
 
-		if (data.containsSection("lighting")) {
-			ByteArrayDataSection lighting = data.getByteArray("lighting");
+		if (data.containsSection("lightingBlock")) {
+			ByteArrayDataSection lighting = data.getByteArray("lightingBlock");
 
 			for (int i = 0; i < lighting.size(); ++i) {
 				result.blockLighting[i] = lighting.readByte(i);
@@ -643,6 +643,13 @@ public abstract class Chunk implements World {
 			}
 		}
 
+		// update block and sky lighting ""next"" in order to not break it if it's updated by a neighbouring chunk.
+		// If this is not done, loaded chunks may go dark when a neighbouring chunk gets a lighting update.
+		if (!result.needsLightingCalcOnLoad) {
+			System.arraycopy(result.skyLighting, 0, result.nextSkyLighting, 0, result.skyLighting.length);
+			System.arraycopy(result.blockLighting, 0, result.nextBlockLighting, 0, result.blockLighting.length);
+		}
+		
 		if (data.containsSection("heightmap")) {
 			IntArrayDataSection heightmap = data.getIntArray("heightmap");
 
