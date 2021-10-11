@@ -29,7 +29,6 @@ public class Save {
 		this.saveDat = new File(this.parentDir, "save.gsod");
 
 		boolean devMode = false;
-		byte skyLight = 0;
 		int hp = 100;
 		int maxHp = 100;
 
@@ -47,7 +46,6 @@ public class Save {
 				devMode = playerData.readBoolean(6);
 				hp = playerData.readInt(7);
 				maxHp = playerData.readInt(8);
-				mainData.readByte(2); // consume 2 for old skylight data [compat]
 			} catch (Exception ignored) {
 				//ignored.printStackTrace();
 				// @reason compat between save versions
@@ -95,6 +93,7 @@ public class Save {
 	}
 
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
+		// TODO how bad is this threading
 		synchronized (lock) {
 			try {
 				while (thread != null && !thread.isReady()) {
@@ -159,7 +158,6 @@ public class Save {
 				DataSection mainData = new DataSection();
 				mainData.writeLong(this.seed);
 				mainData.writeLong(time);
-				mainData.writeByte((byte)15); // TODO should I delete it from chunk format
 				data.put("data", mainData);
 
 				// the "self" player, for the client version, is the only player stored
@@ -245,14 +243,15 @@ public class Save {
 			}
 		}
 
-		File file = new File(this.parentDir, "c" + x + "." + z + ".gsod");
+		File folder = new File(this.parentDir, x + "/" + z);
+		File file = new File(folder, "c" + x + "." + z + ".gsod");
 
 		if (file.exists()) {
 			try {
 				return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
 			} catch (Exception e) {
 				System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
-				file.renameTo(new File(this.parentDir, "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
+				file.renameTo(new File(file.getParentFile(), "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
 				Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
 				return worldGen.generateChunk(constructor, parent, x, z, genRand);
 			}
@@ -265,7 +264,8 @@ public class Save {
 	private void saveChunk(Chunk chunk) {
 		// only save modified chunks
 		if (chunk.isDirty()) {
-			File file = new File(this.parentDir, "c" + chunk.x + "." + chunk.z + ".gsod");
+			File folder = new File(this.parentDir, chunk.x + "/" + chunk.z);
+			File file = new File(folder, "c" + chunk.x + "." + chunk.z + ".gsod");
 
 			try {
 				file.createNewFile();

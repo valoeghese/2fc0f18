@@ -158,7 +158,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		if (this.timerSwitch.isOn()) {
 			this.timerSwitch.update();
 
-			if (!this.timerSwitch.isOn()) {
+			if (!this.timerSwitch.isOn()) { // TODO this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bugh
 				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
 					this.activateLoadScreen();
 				}

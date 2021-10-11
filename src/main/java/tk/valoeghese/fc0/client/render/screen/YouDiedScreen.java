@@ -42,7 +42,7 @@ public class YouDiedScreen extends Screen {
 			player.setHealth(player.getMaxHealth());
 			player.setPos(this.game.spawnLoc);
 			this.game.switchScreen(this.game.gameScreen);
-			this.game.activateLoadScreen();
+			//this.game.activateLoadScreen(); TODO readd this
 		}
 	}
 

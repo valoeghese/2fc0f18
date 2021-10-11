@@ -13,6 +13,11 @@ public interface ChunkAccess extends SeedWorld {
 	 */
 	@Nullable
 	Chunk getRenderChunk(int x, int z);
+	/**
+	 * Gets the chunk at TICK stage, if it exists.
+	 */
+	@Nullable
+	Chunk getFullChunk(int x, int z);
 
 	Kingdom kingdomById(int kingdom, int x, int z);
 }

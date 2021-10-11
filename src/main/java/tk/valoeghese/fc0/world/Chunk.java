@@ -96,7 +96,6 @@ public abstract class Chunk implements World {
 	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;
-	public transient boolean newlyPopulated = false;
 
 	// Threading
 	private static final ExecutorService lightingExecutor = Executors.newSingleThreadExecutor();
@@ -126,8 +125,8 @@ public abstract class Chunk implements World {
 	}
 
 	@Nullable
-	private Chunk loadLightingChunk(int chunkX, int chunkZ) {
-		return this.parent.loadChunk(chunkX, chunkZ, ChunkLoadStatus.POPULATE);
+	private Chunk retrieveLightingChunk(int chunkX, int chunkZ) {
+		return this.parent.getFullChunk(chunkX, chunkZ);
 	}
 
 	public byte getLightLevel(int x, int y, int z) {
@@ -151,10 +150,10 @@ public abstract class Chunk implements World {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.retrieveLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 			return c == null ? 0 : c.getLightLevel(isPrevChunk ? 15 : 0, y, z);
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.retrieveLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 			return c == null ? 0 : c.getLightLevel(x, y, isPrevChunk ? 15 : 0);
 		}
 
@@ -171,14 +170,14 @@ public abstract class Chunk implements World {
 
 		// Recalculate in this and all surrounding chunks which could update this chunk.
 		chunks.add(this);
-		chunks.add(this.loadLightingChunk(this.x - 1, this.z));
-		chunks.add(this.loadLightingChunk(this.x - 1, this.z - 1));
-		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
-		chunks.add(this.loadLightingChunk(this.x + 1, this.z - 1));
-		chunks.add(this.loadLightingChunk(this.x + 1, this.z));
-		chunks.add(this.loadLightingChunk(this.x + 1, this.z + 1));
-		chunks.add(this.loadLightingChunk(this.x, this.z + 1));
-		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x - 1, this.z));
+		chunks.add(this.retrieveLightingChunk(this.x - 1, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z));
+		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z + 1));
+		chunks.add(this.retrieveLightingChunk(this.x, this.z + 1));
+		chunks.add(this.retrieveLightingChunk(this.x, this.z - 1));
 
 		lightingExecutor.execute(() -> {
 			Set<Chunk> updated = new HashSet<>();
@@ -191,14 +190,8 @@ public abstract class Chunk implements World {
 					chunks.remove(i);
 				} else {
 					Arrays.fill(c.nextBlockLighting, (byte) 0);
-
-					if (c.newlyPopulated) {
-						// if newly populated already has base lighting
-						c.newlyPopulated = false;
-					} else {
-						Arrays.fill(c.nextSkyLighting, (byte) 0);
-						c.calculateBaseSkyLighting();
-					}
+					Arrays.fill(c.nextSkyLighting, (byte) 0);
+					c.calculateBaseSkyLighting(); // make sure the base sky lighting is calculated
 				}
 			}
 
@@ -235,7 +228,7 @@ public abstract class Chunk implements World {
 		});
 	}
 
-	// The part of sky lighting calculation that is done at the end of population. There is no propagation, just the base lighting.
+	// The part of sky lighting calculation that is done first. There is no propagation, just the base lighting.
 	public void calculateBaseSkyLighting() {
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
@@ -288,7 +281,7 @@ public abstract class Chunk implements World {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.retrieveLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
 				return false;
@@ -297,7 +290,7 @@ public abstract class Chunk implements World {
 				return c.propagateBlockLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
 			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.retrieveLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
 				return false;
@@ -346,7 +339,7 @@ public abstract class Chunk implements World {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.retrieveLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
 				return false;
@@ -355,7 +348,7 @@ public abstract class Chunk implements World {
 				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
 			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.retrieveLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
 				return false;
@@ -584,7 +577,6 @@ public abstract class Chunk implements World {
 		properties.writeInt(this.z);
 		properties.writeBoolean(this.populated);
 		properties.writeBoolean(this.needsLightingCalcOnLoad);
-		properties.writeInt(15); // Skylight. [Old value]
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
@@ -632,10 +624,6 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
-
-			if (properties.readByte(4) != 15) { // if skylight is not 15, is old chunk, and needs to be fixed
-				resultAsChunk.needsLightingCalcOnLoad = true;
-			}
 		} catch (Exception ignored) { // @reason support between versions
 		}
 

@@ -182,18 +182,12 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				result.populated = true;
 				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
 				this.worldGen.populateChunk(this.genWorld, result, this.genRand);
-				result.calculateBaseSkyLighting(); // initial population :)
-				result.newlyPopulated = true;
 			}
 			break;
 		}
 
 		result.status = result.status.upgrade(status);
-
-		if (result != null) {
-			this.chunks.put(key(x, z), result);
-		}
-
+		this.chunks.put(key(x, z), result);
 		return result;
 	}
 
@@ -218,6 +212,22 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (c.render) {
+			return c;
+		}
+
+		return null;
+	}
+
+	@Nullable
+	@Override
+	public Chunk getFullChunk(int x, int z) {
+		Chunk c = this.accessChunk(x, z);
+
+		if (c == null) {
+			return null;
+		}
+
+		if (c.status.isFull()) {
 			return c;
 		}
 
@@ -267,8 +277,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		// prepare chunks to remove
 		for (Chunk c : this.chunks.values()) {
-			// TODO make this check better
-			if (c != null && c.getPos().manhattan(centrePos) > CHUNK_LOAD_DIST) {
+			// TODO make this check better (update 11/10/2021: Have I made it better?)
+			// We keep chunks for a longer distance than we load them because we are based
+			if (c != null && c.getPos().manhattan(centrePos) > CHUNK_KEEP_DIST) {
 				// prepare for chunk remove on-thread
 				this.onChunkRemove(c);
 				toWrite.add(c);
@@ -278,32 +289,19 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		// read new chunks
-		for (int cx = centrePos.x - CHUNK_LOAD_DIST; cx <= centrePos.x + CHUNK_LOAD_DIST; ++cx) {
-			for (int cz = centrePos.z - CHUNK_LOAD_DIST; cz <= centrePos.z + CHUNK_LOAD_DIST; ++cz) {
+		for (int cx = centrePos.x - CHUNK_TICK_DIST; cx <= centrePos.x + CHUNK_TICK_DIST; ++cx) {
+			for (int cz = centrePos.z - CHUNK_TICK_DIST; cz <= centrePos.z + CHUNK_TICK_DIST; ++cz) {
 				int dist = centrePos.manhattan(cx, cz);
 
-				if (dist > CHUNK_LOAD_DIST) {
+				if (dist > CHUNK_TICK_DIST) {
 					continue;
 				}
 
-				switch (dist) {
-				case CHUNK_LOAD_DIST:
-					this.loadChunk(cx, cz, ChunkLoadStatus.GENERATE);
-					break;
-				case CHUNK_LOAD_DIST - 1:
-					this.loadChunk(cx, cz, ChunkLoadStatus.POPULATE);
-					break;
-				case CHUNK_LOAD_DIST - 2:
-					this.loadChunk(cx, cz, ChunkLoadStatus.TICK);
-					break;
-				default:
-					this.loadChunk(cx, cz, ChunkLoadStatus.RENDER);
-					break;
-				}
+				this.loadChunk(cx, cz, dist == CHUNK_TICK_DIST ? ChunkLoadStatus.TICK : ChunkLoadStatus.RENDER);
 			}
 		}
 
-		if (this.save != null) {
+		if (this.save != null && !toWrite.isEmpty()) {
 			// write unnecessary chunks off-thread
 			this.chunkSaveExecutor.execute(() -> {
 				synchronized (this.save) {
@@ -409,7 +407,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
-	private static final int CHUNK_RENDER_DIST = 4;
-	private static final int CHUNK_LOAD_DIST = CHUNK_RENDER_DIST + 3;
+	private static final int CHUNK_TICK_DIST = 5;
+	private static final int CHUNK_KEEP_DIST = CHUNK_TICK_DIST + 2;
 	private static final Random RANDOM = new Random();
 }
