@@ -76,7 +76,7 @@ public class Save {
 	public final Pos lastSavePos;
 	@Nullable
 	public final Pos spawnLocPos;
-	private static ReadiableThread thread;
+	private static ReadiableThread thread; // TODO potentially rewrite this using an executor to move more stuff off-thread and remove cursed synchronised calls
 	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
@@ -89,7 +89,7 @@ public class Save {
 	}
 
 	public static boolean isThreadAlive() {
-		return thread != null && thread.isAlive();
+		return thread != null && thread.isAlive();// && !thread.isReady() maybe
 	}
 
 	public void writeChunks(Iterator<? extends Chunk> chunks) {

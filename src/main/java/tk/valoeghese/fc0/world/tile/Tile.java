@@ -141,6 +141,9 @@ public class Tile {
 		return this.cross;
 	}
 
+	/**
+	 * @return whether the tile should render on the main mesh.
+	 */
 	public boolean shouldRender() {
 		return this.render;
 	}

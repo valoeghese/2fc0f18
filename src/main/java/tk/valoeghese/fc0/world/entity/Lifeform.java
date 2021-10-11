@@ -65,7 +65,7 @@ public abstract class Lifeform extends Entity {
 		int val = (int) (aval * aval * 36);
 
 		if (val > 3) {
-			this.damage((val - 3) * 4);
+			this.damage((val - 3) * 5);
 		}
 
 		super.hitGround();

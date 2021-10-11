@@ -19,7 +19,7 @@ public enum TorchRenderer implements TileRenderer {
 
 		if (!tileUp.isOpaque()) {
 			layer.add(new Face(
-					new Vector3f(x, y + 1f, z),
+					new Vector3f(x, y + 0.5f, z),
 					1,
 					instance,
 					0.95f * chunk.getRenderLightingFactor(x, y + 1, z),
@@ -28,7 +28,7 @@ public enum TorchRenderer implements TileRenderer {
 
 		if (!tileDown.isOpaque()) {
 			layer.add(new Face(
-					new Vector3f(x, y, z),
+					new Vector3f(x, y - 0.5f, z),
 					4,
 					instance,
 					0.85f * chunk.getRenderLightingFactor(x, y - 1, z),
