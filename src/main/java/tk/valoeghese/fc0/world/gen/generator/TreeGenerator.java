@@ -64,7 +64,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 			}
 
 			if (thickness != 0) {
-				thickness = Math.abs(thickness + 1);
+				thickness = Math.abs(thickness + 1); // the magic maths transformer I mentioned above.
 				int worldY = y + yo;
 
 				for (int xo = -thickness; xo <= thickness; ++xo) {
