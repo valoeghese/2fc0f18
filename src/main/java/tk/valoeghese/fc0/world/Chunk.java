@@ -649,7 +649,7 @@ public abstract class Chunk implements World {
 			System.arraycopy(result.skyLighting, 0, result.nextSkyLighting, 0, result.skyLighting.length);
 			System.arraycopy(result.blockLighting, 0, result.nextBlockLighting, 0, result.blockLighting.length);
 		}
-		
+
 		if (data.containsSection("heightmap")) {
 			IntArrayDataSection heightmap = data.getIntArray("heightmap");
 

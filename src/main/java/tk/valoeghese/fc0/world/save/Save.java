@@ -89,7 +89,7 @@ public class Save {
 	}
 
 	public static boolean isThreadAlive() {
-		return thread.isAlive();
+		return thread != null && thread.isAlive();
 	}
 
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
