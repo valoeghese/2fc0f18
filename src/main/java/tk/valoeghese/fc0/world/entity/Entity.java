@@ -47,7 +47,7 @@ public abstract class Entity {
 			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.02f);
 		}
 
-		this.velocity.mul(this.friction, this.noClip ? 0.96 : 0.98, this.friction);
+		this.velocity.mul(this.friction, this.noClip ? 0.96 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
