@@ -55,12 +55,8 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 	}
 
 	private final void generateConiferTreeLeaves(GenWorld world, Random rand, int x, int y, int z, int height) {
-		if (height + 1 <= 2) { // just in case
-			height = 2;
-		}
-
 		int stage = 0;
-		for (int yo = height + 1; yo >= 2; --yo, stage++) {
+		for (int yo = height + 2; yo >= 2; --yo, stage++) {
 			int thickness = -2; // this is 1 thickness due to fancy maths
 
 			if ((stage & 1) == 1) {
