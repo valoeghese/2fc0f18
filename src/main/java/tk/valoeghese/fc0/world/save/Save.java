@@ -265,6 +265,7 @@ public class Save {
 		// only save modified chunks
 		if (chunk.isDirty()) {
 			File folder = new File(this.parentDir, chunk.x + "/" + chunk.z);
+			folder.mkdirs();
 			File file = new File(folder, "c" + chunk.x + "." + chunk.z + ".gsod");
 
 			try {
