@@ -9,7 +9,7 @@ public class IceTile extends Tile {
 
 	@Override
 	public float getFrictionConstant() {
-		return 0.93f;
+		return 0.88f;
 	}
 
 	@Override

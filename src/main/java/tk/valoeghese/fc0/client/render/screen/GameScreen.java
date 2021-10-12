@@ -193,7 +193,7 @@ public class GameScreen extends Screen {
 		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FORWARDS.isPressed();
 
 		if (Keybinds.RUN.isPressed()) {
-			slowness /= 1.48; // nerfed from previous versions
+			slowness /= 1.42;
 		}
 
 		if (player.isSwimming()) {
@@ -207,6 +207,14 @@ public class GameScreen extends Screen {
 
 		if (player.isNoClip()) {
 			slowness *= 0.42;
+		}
+
+		TilePos below = player.getTilePos().down();
+
+		if (player.getWorld().isInWorld(below)) {
+			if (player.getWorld().readTile(below) == Tile.ICE.id) {
+				slowness *= 1.5f; // bc more slippery so will get faster anyway
+			}
 		}
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
