@@ -361,6 +361,7 @@ public class GameScreen extends Screen {
 			player.move(0, 20, 0);
 		}
 
+		this.game.sprintFOV(1.0f);
 		this.game.switchScreen(this.game.titleScreen);
 	}
 

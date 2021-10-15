@@ -66,6 +66,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private GUI waterOverlay;
 	private int fov;
 	private float sprintFOV = 1.0f;
+	private float correctSprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
 	public GameScreen gameScreen;
@@ -197,6 +198,14 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (!this.player.isAlive()) {
 				this.switchScreen(this.youDiedScreen);
 			}
+		}
+
+		if (this.sprintFOV > this.correctSprintFOV + 0.001f) {
+			this.sprintFOV -= 0.01f;
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		} else if (this.sprintFOV < this.correctSprintFOV - 0.001f) {
+			this.sprintFOV += 0.01f;
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
 		}
 	}
 
@@ -440,10 +449,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void sprintFOV(float correctSprintFOV) {
-		if (this.sprintFOV != correctSprintFOV) {
-			this.sprintFOV = correctSprintFOV;
-			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
-		}
+		this.correctSprintFOV = correctSprintFOV;
 	}
 
 	public float getWindowAspect() {
