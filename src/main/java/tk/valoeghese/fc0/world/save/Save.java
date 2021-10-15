@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.world.save;
 
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.util.ReadiableThread;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
@@ -19,6 +18,8 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Save {
 	// client specific stuff is here. will need to change on server
@@ -76,110 +77,104 @@ public class Save {
 	public final Pos lastSavePos;
 	@Nullable
 	public final Pos spawnLocPos;
-	private static ReadiableThread thread; // TODO potentially rewrite this using an executor to move more stuff off-thread and remove cursed synchronised calls
-	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
 	public final boolean loadedDevMode;
 	public final int loadedHP;
 	public final int loadedMaxHP;
 
+	// count stuff and the executor
+	private static ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
+	private static int count = 0;
+	private static final Object COUNT_LOCK = new Object();
+	private static final Object READ_WRITE_LOCK = new Object();
+
 	public long getSeed() {
 		return this.seed;
 	}
 
 	public static boolean isThreadAlive() {
-		return thread != null && thread.isAlive();// && !thread.isReady() maybe
+		synchronized (COUNT_LOCK) {
+			return count > 0;
+		}
 	}
 
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
-		// TODO how bad is this threading
-		synchronized (lock) {
-			try {
-				while (thread != null && !thread.isReady()) {
-					lock.wait();
-				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+		synchronized (COUNT_LOCK) {
+			count++;
 		}
 
-		thread = new ReadiableThread(() -> {
-			while (chunks.hasNext()) {
-				Chunk c = chunks.next();
+		saveExecutor.submit(() -> {
+			synchronized (READ_WRITE_LOCK) {
+				while (chunks.hasNext()) {
+					Chunk c = chunks.next();
 
-				if (c != null) {
-					this.saveChunk(c);
+					if (c != null) {
+						this.saveChunk(c);
+					}
 				}
 			}
 
 			try {
-				Thread.sleep(5); // pls fix save loading bugs
+				Thread.sleep(5); // pls fix save loading bugs TODO can I remove this now?
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			synchronized (lock) {
-				ReadiableThread.setReady();
-				lock.notifyAll();
+			synchronized (COUNT_LOCK) {
+				count--;
 			}
 		});
-
-		thread.start();
 	}
 
 	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
 		Iterator<? extends Chunk> chunks = world.getChunks();
 
-		synchronized (lock) {
-			try {
-				while (thread != null && !thread.isReady()) {
-					lock.wait();
-				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+		synchronized (COUNT_LOCK) {
+			count++;
 		}
 
-		thread = new ReadiableThread(() -> {
+		saveExecutor.submit(() -> {
 			System.out.println("Saving Chunks");
 
-			while (chunks.hasNext()) {
-				Chunk c = chunks.next();
+			synchronized (READ_WRITE_LOCK) {
+				while (chunks.hasNext()) {
+					Chunk c = chunks.next();
 
-				if (c != null) {
-					this.saveChunk(c);
+					if (c != null) {
+						this.saveChunk(c);
+					}
 				}
-			}
 
-			try {
-				this.saveDat.createNewFile();
-				BinaryData data = new BinaryData();
-				DataSection mainData = new DataSection();
-				mainData.writeLong(this.seed);
-				mainData.writeLong(time);
-				data.put("data", mainData);
+				try {
+					this.saveDat.createNewFile();
+					BinaryData data = new BinaryData();
+					DataSection mainData = new DataSection();
+					mainData.writeLong(this.seed);
+					mainData.writeLong(time);
+					data.put("data", mainData);
 
-				// the "self" player, for the client version, is the only player stored
-				DataSection clientPlayerData = new DataSection();
-				clientPlayerData.writeDouble(playerPos.getX());
-				clientPlayerData.writeDouble(playerPos.getY());
-				clientPlayerData.writeDouble(playerPos.getZ());
-				clientPlayerData.writeDouble(spawnPos.getX());
-				clientPlayerData.writeDouble(spawnPos.getY());
-				clientPlayerData.writeDouble(spawnPos.getZ());
-				clientPlayerData.writeBoolean(player.dev);
-				clientPlayerData.writeInt(player.getHealth());
-				clientPlayerData.writeInt(player.getMaxHealth());
-				data.put("player", clientPlayerData);
+					// the "self" player, for the client version, is the only player stored
+					DataSection clientPlayerData = new DataSection();
+					clientPlayerData.writeDouble(playerPos.getX());
+					clientPlayerData.writeDouble(playerPos.getY());
+					clientPlayerData.writeDouble(playerPos.getZ());
+					clientPlayerData.writeDouble(spawnPos.getX());
+					clientPlayerData.writeDouble(spawnPos.getY());
+					clientPlayerData.writeDouble(spawnPos.getZ());
+					clientPlayerData.writeBoolean(player.dev);
+					clientPlayerData.writeInt(player.getHealth());
+					clientPlayerData.writeInt(player.getMaxHealth());
+					data.put("player", clientPlayerData);
 
-				DataSection clientPlayerInventory = new DataSection();
-				this.storeInventory(clientPlayerInventory, inventory, invSize);
-				data.put("playerInventory", clientPlayerInventory);
+					DataSection clientPlayerInventory = new DataSection();
+					this.storeInventory(clientPlayerInventory, inventory, invSize);
+					data.put("playerInventory", clientPlayerInventory);
 
-				data.writeGzipped(this.saveDat);
-			} catch (IOException e) {
-				throw new UncheckedIOException("Error writing save data", e);
+					data.writeGzipped(this.saveDat);
+				} catch (IOException e) {
+					throw new UncheckedIOException("Error writing save data", e);
+				}
 			}
 
 			try {
@@ -188,13 +183,10 @@ public class Save {
 				e.printStackTrace();
 			}
 
-			synchronized (lock) {
-				ReadiableThread.setReady();
-				lock.notifyAll();
+			synchronized (COUNT_LOCK) {
+				count--;
 			}
 		});
-
-		thread.start();
 	}
 
 	private void storeInventory(DataSection playerInventoryData, Iterator<Item> inventory, int size) {
@@ -233,32 +225,25 @@ public class Save {
 	}
 
 	public <T extends Chunk> T getOrCreateChunk(WorldGen worldGen, ChunkAccess parent, int x, int z, WorldGen.ChunkConstructor<T> constructor) {
-		synchronized (lock) {
-			try {
-				while (thread != null && !thread.isReady()) {
-					lock.wait();
-				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
 		File folder = new File(this.parentDir, x + "/" + z);
 		File file = new File(folder, "c" + x + "." + z + ".gsod");
 
-		if (file.exists()) {
-			try {
-				return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
-			} catch (Exception e) {
-				System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
-				file.renameTo(new File(file.getParentFile(), "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
-				Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-				return worldGen.generateChunk(constructor, parent, x, z, genRand);
+		// don't generate in R_W_LOCK but do ALL file operations there including exists() just in case tm
+		// TODO should loading be off-thread too?
+		synchronized (READ_WRITE_LOCK) {
+			if (file.exists()) {
+				try {
+					return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
+				} catch (Exception e) {
+					System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
+					file.renameTo(new File(file.getParentFile(), "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
+					// and generate
+				}
 			}
-		} else {
-			Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-			return worldGen.generateChunk(constructor, parent, x, z, genRand);
 		}
+
+		Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
+		return worldGen.generateChunk(constructor, parent, x, z, genRand);
 	}
 
 	private void saveChunk(Chunk chunk) {
