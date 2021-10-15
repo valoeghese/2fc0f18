@@ -113,8 +113,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.initGameRendering();
 		this.initGameAudio();
-
-
+		
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
@@ -199,6 +198,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			}
 		}
 
+		// Smooth Sprint FOV
 		if (this.sprintFOV > this.correctSprintFOV + 0.001f) {
 			this.sprintFOV -= 0.01f;
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
