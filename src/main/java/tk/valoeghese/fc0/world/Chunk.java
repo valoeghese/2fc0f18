@@ -10,6 +10,7 @@ import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.ByteArrayDataSection;
@@ -662,11 +663,12 @@ public abstract class Chunk implements World {
 	}
 
 	public static void shutdown() {
-		lightingExecutor.shutdownNow();
+		lightingExecutor.shutdown();
 
 		try {
-			if (!lightingExecutor.awaitTermination(300, TimeUnit.MILLISECONDS)) {
+			if (!lightingExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
 				System.out.println("Forcing Lighting Thread Shutdown");
+				Save.shutdown(); // this needs to run too
 				System.exit(0);
 			}
 		} catch (InterruptedException e) {

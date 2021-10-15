@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Save {
 	// client specific stuff is here. will need to change on server
@@ -261,6 +262,19 @@ public class Save {
 			} catch (IOException e) {
 				throw new UncheckedIOException("Error writing chunk! " + chunk.getPos().toString(), e);
 			}
+		}
+	}
+
+	public static void shutdown() {
+		saveExecutor.shutdown();
+
+		try {
+			if (!saveExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+				System.out.println("Forcing Save Thread Shutdown");
+				System.exit(0);
+			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

@@ -65,6 +65,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private long nextUpdate = 0;
 	private GUI waterOverlay;
 	private int fov;
+	private float sprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
 	public GameScreen gameScreen;
@@ -139,7 +140,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.world.destroy();
 		this.window.destroy();
 		Audio.shutdown();
-		Chunk.shutdown();
+		Chunk.shutdown(); // may System.exit from here or Save#shutDown so put any further tasks that need to execute either before these or in the force shutdown
+		Save.shutdown();
 	}
 
 	@Override
@@ -430,7 +432,18 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov), this.window.aspect, 0.01f, 250.0f);
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+	}
+
+	public int getFOV() {
+		return this.fov;
+	}
+
+	public void sprintFOV(float correctSprintFOV) {
+		if (this.sprintFOV != correctSprintFOV) {
+			this.sprintFOV = correctSprintFOV;
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		}
 	}
 
 	public float getWindowAspect() {
