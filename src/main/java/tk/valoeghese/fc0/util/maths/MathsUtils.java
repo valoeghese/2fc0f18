@@ -51,4 +51,50 @@ public class MathsUtils {
 	public static int floor(double f) {
 		return (int) Math.floor(f);
 	}
+
+	public static boolean withinBounds(double val, double bound0, double bound1, double falloff) {
+		if (bound0 > bound1) {
+			return withinBounds(val, bound1, bound0, falloff);
+		}
+
+		bound0 -= falloff;
+		bound1 += falloff;
+		System.out.println("bound0 " + bound0 + " bound1 " + bound1);
+
+		return bound0 <= val && val <= bound1;
+	}
+
+	public static double distanceLineBetween(Vec2f start, Vec2f end, int x, int z) {
+		return distanceLineBetween(start.getX(), start.getY(), end.getX(), end.getY(), x, z);
+	}
+
+	// Stolen from Khaki
+	public static double distanceLineBetween(double startX, double startZ, double endX, double endZ, int x, int z) {
+		double dx = endX - startX;
+		double dz = endZ - startZ;
+
+		// try fix bugs by swappings all x and z and doing it backwards
+		if (Math.abs(dz) > Math.abs(dx)) {
+			// cache old vals
+			double oldDX = dx;
+			double oldSX = startX;
+			//double oldEX = endX; unused
+			int oldX = x;
+
+			// swap
+			dx = dz;
+			startX = startZ;
+			//endX = endZ;
+			x = z;
+
+			dz = oldDX;
+			startZ = oldSX;
+			//endZ = oldEX;
+			z = oldX;
+		}
+
+		double m = dz / dx;
+		double targetZ = m * x + startZ - m * startX;
+		return Math.abs(z - targetZ);
+	}
 }

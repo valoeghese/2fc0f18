@@ -140,6 +140,7 @@ public abstract class WorldGen {
 	protected double sampleRidge(double x, double y) {
 		return this.ridges.sample(x, y, this.plane);
 	}
+
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
 		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);

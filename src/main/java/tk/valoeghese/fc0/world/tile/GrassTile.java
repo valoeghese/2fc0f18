@@ -5,8 +5,8 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 import java.util.function.Function;
 
 public class GrassTile extends Tile {
-	public GrassTile(String textureName, int id, float iota) {
-		super(textureName, id, iota);
+	public GrassTile(String textureName, int id, float natureness) {
+		super(textureName, id, natureness);
 	}
 
 	private Vec2i sideUV;

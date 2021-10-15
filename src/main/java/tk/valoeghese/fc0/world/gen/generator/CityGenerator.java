@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.world.GameplayWorld;
@@ -165,9 +166,7 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 	}
 
 	private static boolean isNear(Vec2i locA, Vec2i locB, int x, int y) {
-		float m = (float) (locB.getY() - locA.getY()) / (float) (locB.getX() - locA.getX());
-		float targetY = m * x + locA.getY() - m * locA.getX();
-		return Math.abs(y - targetY) < 5;
+		return MathsUtils.distanceLineBetween(locA.getX(), locA.getY(), locB.getX(), locB.getY(), x, y) < 5;
 	}
 
 	private static final Noise PATH_NOISE = new Noise(new Random(69420));

@@ -5,8 +5,8 @@ import tk.valoeghese.fc0.world.gen.GenWorld;
 import java.util.function.Predicate;
 
 public class PlantTile extends Tile {
-	public PlantTile(String textureName, int id, float iota, Predicate<Tile> support) {
-		super(textureName, id, iota);
+	public PlantTile(String textureName, int id, float natureness, Predicate<Tile> support) {
+		super(textureName, id, natureness);
 		this.support = support;
 	}
 

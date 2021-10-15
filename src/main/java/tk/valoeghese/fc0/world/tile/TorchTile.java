@@ -7,8 +7,8 @@ import tk.valoeghese.fc0.world.player.ItemType;
 import javax.annotation.Nullable;
 
 public class TorchTile extends Tile {
-	public TorchTile(String textureName, int id, float iota) {
-		super(textureName, id, iota);
+	public TorchTile(String textureName, int id, float natureness) {
+		super(textureName, id, natureness);
 	}
 
 	@Nullable

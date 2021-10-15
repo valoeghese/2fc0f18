@@ -44,7 +44,7 @@ public abstract class Chunk implements World {
 			for (int checx = 0; checx < 16; ++checx) {
 				for (int checz = 0; checz < 16; ++checz) {
 					Tile tile = Tile.BY_ID[this.readTile(checx, y, checz)];
-					this.iota += tile.iota;
+					this.natureness += tile.natureness;
 
 					if (check && tile.dontOptimiseOut()) {
 						this.heightsToRender.add(y);
@@ -88,7 +88,7 @@ public abstract class Chunk implements World {
 	protected final IntSet heightsToRender = new IntArraySet();
 	private List<Player> players = new ArrayList<>();
 	protected ChunkAccess parent;
-	private float iota = 0.0f;
+	private float natureness = 0.0f;
 	public boolean populated = false;
 	public ChunkLoadStatus status = ChunkLoadStatus.GENERATE;
 	public boolean needsLightingCalcOnLoad = true; // false if the chunk has ever been in the TICKING stage before.
@@ -405,9 +405,9 @@ public abstract class Chunk implements World {
 
 			Tile oldTileO = Tile.BY_ID[this.tiles[i]]; // O for object
 			Tile newTileO = Tile.BY_ID[tile];
-			this.iota -= oldTileO.iota;
+			this.natureness -= oldTileO.natureness;
 			this.tiles[i] = tile;
-			this.iota += newTileO.iota;
+			this.natureness += newTileO.natureness;
 
 			if (Tile.BY_ID[tile].dontOptimiseOut()) {
 				this.heightsToRender.add(y);
