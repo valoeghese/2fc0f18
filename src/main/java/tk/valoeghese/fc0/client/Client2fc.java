@@ -113,7 +113,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.initGameRendering();
 		this.initGameAudio();
-		
+
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 

@@ -161,6 +161,10 @@ public abstract class Entity {
 		return new Pos(this.pos);
 	}
 
+	public Pos getVelocity() {
+		return new Pos(this.velocity);
+	}
+
 	@Nullable
 	public EntityRenderer getRenderer() {
 		return null;

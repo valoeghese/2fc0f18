@@ -194,7 +194,7 @@ public class GameScreen extends Screen {
 
 		if (Keybinds.RUN.isPressed()) {
 			slowness /= 1.42;
-			this.game.sprintFOV(1.08f);
+			this.game.sprintFOV(player.getVelocity().squaredLength() > 0.001f ? 1.08f : 1.0f);
 		} else {
 			this.game.sprintFOV(1.0f);
 		}
