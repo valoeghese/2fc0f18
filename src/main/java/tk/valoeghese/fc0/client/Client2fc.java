@@ -29,10 +29,10 @@ import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
-import valoeghese.scalpel.Audio;
 import valoeghese.scalpel.Camera;
 import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.Window;
+import valoeghese.scalpel.util.ALUtils;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
@@ -53,7 +53,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		GLUtils.initGLFW();
 		this.window = new Window("2fc0f18", 640 * 2, 360 * 2);
 		GLUtils.initGL(this.window);
-		Audio.initAL();
+		ALUtils.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
 
 		// setup shaders, world, projections, etc
@@ -129,7 +129,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this.render();
-			Audio.tickAudio();
 			this.window.swapBuffers();
 			glfwPollEvents();
 
@@ -140,7 +139,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.world.destroy();
 		this.window.destroy();
-		Audio.shutdown();
+		ALUtils.shutdown();
 		Chunk.shutdown(); // may System.exit from here or Save#shutDown so put any further tasks that need to execute either before these or in the force shutdown
 		Save.shutdown();
 	}
