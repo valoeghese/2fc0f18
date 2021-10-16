@@ -33,7 +33,7 @@ public class MusicSystem {
 	public static void tick(Screen currentScreen) {
 		if (currentMusic == null) { // startup
 			currentMusic = currentScreen.getMusic();
-			play();
+			currentMusic.ifPresent(MusicSystem::play);
 		} else {
 			//if (Keybinds.JUMP.isPressed()) {
 			//	System.out.println(nextTime+","+currentGain+","+targetGain+musicSource.isPlaying());
@@ -47,13 +47,17 @@ public class MusicSystem {
 				currentMusic = currentScreen.getMusic();
 			}
 
-			if (currentGain <= 0.001f && targetGain == 0.0f) {
-				if (musicSource.isPlaying()) {
-					AL11.alSourceStop(musicSource.source);
-				}
+			if (targetGain == 0.0f) {
+				if (currentGain <= 0.001f) {
+					if (musicSource.isPlaying()) {
+						AL11.alSourceStop(musicSource.source);
+					}
 
+					currentMusic.ifPresent(MusicSystem::play);
+				}
+			} else {
 				if (System.currentTimeMillis() >= nextTime) {
-					play();
+					currentMusic.ifPresent(MusicSystem::play);
 				}
 			}
 
@@ -67,21 +71,19 @@ public class MusicSystem {
 		}
 	}
 
-	private static void play() {
-		currentMusic.ifPresent(settings -> {
-			AudioBuffer piece = settings.selectPiece(Client2fc.RANDOM).getBuffer();
+	private static void play(MusicSettings settings) {
+		AudioBuffer piece = settings.selectPiece(Client2fc.RANDOM).getBuffer();
 
-			// https://stackoverflow.com/questions/7978912/how-to-get-length-duration-of-a-source-with-single-buffer-in-openal
-			int lengthSamples = AL11.alGetBufferi(piece.soundBuffer, AL11.AL_SIZE) * 8 /
-					(AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS) * AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS));
-			float duration = (float) lengthSamples / (float) AL11.alGetBufferi(piece.soundBuffer, AL11.AL_FREQUENCY);
+		// https://stackoverflow.com/questions/7978912/how-to-get-length-duration-of-a-source-with-single-buffer-in-openal
+		int lengthSamples = AL11.alGetBufferi(piece.soundBuffer, AL11.AL_SIZE) * 8 /
+				(AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS) * AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS));
+		float duration = (float) lengthSamples / (float) AL11.alGetBufferi(piece.soundBuffer, AL11.AL_FREQUENCY);
 
-			nextTime = System.currentTimeMillis() + (long)(duration * 1000) + settings.selectDelay(Client2fc.RANDOM);
-			targetGain = 1.0f;
+		nextTime = System.currentTimeMillis() + (long) (duration * 1000) + settings.selectDelay(Client2fc.RANDOM);
+		targetGain = 1.0f;
 
-			musicSource.attachBufferData(piece);
-			musicSource.play();
-		});
+		musicSource.attachBufferData(piece);
+		musicSource.play();
 	}
 
 	public static void shutdown() {
