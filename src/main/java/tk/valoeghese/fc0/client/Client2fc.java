@@ -11,7 +11,12 @@ import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import tk.valoeghese.fc0.client.render.screen.*;
+import tk.valoeghese.fc0.client.screen.CraftingScreen;
+import tk.valoeghese.fc0.client.screen.GameScreen;
+import tk.valoeghese.fc0.client.screen.Screen;
+import tk.valoeghese.fc0.client.screen.TitleScreen;
+import tk.valoeghese.fc0.client.screen.YouDiedScreen;
+import tk.valoeghese.fc0.client.sound.MusicSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
@@ -138,6 +143,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.world.destroy();
 		this.window.destroy();
+		MusicSystem.shutdown();
 		ALUtils.shutdown();
 		Chunk.shutdown(); // may System.exit from here or Save#shutDown so put any further tasks that need to execute either before these or in the force shutdown
 		Save.shutdown();
@@ -206,6 +212,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.sprintFOV += 0.01f;
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
 		}
+
+		// Music System
+		MusicSystem.tick(this.currentScreen);
 	}
 
 	private void initGameRendering() {
@@ -271,7 +280,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void initGameAudio() {
 		long start = System.currentTimeMillis();
-		//TODO everything
+		MusicSystem.init();
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 

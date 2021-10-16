@@ -1,12 +1,17 @@
-package tk.valoeghese.fc0.client.render.screen;
+package tk.valoeghese.fc0.client.screen;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.gui.collection.WorldSave;
+import tk.valoeghese.fc0.client.sound.MusicPiece;
+import tk.valoeghese.fc0.client.sound.MusicSettings;
 import valoeghese.scalpel.Window;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import valoeghese.scalpel.util.GLUtils;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
 
@@ -34,6 +39,13 @@ public class TitleScreen extends DelegatingScreen {
 	public void handleMouseInput(double dx, double dy) {
 		super.handleMouseInput(dx, dy);
 	}
+
+	@Override
+	public Optional<MusicSettings> getMusic() {
+		return TITLE_MUSIC;
+	}
+
+	private static final Optional<MusicSettings> TITLE_MUSIC = Optional.of(new MusicSettings(List.of(MusicPiece.MAIN_THEME), 10, 200));
 
 	private static class MainTitleScreen extends Screen {
 		public MainTitleScreen(Client2fc game, DelegatingScreen parent) {

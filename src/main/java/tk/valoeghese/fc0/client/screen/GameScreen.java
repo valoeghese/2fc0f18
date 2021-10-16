@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.render.screen;
+package tk.valoeghese.fc0.client.screen;
 
 import org.joml.Math;
 import tk.valoeghese.fc0.client.Client2fc;
@@ -7,6 +7,7 @@ import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.*;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
+import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -22,6 +23,8 @@ import valoeghese.scalpel.Window;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
+
+import java.util.Optional;
 
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
