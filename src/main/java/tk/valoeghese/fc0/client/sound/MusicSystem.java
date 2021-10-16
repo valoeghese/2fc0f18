@@ -76,7 +76,7 @@ public class MusicSystem {
 
 		// https://stackoverflow.com/questions/7978912/how-to-get-length-duration-of-a-source-with-single-buffer-in-openal
 		int lengthSamples = AL11.alGetBufferi(piece.soundBuffer, AL11.AL_SIZE) * 8 /
-				(AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS) * AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS));
+				(AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS) * AL11.alGetBufferi(piece.soundBuffer, AL11.AL_CHANNELS));
 		float duration = (float) lengthSamples / (float) AL11.alGetBufferi(piece.soundBuffer, AL11.AL_FREQUENCY);
 
 		nextTime = System.currentTimeMillis() + (long) (duration * 1000) + settings.selectDelay(Client2fc.RANDOM);
