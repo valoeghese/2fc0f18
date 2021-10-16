@@ -11,6 +11,7 @@ import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
+import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
@@ -352,10 +353,14 @@ public class GameScreen extends Screen {
 		this.game.getWorld().destroy();
 		this.game.save = null;
 
-		ClientWorld world = new ClientWorld(null, 0, Client2fc.TITLE_WORLD_SIZE);
+		// Create a new, unsaving live world with the seed the player last used.
+		ClientWorld world = new ClientWorld(null, this.game.getWorld().getSeed(), Client2fc.TITLE_WORLD_SIZE);
 		this.game.setWorld(world);
 		ClientPlayer player = this.game.getPlayer();
-		player.changeWorld(world, this.game.save);
+		// Start at leave pos
+		int x = player.getX();
+		int z = player.getZ();
+		player.changeWorld(world, this.game.save, new Pos(x, world.getHeight(x, z) + 1.0, z));
 		player.getCamera().setPitch(0);
 		player.getCamera().setYaw(PI);
 

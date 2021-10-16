@@ -44,18 +44,18 @@ public class Player extends Lifeform {
 		this.setPos(Pos.ZERO);
 
 		if (save == null) {
-			this.move(0, world.getHeight(0, 0) + 1f, 0);
+			this.move(0, world.getHeight(0, 0) + 1.0, 0);
 		} else {
 			int x = (world.getSpawnPos().x << 4) + 8;
 			int z = (world.getSpawnPos().z << 4) + 8;
-			this.move(x, world.getHeight(x, z) + 1f, z);
+			this.move(x, world.getHeight(x, z) + 1.0, z);
 		}
 
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}
 
-	public void changeWorld(LoadableWorld world, Pos movePos, @Nullable Save save) {
+	public void changeWorld(LoadableWorld world, @Nullable Save save, Pos movePos) {
 		this.world = world;
 		this.setPos(movePos);
 		this.world.chunkLoad(this.getTilePos().toChunkPos());

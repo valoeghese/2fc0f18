@@ -435,7 +435,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		}
 
 		if (this.save.lastSavePos != null) {
-			this.player.changeWorld(this.world, this.save.lastSavePos, this.save);
+			this.player.changeWorld(this.world, this.save, this.save.lastSavePos);
 		} else {
 			this.player.changeWorld(this.world, this.save);
 		}
