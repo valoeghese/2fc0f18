@@ -157,4 +157,5 @@ public class Textures {
 	public static final int ENTER = load("enter", true);
 	public static final int CRAFTING = load("crafting", false);
 	public static final int HEALTH = load("stat/health", true);
+	public static final int DIM = load("dim", false);
 }

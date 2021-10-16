@@ -16,7 +16,8 @@ public class Text extends GUI {
 	protected float xOffset;
 	protected float yOffset;
 	protected String text;
-	private final float size;
+	protected final float size;
+	protected float x1, y1;
 
 	public void changeText(String newText) {
 		this.destroy();
@@ -30,6 +31,10 @@ public class Text extends GUI {
 
 		for (char c : text) {
 			if (c == '\n') {
+				if (x > this.x1) {
+					this.x1 = x;
+				}
+
 				y -= this.size;
 				x = this.xOffset;
 				continue;
@@ -90,6 +95,8 @@ public class Text extends GUI {
 				x += 0.63f * this.size;
 			}
 		}
+
+		this.y1 = y;
 
 		this.generateBuffers();
 	}

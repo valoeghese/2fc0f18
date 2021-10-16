@@ -13,6 +13,7 @@ import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.screen.GameScreen;
+import tk.valoeghese.fc0.client.screen.PauseScreen;
 import tk.valoeghese.fc0.client.screen.Screen;
 import tk.valoeghese.fc0.client.screen.TitleScreen;
 import tk.valoeghese.fc0.client.screen.YouDiedScreen;
@@ -77,6 +78,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public GameScreen gameScreen;
 	public Screen titleScreen;
 	public Screen craftingScreen;
+	public Screen pauseScreen;
 	private Screen currentScreen;
 	private Screen youDiedScreen;
 	@Nullable
@@ -249,6 +251,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
+		this.pauseScreen = new PauseScreen(this);
 		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
