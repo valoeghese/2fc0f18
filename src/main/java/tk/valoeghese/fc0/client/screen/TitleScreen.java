@@ -45,7 +45,7 @@ public class TitleScreen extends DelegatingScreen {
 		return TITLE_MUSIC;
 	}
 
-	private static final Optional<MusicSettings> TITLE_MUSIC = Optional.of(new MusicSettings(List.of(MusicPiece.MAIN_THEME), 10, 200));
+	private static final Optional<MusicSettings> TITLE_MUSIC = Optional.of(MusicSettings.createFixed(List.of(MusicPiece.MAIN_THEME), 10, 200));
 
 	private static class MainTitleScreen extends Screen {
 		public MainTitleScreen(Client2fc game, DelegatingScreen parent) {

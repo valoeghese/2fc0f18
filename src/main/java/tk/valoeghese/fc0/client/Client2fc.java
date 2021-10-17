@@ -270,7 +270,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		if (NEW_TITLE) {
 			this.player.setNoClip(true);
-			this.player.move(0, 20, 0);
+			this.player.move(0, 15, 0);
 		}
 
 //		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());

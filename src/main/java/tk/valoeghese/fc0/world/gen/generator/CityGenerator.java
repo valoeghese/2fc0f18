@@ -169,5 +169,12 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 		return MathsUtils.distanceLineBetween(locA.getX(), locA.getY(), locB.getX(), locB.getY(), x, y) < 5;
 	}
 
+	public static boolean isInCity(World world, int x, int z, int size) {
+		Kingdom kingdom = world.getKingdom(x, z);
+		Vec2i centre = kingdom.getCityCentre();
+		int dist = centre.manhattan(x, z);
+		return dist < size + 5;
+	}
+
 	private static final Noise PATH_NOISE = new Noise(new Random(69420));
 }

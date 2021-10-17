@@ -266,11 +266,12 @@ public class Save {
 	}
 
 	public static void shutdown() {
+		System.out.println("Shutting Down Save Thread");
 		saveExecutor.shutdown();
 
 		try {
 			if (!saveExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
-				System.out.println("Forcing Save Thread Shutdown");
+				System.out.println("...Taking too long! Forcing Save Thread Shutdown");
 				System.exit(0);
 			}
 		} catch (InterruptedException e) {

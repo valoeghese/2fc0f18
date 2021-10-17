@@ -72,18 +72,22 @@ public class MusicSystem {
 	}
 
 	private static void play(MusicSettings settings) {
-		AudioBuffer piece = settings.selectPiece(Client2fc.RANDOM).getBuffer();
+		MusicPiece musicPiece = settings.selectPiece(Client2fc.RANDOM);
 
-		// https://stackoverflow.com/questions/7978912/how-to-get-length-duration-of-a-source-with-single-buffer-in-openal
-		int lengthSamples = AL11.alGetBufferi(piece.soundBuffer, AL11.AL_SIZE) * 8 /
-				(AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS) * AL11.alGetBufferi(piece.soundBuffer, AL11.AL_CHANNELS));
-		float duration = (float) lengthSamples / (float) AL11.alGetBufferi(piece.soundBuffer, AL11.AL_FREQUENCY);
+		if (musicPiece != null) {
+			AudioBuffer piece = musicPiece.getBuffer();
 
-		nextTime = System.currentTimeMillis() + (long) (duration * 1000) + settings.selectDelay(Client2fc.RANDOM);
-		targetGain = 1.0f;
+			// https://stackoverflow.com/questions/7978912/how-to-get-length-duration-of-a-source-with-single-buffer-in-openal
+			int lengthSamples = AL11.alGetBufferi(piece.soundBuffer, AL11.AL_SIZE) * 8 /
+					(AL11.alGetBufferi(piece.soundBuffer, AL11.AL_BITS) * AL11.alGetBufferi(piece.soundBuffer, AL11.AL_CHANNELS));
+			float duration = (float) lengthSamples / (float) AL11.alGetBufferi(piece.soundBuffer, AL11.AL_FREQUENCY);
 
-		musicSource.attachBufferData(piece);
-		musicSource.play();
+			nextTime = System.currentTimeMillis() + (long) (duration * 1000) + settings.selectDelay(Client2fc.RANDOM);
+			targetGain = settings.gain();
+
+			musicSource.attachBufferData(piece);
+			musicSource.play();
+		}
 	}
 
 	public static void shutdown() {

@@ -7,6 +7,7 @@ import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.*;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
+import tk.valoeghese.fc0.client.sound.MusicPiece;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
@@ -14,6 +15,9 @@ import tk.valoeghese.fc0.util.RaycastResult;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
+import tk.valoeghese.fc0.world.gen.generator.CityGenerator;
+import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
@@ -25,6 +29,7 @@ import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.joml.Math.cos;
@@ -149,11 +154,11 @@ public class GameScreen extends Screen {
 	public void handleMouseInput(double dx, double dy) {
 		Camera camera = this.game.getPlayer().getCamera();
 
-		if (Math.abs(dx) > 1.5f) {
+		if (Math.abs(dx) > 1.0f) {
 			camera.rotateYaw((float) (dx) / 100.0f);
 		}
 
-		if (Math.abs(dy) > 1.5f) {
+		if (Math.abs(dy) > 1.0f) {
 			camera.rotatePitch((float) (dy) / 60.0f);
 		}
 	}
@@ -348,29 +353,13 @@ public class GameScreen extends Screen {
 	}
 
 	@Override
+	public Optional<MusicSettings> getMusic() {
+		return GAME_MUSIC;
+	}
+
+	@Override
 	public void handleEscape(Window window) {
-		this.game.saveWorld();
-		this.game.getWorld().destroy();
-		this.game.save = null;
-
-		// Create a new, unsaving live world with the seed the player last used.
-		ClientWorld world = new ClientWorld(null, this.game.getWorld().getSeed(), Client2fc.TITLE_WORLD_SIZE);
-		this.game.setWorld(world);
-		ClientPlayer player = this.game.getPlayer();
-		// Start at leave pos
-		int x = player.getX();
-		int z = player.getZ();
-		player.changeWorld(world, this.game.save, new Pos(x, world.getHeight(x, z) + 1.0, z));
-		player.getCamera().setPitch(0);
-		player.getCamera().setYaw(PI);
-
-		if (NEW_TITLE) {
-			player.setNoClip(true);
-			player.move(0, 20, 0);
-		}
-
-		this.game.sprintFOV(1.0f);
-		this.game.switchScreen(this.game.titleScreen);
+		this.game.switchScreen(this.game.pauseScreen);
 	}
 
 	@Override
@@ -391,4 +380,19 @@ public class GameScreen extends Screen {
 		this.kingdomWidget.changeText(text, -Text.widthOf(text.toCharArray()), 0.7f);
 		this.kingdomShowTime = 1.0f;
 	}
+
+	static List<MusicPiece> pickMusic() {
+		Client2fc game = Client2fc.getInstance();
+		TilePos position = game.getPlayer().getTilePos();
+
+		if (CityGenerator.isInCity(game.getWorld(), position.x, position.z, Generator.OVERWORLD_CITY_SIZE)) {
+			return TOWN_MUSIC;
+		} else {
+			return NO_MUSIC;
+		}
+	}
+
+	private static final List<MusicPiece> TOWN_MUSIC = List.of(MusicPiece.TOWN);
+	private static final List<MusicPiece> NO_MUSIC = List.of();
+	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 500, 4 * 600, 0.4f));
 }

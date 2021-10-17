@@ -5,10 +5,10 @@ public class ButtonText extends Text.Moveable {
 		super(value, xOffset, yOffset, size);
 	}
 
-	public boolean isCursorSelecting(float x, float y) {
+	public boolean isCursorSelecting(float x, float y, float leniency) {
 		if (!this.vertexArrays.isEmpty()) {
-			if (y < this.yOffset + this.size && y > this.y1) {
-				if (x > this.xOffset && x < this.x1) {
+			if (y < this.yOffset + this.size + leniency && y > this.y1 - leniency) {
+				if (x > this.xOffset - leniency && x < this.x1 + leniency) {
 					return true;
 				}
 			}

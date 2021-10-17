@@ -101,6 +101,11 @@ public class Text extends GUI {
 		this.generateBuffers();
 	}
 
+	/**
+	 * Width of text for Size=2.0f
+	 * @param text the text to measure the width of.
+	 * @return the width, as a float such as those the GUI code uses.
+	 */
 	public static float widthOf(char[] text) {
 		float width = 0;
 		float prevMaxWidth = 0;

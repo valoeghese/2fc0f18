@@ -663,11 +663,12 @@ public abstract class Chunk implements World {
 	}
 
 	public static void shutdown() {
+		System.out.println("Shutting Down Lighting Thread");
 		lightingExecutor.shutdown();
 
 		try {
 			if (!lightingExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
-				System.out.println("Forcing Lighting Thread Shutdown");
+				System.out.println("...Taking too long! Forcing Lighting Thread Shutdown");
 				Save.shutdown(); // this needs to run too
 				System.exit(0);
 			}

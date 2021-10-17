@@ -37,4 +37,5 @@ public class MusicPiece {
 
 	public static final Set<MusicPiece> PIECES = new HashSet<>();
 	public static final MusicPiece MAIN_THEME = new MusicPiece("main_theme");
+	public static final MusicPiece TOWN = new MusicPiece("town");
 }
