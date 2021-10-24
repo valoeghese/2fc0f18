@@ -1,7 +1,11 @@
 package tk.valoeghese.fc0.world.save;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.util.Synchronise;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
@@ -71,6 +75,8 @@ public class Save implements SaveLike {
 		this.loadedMaxHP = maxHp;
 	}
 
+	@Synchronise
+	private final Long2ObjectArrayMap<Chunk> saving = new Long2ObjectArrayMap<>();
 	private final File parentDir;
 	private final File saveDat;
 	private final long seed;
@@ -106,15 +112,19 @@ public class Save implements SaveLike {
 			count++;
 		}
 
+		LongList keys = new LongArrayList();
+		synchronized (this.saving) {
+			while (chunks.hasNext()) {
+				Chunk c = chunks.next();
+				long key = GameplayWorld.key(c.x, c.z);
+				this.saving.put(key, c);
+				keys.add(key);
+			}
+		}
+
 		saveExecutor.submit(() -> {
 			synchronized (READ_WRITE_LOCK) {
-				while (chunks.hasNext()) {
-					Chunk c = chunks.next();
-
-					if (c != null) {
-						this.saveChunk(c);
-					}
-				}
+				this.writeChunksOfKeys(keys);
 			}
 
 			try {
@@ -129,25 +139,46 @@ public class Save implements SaveLike {
 		});
 	}
 
+	// ONLY RUN THIS ON THE EXECUTOR
+	private void writeChunksOfKeys(LongList keys) {
+		for (long key : keys) {
+			// TODO this is terrible code! I should not be writing this many synchronised blocks. I should be making my own queued thread implementation. But I don't care, because I'd have to rewrite half this code
+			// should I synchronise the whole method on this instead? Or even less?
+			synchronized (this.saving) {
+				@Nullable Chunk c = this.saving.remove(key);
+
+				// if null it's probably retrieved or my dumbass code is trying to save a nonexistant chunk
+				if (c != null) {
+					this.saveChunk(c);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
-		Iterator<? extends Chunk> chunks = world.getChunks();
-
 		synchronized (COUNT_LOCK) {
 			count++;
+		}
+
+		// Copied and pasted from the other method
+		LongList keys = new LongArrayList();
+		synchronized (this.saving) {
+			Iterator<? extends Chunk> chunks = world.getChunks();
+
+			while (chunks.hasNext()) {
+				Chunk c = chunks.next();
+				long key = GameplayWorld.key(c.x, c.z);
+				this.saving.put(key, c);
+				keys.add(key);
+			}
 		}
 
 		saveExecutor.submit(() -> {
 			System.out.println("Saving Chunks");
 
 			synchronized (READ_WRITE_LOCK) {
-				while (chunks.hasNext()) {
-					Chunk c = chunks.next();
-
-					if (c != null) {
-						this.saveChunk(c);
-					}
-				}
+				this.writeChunksOfKeys(keys);
 
 				try {
 					this.saveDat.createNewFile();
@@ -181,7 +212,7 @@ public class Save implements SaveLike {
 			}
 
 			try {
-				Thread.sleep(5); // pls fix save loading bugs
+				Thread.sleep(5); // pls fix save loading bugs TODO can I remove this
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -229,11 +260,21 @@ public class Save implements SaveLike {
 
 	@Override
 	public <T extends Chunk> void loadChunk(WorldGen worldGen, ChunkLoadingAccess<T> parent, int x, int z, WorldGen.ChunkConstructor<T> constructor, ChunkLoadStatus status) {
+		long key = GameplayWorld.key(x, z);
+
+		synchronized (this.saving) {
+			T potentialChunk = (T)this.saving.remove(key);
+
+			if (potentialChunk != null) {
+				Game2fc.getInstance().runLater(() -> parent.addUpgradedChunk(potentialChunk, status));
+				return;
+			}
+		}
+
 		File folder = new File(this.parentDir, x + "/" + z);
 		File file = new File(folder, "c" + x + "." + z + ".gsod");
 
 		// don't generate in R_W_LOCK but do ALL file operations there including exists() just in case tm
-		// TODO should loading be off-thread too?
 		synchronized (READ_WRITE_LOCK) {
 			if (file.exists()) {
 				try {

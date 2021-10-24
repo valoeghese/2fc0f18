@@ -548,6 +548,10 @@ public abstract class Chunk implements TileAccess {
 		return this.pos;
 	}
 
+	public void addOverflow(OverflowChunk overflow) {
+		overflow.appendToChunk(this.tiles, this.meta);
+	}
+
 	public void write(BinaryData data) {
 		ByteArrayDataSection tiles = new ByteArrayDataSection();
 		ByteArrayDataSection lighting = new ByteArrayDataSection();

@@ -44,17 +44,19 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 		}
 	}
 
-	protected void runNextQueued() {
-		Runnable task = null;
+	protected void runNextQueued(int count) {
+		List<Runnable> tasks = null;
 
 		synchronized (this.later) {
-			if (!this.later.isEmpty()) {
-				task = this.later.remove();
+			for (int i = 0; i < count; ++i) {
+				if (!this.later.isEmpty()) {
+					tasks.add(this.later.remove());
+				}
 			}
 		}
 
-		if (task != null) {
-			task.run();
+		for (Runnable task : tasks) {
+			task.run();;
 		}
 	}
 

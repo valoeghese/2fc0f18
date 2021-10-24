@@ -146,6 +146,13 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void addUpgradedChunk(T chunk, ChunkLoadStatus status) {
+		long key = key(chunk.x, chunk.z);
+		OverflowChunk overflow = this.overflowChunks.remove(key);
+
+		if (overflow != null) {
+			chunk.addOverflow(overflow);
+		}
+
 		switch (status) {
 		case GENERATE:
 			break;

@@ -1,14 +1,18 @@
 package tk.valoeghese.fc0.world.player;
 
+import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.entity.Lifeform;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.save.SaveLike;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntFunction;
 
 public class Player extends Lifeform {
@@ -39,32 +43,43 @@ public class Player extends Lifeform {
 		this.dev = !this.dev;
 	}
 
-	public void changeWorld(LoadableWorld world, @Nullable Save save) {
+	public void changeWorld(LoadableWorld world, SaveLike save) {
 		// FIXME when player spawns it it has no damn clue about anything in the world. This probably affects all player teleportation.
 		this.world = world;
 		this.setPos(Pos.ZERO);
+		this.world.chunkLoad(this.getTilePos().toChunkPos());
 
-		if (save == null) {
-			this.move(0, world.getHeight(0, 0) + 1.0, 0);
+		if (save instanceof Save) {
+			// TODO find a better way of doing this
+			AtomicReference<Runnable> r = new AtomicReference<>();
+
+			r.set(() -> {
+				if (Save.isThreadAlive()) {
+					Game2fc.getInstance().runLater(r.get());
+				} else {
+					int x = (world.getSpawnPos().x << 4) + 8;
+					int z = (world.getSpawnPos().z << 4) + 8;
+					this.move(x, world.getHeight(x, z) + 1.0, z);
+				}
+			});
+
+			Game2fc.getInstance().runLater(r.get());
 		} else {
-			int x = (world.getSpawnPos().x << 4) + 8;
-			int z = (world.getSpawnPos().z << 4) + 8;
-			this.move(x, world.getHeight(x, z) + 1.0, z);
+			this.move(0, world.getHeight(0, 0) + 1.0, 0);
 		}
 
-		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}
 
-	public void changeWorld(LoadableWorld world, @Nullable Save save, Pos movePos) {
+	public void changeWorld(LoadableWorld world, SaveLike save, Pos movePos) {
 		this.world = world;
 		this.setPos(movePos);
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}
 
-	private void loadNullableInventory(@Nullable Save save) {
-		if (save != null) {
+	private void loadNullableInventory(SaveLike saveLike) {
+		if (saveLike instanceof Save save) {
 			if (save.loadedInventory != null) {
 				this.loadInventory(save);
 				return;
