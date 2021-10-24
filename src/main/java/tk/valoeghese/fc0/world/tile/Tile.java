@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.player.Item;
@@ -156,7 +156,7 @@ public class Tile {
 		return this.translucent;
 	}
 
-	public void onPlace(World world, TilePos pos) {}
+	public void onPlace(TileAccess world, TilePos pos) {}
 
 	public boolean isSolid() {
 		return this.solid;

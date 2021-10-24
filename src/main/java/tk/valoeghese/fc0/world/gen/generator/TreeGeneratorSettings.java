@@ -1,8 +1,6 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.gen.GenWorld;
-import tk.valoeghese.fc0.world.gen.WorldGen;
 
 import java.util.Random;
 

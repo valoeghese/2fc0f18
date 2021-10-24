@@ -3,9 +3,9 @@ package tk.valoeghese.fc0.world.gen;
 import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.util.noise.RidgedNoise;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
@@ -30,7 +30,7 @@ public abstract class WorldGen {
 	private final double plane;
 
 	public <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, Random rand) {
-		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
+		byte[] tiles = new byte[16 * 16 * TileAccess.WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
 
 		int blockX = chunkX << 4;
@@ -48,8 +48,8 @@ public abstract class WorldGen {
 
 				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
 
-				if (height >= World.WORLD_HEIGHT) {
-					height = World.WORLD_HEIGHT - 1;
+				if (height >= TileAccess.WORLD_HEIGHT) {
+					height = TileAccess.WORLD_HEIGHT - 1;
 				}
 
 				int depth = zone.surface == Tile.SAND.id ? 2 : 1;

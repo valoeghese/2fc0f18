@@ -9,6 +9,10 @@ import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2f;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.OverflowChunk;
+import tk.valoeghese.fc0.world.chunk.TileWriter;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -25,8 +29,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.joml.Math.sin;
 
@@ -36,6 +38,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.seed = seed;
 
 		this.chunks = new Long2ObjectArrayMap<>();
+		this.overflowChunks = new Long2ObjectArrayMap<>();
 		this.genRand = new Random(seed);
 		this.constructor = constructor;
 		this.save = save;
@@ -51,6 +54,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final int maxBound;
 	private final ChunkPos spawnChunk;
 	private final Long2ObjectMap<T> chunks;
+	private final Long2ObjectMap<OverflowChunk> overflowChunks;
 	private final Random genRand;
 	private final long seed;
 	private final GenWorld genWorld = new GeneratorWorldAccess();
@@ -78,39 +82,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this.kingdomIdMap.computeIfAbsent(sample.id(), id -> new Kingdom(this, id, sample));
 	}
 
-	private T getOrCreateChunk(int x, int z) {
-		T result = this.accessChunk(x, z);
-
-		if (result != null) {
-			return result;
-		}
-
-		if (this.save == null) {
-
-		} else {
-			return this.save.loadChunk(this.worldGen, this, x, z, this.constructor);
-		}
-	}
-
-	public void generateSpawnChunks(ChunkPos around) {
-		// TODO fix
-		/*long time = System.currentTimeMillis();
-
-		if (this.save != null) {
-			System.out.println("Generating World Spawn.");
-		}
-
-		for (int cx = around.x + -3; cx <= around.x + 3; ++cx) {
-			for (int cz = around.z + -3; cz <= around.z + 3; ++cz) {
-				this.loadChunk(cx, cz, ChunkLoadStatus.TICK);
-			}
-		}
-
-		if (this.save != null) {
-			System.out.println("Generated World Spawn in " + (System.currentTimeMillis() - time) + "ms.");
-		}*/
-	}
-
 	public Iterator<T> getChunks() {
 		return this.chunks.values().iterator();
 	}
@@ -135,19 +106,37 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			return false;
 		}
 
-		this.getOrCreateChunk(x, z);
+		this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
 		return true;
-	}
-
-	@Nullable
-	private T accessChunk(int x, int z) {
-		return this.chunks.get(key(x, z));
 	}
 
 	@Override
 	@Nullable
 	public Chunk getChunk(int x, int z) {
-		return this.accessChunk(x, z);
+		return this.chunks.get(key(x, z));
+	}
+
+	@Override
+	public TileWriter getDelayedLoadChunk(int x, int z) {
+		Chunk result = this.getChunk(x, z);
+
+		if (result == null) {
+			// this is possible because operations on the DelayedLoadChunk SHOULD be on the main thread
+			// SHOULD
+			// because population is on the main thread and I think we only use it there
+			long key = key(x, z);
+			OverflowChunk overflow = this.overflowChunks.get(key);
+
+			if (overflow == null) {
+				overflow = new OverflowChunk(x, z);
+				this.overflowChunks.put(key, overflow);
+				this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
+			}
+
+			return overflow;
+		} else {
+			return result;
+		}
 	}
 
 	@Override
@@ -178,7 +167,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Nullable
 	@Override
 	public Chunk getRenderChunk(int x, int z) {
-		Chunk c = this.accessChunk(x, z);
+		Chunk c = this.getChunk(x, z);
 
 		if (c == null) {
 			return null;
@@ -194,7 +183,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Nullable
 	@Override
 	public Chunk getFullChunk(int x, int z) {
-		Chunk c = this.accessChunk(x, z);
+		Chunk c = this.getChunk(x, z);
 
 		if (c == null) {
 			return null;
@@ -224,6 +213,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void updateChunkOf(Player player) {
+		// FIXME make sure chunkloading is done BEFORE this
 		TilePos pos = player.getTilePos();
 		ChunkPos cPos = pos.toChunkPos();
 
@@ -235,7 +225,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
 			// ensure rendered
-			this.loadChunk(cPos.x, cPos.z, ChunkLoadStatus.RENDER).updateChunkOf(player);
+			this.getChunk(cPos.x, cPos.z).updateChunkOf(player);
 		} else if (player.chunk != null) {
 			player.chunk.removePlayer(player);
 			player.chunk = null;
@@ -250,7 +240,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		// prepare chunks to remove
 		for (Chunk c : this.chunks.values()) {
-			// TODO make this check better (update 11/10/2021: Have I made it better?)
 			// We keep chunks for a longer distance than we load them because we are based
 			if (c != null && c.getPos().manhattan(centrePos) > CHUNK_KEEP_DIST) {
 				// prepare for chunk remove on-thread

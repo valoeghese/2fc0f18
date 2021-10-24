@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.server.world;
 
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 
 import javax.annotation.Nullable;

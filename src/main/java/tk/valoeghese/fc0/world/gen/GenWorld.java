@@ -1,13 +1,14 @@
 package tk.valoeghese.fc0.world.gen;
 
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.TileWriter;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public interface GenWorld extends SeedWorld {
+public interface GenWorld extends SeedWorld, TileWriter {
 	boolean isInWorld(int x, int y, int z);
 	@Nullable
 	Chunk getChunk(int x, int z);
@@ -17,6 +18,7 @@ public interface GenWorld extends SeedWorld {
 		return this.getChunk(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
 	}
 
+	@Override
 	default void wgWriteTile(int x, int y, int z, byte tile) {
 		this.getChunk(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
 	}
@@ -25,6 +27,7 @@ public interface GenWorld extends SeedWorld {
 		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
 	}
 
+	@Override
 	default void writeMeta(int x, int y, int z, byte meta) {
 		this.getChunk(x >> 4, z >> 4).writeMeta(x & 0xF, y, z & 0xF, meta);
 	}

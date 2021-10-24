@@ -1,10 +1,10 @@
 package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
-import tk.valoeghese.fc0.world.ChunkLoadStatus;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -164,7 +164,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public float getRenderLightingFactor(int x, int y, int z) {
-		if (y < 0 || y > World.WORLD_HEIGHT) {
+		if (y < 0 || y > TileAccess.WORLD_HEIGHT) {
 			return 0.1f;
 		}
 

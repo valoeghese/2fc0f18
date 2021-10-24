@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.world.player;
 
 import tk.valoeghese.fc0.util.maths.Pos;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.entity.Lifeform;
 import tk.valoeghese.fc0.world.save.Save;

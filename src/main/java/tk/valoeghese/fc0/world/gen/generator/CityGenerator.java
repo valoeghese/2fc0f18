@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.world.GameplayWorld;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -144,7 +144,7 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 							// Pillars
 							for (int yy = 0; yy < houseHeight; ++yy) {
-								if (y + yy < World.WORLD_HEIGHT) {
+								if (y + yy < TileAccess.WORLD_HEIGHT) {
 									world.wgWriteTile(x - 6, y + yy, z - 6, Tile.LOG.id);
 									world.wgWriteTile(x + 5, y + yy, z + 5, Tile.LOG.id);
 									world.wgWriteTile(x + 5, y + yy, z - 6, Tile.LOG.id);
@@ -169,7 +169,7 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 		return MathsUtils.distanceLineBetween(locA.getX(), locA.getY(), locB.getX(), locB.getY(), x, y) < 5;
 	}
 
-	public static boolean isInCity(World world, int x, int z, int size) {
+	public static boolean isInCity(TileAccess world, int x, int z, int size) {
 		Kingdom kingdom = world.getKingdom(x, z);
 		Vec2i centre = kingdom.getCityCentre();
 		int dist = centre.manhattan(x, z);

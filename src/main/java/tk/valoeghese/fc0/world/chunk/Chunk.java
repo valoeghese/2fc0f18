@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.chunk;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
@@ -6,6 +6,9 @@ import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
@@ -24,8 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-public abstract class Chunk implements World {
-	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
+public abstract class Chunk implements TileAccess {
+	public Chunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		this.parent = parent;
 		this.tiles = tiles;
 		this.meta = meta;
@@ -88,7 +91,7 @@ public abstract class Chunk implements World {
 	public final int startZ;
 	protected final IntSet heightsToRender = new IntArraySet();
 	private List<Player> players = new ArrayList<>();
-	protected ChunkAccess parent;
+	protected GameplayWorld parent;
 	private float natureness = 0.0f;
 	public boolean populated = false;
 	public ChunkLoadStatus status = ChunkLoadStatus.GENERATE;
@@ -103,11 +106,7 @@ public abstract class Chunk implements World {
 
 	@Override
 	public GameplayWorld getGameplayWorld() {
-		if (this.parent instanceof GameplayWorld) {
-			return (GameplayWorld) this.parent;
-		} else {
-			return null;
-		}
+		return this.parent;
 	}
 
 	@Override
@@ -518,7 +517,7 @@ public abstract class Chunk implements World {
 		}
 	}
 
-	void removePlayer(Player player) {
+	public void removePlayer(Player player) {
 		if (this.players.contains(player)) {
 			this.players.remove(player);
 		}
@@ -590,7 +589,7 @@ public abstract class Chunk implements World {
 	@Nullable
 	@Override
 	public Chunk getChunk(int x, int z) {
-		return this.parent.loadChunk(x, z, ChunkLoadStatus.POPULATE);
+		return this.parent.getChunk(x, z, ChunkLoadStatus.POPULATE);
 	}
 
 	public boolean isDirty() {

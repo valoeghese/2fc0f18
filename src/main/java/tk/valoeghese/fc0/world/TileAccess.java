@@ -5,7 +5,7 @@ import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.tile.Tile;
 
-public interface World extends GenWorld {
+public interface TileAccess extends GenWorld {
 	default byte readTile(TilePos pos) {
 		return this.readTile(pos.x, pos.y, pos.z);
 	}
@@ -31,6 +31,4 @@ public interface World extends GenWorld {
 
 	default void updateChunkOf(Player player) {
 	}
-
-	int WORLD_HEIGHT = 128;
 }

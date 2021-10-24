@@ -1,13 +1,13 @@
 package tk.valoeghese.fc0;
 
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkLoadStatus;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.player.Player;
 
 import java.util.*;
 
-public class Game2fc<W extends World, P extends Player> {
+public class Game2fc<W extends TileAccess, P extends Player> {
 	protected Game2fc() {
 		instance = this;
 	}

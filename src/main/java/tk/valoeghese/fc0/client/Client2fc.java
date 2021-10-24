@@ -27,7 +27,7 @@ import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;

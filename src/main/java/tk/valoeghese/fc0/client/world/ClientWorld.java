@@ -2,8 +2,8 @@ package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.OrderedList;
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkLoadStatus;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.save.Save;
 

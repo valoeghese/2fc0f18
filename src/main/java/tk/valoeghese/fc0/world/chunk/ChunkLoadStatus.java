@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.chunk;
 
 public enum ChunkLoadStatus {
 	UNLOADED(-1, false),

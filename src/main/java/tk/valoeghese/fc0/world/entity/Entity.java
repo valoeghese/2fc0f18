@@ -6,7 +6,6 @@ import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.LoadableWorld;
-import tk.valoeghese.fc0.world.World;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;

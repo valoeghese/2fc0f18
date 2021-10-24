@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -24,7 +24,7 @@ public class ScatteredOreGenerator extends Generator<OreGeneratorSettings> {
 			if (world.readTile(x, y, z) == Tile.STONE.id) {
 				world.wgWriteTile(x, y, z, generatorSettings.ore);
 
-				if (y < World.WORLD_HEIGHT) {
+				if (y < TileAccess.WORLD_HEIGHT) {
 					if (world.readTile(x, y + 1, z) == Tile.STONE.id) {
 						world.wgWriteTile(x, y + 1, z, generatorSettings.ore);
 					}
