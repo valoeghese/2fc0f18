@@ -33,6 +33,7 @@ import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 import valoeghese.scalpel.Camera;
@@ -264,7 +265,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		long time = System.currentTimeMillis();
 		this.setFOV(64);
 
-		this.world = new ClientWorld(null, 0, TITLE_WORLD_SIZE);
+		this.world = new ClientWorld(new FakeSave(0), 0, TITLE_WORLD_SIZE);
 		this.player = new ClientPlayer(new Camera(), this, false);
 		this.player.changeWorld(this.world, this.save);
 

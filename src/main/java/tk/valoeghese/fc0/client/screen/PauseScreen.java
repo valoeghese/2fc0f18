@@ -10,6 +10,7 @@ import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import valoeghese.scalpel.Window;
 import valoeghese.scalpel.util.GLUtils;
 
@@ -70,7 +71,8 @@ public class PauseScreen extends Screen {
 				this.game.save = null;
 
 				// Create a new, unsaving live world with the seed the player last used.
-				ClientWorld world = new ClientWorld(null, this.game.getWorld().getSeed(), Client2fc.TITLE_WORLD_SIZE);
+				long seed = this.game.getWorld().getSeed();
+				ClientWorld world = new ClientWorld(new FakeSave(seed), seed, Client2fc.TITLE_WORLD_SIZE);
 				this.game.setWorld(world);
 				ClientPlayer player = this.game.getPlayer();
 				// Start at leave pos

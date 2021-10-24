@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.save.SaveLike;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 import java.util.Queue;
 
 public class ClientWorld extends GameplayWorld<ClientChunk> {
-	public ClientWorld(@Nullable Save save, long seed, int size) {
+	public ClientWorld(SaveLike save, long seed, int size) {
 		super(save, seed, size, ClientChunk::new);
 	}
 
