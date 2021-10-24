@@ -596,7 +596,7 @@ public abstract class Chunk implements TileAccess {
 		return this.dirty;
 	}
 
-	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
+	public static <T extends Chunk> T read(GameplayWorld<T> parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
 		ByteArrayDataSection tileData = data.getByteArray("tiles");
 		byte[] tiles = new byte[16 * 16 * WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];

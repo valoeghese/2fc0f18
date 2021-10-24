@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.world.gen;
 import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.util.noise.RidgedNoise;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.TileAccess;
@@ -88,7 +89,8 @@ public abstract class WorldGen {
 			}
 		}
 
-		return constructor.create(parent, chunkX, chunkZ, tiles, meta, null);
+		// TODO not cast like this. This is bad code. Should I just do away with the gajillion interfaces?
+		return constructor.create((GameplayWorld<T>) parent, chunkX, chunkZ, tiles, meta, null);
 	}
 
 	protected abstract double sampleHeight(double x, double z);
@@ -145,7 +147,7 @@ public abstract class WorldGen {
 
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
-		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);
+		T create(GameplayWorld<T> parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);
 	}
 
 	/**

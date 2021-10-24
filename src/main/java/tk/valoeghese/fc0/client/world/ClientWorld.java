@@ -24,21 +24,16 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
 	private boolean ncTick = false;
 
-	@Nullable
 	@Override
-	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
-		ClientChunk result = (ClientChunk) super.loadChunk(x, z, status);
+	public void addUpgradedChunk(ClientChunk chunk, ChunkLoadStatus status) {
+		super.addUpgradedChunk(chunk, status);
 
-		if (result != null) {
-			if (status == ChunkLoadStatus.RENDER) {
-				if (!result.render) {
-					result.render = true;
-					this.toAddToQueue.add(result);
-				}
+		if (status == ChunkLoadStatus.RENDER) {
+			if (!chunk.render) {
+				chunk.render = true;
+				this.toAddToQueue.add(chunk);
 			}
 		}
-
-		return result;
 	}
 
 	public void updateChunksForRendering() {

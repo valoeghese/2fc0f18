@@ -21,7 +21,9 @@ import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.ChunkLoadingAccess;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.save.SaveLike;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -34,7 +36,7 @@ import java.util.function.Predicate;
 import static org.joml.Math.sin;
 
 public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T> {
-	public GameplayWorld(Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
+	public GameplayWorld(SaveLike save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		this.worldGen = new WorldGen.Earth(seed, 0);
 		this.seed = seed;
 
@@ -48,7 +50,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.maxBound = size << 4;
 
 		RANDOM.setSeed(seed);
-		this.spawnChunk = save == null ? new ChunkPos(0, 0) : this.searchForSpawn();
+		this.spawnChunk = save instanceof FakeSave ? new ChunkPos(0, 0) : this.searchForSpawn();
 	}
 
 	private final int minBound;
@@ -60,7 +62,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final long seed;
 	private final GenWorld genWorld = new GeneratorWorldAccess();
 	private final WorldGen.ChunkConstructor<T> constructor;
-	private final Save save;
+	private final SaveLike save;
 	private final WorldGen worldGen;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
@@ -107,7 +109,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			return false;
 		}
 
-		Chunk existing = this.getChunk(x, z);
+		T existing = this.getChunk(x, z);
 
 		if (existing == null) {
 			this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
@@ -119,7 +121,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	@Nullable
-	public Chunk getChunk(int x, int z) {
+	public T getChunk(int x, int z) {
 		return this.chunks.get(key(x, z));
 	}
 
@@ -147,7 +149,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
-	public void addUpgradedChunk(Chunk chunk, ChunkLoadStatus status) {
+	public void addUpgradedChunk(T chunk, ChunkLoadStatus status) {
 		switch (status) {
 		case GENERATE:
 			break;
@@ -260,7 +262,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			}
 		}
 
-		if (this.save != null && !toWrite.isEmpty()) {
+		if (!toWrite.isEmpty()) {
 			this.save.writeChunks(toWrite.iterator());
 		}
 	}

@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
@@ -10,7 +11,7 @@ import tk.valoeghese.fc0.world.tile.Tile;
 import javax.annotation.Nullable;
 
 public class ClientChunk extends Chunk implements RenderedChunk {
-	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
+	public ClientChunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		super(parent, x, z, tiles, meta, kingdoms);
 	}
 
