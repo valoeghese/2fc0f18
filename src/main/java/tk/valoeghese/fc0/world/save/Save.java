@@ -238,7 +238,7 @@ public class Save implements SaveLike {
 			if (file.exists()) {
 				try {
 					saveExecutor.submit(() -> {
-						T chunk = Chunk.read(parent, constructor, BinaryData.readGzipped(file));
+						T chunk = Chunk.read((GameplayWorld<T>) parent, constructor, BinaryData.readGzipped(file));
 						Game2fc.getInstance().runLater(() -> parent.addUpgradedChunk(chunk, status));
 					});
 					return;
