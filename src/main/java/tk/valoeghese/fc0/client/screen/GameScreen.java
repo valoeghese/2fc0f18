@@ -10,12 +10,9 @@ import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.sound.MusicPiece;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
-import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
-import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
-import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.gen.generator.CityGenerator;
 import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
@@ -381,18 +378,18 @@ public class GameScreen extends Screen {
 		this.kingdomShowTime = 1.0f;
 	}
 
-	static List<MusicPiece> pickMusic() {
+	private static List<MusicPiece> pickMusic() {
 		Client2fc game = Client2fc.getInstance();
 		TilePos position = game.getPlayer().getTilePos();
 
 		if (CityGenerator.isInCity(game.getWorld(), position.x, position.z, Generator.OVERWORLD_CITY_SIZE)) {
 			return TOWN_MUSIC;
 		} else {
-			return NO_MUSIC;
+			return GRASSLAND_MUSIC;
 		}
 	}
 
-	private static final List<MusicPiece> TOWN_MUSIC = List.of(MusicPiece.TOWN);
-	private static final List<MusicPiece> NO_MUSIC = List.of();
+	private static final List<MusicPiece> TOWN_MUSIC = List.of(MusicPiece.TOWN_CLAV, MusicPiece.TOWN_HARPSICHORD);
+	private static final List<MusicPiece> GRASSLAND_MUSIC = List.of(MusicPiece.FOREST_RILL);
 	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 500, 4 * 600, 0.4f));
 }
