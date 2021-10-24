@@ -58,6 +58,12 @@ public class Game2fc<W extends World, P extends Player> {
 		}
 	}
 
+	public void runLater(Runnable task) {
+		synchronized (this.later) {
+			this.later.add(task);
+		}
+	}
+
 	public void needsLightingUpdate(Chunk c) {
 		synchronized (this.toUpdateLighting) {
 			if (!this.toUpdateLighting.contains(c)) {

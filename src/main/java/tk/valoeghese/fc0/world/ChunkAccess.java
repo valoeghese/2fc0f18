@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 public interface ChunkAccess extends SeedWorld {
 	@Nullable
-	Chunk loadChunk(int x, int z, ChunkLoadStatus status);
+	boolean loadChunk(int x, int z, ChunkLoadStatus status);
 	/**
 	 * Gets the chunk at RENDER stage, if it exists.
 	 */

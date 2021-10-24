@@ -5,6 +5,7 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.Item;
@@ -22,7 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class Save {
+public class Save implements SaveLike {
 	// client specific stuff is here. will need to change on server
 	public Save(String name, long seed) {
 		this.parentDir = new File("./saves/" + name);
@@ -100,6 +101,7 @@ public class Save {
 		}
 	}
 
+	@Override
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
 		synchronized (COUNT_LOCK) {
 			count++;
@@ -128,6 +130,7 @@ public class Save {
 		});
 	}
 
+	@Override
 	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
 		Iterator<? extends Chunk> chunks = world.getChunks();
 
@@ -225,7 +228,8 @@ public class Save {
 		return result;
 	}
 
-	public <T extends Chunk> T getOrCreateChunk(WorldGen worldGen, ChunkAccess parent, int x, int z, WorldGen.ChunkConstructor<T> constructor) {
+	@Override
+	public <T extends Chunk> void loadChunk(WorldGen worldGen, ChunkLoadingAccess<T> parent, int x, int z, WorldGen.ChunkConstructor<T> constructor, ChunkLoadStatus status) {
 		File folder = new File(this.parentDir, x + "/" + z);
 		File file = new File(folder, "c" + x + "." + z + ".gsod");
 
@@ -234,7 +238,11 @@ public class Save {
 		synchronized (READ_WRITE_LOCK) {
 			if (file.exists()) {
 				try {
-					return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
+					saveExecutor.submit(() -> {
+						T chunk = Chunk.read(parent, constructor, BinaryData.readGzipped(file));
+						Game2fc.getInstance().runLater(() -> parent.addLoadedChunk(chunk, status));
+					});
+					return;
 				} catch (Exception e) {
 					System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
 					file.renameTo(new File(file.getParentFile(), "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
@@ -244,7 +252,7 @@ public class Save {
 		}
 
 		Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-		return worldGen.generateChunk(constructor, parent, x, z, genRand);
+		parent.addLoadedChunk(worldGen.generateChunk(constructor, parent, x, z, genRand), status);
 	}
 
 	private void saveChunk(Chunk chunk) {

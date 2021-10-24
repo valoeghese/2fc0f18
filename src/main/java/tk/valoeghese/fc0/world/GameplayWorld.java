@@ -16,6 +16,7 @@ import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.save.ChunkLoadingAccess;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -29,8 +30,8 @@ import java.util.concurrent.Executors;
 
 import static org.joml.Math.sin;
 
-public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkAccess {
-	public GameplayWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
+public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T> {
+	public GameplayWorld(Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		this.worldGen = new WorldGen.Earth(seed, 0);
 		this.seed = seed;
 
@@ -54,40 +55,13 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final long seed;
 	private final GenWorld genWorld = new GeneratorWorldAccess();
 	private final WorldGen.ChunkConstructor<T> constructor;
-	@Nullable
 	private final Save save;
-	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
 	private final WorldGen worldGen;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
 
 	private ChunkPos searchForSpawn() {
-		int startCX = RANDOM.nextInt(16) - 8;
-		int startCZ = RANDOM.nextInt(16) - 8;
-		int chunkX = startCX;
-		int chunkZ = startCZ;
-		int height = 0;
-
-		for (int xo = 0; xo < 4; ++xo) {
-			int x = startCX + 2 * xo;
-
-			for (int zo = 0; zo < 4; ++zo) {
-				int z = startCZ + 2 * zo;
-
-				Chunk c = this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
-				int y = c.getHeight(0, 0);
-
-				if (y > 51) {
-					return new ChunkPos(x, z);
-				} else if (y > height) {
-					height = y;
-					chunkX = x;
-					chunkZ = z;
-				}
-			}
-		}
-
-		return new ChunkPos(chunkX, chunkZ);
+		return new ChunkPos(0, 0); // TODO adapt for new chunk loading
 	}
 
 	// Note: If a kingdom is generated in two locations
@@ -112,10 +86,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (this.save == null) {
-			this.genRand.setSeed(seed + 134 * x + -529 * z);
-			return this.worldGen.generateChunk(this.constructor, this, x, z, this.genRand);
+
 		} else {
-			return this.save.getOrCreateChunk(this.worldGen, this, x, z, this.constructor);
+			return this.save.loadChunk(this.worldGen, this, x, z, this.constructor);
 		}
 	}
 
@@ -153,39 +126,17 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	@Nullable
-	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
+	public boolean loadChunk(int x, int z, ChunkLoadStatus status) {
 		if (status == ChunkLoadStatus.UNLOADED) {
 			throw new RuntimeException("Cannot load a chunk with status \"Unloaded\"");
 		}
 
 		if (!this.isInWorld(x << 4, 50, z << 4)) {
-			return null;
+			return false;
 		}
 
-		T result = this.getOrCreateChunk(x, z);
-
-		switch (status) {
-		case GENERATE:
-			break;
-		case RENDER: // actual specific RENDER case handling only happens client side
-		case TICK: // render chunks are also ticking chunks
-			if (result.needsLightingCalcOnLoad) {
-				result.updateLighting();
-				result.needsLightingCalcOnLoad = false;
-			}
-		case POPULATE: // ticking chunks are also populated
-			if (!result.populated) {
-				result.populated = true;
-				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
-				this.worldGen.populateChunk(this.genWorld, result, this.genRand);
-				result.computeHeightmap();
-			}
-			break;
-		}
-
-		result.status = result.status.upgrade(status);
-		this.chunks.put(key(x, z), result);
-		return result;
+		this.getOrCreateChunk(x, z);
+		return true;
 	}
 
 	@Nullable
@@ -196,7 +147,32 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Override
 	@Nullable
 	public Chunk getChunk(int x, int z) {
-		return this.loadChunk(x, z, ChunkLoadStatus.POPULATE);
+		return this.accessChunk(x, z);
+	}
+
+	@Override
+	public void addLoadedChunk(Chunk chunk, ChunkLoadStatus status) {
+		switch (status) {
+		case GENERATE:
+			break;
+		case RENDER: // actual specific RENDER case handling only happens client side
+		case TICK: // render chunks are also ticking chunks
+			if (chunk.needsLightingCalcOnLoad) {
+				chunk.updateLighting();
+				chunk.needsLightingCalcOnLoad = false;
+			}
+		case POPULATE: // ticking chunks are also populated
+			if (!chunk.populated) {
+				chunk.populated = true;
+				this.genRand.setSeed(this.seed + 134 * chunk.x + -529 * chunk.z + 127);
+				this.worldGen.populateChunk(this.genWorld, chunk, this.genRand);
+				chunk.computeHeightmap();
+			}
+			break;
+		}
+
+		chunk.status = chunk.status.upgrade(status);
+		this.chunks.put(key(chunk.x, chunk.z), (T)chunk);
 	}
 
 	@Nullable
