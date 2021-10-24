@@ -50,7 +50,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		this.maxBound = size << 4;
 
 		RANDOM.setSeed(seed);
-		this.spawnChunk = save instanceof FakeSave ? new ChunkPos(0, 0) : this.searchForSpawn();
+		this.spawnChunk = new ChunkPos(0, 0);
 	}
 
 	private final int minBound;
@@ -66,10 +66,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final WorldGen worldGen;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
-
-	private ChunkPos searchForSpawn() {
-		return new ChunkPos(0, 0); // TODO adapt for new chunk loading
-	}
 
 	// Note: If a kingdom is generated in two locations
 	// It could change the Voronoi location and thus city loc

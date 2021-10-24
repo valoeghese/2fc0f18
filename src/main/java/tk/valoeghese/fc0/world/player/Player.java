@@ -40,6 +40,7 @@ public class Player extends Lifeform {
 	}
 
 	public void changeWorld(LoadableWorld world, @Nullable Save save) {
+		// FIXME when player spawns it it has no damn clue about anything in the world. This probably affects all player teleportation.
 		this.world = world;
 		this.setPos(Pos.ZERO);
 
