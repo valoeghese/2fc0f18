@@ -239,7 +239,7 @@ public class Save implements SaveLike {
 				try {
 					saveExecutor.submit(() -> {
 						T chunk = Chunk.read(parent, constructor, BinaryData.readGzipped(file));
-						Game2fc.getInstance().runLater(() -> parent.addLoadedChunk(chunk, status));
+						Game2fc.getInstance().runLater(() -> parent.addUpgradedChunk(chunk, status));
 					});
 					return;
 				} catch (Exception e) {
@@ -251,7 +251,7 @@ public class Save implements SaveLike {
 		}
 
 		Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-		parent.addLoadedChunk(worldGen.generateChunk(constructor, parent, x, z, genRand), status);
+		parent.addUpgradedChunk(worldGen.generateChunk(constructor, parent, x, z, genRand), status);
 	}
 
 	private void saveChunk(Chunk chunk) {

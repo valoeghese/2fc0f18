@@ -76,7 +76,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile north(int x, int y) {
-		Chunk chunk = this.getChunk(this.x, this.z + 1);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z + 1);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -87,7 +87,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile south(int x, int y) {
-		Chunk chunk = this.getChunk(this.x, this.z - 1);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z - 1);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -98,7 +98,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile east(int z, int y) {
-		Chunk chunk = this.getChunk(this.x + 1, this.z);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x + 1, this.z);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -109,7 +109,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 	@Override
 	public Tile west(int z, int y) {
-		Chunk chunk = this.getChunk(this.x - 1, this.z);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x - 1, this.z);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -172,14 +172,14 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.getGameplayWorld().getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
 				return 0.1f;
 			}
 			return renderLighting(c.getLightLevel(isPrevChunk ? 15 : 0, y, z));
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.getGameplayWorld().getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
 				return 0.1f;

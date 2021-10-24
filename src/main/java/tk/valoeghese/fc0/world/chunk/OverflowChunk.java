@@ -17,8 +17,18 @@ public final class OverflowChunk implements TileWriter {
 	}
 
 	@Override
-	public void wgWriteTile(int x, int y, int z, byte tile) {
+	public void writeTile(int x, int y, int z, byte tile) {
 		this.tiles.put(Chunk.index(x, y, z), tile);
+	}
+
+	@Override
+	public byte readTile(int x, int y, int z) {
+		return this.tiles.getOrDefault(Chunk.index(x, y, z), (byte)0);
+	}
+
+	@Override
+	public byte readMeta(int x, int y, int z) {
+		return this.meta.getOrDefault(Chunk.index(x, y, z), (byte)0);
 	}
 
 	public void appendToChunk(byte[] tiles, byte[] meta) {

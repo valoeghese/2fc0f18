@@ -10,5 +10,5 @@ public interface ChunkLoadingAccess<T extends Chunk> extends ChunkAccess {
 	 * @param chunk the chunk.
 	 * @param status the status of the chunk required.
 	 */
-	void addLoadedChunk(T chunk, ChunkLoadStatus status);
+	void addUpgradedChunk(T chunk, ChunkLoadStatus status);
 }

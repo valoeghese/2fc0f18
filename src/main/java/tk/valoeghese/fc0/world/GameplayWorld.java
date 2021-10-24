@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Predicate;
 
 import static org.joml.Math.sin;
 
@@ -106,7 +107,13 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			return false;
 		}
 
-		this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
+		Chunk existing = this.getChunk(x, z);
+
+		if (existing == null) {
+			this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
+		} else {
+			this.addUpgradedChunk(existing, status);
+		}
 		return true;
 	}
 
@@ -140,7 +147,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
-	public void addLoadedChunk(Chunk chunk, ChunkLoadStatus status) {
+	public void addUpgradedChunk(Chunk chunk, ChunkLoadStatus status) {
 		switch (status) {
 		case GENERATE:
 			break;
@@ -197,25 +204,17 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
-	public void writeTile(int x, int y, int z, byte tile) {
-		LoadableWorld.super.wgWriteTile(x, y, z, tile);
-	}
-
-	@Override
-	public void wgWriteTile(int x, int y, int z, byte tile) {
-		this.genWorld.wgWriteTile(x, y, z, tile);
-	}
-
-	@Override
 	public boolean isInWorld(int x, int y, int z) {
 		return x >= this.minBound && x < this.maxBound && z >= this.minBound && z < this.maxBound && y >= 0 && y < WORLD_HEIGHT;
 	}
 
 	@Override
 	public void updateChunkOf(Player player) {
-		// FIXME make sure chunkloading is done BEFORE this
 		TilePos pos = player.getTilePos();
 		ChunkPos cPos = pos.toChunkPos();
+
+		// chunk load first since updateChunkOf should avoid null chunks where possible (unless you're leaving the world in which case the game will probably break anyway)
+		this.chunkLoad(cPos);
 
 		if (player.chunk != null) {
 			if (cPos.equals(player.chunk.getPos())) {
@@ -230,8 +229,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			player.chunk.removePlayer(player);
 			player.chunk = null;
 		}
-
-		this.chunkLoad(cPos);
 	}
 
 	@Override
@@ -264,12 +261,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		if (this.save != null && !toWrite.isEmpty()) {
-			// write unnecessary chunks off-thread
-			this.chunkSaveExecutor.execute(() -> {
-				synchronized (this.save) {
-					this.save.writeChunks(toWrite.iterator());
-				}
-			});
+			this.save.writeChunks(toWrite.iterator());
 		}
 	}
 
@@ -284,8 +276,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		for (Chunk c : this.chunks.values()) {
 			c.destroy();
 		}
-
-		this.chunkSaveExecutor.shutdown();
 	}
 
 	@Override
@@ -301,6 +291,21 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	@Override
 	public GameplayWorld<?> getGameplayWorld() {
 		return this;
+	}
+
+	@Override
+	public int getHeight(int x, int z, Predicate<Tile> solid) {
+		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
+	}
+
+	@Override
+	public Kingdom getKingdom(int x, int z) {
+		return this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
+	}
+
+	@Override
+	public int getKingdomId(int x, int z) {
+		return this.getChunk(x >> 4, z >> 4).getKingdomId(x & 0xF, z & 0xF);
 	}
 
 	// TODO when lighting is a shader, don't rebuild the model every time and switch this to float
@@ -330,23 +335,19 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			return GameplayWorld.this.isInWorld(x, y, z);
 		}
 
-		@Nullable
 		@Override
-		public Chunk getChunk(int x, int z) {
-			Chunk result = GameplayWorld.this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
-
-			/*if (result != null) {
-				System.out.println(result.getPos());
-			}*/
-
-			return result;
+		public TileWriter getDelayedLoadChunk(int x, int z) {
+			return GameplayWorld.this.getDelayedLoadChunk(x, z);
 		}
 
 		@Override
-		public void wgWriteTile(int x, int y, int z, byte tile) {
-			if (Tile.BY_ID[tile].canPlaceAt(this, x, y, z)) {
-				GenWorld.super.wgWriteTile(x, y, z, tile);
-			}
+		public int getHeight(int x, int z, Predicate<Tile> solid) {
+			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
+		}
+
+		@Override
+		public Kingdom getKingdom(int x, int z) {
+			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getKingdom(x >> 4, z >> 4);
 		}
 
 		@Override

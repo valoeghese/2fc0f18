@@ -48,7 +48,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 				int totalY = yo + y;
 
 				if (world.isInWorld(x, totalY, z)) {
-					world.wgWriteTile(x, totalY, z, Tile.LOG.id);
+					world.writeTile(x, totalY, z, Tile.LOG.id);
 				}
 			}
 		}

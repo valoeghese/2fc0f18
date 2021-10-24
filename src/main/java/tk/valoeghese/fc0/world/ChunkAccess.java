@@ -5,12 +5,19 @@ import tk.valoeghese.fc0.world.chunk.TileWriter;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.gen.SeedWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
+import java.util.function.Predicate;
 
 public interface ChunkAccess extends SeedWorld {
 	@Nullable
 	boolean loadChunk(int x, int z, ChunkLoadStatus status);
+	/**
+	 * Gets the chunk if it is currently loaded.
+	 */
+	@Nullable
+	Chunk getChunk(int x, int z);
 	/**
 	 * Gets the chunk at RENDER stage, if it exists.
 	 */
@@ -21,11 +28,6 @@ public interface ChunkAccess extends SeedWorld {
 	 */
 	@Nullable
 	Chunk getFullChunk(int x, int z);
-
-	/**
-	 * Gets a means of access for chunks at the given location. Unloaded chunks will be loaded and have the modifications retroactively applied.
-	 */
-	TileWriter getDelayedLoadChunk(int x, int z);
 
 	Kingdom kingdomById(int kingdom, int x, int z);
 }

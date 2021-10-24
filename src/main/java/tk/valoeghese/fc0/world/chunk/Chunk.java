@@ -586,10 +586,10 @@ public abstract class Chunk implements TileAccess {
 		data.put("kingdoms", kingdoms);
 	}
 
-	@Nullable
 	@Override
-	public Chunk getChunk(int x, int z) {
-		return this.parent.getChunk(x, z, ChunkLoadStatus.POPULATE);
+	@Deprecated // use the world
+	public TileWriter getDelayedLoadChunk(int x, int z) {
+		return this.getGameplayWorld().getDelayedLoadChunk(x, z);
 	}
 
 	public boolean isDirty() {

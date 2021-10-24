@@ -46,7 +46,7 @@ public abstract class Generator<T extends GeneratorSettings> {
 		byte current = world.readTile(x, y, z);
 
 		if (current != Tile.STONE.id && current != Tile.LOG.id) {
-			world.wgWriteTile(x, y, z, tile);
+			world.writeTile(x, y, z, tile);
 			return true;
 		} else {
 			return false;

@@ -32,6 +32,6 @@ public class FakeSave implements SaveLike {
 	public <T extends Chunk> void loadChunk(WorldGen worldGen, ChunkLoadingAccess<T> parent, int x, int z, WorldGen.ChunkConstructor<T> constructor, ChunkLoadStatus status) {
 		this.genRand.setSeed(this.seed + 134 * x + -529 * z);
 		T chunk = worldGen.generateChunk(constructor, parent, x, z, this.genRand);
-		Game2fc.getInstance().runLater(() -> parent.addLoadedChunk(chunk, status));
+		Game2fc.getInstance().runLater(() -> parent.addUpgradedChunk(chunk, status));
 	}
 }
