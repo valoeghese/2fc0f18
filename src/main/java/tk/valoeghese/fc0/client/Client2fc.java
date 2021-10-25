@@ -23,10 +23,12 @@ import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
 import tk.valoeghese.fc0.util.TimerSwitch;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
@@ -436,14 +438,19 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;
 		} else {
-			// TODO match player spawn
-			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
+			this.spawnLoc = null;
 		}
 
-		if (this.save.lastSavePos != null) {
+		if (this.save.lastSavePos != null && this.spawnLoc != null) {
 			this.player.changeWorld(this.world, this.save, this.save.lastSavePos);
 		} else {
-			this.player.changeWorld(this.world, this.save);
+			ChunkPos spawnChunk = this.world.getSpawnPos();
+			this.world.scheduleForChunk(GameplayWorld.key(spawnChunk.x, spawnChunk.z), c -> {
+				int x = (c.x << 4) + 8;
+				int z = (c.z << 4) + 8;
+				this.spawnLoc = new Pos(x, c.getHeight(x & 0xF, z & 0xF) + 1, z);
+				this.player.changeWorld(this.world, this.save, this.spawnLoc);
+			});
 		}
 
 		this.player.dev = this.save.loadedDevMode;

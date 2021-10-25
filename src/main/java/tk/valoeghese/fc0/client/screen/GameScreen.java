@@ -351,7 +351,7 @@ public class GameScreen extends Screen {
 
 	@Override
 	public Optional<MusicSettings> getMusic() {
-		return GAME_MUSIC;
+		return this.game.getPlayer().chunk == null ? Optional.empty() : GAME_MUSIC;
 	}
 
 	@Override
