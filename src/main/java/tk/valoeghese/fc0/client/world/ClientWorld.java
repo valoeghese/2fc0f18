@@ -35,7 +35,7 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 
 	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
 	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
-	private boolean ncTick = false;
+	private boolean ncTick = false; // I think this variable just exists to make rendering not lag the game by batching half as often
 
 	@Override
 	public void addUpgradedChunk(ClientChunk chunk, ChunkLoadStatus status) {
@@ -66,27 +66,22 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	}
 
 	public void updateChunksForRendering() {
-		while (!this.toAddToQueue.isEmpty()) {
-			ClientChunk c = this.toAddToQueue.remove(0);
-			this.toAddToQueuePositions.remove(c.getPos());
+		this.ncTick = !this.ncTick;
 
-			if (this.chunksForRendering.size() < 8) {
-				this.chunksForRendering.add(c);
-			} else {
-				this.toAddForRendering.add(c);
-			}
-		}
+		if (this.ncTick) {
+			while (!this.toAddToQueue.isEmpty()) {
+				ClientChunk c = this.toAddToQueue.remove(0);
+				this.toAddToQueuePositions.remove(c.getPos());
 
-		if (!this.toAddForRendering.isEmpty()) {
-			this.ncTick = !this.ncTick;
-
-			if (this.ncTick) {
-				ClientChunk c = this.toAddForRendering.remove();
-
-				if (c.mesh != null) { // TODO is this neccesary? (paired with the related check in ClientChunk#refreshLighting)
-					c.rebuildMesh();
+				if (this.chunksForRendering.size() < 8) {
+					this.chunksForRendering.add(c);
+				} else {
+					this.toAddForRendering.add(c);
 				}
+			}
 
+			if (!this.toAddForRendering.isEmpty()) {
+				ClientChunk c = this.toAddForRendering.remove();
 				this.chunksForRendering.add(c);
 			}
 		}
