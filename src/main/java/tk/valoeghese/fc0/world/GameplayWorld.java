@@ -247,14 +247,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		TilePos pos = player.getTilePos();
 		ChunkPos cPos = pos.toChunkPos();
 
-		// chunk load first since updateChunkOf should avoid null chunks where possible (unless you're leaving the world in which case the game will probably break anyway)
-		this.chunkLoad(cPos);
-
-		if (player.chunk != null) {
-			if (cPos.equals(player.chunk.getPos())) {
+		if (player.lastChunkloadChunk != null) {
+			if (cPos.equals(player.lastChunkloadChunk)) {
 				return;
 			}
 		}
+
+		// chunk load first since updateChunkOf should avoid null chunks where possible (unless you're leaving the world in which case the game will probably break anyway)
+		player.lastChunkloadChunk = cPos;
+		this.chunkLoad(cPos);
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
 			// ensure rendered

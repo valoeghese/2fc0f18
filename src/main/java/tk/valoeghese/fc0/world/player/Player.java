@@ -25,6 +25,10 @@ public class Player extends Lifeform {
 
 	@Nullable
 	public Chunk chunk = null;
+	/**
+	 * Only access from GameplayWorld#updateChunkOf or when it's set to null in changeWorld.
+	 */
+	public ChunkPos lastChunkloadChunk;
 	public long lockSwim = 0;
 	public boolean dev;
 
@@ -48,6 +52,7 @@ public class Player extends Lifeform {
 	public void changeWorld(LoadableWorld world, SaveLike save) {
 		// FIXME when player spawns it it has no damn clue about anything in the world. This probably affects all player teleportation.
 		this.world = world;
+		this.lastChunkloadChunk = null;
 		this.setPos(Pos.ZERO);
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
 
