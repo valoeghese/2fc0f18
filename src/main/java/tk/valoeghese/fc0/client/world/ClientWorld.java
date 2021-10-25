@@ -53,13 +53,13 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 				// FIXME this does absolutely nothing that it's supposed to do
 				Game2fc.getInstance().runLater(() -> {
 					ClientChunk chunk_ = (ClientChunk) getRenderChunk(cx, cz + 1);
-					this.addToToAddToQueue(chunk_);
+					if (chunk_ != null) chunk_.rebuildMesh();
 					chunk_ = (ClientChunk) getRenderChunk(cx, cz - 1);
-					this.addToToAddToQueue(chunk_);
+					if (chunk_ != null) chunk_.rebuildMesh();
 					chunk_ = (ClientChunk) getRenderChunk(cx + 1, cz);
-					this.addToToAddToQueue(chunk_);
+					if (chunk_ != null) chunk_.rebuildMesh();
 					chunk_ = (ClientChunk) getRenderChunk(cx - 1, cz);
-					this.addToToAddToQueue(chunk_);
+					if (chunk_ != null) chunk_.rebuildMesh();
 				});
 			}
 		}
