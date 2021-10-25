@@ -50,6 +50,7 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 				int cz = chunk.z;
 
 				// recalculate because I broke shit in optimising chunkloading
+				// FIXME this does absolutely nothing that it's supposed to do
 				Game2fc.getInstance().runLater(() -> {
 					ClientChunk chunk_ = (ClientChunk) getRenderChunk(cx, cz + 1);
 					this.addToToAddToQueue(chunk_);
