@@ -17,22 +17,22 @@ public interface GenWorld extends SeedWorld, TileWriter {
 	@Override
 	default void writeTile(int x, int y, int z, byte tile) {
 		// removed canPlaceAt check for more direct writing. any "canPlaceAt" stuff should be done directly in the generator.
-		this.getDelayedLoadChunk(x >> 4, z >> 4).writeTile(x, y, z, tile);
+		this.getDelayedLoadChunk(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
 	}
 
 	@Override
 	default void writeMeta(int x, int y, int z, byte meta) {
-		this.getDelayedLoadChunk(x >> 4, z >> 4).writeMeta(x, y, z, meta);
+		this.getDelayedLoadChunk(x >> 4, z >> 4).writeMeta(x & 0xF, y, z & 0xF, meta);
 	}
 
 	@Override
 	default byte readTile(int x, int y, int z) {
-		return this.getDelayedLoadChunk(x >> 4, z >> 4).readTile(x, y, z);
+		return this.getDelayedLoadChunk(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
 	}
 
 	@Override
 	default byte readMeta(int x, int y, int z) {
-		return this.getDelayedLoadChunk(x >> 4, z >> 4).readMeta(x, y, z);
+		return this.getDelayedLoadChunk(x >> 4, z >> 4).readMeta(x & 0xF, y, z & 0xF);
 	}
 
 	boolean isInWorld(int x, int y, int z);

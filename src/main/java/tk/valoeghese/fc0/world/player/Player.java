@@ -1,7 +1,9 @@
 package tk.valoeghese.fc0.world.player;
 
 import tk.valoeghese.fc0.Game2fc;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.entity.Lifeform;
@@ -50,22 +52,16 @@ public class Player extends Lifeform {
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
 
 		if (save instanceof Save) {
-			// TODO find a better way of doing this
-			AtomicReference<Runnable> r = new AtomicReference<>();
+			// TODO maybe find a better way of doing this
+			ChunkPos spawnPos = world.getSpawnPos();
 
-			r.set(() -> {
-				if (Save.isThreadAlive()) {
-					Game2fc.getInstance().runLater(r.get());
-				} else {
-					int x = (world.getSpawnPos().x << 4) + 8;
-					int z = (world.getSpawnPos().z << 4) + 8;
-					this.move(x, world.getHeight(x, z) + 1.0, z);
-				}
+			this.world.scheduleForChunk(GameplayWorld.key(spawnPos.x, spawnPos.z), c -> {
+				int x = (spawnPos.x << 4) + 8;
+				int z = (world.getSpawnPos().z << 4) + 8;
+				this.move(x, world.getHeight(x, z) + 1.0, z);
 			});
-
-			Game2fc.getInstance().runLater(r.get());
 		} else {
-			this.move(0, world.getHeight(0, 0) + 1.0, 0);
+			this.world.scheduleForChunk(GameplayWorld.key(0, 0), c -> this.move(0, world.getHeight(0, 0) + 1.0, 0));
 		}
 
 		this.loadNullableInventory(save);

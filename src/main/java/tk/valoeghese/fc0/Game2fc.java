@@ -45,7 +45,7 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 	}
 
 	protected void runNextQueued(int count) {
-		List<Runnable> tasks = null;
+		List<Runnable> tasks = new ArrayList<>();
 
 		synchronized (this.later) {
 			for (int i = 0; i < count; ++i) {

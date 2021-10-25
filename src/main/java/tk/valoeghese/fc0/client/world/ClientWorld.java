@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
 
 public class ClientWorld extends GameplayWorld<ClientChunk> {
@@ -20,7 +21,7 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	}
 
 	private final OrderedList<ClientChunk> toAddToQueue = new OrderedList<>(c -> (float) c.getPos().distanceTo(
-			Client2fc.getInstance().getPlayer().chunk.getPos()));
+			Client2fc.getInstance().getPlayer().getTilePos().toChunkPos()));
 	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
 	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
 	private boolean ncTick = false;

@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static org.joml.Math.sin;
@@ -145,6 +147,25 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
+	public void scheduleForChunk(long chunkPos, Consumer<Chunk> callback) {
+		long timeout = System.currentTimeMillis() + 5000; // 5 second timeout
+		AtomicReference<Runnable> r = new AtomicReference<>();
+
+		r.set(() -> {
+			if (this.chunks.containsKey(chunkPos)) {
+				callback.accept(this.chunks.get(chunkPos));
+			} else {
+				if (System.currentTimeMillis() < timeout) {
+					Game2fc.getInstance().runLater(r.get());
+				} else {
+					throw new RuntimeException("TASK FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
+				}
+			}
+		});
+
+		Game2fc.getInstance().runLater(r.get());
+	}
+	@Override
 	public void addUpgradedChunk(T chunk, ChunkLoadStatus status) {
 		long key = key(chunk.x, chunk.z);
 		OverflowChunk overflow = this.overflowChunks.remove(key);
@@ -152,6 +173,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		if (overflow != null) {
 			chunk.addOverflow(overflow);
 		}
+
+		// make populate able to access the full chunk.
+		this.chunks.put(key(chunk.x, chunk.z), (T)chunk);
 
 		switch (status) {
 		case GENERATE:
@@ -173,7 +197,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		chunk.status = chunk.status.upgrade(status);
-		this.chunks.put(key(chunk.x, chunk.z), (T)chunk);
 	}
 
 	@Nullable
@@ -229,7 +252,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
 			// ensure rendered
-			this.getChunk(cPos.x, cPos.z).updateChunkOf(player);
+			this.scheduleForChunk(key(cPos.x, cPos.z), c -> c.updateChunkOf(player));
 		} else if (player.chunk != null) {
 			player.chunk.removePlayer(player);
 			player.chunk = null;
@@ -352,7 +375,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		@Override
 		public Kingdom getKingdom(int x, int z) {
-			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getKingdom(x >> 4, z >> 4);
+			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
 		}
 
 		@Override
