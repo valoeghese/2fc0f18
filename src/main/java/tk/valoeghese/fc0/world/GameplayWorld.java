@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import tk.valoeghese.fc0.Game2fc;
+import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
@@ -177,6 +178,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		// make populate able to access the full chunk.
 		this.chunks.put(key(chunk.x, chunk.z), (T)chunk);
 
+		// TODO is this necessary?
+		if (chunk.status == ChunkLoadStatus.UNLOADED) {
+			chunk.status = chunk.populated ? ChunkLoadStatus.POPULATE : ChunkLoadStatus.GENERATE;
+		}
+
 		switch (status) {
 		case GENERATE:
 			break;
@@ -275,6 +281,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			}
 		}
 
+		// order chunks to load
+		OrderedList<ChunkPos> render = new OrderedList<>(centrePos::manhattan);
+		List<ChunkPos> tick = new ArrayList<>();
+
 		// read new chunks
 		for (int cx = centrePos.x - CHUNK_TICK_DIST; cx <= centrePos.x + CHUNK_TICK_DIST; ++cx) {
 			for (int cz = centrePos.z - CHUNK_TICK_DIST; cz <= centrePos.z + CHUNK_TICK_DIST; ++cz) {
@@ -284,8 +294,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 					continue;
 				}
 
-				this.loadChunk(cx, cz, dist == CHUNK_TICK_DIST ? ChunkLoadStatus.TICK : ChunkLoadStatus.RENDER);
+				(dist == CHUNK_TICK_DIST ? tick : render).add(new ChunkPos(cx, cz));
 			}
+		}
+
+		for (ChunkPos pos : render) {
+			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.RENDER);
+		}
+		for (ChunkPos pos : tick) {
+			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.TICK);
 		}
 
 		if (!toWrite.isEmpty()) {
