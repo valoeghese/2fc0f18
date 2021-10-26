@@ -8,5 +8,5 @@ import java.util.function.Consumer;
 public interface LoadableWorld extends TileAccess {
 	void chunkLoad(ChunkPos centrePos);
 	ChunkPos getSpawnPos();
-	void scheduleForChunk(long chunkPos, Consumer<Chunk> callback);
+	void scheduleForChunk(long chunkPos, Consumer<Chunk> callback, String taskName);
 }

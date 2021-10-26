@@ -11,6 +11,7 @@ import tk.valoeghese.fc0.client.sound.MusicPiece;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.util.RaycastResult;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.generator.CityGenerator;
@@ -351,7 +352,8 @@ public class GameScreen extends Screen {
 
 	@Override
 	public Optional<MusicSettings> getMusic() {
-		return this.game.getPlayer().chunk == null ? Optional.empty() : GAME_MUSIC;
+		ChunkPos playerChunkPos = this.game.getPlayer().getTilePos().toChunkPos();
+		return this.game.getWorld().getChunk(playerChunkPos.x, playerChunkPos.z) == null ? Optional.empty() : GAME_MUSIC;
 	}
 
 	@Override

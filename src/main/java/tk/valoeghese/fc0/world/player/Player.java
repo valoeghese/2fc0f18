@@ -53,6 +53,7 @@ public class Player extends Lifeform {
 		// FIXME when player spawns it it has no damn clue about anything in the world. This probably affects all player teleportation.
 		this.world = world;
 		this.lastChunkloadChunk = null;
+		this.chunk = null;
 		this.setPos(Pos.ZERO);
 		this.world.chunkLoad(this.getTilePos().toChunkPos());
 
@@ -64,9 +65,9 @@ public class Player extends Lifeform {
 				int x = (spawnPos.x << 4) + 8;
 				int z = (world.getSpawnPos().z << 4) + 8;
 				this.move(x, world.getHeight(x, z) + 1.0, z);
-			});
+			}, "moveToSpawnPos");
 		} else {
-			this.world.scheduleForChunk(GameplayWorld.key(0, 0), c -> this.move(0, world.getHeight(0, 0) + 1.0, 0));
+			this.world.scheduleForChunk(GameplayWorld.key(0, 0), c -> this.move(0, world.getHeight(0, 0) + 1.0, 0), "moveToFakeSaveSpawnPos");
 		}
 
 		this.loadNullableInventory(save);
@@ -74,8 +75,9 @@ public class Player extends Lifeform {
 
 	public void changeWorld(LoadableWorld world, SaveLike save, Pos movePos) {
 		this.world = world;
+		this.lastChunkloadChunk = null;
+		this.chunk = null;
 		this.setPos(movePos);
-		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}
 

@@ -148,7 +148,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	@Override
-	public void scheduleForChunk(long chunkPos, Consumer<Chunk> callback) {
+	public void scheduleForChunk(long chunkPos, Consumer<Chunk> callback, String taskName) {
 		long timeout = System.currentTimeMillis() + 5000; // 5 second timeout
 		AtomicReference<Runnable> r = new AtomicReference<>();
 
@@ -159,7 +159,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				if (System.currentTimeMillis() < timeout) {
 					Game2fc.getInstance().runLater(r.get());
 				} else {
-					throw new RuntimeException("TASK FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
+					throw new RuntimeException("TASK " + taskName + " FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
 				}
 			}
 		});
@@ -259,7 +259,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		if (this.isInWorld(pos.x, 50, pos.z)) {
 			// ensure rendered
-			this.scheduleForChunk(key(cPos.x, cPos.z), c -> c.updateChunkOf(player));
+			this.scheduleForChunk(key(cPos.x, cPos.z), c -> c.updateChunkOf(player), "updatePlayerChunk");
 		} else if (player.chunk != null) {
 			player.chunk.removePlayer(player);
 			player.chunk = null;

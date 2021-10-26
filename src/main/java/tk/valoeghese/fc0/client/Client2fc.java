@@ -190,13 +190,19 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			if (this.player.cachedPos != tilePos) {
 				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos);
-				this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
-				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 
-				Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF);
+				if (this.player.chunk != null) { // TODO placeholder for kingdom
+					this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
+					this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 
-				if (this.gameScreen.getCurrentKingdom() != kingdom) {
-					this.gameScreen.setCurrentKingdom(kingdom);
+					Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF, tilePos.z & 0xF);
+
+					if (this.gameScreen.getCurrentKingdom() != kingdom) {
+						this.gameScreen.setCurrentKingdom(kingdom);
+					}
+				} else {
+					this.gameScreen.heightmapWidget.changeText("Loading");
+					this.gameScreen.lightingWidget.changeText("Loading");
 				}
 			}
 
@@ -445,12 +451,14 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.player.changeWorld(this.world, this.save, this.save.lastSavePos);
 		} else {
 			ChunkPos spawnChunk = this.world.getSpawnPos();
+			this.world.chunkLoad(spawnChunk);
+
 			this.world.scheduleForChunk(GameplayWorld.key(spawnChunk.x, spawnChunk.z), c -> {
 				int x = (c.x << 4) + 8;
 				int z = (c.z << 4) + 8;
 				this.spawnLoc = new Pos(x, c.getHeight(x & 0xF, z & 0xF) + 1, z);
 				this.player.changeWorld(this.world, this.save, this.spawnLoc);
-			});
+			}, "changePlayerWorld");
 		}
 
 		this.player.dev = this.save.loadedDevMode;
