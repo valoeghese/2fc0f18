@@ -377,7 +377,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	// TODO when lighting is a shader, don't rebuild the model every time
 	public boolean updateSkylight() {
-		float newSkylight = Game2fc.getInstance().getLighting();
+		float newSkylight = 0.125f * (float) (int) (8 * Game2fc.getInstance().getLighting());
 		boolean result = newSkylight != this.skylight;
 		this.skylight = newSkylight;
 		return result;
@@ -444,7 +444,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
-	private static final int CHUNK_TICK_DIST = 5;
+	private static final int CHUNK_TICK_DIST = 6;
 	private static final int CHUNK_KEEP_DIST = CHUNK_TICK_DIST + 2;
 	private static final Random RANDOM = new Random();
 }
