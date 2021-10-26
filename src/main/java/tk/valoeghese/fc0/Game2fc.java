@@ -20,6 +20,10 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 
 	public static final float SKY_CHANGE_RATE = 17.0f;
 
+	public W getWorld() {
+		return this.world;
+	}
+
 	protected int getLightingQueueSize() {
 		synchronized (this.toUpdateLighting) {
 			return this.toUpdateLighting.size();

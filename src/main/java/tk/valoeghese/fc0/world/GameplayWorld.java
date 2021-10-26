@@ -153,14 +153,18 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		AtomicReference<Runnable> r = new AtomicReference<>();
 
 		r.set(() -> {
-			if (this.chunks.containsKey(chunkPos)) {
-				callback.accept(this.chunks.get(chunkPos));
-			} else {
-				if (System.currentTimeMillis() < timeout) {
-					Game2fc.getInstance().runLater(r.get());
+			if (Game2fc.getInstance().getWorld() == GameplayWorld.this) {
+				if (this.chunks.containsKey(chunkPos)) {
+					callback.accept(this.chunks.get(chunkPos));
 				} else {
-					throw new RuntimeException("TASK " + taskName + " FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
+					if (System.currentTimeMillis() < timeout) {
+						Game2fc.getInstance().runLater(r.get());
+					} else {
+						throw new RuntimeException("TASK " + taskName + " FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
+					}
 				}
+			} else {
+				System.out.println("Cancelled task " + taskName + " due to world change.");
 			}
 		});
 

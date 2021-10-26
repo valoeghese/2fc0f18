@@ -9,6 +9,7 @@ import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.world.save.FakeSave;
 import valoeghese.scalpel.Window;
@@ -78,17 +79,20 @@ public class PauseScreen extends Screen {
 				// Start at leave pos
 				int x = player.getX();
 				int z = player.getZ();
-				player.changeWorld(world, this.game.save, new Pos(x, world.getHeight(x, z) + 1.0, z));
 				player.getCamera().setPitch(0);
 				player.getCamera().setYaw(PI);
 
 				if (NEW_TITLE) {
 					player.setNoClip(true);
-					player.move(0, 15, 0);
 				}
 
 				this.game.sprintFOV(1.0f);
 				this.game.switchScreen(this.game.titleScreen);
+
+				world.chunkLoad(new ChunkPos(x >> 4, z >> 4));
+				world.scheduleForChunk(0,
+						c -> player.changeWorld(world, this.game.save, new Pos(x, world.getHeight(x, z) + (NEW_TITLE ? 16.0 : 1.0), z)),
+						"changeToTitleWorld");
 			}
 		}
 	}
