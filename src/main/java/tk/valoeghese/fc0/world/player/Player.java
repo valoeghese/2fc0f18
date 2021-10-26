@@ -64,10 +64,10 @@ public class Player extends Lifeform {
 			this.world.scheduleForChunk(GameplayWorld.key(spawnPos.x, spawnPos.z), c -> {
 				int x = (spawnPos.x << 4) + 8;
 				int z = (world.getSpawnPos().z << 4) + 8;
-				this.move(x, world.getHeight(x, z) + 1.0, z);
+				this.forceMove(x, world.getHeight(x, z) + 1.0, z);
 			}, "moveToSpawnPos");
 		} else {
-			this.world.scheduleForChunk(GameplayWorld.key(0, 0), c -> this.move(0, world.getHeight(0, 0) + 1.0, 0), "moveToFakeSaveSpawnPos");
+			this.world.scheduleForChunk(GameplayWorld.key(0, 0), c -> this.forceMove(0, world.getHeight(0, 0) + 1.0, 0), "moveToFakeSaveSpawnPos");
 		}
 
 		this.loadNullableInventory(save);
@@ -116,6 +116,10 @@ public class Player extends Lifeform {
 	public void forceMove(double x, double y, double z) {
 		super.forceMove(x, y, z);
 		this.world.updateChunkOf(this);
+	}
+
+	public final void forceMove(Pos pos) {
+		this.move(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public final void move(Pos pos) {

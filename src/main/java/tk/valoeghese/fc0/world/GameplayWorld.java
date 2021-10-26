@@ -126,7 +126,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Nullable
 	public T getChunk(ChunkPos pos) {
-		return this.chunks.get(key(pos.x >> 4, pos.z >> 4));
+		return this.chunks.get(key(pos.x, pos.z));
 	}
 
 	@Override
