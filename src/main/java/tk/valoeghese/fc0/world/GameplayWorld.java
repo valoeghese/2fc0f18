@@ -4,6 +4,8 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
@@ -69,6 +71,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final WorldGen worldGen;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
+	private final LongSet loading = new LongArraySet();
 
 	// Note: If a kingdom is generated in two locations
 	// It could change the Voronoi location and thus city loc
@@ -111,7 +114,12 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		T existing = this.getChunk(x, z);
 
 		if (existing == null) {
-			this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
+			long key = key(x, z);
+
+			if (!this.loading.contains(key)) {
+				this.loading.add(key);
+				this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
+			}
 		} else {
 			this.addUpgradedChunk(existing, status);
 		}
@@ -212,6 +220,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		chunk.status = chunk.status.upgrade(status);
+		this.loading.remove(key);
 	}
 
 	@Nullable

@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.world.save;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.Synchronise;
