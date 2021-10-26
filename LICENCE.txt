@@ -15,4 +15,4 @@ The assets: The content, in the form of image files, OGG Vorbis sound files, pai
 The assets are ALL RIGHTS RESERVED to Mekal "Valoeghese" Covic.
   
 For 2fc0f18 contributors, the code is under the MIT Licence.
-For anyone who is not a 2fc0f18 contributor, however, the code is under the GPLv3 Licence.
+For anyone who is not a 2fc0f18 contributor, however, the code is under the GNU GPLv3 Licence.
