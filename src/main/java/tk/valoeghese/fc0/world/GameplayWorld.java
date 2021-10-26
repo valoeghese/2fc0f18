@@ -39,6 +39,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static org.joml.Math.sin;
+import static tk.valoeghese.fc0.Game2fc.SKY_CHANGE_RATE;
 
 public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T> {
 	public GameplayWorld(SaveLike save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
@@ -73,7 +74,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
 	private final LongSet loading = new LongArraySet();
-	private int skylight = 0;
+	private float skylight = -1.0f;
 
 	// Note: If a kingdom is generated in two locations
 	// It could change the Voronoi location and thus city loc
@@ -374,15 +375,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this.getChunk(x >> 4, z >> 4).getKingdomId(x & 0xF, z & 0xF);
 	}
 
-	// TODO when lighting is a shader, don't rebuild the model every time and switch this to float
+	// TODO when lighting is a shader, don't rebuild the model every time
 	public boolean updateSkylight() {
-		int newSkylight = MathsUtils.clamp(MathsUtils.floor(Game2fc.SKY_CHANGE_RATE * sin((float) Game2fc.getInstance().time / 9216.0f) + 7.5f), 0, 10);
+		float newSkylight = Game2fc.getInstance().getLighting();
 		boolean result = newSkylight != this.skylight;
 		this.skylight = newSkylight;
 		return result;
 	}
 
-	public int getSkyLight() {
+	public float getSkyLight() {
 		return this.skylight;
 	}
 

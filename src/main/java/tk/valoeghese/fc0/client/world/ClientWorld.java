@@ -45,22 +45,6 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 			if (!chunk.render) {
 				chunk.render = true;
 				this.addToToAddToQueue(chunk);
-
-				int cx = chunk.x;
-				int cz = chunk.z;
-
-				// recalculate because I broke shit in optimising chunkloading
-				// FIXME this does absolutely nothing that it's supposed to do
-				Game2fc.getInstance().runLater(() -> {
-					ClientChunk chunk_ = (ClientChunk) getRenderChunk(cx, cz + 1);
-					if (chunk_ != null) chunk_.rebuildMesh();
-					chunk_ = (ClientChunk) getRenderChunk(cx, cz - 1);
-					if (chunk_ != null) chunk_.rebuildMesh();
-					chunk_ = (ClientChunk) getRenderChunk(cx + 1, cz);
-					if (chunk_ != null) chunk_.rebuildMesh();
-					chunk_ = (ClientChunk) getRenderChunk(cx - 1, cz);
-					if (chunk_ != null) chunk_.rebuildMesh();
-				});
 			}
 		}
 	}

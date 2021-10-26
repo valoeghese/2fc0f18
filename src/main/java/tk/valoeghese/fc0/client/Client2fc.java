@@ -319,8 +319,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void render() {
 		long time = System.nanoTime();
-		float zeitGrellheit = sin((float) this.time / 9216.0f);
-		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+		float lighting = this.getLighting();
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();

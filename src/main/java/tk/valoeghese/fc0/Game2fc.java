@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0;
 
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.TileAccess;
@@ -7,18 +8,25 @@ import tk.valoeghese.fc0.world.player.Player;
 
 import java.util.*;
 
+import static org.joml.Math.sin;
+
 public class Game2fc<W extends TileAccess, P extends Player> {
 	protected Game2fc() {
 		instance = this;
 	}
 
-	public long time = 0;
+	public long time = 4800;
 	protected W world;
 	protected P player;
 	private final Queue<Runnable> later = new LinkedList<>();
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
 	public static final float SKY_CHANGE_RATE = 17.0f;
+
+	public float getLighting() {
+		float zeitGrellheit = SKY_CHANGE_RATE * sin((float) this.time / 9216.0f);
+		return MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+	}
 
 	public W getWorld() {
 		return this.world;
