@@ -131,7 +131,7 @@ public abstract class Chunk implements TileAccess {
 
 	public byte getLightLevel(int x, int y, int z) {
 		int i = index(x, y, z);
-		return (byte) Math.max(this.blockLighting[i], this.skyLighting[i]);
+		return (byte) Math.max(this.blockLighting[i], this.skyLighting[i] * this.getGameplayWorld().getSkyLight());
 	}
 
 	public String getLightLevelText(int x, int y, int z) {

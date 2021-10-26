@@ -3,7 +3,6 @@ package tk.valoeghese.fc0.client.world;
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.chunk.Chunk;
-import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -120,7 +119,7 @@ public class ClientChunk extends Chunk {
 		}
 	}
 
-	private void lebronJames() {
+	private void undirty() {
 		if (this.dirtyForRender && this.mesh != null) {
 			this.dirtyForRender = false;
 			this.mesh.buildMesh(this.tiles, this.meta);
@@ -132,7 +131,7 @@ public class ClientChunk extends Chunk {
 			this.mesh = new ChunkMesh(this, this.x, this.z);
 		}
 
-		this.lebronJames();
+		this.undirty();
 
 		return this.mesh;
 	}

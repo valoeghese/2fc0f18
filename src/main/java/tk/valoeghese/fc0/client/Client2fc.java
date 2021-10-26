@@ -236,6 +236,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 //
 //		System.out.println((float) n / (float) count);
 
+		// TODO update lighting instead of rebuilding meshes
+		if (this.world != null) {
+			if (this.world.updateSkylight()) {
+				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+					chunk.dirtyForRender = true;
+				}
+			}
+		}
+
 		// Music System
 		MusicSystem.tick(this.currentScreen);
 	}

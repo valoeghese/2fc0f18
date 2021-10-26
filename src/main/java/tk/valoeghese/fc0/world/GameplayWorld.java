@@ -56,6 +56,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		RANDOM.setSeed(seed);
 		this.spawnChunk = new ChunkPos(0, 0);
+		this.updateSkylight();
 	}
 
 	private final int minBound;
@@ -72,6 +73,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
 	private final LongSet loading = new LongArraySet();
+	private int skylight = 0;
 
 	// Note: If a kingdom is generated in two locations
 	// It could change the Voronoi location and thus city loc
@@ -373,8 +375,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	}
 
 	// TODO when lighting is a shader, don't rebuild the model every time and switch this to float
+	public boolean updateSkylight() {
+		int newSkylight = MathsUtils.clamp(MathsUtils.floor(Game2fc.SKY_CHANGE_RATE * sin((float) Game2fc.getInstance().time / 9216.0f) + 7.5f), 0, 10);
+		boolean result = newSkylight != this.skylight;
+		this.skylight = newSkylight;
+		return result;
+	}
+
 	public int getSkyLight() {
-		return MathsUtils.clamp(MathsUtils.floor(Game2fc.SKY_CHANGE_RATE * sin((float) Game2fc.getInstance().time / 9216.0f) + 7.5f), 0, 10);
+		return this.skylight;
 	}
 
 	public List<Entity> getEntities(int x, int z, int radius) {
