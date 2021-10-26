@@ -176,7 +176,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		Game2fc.getInstance().runLater(r.get());
 	}
 	@Override
-	public void addUpgradedChunk(T chunk, ChunkLoadStatus status) {
+	public void addUpgradedChunk(final T chunk, ChunkLoadStatus status) {
 		long key = key(chunk.x, chunk.z);
 		OverflowChunk overflow = this.overflowChunks.remove(key);
 

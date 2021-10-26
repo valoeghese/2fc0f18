@@ -393,5 +393,5 @@ public class GameScreen extends Screen {
 
 	private static final List<MusicPiece> TOWN_MUSIC = List.of(MusicPiece.TOWN_CLAV, MusicPiece.TOWN_HARPSICHORD);
 	private static final List<MusicPiece> GRASSLAND_MUSIC = List.of(MusicPiece.FOREST_RILL);
-	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 500, 4 * 600, 0.4f));
+	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 600 + 300, 5 * 600 + 300, 0.4f));
 }

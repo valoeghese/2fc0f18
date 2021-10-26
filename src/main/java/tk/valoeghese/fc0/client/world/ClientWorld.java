@@ -38,7 +38,7 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	private boolean ncTick = false; // I think this variable just exists to make rendering not lag the game by batching half as often
 
 	@Override
-	public void addUpgradedChunk(ClientChunk chunk, ChunkLoadStatus status) {
+	public void addUpgradedChunk(final ClientChunk chunk, ChunkLoadStatus status) {
 		super.addUpgradedChunk(chunk, status);
 
 		if (status == ChunkLoadStatus.RENDER) {
@@ -65,7 +65,7 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 		}
 	}
 
-	public boolean hasChunk(Chunk chunk) {
+	public boolean hasChunk(ClientChunk chunk) {
 		return this.chunks.containsValue(chunk);
 	}
 

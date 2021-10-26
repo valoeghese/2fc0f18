@@ -227,12 +227,14 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
 		}
 
-		for (ClientChunk chunk : this.world.getChunksForRendering()) {
-			if (this.world.hasChunk(chunk)) {
-				System.out.println("[Debug] Destroyed outstanding chunk");
-				chunk.destroy();
-			}
-		}
+//		int n = 0;
+//		int count = 0;
+//		for (ClientChunk chunk : this.world.getChunksForRendering()) {
+//			count++;
+//			if (this.world.hasChunk(chunk)) n++;
+//		}
+//
+//		System.out.println((float) n / (float) count);
 
 		// Music System
 		MusicSystem.tick(this.currentScreen);
