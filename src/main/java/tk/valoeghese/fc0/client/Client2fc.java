@@ -11,6 +11,7 @@ import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
+import tk.valoeghese.fc0.client.render.model.ChunkMesh;
 import tk.valoeghese.fc0.client.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.screen.GameScreen;
 import tk.valoeghese.fc0.client.screen.PauseScreen;
@@ -224,6 +225,13 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		} else if (this.sprintFOV < this.correctSprintFOV - 0.001f) {
 			this.sprintFOV += 0.01f;
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		}
+
+		for (ClientChunk chunk : this.world.getChunksForRendering()) {
+			if (this.world.hasChunk(chunk)) {
+				System.out.println("[Debug] Destroyed outstanding chunk");
+				chunk.destroy();
+			}
 		}
 
 		// Music System

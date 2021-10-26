@@ -3,7 +3,7 @@ package tk.valoeghese.fc0.client.render.tile;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
 import tk.valoeghese.fc0.client.render.model.ExternallyEditableModel;
-import tk.valoeghese.fc0.client.world.RenderedChunk;
+import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public enum TorchRenderer implements TileRenderer {
 	INSTANCE;
 
 	@Override
-	public void addFaces(Tile instance, List<ChunkMesh.RenderedTileFace> layer, byte[] tiles, RenderedChunk chunk, int x, int y, int z, byte meta) {
+	public void addFaces(Tile instance, List<ChunkMesh.RenderedTileFace> layer, byte[] tiles, ClientChunk chunk, int x, int y, int z, byte meta) {
 		Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[tiles[TileRenderer.index(x, y + 1, z)]];
 		Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[tiles[TileRenderer.index(x, y - 1, z)]];
 		float lf = chunk.getRenderLightingFactor(x, y, z);

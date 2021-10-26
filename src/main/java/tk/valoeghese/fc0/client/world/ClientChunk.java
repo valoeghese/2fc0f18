@@ -10,7 +10,7 @@ import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 
-public class ClientChunk extends Chunk implements RenderedChunk {
+public class ClientChunk extends Chunk {
 	public ClientChunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		super(parent, x, z, tiles, meta, kingdoms);
 	}
@@ -70,12 +70,10 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public boolean renderHeight(int y) {
 		return (y >= 0 && y < WORLD_HEIGHT) ? this.heightsToRender.contains(y) : false;
 	}
 
-	@Override
 	public Tile north(int x, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z + 1);
 
@@ -86,7 +84,6 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public Tile south(int x, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z - 1);
 
@@ -97,7 +94,6 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public Tile east(int z, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x + 1, this.z);
 
@@ -108,7 +104,6 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public Tile west(int z, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x - 1, this.z);
 
@@ -163,7 +158,6 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public float getRenderLightingFactor(int x, int y, int z) {
 		if (y < 0 || y > TileAccess.WORLD_HEIGHT) {
 			return 0.1f;

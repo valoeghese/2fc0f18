@@ -65,6 +65,10 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 		}
 	}
 
+	public boolean hasChunk(Chunk chunk) {
+		return this.chunks.containsValue(chunk);
+	}
+
 	public void updateChunksForRendering() {
 		this.ncTick = !this.ncTick;
 

@@ -59,7 +59,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	private final int minBound;
 	private final int maxBound;
 	private final ChunkPos spawnChunk;
-	private final Long2ObjectMap<T> chunks;
+	protected final Long2ObjectMap<T> chunks;
 	private final Long2ObjectMap<OverflowChunk> overflowChunks;
 	private final Random genRand;
 	private final long seed;
