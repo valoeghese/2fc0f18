@@ -124,6 +124,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this.chunks.get(key(x, z));
 	}
 
+	@Nullable
+	public T getChunk(ChunkPos pos) {
+		return this.chunks.get(key(pos.x >> 4, pos.z >> 4));
+	}
+
 	@Override
 	public TileWriter getDelayedLoadChunk(int x, int z) {
 		Chunk result = this.getChunk(x, z);

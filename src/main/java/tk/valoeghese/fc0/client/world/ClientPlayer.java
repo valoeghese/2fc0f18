@@ -40,6 +40,12 @@ public class ClientPlayer extends Player  {
 	}
 
 	@Override
+	public void forceMove(double x, double y, double z) {
+		super.forceMove(x, y, z);
+		this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
+	}
+
+	@Override
 	public boolean move(double x, double y, double z) {
 		boolean result = super.move(x, y, z);
 

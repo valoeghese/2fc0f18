@@ -163,7 +163,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		if (this.currentScreen == this.titleScreen) {
 			if (NEW_TITLE) {
-				this.player.move(0, 0, 0.01f);
+				this.player.forceMove(0, 0, 0.01f);
 			} else {
 				this.player.getCamera().rotateYaw(0.002f);
 			}
@@ -281,7 +281,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		if (NEW_TITLE) {
 			this.player.setNoClip(true);
-			this.player.move(0, 15, 0);
+			this.player.forceMove(0, 15, 0);
 		}
 
 //		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());

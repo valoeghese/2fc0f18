@@ -49,7 +49,7 @@ public class Player extends Lifeform {
 		this.dev = !this.dev;
 	}
 
-	public void changeWorld(LoadableWorld world, SaveLike save) {
+	public void changeWorld(GameplayWorld world, SaveLike save) {
 		// FIXME when player spawns it it has no damn clue about anything in the world. This probably affects all player teleportation.
 		this.world = world;
 		this.lastChunkloadChunk = null;
@@ -73,7 +73,7 @@ public class Player extends Lifeform {
 		this.loadNullableInventory(save);
 	}
 
-	public void changeWorld(LoadableWorld world, SaveLike save, Pos movePos) {
+	public void changeWorld(GameplayWorld world, SaveLike save, Pos movePos) {
 		this.world = world;
 		this.lastChunkloadChunk = null;
 		this.chunk = null;
@@ -110,6 +110,12 @@ public class Player extends Lifeform {
 		}
 
 		return false;
+	}
+
+	@Override
+	public void forceMove(double x, double y, double z) {
+		super.forceMove(x, y, z);
+		this.world.updateChunkOf(this);
 	}
 
 	public final void move(Pos pos) {
