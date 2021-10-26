@@ -11,6 +11,7 @@ import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.save.FakeSave;
 import valoeghese.scalpel.Window;
 import valoeghese.scalpel.util.GLUtils;
@@ -90,7 +91,7 @@ public class PauseScreen extends Screen {
 				this.game.switchScreen(this.game.titleScreen);
 
 				world.chunkLoad(new ChunkPos(x >> 4, z >> 4));
-				world.scheduleForChunk(0,
+				world.scheduleForChunk(GameplayWorld.key(x >> 4, z >> 4),
 						c -> player.changeWorld(world, this.game.save, new Pos(x, world.getHeight(x, z) + (NEW_TITLE ? 16.0 : 1.0), z)),
 						"changeToTitleWorld");
 			}
