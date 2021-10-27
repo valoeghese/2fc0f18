@@ -1,14 +1,20 @@
 package tk.valoeghese.fc0.world.player;
 
+import tk.valoeghese.fc0.Game2fc;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.entity.Lifeform;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.save.SaveLike;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntFunction;
 
 public class Player extends Lifeform {
@@ -19,6 +25,10 @@ public class Player extends Lifeform {
 
 	@Nullable
 	public Chunk chunk = null;
+	/**
+	 * Only access from GameplayWorld#updateChunkOf or when it's set to null in changeWorld.
+	 */
+	public ChunkPos lastChunkloadChunk;
 	public long lockSwim = 0;
 	public boolean dev;
 
@@ -39,31 +49,40 @@ public class Player extends Lifeform {
 		this.dev = !this.dev;
 	}
 
-	public void changeWorld(LoadableWorld world, @Nullable Save save) {
+	public void changeWorld(GameplayWorld world, SaveLike save) {
+		// FIXME when player spawns it it has no damn clue about anything in the world. This probably affects all player teleportation.
 		this.world = world;
+		this.lastChunkloadChunk = null;
+		this.chunk = null;
 		this.setPos(Pos.ZERO);
+		this.world.chunkLoad(this.getTilePos().toChunkPos());
 
-		if (save == null) {
-			this.move(0, world.getHeight(0, 0) + 1f, 0);
+		if (save instanceof Save) {
+			// TODO maybe find a better way of doing this
+			ChunkPos spawnPos = world.getSpawnPos();
+
+			this.world.scheduleForChunk(GameplayWorld.key(spawnPos.x, spawnPos.z), c -> {
+				int x = (spawnPos.x << 4) + 8;
+				int z = (world.getSpawnPos().z << 4) + 8;
+				this.forceMove(x, world.getHeight(x, z) + 1.0, z);
+			}, "moveToSpawnPos");
 		} else {
-			int x = (world.getSpawnPos().x << 4) + 8;
-			int z = (world.getSpawnPos().z << 4) + 8;
-			this.move(x, world.getHeight(x, z) + 1f, z);
+			this.world.scheduleForChunk(GameplayWorld.key(0, 0), c -> this.forceMove(0, world.getHeight(0, 0) + 1.0, 0), "moveToFakeSaveSpawnPos");
 		}
 
-		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}
 
-	public void changeWorld(LoadableWorld world, Pos movePos, @Nullable Save save) {
+	public void changeWorld(GameplayWorld world, SaveLike save, Pos movePos) {
 		this.world = world;
+		this.lastChunkloadChunk = null;
+		this.chunk = null;
 		this.setPos(movePos);
-		this.world.chunkLoad(this.getTilePos().toChunkPos());
 		this.loadNullableInventory(save);
 	}
 
-	private void loadNullableInventory(@Nullable Save save) {
-		if (save != null) {
+	private void loadNullableInventory(SaveLike saveLike) {
+		if (saveLike instanceof Save save) {
 			if (save.loadedInventory != null) {
 				this.loadInventory(save);
 				return;
@@ -91,6 +110,16 @@ public class Player extends Lifeform {
 		}
 
 		return false;
+	}
+
+	@Override
+	public void forceMove(double x, double y, double z) {
+		super.forceMove(x, y, z);
+		this.world.updateChunkOf(this);
+	}
+
+	public final void forceMove(Pos pos) {
+		this.move(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public final void move(Pos pos) {
@@ -121,7 +150,7 @@ public class Player extends Lifeform {
 	// getters
 
 	public float getHorizontalSlowness() {
-		return 72.0f;
+		return 82.0f;
 	}
 
 	public double getJumpStrength() {

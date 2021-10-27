@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -22,41 +22,41 @@ public class ScatteredOreGenerator extends Generator<OreGeneratorSettings> {
 			int y = generatorSettings.getY(rand);
 
 			if (world.readTile(x, y, z) == Tile.STONE.id) {
-				world.wgWriteTile(x, y, z, generatorSettings.ore);
+				world.writeTile(x, y, z, generatorSettings.ore);
 
-				if (y < World.WORLD_HEIGHT) {
+				if (y < TileAccess.WORLD_HEIGHT) {
 					if (world.readTile(x, y + 1, z) == Tile.STONE.id) {
-						world.wgWriteTile(x, y + 1, z, generatorSettings.ore);
+						world.writeTile(x, y + 1, z, generatorSettings.ore);
 					}
 				}
 
 				if (y > 0) {
 					if (world.readTile(x, y - 1, z) == Tile.STONE.id) {
-						world.wgWriteTile(x, y - 1, z, generatorSettings.ore);
+						world.writeTile(x, y - 1, z, generatorSettings.ore);
 					}
 				}
 
 				if (world.isInWorld(x, y, z + 1)) {
 					if (world.readTile(x, y, z + 1) == Tile.STONE.id) {
-						world.wgWriteTile(x, y, z + 1, generatorSettings.ore);
+						world.writeTile(x, y, z + 1, generatorSettings.ore);
 					}
 				}
 
 				if (world.isInWorld(x, y, z - 1)) {
 					if (world.readTile(x, y, z - 1) == Tile.STONE.id) {
-						world.wgWriteTile(x, y, z - 1, generatorSettings.ore);
+						world.writeTile(x, y, z - 1, generatorSettings.ore);
 					}
 				}
 
 				if (world.isInWorld(x - 1, y, z)) {
 					if (world.readTile(x - 1, y, z) == Tile.STONE.id) {
-						world.wgWriteTile(x - 1, y, z, generatorSettings.ore);
+						world.writeTile(x - 1, y, z, generatorSettings.ore);
 					}
 				}
 
 				if (world.isInWorld(x + 1, y, z)) {
 					if (world.readTile(x + 1, y, z) == Tile.STONE.id) {
-						world.wgWriteTile(x + 1, y, z, generatorSettings.ore);
+						world.writeTile(x + 1, y, z, generatorSettings.ore);
 					}
 				}
 			} else {

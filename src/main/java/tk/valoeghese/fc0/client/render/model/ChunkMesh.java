@@ -5,7 +5,6 @@ import org.joml.Vector3f;
 import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
-import tk.valoeghese.fc0.client.world.RenderedChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class ChunkMesh {
 	private final int x;
 	private final int z;
 	private final Matrix4f transform;
-	private final RenderedChunk chunk;
+	private final ClientChunk chunk;
 	private ChunkMeshModel solid;
 	private ChunkMeshModel translucent;
 	private ChunkMeshModel water;

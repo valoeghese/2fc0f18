@@ -20,6 +20,7 @@ ecozone.woodland=Woodland
 ecozone.tundra=Tundra
 ecozone.desert=Desert
 ecozone.cold_woodland=Cold Woodland
+ecozone.tropical_rainforest_edge=Tropical Rainforest Edge
 
 # Tiles
 tile.stone=Stone

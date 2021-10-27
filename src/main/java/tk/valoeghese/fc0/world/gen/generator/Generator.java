@@ -46,16 +46,17 @@ public abstract class Generator<T extends GeneratorSettings> {
 		byte current = world.readTile(x, y, z);
 
 		if (current != Tile.STONE.id && current != Tile.LOG.id) {
-			world.wgWriteTile(x, y, z, tile);
+			world.writeTile(x, y, z, tile);
 			return true;
 		} else {
 			return false;
 		}
 	}
 
+	public static final int OVERWORLD_CITY_SIZE = 85;
 	public static final Generator<TreeGeneratorSettings> TREE = new TreeGenerator();
 	public static final Generator<GroundFoliageGeneratorSettings> GROUND_FOLIAGE = new GroundFoliageGenerator();
 	public static final Generator<OreGeneratorSettings> SCATTERED_ORE = new ScatteredOreGenerator();
 	public static final Generator<TreeGeneratorSettings> POMELO_PLANT = new PomeloPlantGenerator();
-	public static final Generator<NoneGeneratorSettings> CITY = new CityGenerator(85);
+	public static final Generator<NoneGeneratorSettings> CITY = new CityGenerator(OVERWORLD_CITY_SIZE);
 }

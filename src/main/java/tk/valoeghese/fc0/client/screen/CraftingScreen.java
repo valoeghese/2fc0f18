@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.render.screen;
+package tk.valoeghese.fc0.client.screen;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
@@ -6,11 +6,14 @@ import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.CraftingMenu;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
+import tk.valoeghese.fc0.client.sound.MusicSettings;
 import valoeghese.scalpel.Window;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import valoeghese.scalpel.util.GLUtils;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
+
+import java.util.Optional;
 
 public class CraftingScreen extends Screen {
 	public CraftingScreen(Client2fc game) {
@@ -79,5 +82,10 @@ public class CraftingScreen extends Screen {
 	@Override
 	public void onFocus() {
 		GLUtils.enableMouse(this.game.getWindowId());
+	}
+
+	@Override
+	public Optional<MusicSettings> getMusic() {
+		return GameScreen.GAME_MUSIC;
 	}
 }

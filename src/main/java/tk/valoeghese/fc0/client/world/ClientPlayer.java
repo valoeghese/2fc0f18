@@ -24,6 +24,9 @@ public class ClientPlayer extends Player  {
 
 	private final Camera camera;
 	public EcoZone cachedZone;
+	/**
+	 * Cached tile pos for use for checking whether to update debug displays.
+	 */
 	public TilePos cachedPos;
 
 	public Camera getCamera() {
@@ -37,6 +40,12 @@ public class ClientPlayer extends Player  {
 	}
 
 	@Override
+	public void forceMove(double x, double y, double z) {
+		super.forceMove(x, y, z);
+		this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
+	}
+
+	@Override
 	public boolean move(double x, double y, double z) {
 		boolean result = super.move(x, y, z);
 
@@ -47,8 +56,10 @@ public class ClientPlayer extends Player  {
 		return result;
 	}
 
-	public RaycastResult rayCast(double maxDistance) {
+	public RaycastResult rayCast(double maxDistance, boolean bridgeBlocks) {
 		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
+		TilePos feetTilePos = this.getTilePos().down();
+		TilePos bridgePos = null;
 		Vector3f start = new Vector3f((float) toUse.getX(), (float) toUse.getY(), (float) toUse.getZ());
 		Vector3f dir = this.camera.getDirection();
 		Vector3f end = new Vector3f(start).add(new Vector3f(dir).mul((float) maxDistance));
@@ -82,7 +93,14 @@ public class ClientPlayer extends Player  {
 		List<TilePos> list = new ArrayList<>();
 
 		for (int step = 0; step < maxDistance; ++step) {
-			list.add(new TilePos(floorX1, floorY1, floorZ1));
+			TilePos position = new TilePos(floorX1, floorY1, floorZ1);
+			list.add(position);
+
+			if (bridgeBlocks
+					&& position.y == feetTilePos.y
+					&& Math.abs(position.x - feetTilePos.x) + Math.abs(position.z - feetTilePos.z) == 1) {
+				bridgePos = position;
+			}
 
 			if (tx <= ty && tx <= tz) {
 				tx += dx;
@@ -129,15 +147,15 @@ public class ClientPlayer extends Player  {
 					}
 
 					if (nx != face.getX()) {
-						throw new RuntimeException(nx + ":" + face.getX());
+						throw new RuntimeException("Unmatching faceX on raycast " + nx + ":" + face.getX());
 					}
 
 					if (ny != face.getY()) {
-						throw new RuntimeException(ny + ":" + face.getY());
+						throw new RuntimeException("Unmatching faceY on raycast " + ny + ":" + face.getY());
 					}
 
 					if (nz != face.getZ()) {
-						throw new RuntimeException(nz + ":" + face.getZ());
+						throw new RuntimeException("Unmatching faceZ on raycast " + nz + ":" + face.getZ());
 					}
 
 					return new RaycastResult(new TilePos(pos.x, pos.y, pos.z), face);
@@ -145,7 +163,8 @@ public class ClientPlayer extends Player  {
 			}
 		}
 
-		return new RaycastResult(new TilePos(MathsUtils.floor(end.x), MathsUtils.floor(end.y), MathsUtils.floor(end.z)), null);
+		// use .down() and Face.UP as a hack to make placing blocks treat it as a position
+		return bridgePos != null ? new RaycastResult(bridgePos.down(), Face.UP) : new RaycastResult(new TilePos(MathsUtils.floor(end.x), MathsUtils.floor(end.y), MathsUtils.floor(end.z)), null);
 	}
 
 	@Override

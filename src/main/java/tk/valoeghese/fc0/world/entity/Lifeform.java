@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.entity;
 
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.player.Inventory;
 
@@ -16,7 +17,7 @@ public abstract class Lifeform extends Entity {
 		}
 	}
 
-	protected Lifeform(LoadableWorld world, float height, Inventory inventory) {
+	protected Lifeform(GameplayWorld world, float height, Inventory inventory) {
 		super(world, height);
 
 		this.inventory = inventory;
@@ -64,8 +65,8 @@ public abstract class Lifeform extends Entity {
 		double aval = -this.velocity.getY();
 		int val = (int) (aval * aval * 36);
 
-		if (val > 5) {
-			this.damage(val);
+		if (val > 3) {
+			this.damage((val - 3) * 5);
 		}
 
 		super.hitGround();

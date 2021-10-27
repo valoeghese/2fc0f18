@@ -5,8 +5,8 @@ import tk.valoeghese.fc0.util.maths.Vec2i;
 import java.util.function.Function;
 
 public class ColumnTile extends Tile {
-	public ColumnTile(String textureName, int id, float iota) {
-		super(textureName, id, iota);
+	public ColumnTile(String textureName, int id, float natureness) {
+		super(textureName, id, natureness);
 		this.endTextureName = textureName + "_end";
 	}
 

@@ -5,6 +5,7 @@ import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.MutablePos;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.LoadableWorld;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -17,7 +18,7 @@ public abstract class Entity {
 		this.height = height;
 	}
 
-	protected Entity(LoadableWorld world, float height) {
+	protected Entity(GameplayWorld world, float height) {
 		this(height);
 		this.world = world;
 	}
@@ -25,7 +26,7 @@ public abstract class Entity {
 	protected final MutablePos pos;
 	protected final MutablePos velocity;
 	protected final float height;
-	protected LoadableWorld world;
+	protected GameplayWorld world;
 	protected boolean noClip = false;
 	protected boolean falling = false;
 	protected double friction = 0.85;
@@ -47,7 +48,7 @@ public abstract class Entity {
 			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.02f);
 		}
 
-		this.velocity.mul(this.friction, this.noClip ? 0.96 : 0.98, this.friction);
+		this.velocity.mul(this.friction, this.noClip ? 0.96 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
@@ -60,30 +61,39 @@ public abstract class Entity {
 		}
 	}
 
+	public void forceMove(double x, double y, double z) {
+		this.pos.offset(x, y, z);
+	}
+
 	public boolean move(double x, double y, double z) {
-		Pos next = this.pos.ofAdded(x, y, z);
-		Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.03, y, z + MathsUtils.sign(z) * 0.03);
+		if (this.world.getChunk(this.getTilePos().toChunkPos()) == null) {
+			return false;
+		} else {
+			Pos next = this.pos.ofAdded(x, y, z);
+			Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.06, y, z + MathsUtils.sign(z) * 0.06);
 
-		if (!this.noClip) {
-			TilePos tilePos = new TilePos(test);
+			if (!this.noClip) {
+				TilePos tilePos = new TilePos(test);
 
-			if (this.world.isInWorld(tilePos)) {
-				if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
-					return false;
+				if (this.world.isInWorld(tilePos)) {
+					if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
+						return false;
+					}
+				}
+
+				// TODO fix problem where player's face gets slammed into block and can move along it
+				tilePos = new TilePos(test.ofAdded(0, this.height, 0));
+
+				if (this.world.isInWorld(tilePos)) {
+					if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
+						return false;
+					}
 				}
 			}
 
-			tilePos = new TilePos(test.ofAdded(0, this.height, 0));
-
-			if (this.world.isInWorld(tilePos)) {
-				if (Tile.BY_ID[this.world.readTile(tilePos)].isSolid()) {
-					return false;
-				}
-			}
+			this.pos.set(next);
+			return true;
 		}
-
-		this.pos.set(next);
-		return true;
 	}
 
 	// setters and adders, etc.
@@ -143,6 +153,10 @@ public abstract class Entity {
 		return new TilePos(this.pos);
 	}
 
+	public LoadableWorld getWorld() {
+		return this.world;
+	}
+
 	public int getX() {
 		return MathsUtils.floor(this.pos.getX());
 	}
@@ -153,6 +167,10 @@ public abstract class Entity {
 
 	public Pos getPos() {
 		return new Pos(this.pos);
+	}
+
+	public Pos getVelocity() {
+		return new Pos(this.velocity);
 	}
 
 	@Nullable

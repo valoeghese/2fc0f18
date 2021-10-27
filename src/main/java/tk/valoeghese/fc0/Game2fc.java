@@ -1,22 +1,36 @@
 package tk.valoeghese.fc0;
 
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkLoadStatus;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.util.maths.MathsUtils;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.player.Player;
 
 import java.util.*;
 
-public class Game2fc<W extends World, P extends Player> {
+import static org.joml.Math.sin;
+
+public class Game2fc<W extends TileAccess, P extends Player> {
 	protected Game2fc() {
 		instance = this;
 	}
 
-	public long time = 0;
+	public long time = 4800;
 	protected W world;
 	protected P player;
 	private final Queue<Runnable> later = new LinkedList<>();
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
+
+	public static final float SKY_CHANGE_RATE = 17.0f;
+
+	public float getLighting() {
+		float zeitGrellheit = SKY_CHANGE_RATE * sin((float) this.time / 9216.0f);
+		return MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
+	}
+
+	public W getWorld() {
+		return this.world;
+	}
 
 	protected int getLightingQueueSize() {
 		synchronized (this.toUpdateLighting) {
@@ -42,17 +56,25 @@ public class Game2fc<W extends World, P extends Player> {
 		}
 	}
 
-	protected void runNextQueued() {
-		Runnable task = null;
+	protected void runNextQueued(int count) {
+		List<Runnable> tasks = new ArrayList<>();
 
 		synchronized (this.later) {
-			if (!this.later.isEmpty()) {
-				task = this.later.remove();
+			for (int i = 0; i < count; ++i) {
+				if (!this.later.isEmpty()) {
+					tasks.add(this.later.remove());
+				}
 			}
 		}
 
-		if (task != null) {
-			task.run();
+		for (Runnable task : tasks) {
+			task.run();;
+		}
+	}
+
+	public void runLater(Runnable task) {
+		synchronized (this.later) {
+			this.later.add(task);
 		}
 	}
 

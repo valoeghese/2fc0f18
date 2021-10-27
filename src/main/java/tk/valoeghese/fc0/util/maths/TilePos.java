@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.util.maths;
 
+import java.util.Objects;
+
 public class TilePos {
 	public TilePos(int x, int y, int z) {
 		this.x = x;
@@ -51,5 +53,21 @@ public class TilePos {
 				+ ", " + this.y
 				+ ", " + this.z
 				+ ')';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		TilePos tilePos = (TilePos) o;
+		return this.x == tilePos.x && this.y == tilePos.y && this.z == tilePos.z;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = this.x;
+		result = 31 * result + this.y;
+		result = 31 * result + this.z;
+		return result;
 	}
 }

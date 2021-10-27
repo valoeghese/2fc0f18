@@ -1,6 +1,6 @@
 apply plugin: 'application'
 mainClassName = 'tk.valoeghese.fc0.client.Main'
-sourceCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_16
 
 if (org.gradle.internal.os.OperatingSystem.current() == org.gradle.internal.os.OperatingSystem.MAC_OS) {
     applicationDefaultJvmArgs = ["-XstartOnFirstThread"]
@@ -53,8 +53,7 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-stb:${project.lwjgl_version}:${project.ext.natives}"
     // my libraries
     implementation 'com.github.valoeghese:SOD-java:2.1.1-gradle'
-    implementation 'com.github.valoeghese:Scalpel:1.0.6'
+    implementation 'com.github.valoeghese:Scalpel:1.1.4'
 
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
 }

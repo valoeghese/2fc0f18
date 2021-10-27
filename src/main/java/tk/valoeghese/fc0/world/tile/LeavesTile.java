@@ -9,8 +9,8 @@ import java.util.Random;
 import java.util.function.Function;
 
 public class LeavesTile extends Tile {
-	public LeavesTile(String textureName, int id, float iota) {
-		super(textureName, id, iota);
+	public LeavesTile(String textureName, int id, float natureness) {
+		super(textureName, id, natureness);
 	}
 
 	private int fruitingU = 0;

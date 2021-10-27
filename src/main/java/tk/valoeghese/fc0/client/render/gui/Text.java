@@ -16,7 +16,8 @@ public class Text extends GUI {
 	protected float xOffset;
 	protected float yOffset;
 	protected String text;
-	private final float size;
+	protected final float size;
+	protected float x1, y1;
 
 	public void changeText(String newText) {
 		this.destroy();
@@ -30,6 +31,10 @@ public class Text extends GUI {
 
 		for (char c : text) {
 			if (c == '\n') {
+				if (x > this.x1) {
+					this.x1 = x;
+				}
+
 				y -= this.size;
 				x = this.xOffset;
 				continue;
@@ -91,9 +96,16 @@ public class Text extends GUI {
 			}
 		}
 
+		this.y1 = y;
+
 		this.generateBuffers();
 	}
 
+	/**
+	 * Width of text for Size=2.0f
+	 * @param text the text to measure the width of.
+	 * @return the width, as a float such as those the GUI code uses.
+	 */
 	public static float widthOf(char[] text) {
 		float width = 0;
 		float prevMaxWidth = 0;

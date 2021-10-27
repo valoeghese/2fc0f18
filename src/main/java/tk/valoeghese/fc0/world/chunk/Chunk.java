@@ -1,14 +1,19 @@
-package tk.valoeghese.fc0.world;
+package tk.valoeghese.fc0.world.chunk;
 
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import tk.valoeghese.fc0.Game2fc;
+import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
+import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 import tk.valoeghese.sod.BinaryData;
 import tk.valoeghese.sod.ByteArrayDataSection;
@@ -22,8 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-public abstract class Chunk implements World {
-	public Chunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
+public abstract class Chunk implements TileAccess {
+	public Chunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		this.parent = parent;
 		this.tiles = tiles;
 		this.meta = meta;
@@ -43,7 +48,7 @@ public abstract class Chunk implements World {
 			for (int checx = 0; checx < 16; ++checx) {
 				for (int checz = 0; checz < 16; ++checz) {
 					Tile tile = Tile.BY_ID[this.readTile(checx, y, checz)];
-					this.iota += tile.iota;
+					this.natureness += tile.natureness;
 
 					if (check && tile.dontOptimiseOut()) {
 						this.heightsToRender.add(y);
@@ -63,7 +68,7 @@ public abstract class Chunk implements World {
 
 				for (int kz = 0; kz < 16; ++kz) {
 					float sampleZ = (this.startZ + kz) / Kingdom.SCALE;
-					this.kingdoms[kx * 16 + kz] = Voronoi.sample(sampleX, sampleZ, (int) seed).id();
+					this.kingdoms[kx * 16 + kz] = Voronoi.sampleVoronoi(sampleX, sampleZ, (int) seed, 0.5f).id();
 				}
 			}
 		} else {
@@ -79,7 +84,6 @@ public abstract class Chunk implements World {
 	protected byte[] nextSkyLighting;
 	private final int[] kingdoms;
 	private final int[] heightmap = new int[16 * 16]; // heightmap of opaque blocks for lighting calculations
-	private byte skyLight = -1;
 	public final int x;
 	public final int z;
 	private final ChunkPos pos;
@@ -87,8 +91,8 @@ public abstract class Chunk implements World {
 	public final int startZ;
 	protected final IntSet heightsToRender = new IntArraySet();
 	private List<Player> players = new ArrayList<>();
-	protected ChunkAccess parent;
-	private float iota = 0.0f;
+	protected GameplayWorld parent;
+	private float natureness = 0.0f;
 	public boolean populated = false;
 	public ChunkLoadStatus status = ChunkLoadStatus.GENERATE;
 	public boolean needsLightingCalcOnLoad = true; // false if the chunk has ever been in the TICKING stage before.
@@ -102,11 +106,7 @@ public abstract class Chunk implements World {
 
 	@Override
 	public GameplayWorld getGameplayWorld() {
-		if (this.parent instanceof GameplayWorld) {
-			return (GameplayWorld) this.parent;
-		} else {
-			return null;
-		}
+		return this.parent;
 	}
 
 	@Override
@@ -125,13 +125,13 @@ public abstract class Chunk implements World {
 	}
 
 	@Nullable
-	private Chunk loadLightingChunk(int chunkX, int chunkZ) {
-		return this.parent.loadChunk(chunkX, chunkZ, ChunkLoadStatus.GENERATE);
+	private Chunk retrieveLightingChunk(int chunkX, int chunkZ) {
+		return this.parent.getFullChunk(chunkX, chunkZ);
 	}
 
 	public byte getLightLevel(int x, int y, int z) {
 		int i = index(x, y, z);
-		return (byte) Math.max(this.blockLighting[i], this.skyLighting[i]);
+		return (byte) Math.max(this.blockLighting[i], this.skyLighting[i] * this.getGameplayWorld().getSkyLight());
 	}
 
 	public String getLightLevelText(int x, int y, int z) {
@@ -150,10 +150,10 @@ public abstract class Chunk implements World {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.retrieveLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 			return c == null ? 0 : c.getLightLevel(isPrevChunk ? 15 : 0, y, z);
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.retrieveLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 			return c == null ? 0 : c.getLightLevel(x, y, isPrevChunk ? 15 : 0);
 		}
 
@@ -170,14 +170,14 @@ public abstract class Chunk implements World {
 
 		// Recalculate in this and all surrounding chunks which could update this chunk.
 		chunks.add(this);
-		chunks.add(this.loadLightingChunk(this.x - 1, this.z));
-		chunks.add(this.loadLightingChunk(this.x - 1, this.z - 1));
-		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
-		chunks.add(this.loadLightingChunk(this.x + 1, this.z - 1));
-		chunks.add(this.loadLightingChunk(this.x + 1, this.z));
-		chunks.add(this.loadLightingChunk(this.x + 1, this.z + 1));
-		chunks.add(this.loadLightingChunk(this.x, this.z + 1));
-		chunks.add(this.loadLightingChunk(this.x, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x - 1, this.z));
+		chunks.add(this.retrieveLightingChunk(this.x - 1, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z));
+		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z + 1));
+		chunks.add(this.retrieveLightingChunk(this.x, this.z + 1));
+		chunks.add(this.retrieveLightingChunk(this.x, this.z - 1));
 
 		lightingExecutor.execute(() -> {
 			Set<Chunk> updated = new HashSet<>();
@@ -191,12 +191,13 @@ public abstract class Chunk implements World {
 				} else {
 					Arrays.fill(c.nextBlockLighting, (byte) 0);
 					Arrays.fill(c.nextSkyLighting, (byte) 0);
+					c.calculateBaseSkyLighting(); // make sure the base sky lighting is calculated
 				}
 			}
 
 			// Now that lighting is reset for these chunks, re-calculate it for each chunk in the list
 			for (Chunk c : chunks) {
-				c.calculateSkyLighting(updated);
+				c.calculatePropagatedSkyLighting(updated);
 				c.calculateBlockLighting(updated);
 				c.dirty = true;
 			}
@@ -215,7 +216,8 @@ public abstract class Chunk implements World {
 
 			// Reset chunk lighting
 			Arrays.fill(this.nextSkyLighting, (byte) 0);
-			this.calculateSkyLighting(updated);
+			this.calculateBaseSkyLighting();
+			this.calculatePropagatedSkyLighting(updated);
 			this.dirty = true;
 
 			Game2fc game = Game2fc.getInstance();
@@ -226,15 +228,30 @@ public abstract class Chunk implements World {
 		});
 	}
 
-	private void calculateSkyLighting(Set<Chunk> updated) {
-		if (this.skyLight == -1) {
-			this.skyLight = this.parent.getGameplayWorld().getSkyLight();
-		}
-
+	// The part of sky lighting calculation that is done first. There is no propagation, just the base lighting.
+	public void calculateBaseSkyLighting() {
 		for (int x = 0; x < 16; ++x) {
 			for (int z = 0; z < 16; ++z) {
-				int y = this.heightmap[x * 16 + z] + 1;
-				this.propagateSkyLight(updated, x, y, z, this.skyLight, false, true);
+				int base = this.heightmap[x * 16 + z] + 1;
+
+				for (int y = base; y < WORLD_HEIGHT; ++y) {
+					this.nextSkyLighting[index(x, y, z)] = 15; // 15, the skylight max.
+				}
+			}
+		}
+	}
+
+	private void calculatePropagatedSkyLighting(Set<Chunk> updated) {
+		for (int x = 0; x < 16; ++x) {
+			for (int z = 0; z < 16; ++z) {
+				int base = this.heightmap[x * 16 + z] + 1;
+
+				for (int y = base; y < WORLD_HEIGHT; ++y) {
+					for (Face face : Face.values()) {
+						// propagate skylight for blocks that are not directly lit.
+						this.propagateSkyLight(updated, x + face.getX(), y + face.getY(), z + face.getZ(), 14, true);
+					}
+				}
 			}
 		}
 	}
@@ -264,7 +281,7 @@ public abstract class Chunk implements World {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.retrieveLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
 				return false;
@@ -273,7 +290,7 @@ public abstract class Chunk implements World {
 				return c.propagateBlockLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
 			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.retrieveLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
 				return false;
@@ -317,27 +334,27 @@ public abstract class Chunk implements World {
 		return this.kingdoms[x * 16 + z];
 	}
 
-	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque, boolean slowUpDecay) {
+	private boolean propagateSkyLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
 		boolean isPrevChunk;
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.loadLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.retrieveLightingChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
 				return false;
 			} else {
 				updated.add(c);
-				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque, false);
+				return c.propagateSkyLight(updated, isPrevChunk ? 15 : 0, y, z, light, checkOpaque);
 			}
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.loadLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.retrieveLightingChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
 				return false;
 			} else {
 				updated.add(c);
-				return c.propagateSkyLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque, false);
+				return c.propagateSkyLight(updated, x, y, isPrevChunk ? 15 : 0, light, checkOpaque);
 			}
 		}
 
@@ -351,12 +368,12 @@ public abstract class Chunk implements World {
 			this.nextSkyLighting[idx] = (byte) light;
 
 			if (light > 1) {
-				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true, false);
-				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true, false);
-				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true, false);
-				this.propagateSkyLight(updated, x, y + 1, z, (slowUpDecay && (y & 0b1) == 1) ? light : light - 1, true, slowUpDecay);
-				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true, false);
-				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true, false);
+				this.propagateSkyLight(updated, x - 1, y, z, light - 1, true);
+				this.propagateSkyLight(updated, x + 1, y, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y - 1, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y + 1, z, light - 1, true);
+				this.propagateSkyLight(updated, x, y, z - 1, light - 1, true);
+				this.propagateSkyLight(updated, x, y, z + 1, light - 1, true);
 			}
 
 			return true;
@@ -386,15 +403,16 @@ public abstract class Chunk implements World {
 		if (tile != oldTile) {
 			this.dirty = true;
 
-			Tile oldTileO = Tile.BY_ID[this.tiles[i]];
+			Tile oldTileO = Tile.BY_ID[this.tiles[i]]; // O for object
 			Tile newTileO = Tile.BY_ID[tile];
-			this.iota -= oldTileO.iota;
+			this.natureness -= oldTileO.natureness;
 			this.tiles[i] = tile;
-			this.iota += newTileO.iota;
+			this.natureness += newTileO.natureness;
 
 			if (Tile.BY_ID[tile].dontOptimiseOut()) {
 				this.heightsToRender.add(y);
 			} else {
+				// Remove a y level from a height to render if everything at the same y is invisible.
 				search:
 				{
 					for (int checx = 0; checx < 16; ++checx) {
@@ -413,11 +431,11 @@ public abstract class Chunk implements World {
 
 			boolean hasUpdatedLighting = false;
 
-			if (status.isFull()) {
+			if (this.status.isFull()) {
 				int horizontalLoc = x * 16 + z;
 				int height = this.heightmap[horizontalLoc];
 
-				if (height > y) {
+				if (y > height) {
 					if (newTileO.isOpaqueToLight()) {
 						this.heightmap[horizontalLoc] = y;
 						hasUpdatedLighting = true;
@@ -429,6 +447,7 @@ public abstract class Chunk implements World {
 						for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
 							if (Tile.BY_ID[this.readTile(x, by, z)].isOpaqueToLight()) {
 								this.heightmap[horizontalLoc] = by;
+								break;
 							}
 						}
 
@@ -488,13 +507,17 @@ public abstract class Chunk implements World {
 		return 0;
 	}
 
+	public int getHeightmap(int x, int z) {
+		return this.heightmap[x * 16 + z];
+	}
+
 	void addPlayer(Player player) {
 		if (!this.players.contains(player)) {
 			this.players.add(player);
 		}
 	}
 
-	void removePlayer(Player player) {
+	public void removePlayer(Player player) {
 		if (this.players.contains(player)) {
 			this.players.remove(player);
 		}
@@ -523,6 +546,10 @@ public abstract class Chunk implements World {
 
 	public ChunkPos getPos() {
 		return this.pos;
+	}
+
+	public void addOverflow(OverflowChunk overflow) {
+		overflow.appendToChunk(this.tiles, this.meta);
 	}
 
 	public void write(BinaryData data) {
@@ -554,7 +581,6 @@ public abstract class Chunk implements World {
 		properties.writeInt(this.z);
 		properties.writeBoolean(this.populated);
 		properties.writeBoolean(this.needsLightingCalcOnLoad);
-		properties.writeInt(this.skyLight);
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
@@ -564,35 +590,17 @@ public abstract class Chunk implements World {
 		data.put("kingdoms", kingdoms);
 	}
 
-	@Nullable
 	@Override
-	public Chunk getChunk(int x, int z) {
-		return this.parent.loadChunk(x, z, ChunkLoadStatus.POPULATE);
+	@Deprecated // use the world
+	public TileWriter getDelayedLoadChunk(int x, int z) {
+		return this.getGameplayWorld().getDelayedLoadChunk(x, z);
 	}
 
 	public boolean isDirty() {
 		return this.dirty;
 	}
 
-	public void assertSkylight(byte skyLight) {
-		if (this.skyLight != skyLight) {
-			this.skyLight = skyLight;
-			this.updateLighting(); // Since executor is single thread, should not cause problems
-		}
-	}
-
-	public void assertSkylightSingle(byte skyLight) {
-		if (this.skyLight != skyLight) {
-			this.skyLight = skyLight;
-			this.updateSkyLighting(); // Since executor is single thread, should not cause problems
-		}
-	}
-
-	public void setSkylight(byte skyLight) {
-		this.skyLight = skyLight;
-	}
-
-	public static <T extends Chunk> T read(ChunkAccess parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
+	public static <T extends Chunk> T read(GameplayWorld<T> parent, WorldGen.ChunkConstructor<T> constructor, BinaryData data) {
 		ByteArrayDataSection tileData = data.getByteArray("tiles");
 		byte[] tiles = new byte[16 * 16 * WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
@@ -620,12 +628,11 @@ public abstract class Chunk implements World {
 
 		try {
 			result.needsLightingCalcOnLoad = properties.readBoolean(3);
-			resultAsChunk.skyLight = properties.readByte(4);
 		} catch (Exception ignored) { // @reason support between versions
 		}
 
-		if (data.containsSection("lighting")) {
-			ByteArrayDataSection lighting = data.getByteArray("lighting");
+		if (data.containsSection("lightingBlock")) {
+			ByteArrayDataSection lighting = data.getByteArray("lightingBlock");
 
 			for (int i = 0; i < lighting.size(); ++i) {
 				result.blockLighting[i] = lighting.readByte(i);
@@ -640,6 +647,13 @@ public abstract class Chunk implements World {
 			}
 		}
 
+		// update block and sky lighting ""next"" in order to not break it if it's updated by a neighbouring chunk.
+		// If this is not done, loaded chunks may go dark when a neighbouring chunk gets a lighting update.
+		if (!result.needsLightingCalcOnLoad) {
+			System.arraycopy(result.skyLighting, 0, result.nextSkyLighting, 0, result.skyLighting.length);
+			System.arraycopy(result.blockLighting, 0, result.nextBlockLighting, 0, result.blockLighting.length);
+		}
+
 		if (data.containsSection("heightmap")) {
 			IntArrayDataSection heightmap = data.getIntArray("heightmap");
 
@@ -652,11 +666,13 @@ public abstract class Chunk implements World {
 	}
 
 	public static void shutdown() {
-		lightingExecutor.shutdownNow();
+		System.out.println("Shutting Down Lighting Thread");
+		lightingExecutor.shutdown();
 
 		try {
-			if (!lightingExecutor.awaitTermination(300, TimeUnit.MILLISECONDS)) {
-				System.out.println("Forcing Lighting Thread Shutdown");
+			if (!lightingExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+				System.out.println("...Taking too long! Forcing Lighting Thread Shutdown");
+				Save.shutdown(); // this needs to run too
 				System.exit(0);
 			}
 		} catch (InterruptedException e) {

@@ -36,10 +36,14 @@ public class Pos {
 	}
 
 	public double squaredDist(Pos other) {
-		double dx = Math.abs(other.x - this.x);
-		double dy = Math.abs(other.y - this.y);
-		double dz = Math.abs(other.z - this.z);
+		double dx = other.x - this.x;
+		double dy = other.y - this.y;
+		double dz = other.z - this.z;
 		return dx * dx + dy * dy + dz * dz;
+	}
+
+	public double squaredLength() {
+		return this.x * this.x + this.y * this.y + this.z * this.z;
 	}
 
 	@Override

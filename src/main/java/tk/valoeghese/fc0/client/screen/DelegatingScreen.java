@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.render.screen;
+package tk.valoeghese.fc0.client.screen;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import valoeghese.scalpel.Window;

@@ -55,7 +55,7 @@ public final class Keybind {
 	}
 
 	public boolean hasBeenPressed() {
-		if (!this.isPressed) {
+		if (!this.isPressed) { // in case has been pressed but not currently pressed.
 			this.hasBeenPressed = false;
 			return false;
 		}

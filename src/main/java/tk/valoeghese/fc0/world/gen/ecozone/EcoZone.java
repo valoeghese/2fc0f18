@@ -54,8 +54,9 @@ public abstract class EcoZone {
 	}
 
 	public static final EcoZone TEMPERATE_GRASSLAND = new GrasslandZone();
-	public static final EcoZone TROPICAL_GRASSLAND = new SteppeZone();
-	public static final EcoZone TROPICAL_RAINFOREST = new TropicalRainforestZone();
+	public static final EcoZone TROPICAL_STEPPE = new SteppeZone();
+	public static final EcoZone TROPICAL_RAINFOREST = new TropicalRainforestZone("tropical_rainforest", 8);
+	public static final EcoZone TROPICAL_RAINFOREST_EDGE = new TropicalRainforestZone("tropical_rainforest_edge", 3);
 	public static final EcoZone TEMPERATE_RAINFOREST = new TemperateRainforestZone();
 	public static final EcoZone TEMPERATE_WOODLAND = new WoodlandZone();
 	public static final EcoZone TUNDRA = new TundraZone();

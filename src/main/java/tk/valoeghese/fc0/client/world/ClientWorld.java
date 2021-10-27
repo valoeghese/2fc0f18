@@ -1,65 +1,75 @@
 package tk.valoeghese.fc0.client.world;
 
+import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.OrderedList;
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkLoadStatus;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.save.SaveLike;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 
 public class ClientWorld extends GameplayWorld<ClientChunk> {
-	public ClientWorld(@Nullable Save save, long seed, int size) {
+	public ClientWorld(SaveLike save, long seed, int size) {
 		super(save, seed, size, ClientChunk::new);
 	}
 
-	private final OrderedList<ClientChunk> toAddToQueue = new OrderedList<>(c -> (float) c.getPos().distanceTo(
-			Client2fc.getInstance().getPlayer().chunk.getPos()));
+	private final List<ClientChunk> toAddToQueue = new ArrayList<>(); // changed to regular array list from ordered list as ordering is now done on the chunkload end.
+	private final Set<ChunkPos> toAddToQueuePositions = new HashSet<>();
+
+	private void addToToAddToQueue(ClientChunk chunk) {
+		if (chunk != null && this.toAddToQueuePositions.add(chunk.getPos())) { // if did not already contain, add to queue
+			this.toAddToQueue.add(chunk);
+		}
+	}
+
 	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
 	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
-	private boolean ncTick = false;
+	private boolean ncTick = false; // I think this variable just exists to make rendering not lag the game by batching half as often
 
-	@Nullable
 	@Override
-	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
-		ClientChunk result = (ClientChunk) super.loadChunk(x, z, status);
+	public void addUpgradedChunk(final ClientChunk chunk, ChunkLoadStatus status) {
+		super.addUpgradedChunk(chunk, status);
 
-		if (result != null) {
-			if (status == ChunkLoadStatus.RENDER) {
-				if (!result.render) {
-					result.render = true;
-					this.toAddToQueue.add(result);
-				}
+		if (status == ChunkLoadStatus.RENDER) {
+			if (!chunk.render) {
+				chunk.render = true;
+				this.addToToAddToQueue(chunk);
 			}
 		}
+	}
 
-		return result;
+	public boolean hasChunk(ClientChunk chunk) {
+		return this.chunks.containsValue(chunk);
 	}
 
 	public void updateChunksForRendering() {
-		while (!this.toAddToQueue.isEmpty()) {
-			if (this.chunksForRendering.size() < 8) {
-				this.chunksForRendering.add(this.toAddToQueue.remove(0));
-			} else {
-				this.toAddForRendering.add(this.toAddToQueue.remove(0));
-			}
-		}
+		this.ncTick = !this.ncTick;
 
-		if (!this.toAddForRendering.isEmpty()) {
-			this.ncTick = !this.ncTick;
+		if (this.ncTick) {
+			while (!this.toAddToQueue.isEmpty()) {
+				ClientChunk c = this.toAddToQueue.remove(0);
+				this.toAddToQueuePositions.remove(c.getPos());
 
-			if (this.ncTick) {
-				ClientChunk c = this.toAddForRendering.remove();
-
-				if (c.mesh != null) { // TODO is this neccesary? (paired with the related check in ClientChunk#refreshLighting)
-					c.rebuildMesh();
+				if (this.chunksForRendering.size() < 8) {
+					this.chunksForRendering.add(c);
+				} else {
+					this.toAddForRendering.add(c);
 				}
+			}
 
+			if (!this.toAddForRendering.isEmpty()) {
+				ClientChunk c = this.toAddForRendering.remove();
 				this.chunksForRendering.add(c);
 			}
 		}
@@ -74,8 +84,9 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 		c.destroy();
 
 		if (c.render) {
-			if (this.toAddToQueue.contains(c)) {
+			if (this.toAddToQueuePositions.contains(c.getPos())) {
 				this.toAddToQueue.remove(c);
+				this.toAddToQueuePositions.remove(c.getPos());
 			} else if (this.toAddForRendering.contains(c)) {
 				this.toAddForRendering.remove(c);
 			} else if (this.chunksForRendering.contains(c)) {

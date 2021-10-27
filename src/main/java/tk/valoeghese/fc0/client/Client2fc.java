@@ -11,28 +11,38 @@ import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import tk.valoeghese.fc0.client.render.screen.*;
+import tk.valoeghese.fc0.client.render.model.ChunkMesh;
+import tk.valoeghese.fc0.client.screen.CraftingScreen;
+import tk.valoeghese.fc0.client.screen.GameScreen;
+import tk.valoeghese.fc0.client.screen.PauseScreen;
+import tk.valoeghese.fc0.client.screen.Screen;
+import tk.valoeghese.fc0.client.screen.TitleScreen;
+import tk.valoeghese.fc0.client.screen.YouDiedScreen;
+import tk.valoeghese.fc0.client.sound.MusicSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
 import tk.valoeghese.fc0.util.TimerSwitch;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
-import valoeghese.scalpel.Audio;
 import valoeghese.scalpel.Camera;
 import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.Window;
+import valoeghese.scalpel.util.ALUtils;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
@@ -53,7 +63,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		GLUtils.initGLFW();
 		this.window = new Window("2fc0f18", 640 * 2, 360 * 2);
 		GLUtils.initGL(this.window);
-		Audio.initAL();
+		ALUtils.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
 
 		// setup shaders, world, projections, etc
@@ -65,11 +75,14 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private long nextUpdate = 0;
 	private GUI waterOverlay;
 	private int fov;
+	private float sprintFOV = 1.0f;
+	private float correctSprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
 	public GameScreen gameScreen;
 	public Screen titleScreen;
 	public Screen craftingScreen;
+	public Screen pauseScreen;
 	private Screen currentScreen;
 	private Screen youDiedScreen;
 	@Nullable
@@ -111,7 +124,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.initGameRendering();
 		this.initGameAudio();
-
+		this.activateLoadScreen(); // keep it on while chunkloading is happening TODO make it so we don't have to do this
 
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
@@ -119,7 +132,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
 
-				this.runNextQueued();
+				// do 2 queued tasks per tick
+				this.runNextQueued(3);
 				this.updateNextLighting();
 //				System.out.println(this.getLightingQueueSize());
 				this.tick();
@@ -127,7 +141,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this.render();
-			Audio.tickAudio();
 			this.window.swapBuffers();
 			glfwPollEvents();
 
@@ -138,17 +151,20 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.world.destroy();
 		this.window.destroy();
-		Audio.shutdown();
-		Chunk.shutdown();
+		MusicSystem.shutdown();
+		ALUtils.shutdown();
+		Chunk.shutdown(); // may System.exit from here or Save#shutDown so put any further tasks that need to execute either before these or in the force shutdown
+		Save.shutdown();
 	}
 
 	@Override
 	protected void tick() {
 		// TODO move screen dependent logic to a Screen::tick method
+		// TODO fix the todo by updating scalpel probably
 
 		if (this.currentScreen == this.titleScreen) {
 			if (NEW_TITLE) {
-				this.player.move(0, 0, 0.01f);
+				this.player.forceMove(0, 0, 0.01f);
 			} else {
 				this.player.getCamera().rotateYaw(0.002f);
 			}
@@ -157,7 +173,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		if (this.timerSwitch.isOn()) {
 			this.timerSwitch.update();
 
-			if (!this.timerSwitch.isOn()) {
+			if (!this.timerSwitch.isOn()) { // TODO this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
 				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
 					this.activateLoadScreen();
 				}
@@ -174,13 +190,20 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			TilePos tilePos = this.player.getTilePos();
 
 			if (this.player.cachedPos != tilePos) {
-				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos.toString());
-				this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
+				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos);
 
-				Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF,tilePos.z & 0xF);
+				if (this.player.chunk != null) { // TODO placeholder for kingdom
+					this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
+					this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 
-				if (this.gameScreen.getCurrentKingdom() != kingdom) {
-					this.gameScreen.setCurrentKingdom(kingdom);
+					Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF, tilePos.z & 0xF);
+
+					if (this.gameScreen.getCurrentKingdom() != kingdom) {
+						this.gameScreen.setCurrentKingdom(kingdom);
+					}
+				} else {
+					this.gameScreen.heightmapWidget.changeText("Loading");
+					this.gameScreen.lightingWidget.changeText("Loading");
 				}
 			}
 
@@ -194,6 +217,36 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 				this.switchScreen(this.youDiedScreen);
 			}
 		}
+
+		// Smooth Sprint FOV
+		if (this.sprintFOV > this.correctSprintFOV + 0.001f) {
+			this.sprintFOV -= 0.01f;
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		} else if (this.sprintFOV < this.correctSprintFOV - 0.001f) {
+			this.sprintFOV += 0.01f;
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		}
+
+//		int n = 0;
+//		int count = 0;
+//		for (ClientChunk chunk : this.world.getChunksForRendering()) {
+//			count++;
+//			if (this.world.hasChunk(chunk)) n++;
+//		}
+//
+//		System.out.println((float) n / (float) count);
+
+		// TODO update lighting instead of rebuilding meshes
+		if (this.world != null) {
+			if (this.world.updateSkylight()) {
+				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+					chunk.dirtyForRender = true;
+				}
+			}
+		}
+
+		// Music System
+		MusicSystem.tick(this.currentScreen);
 	}
 
 	private void initGameRendering() {
@@ -228,6 +281,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
+		this.pauseScreen = new PauseScreen(this);
 		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
@@ -240,13 +294,13 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		long time = System.currentTimeMillis();
 		this.setFOV(64);
 
-		this.world = new ClientWorld(null, 0, TITLE_WORLD_SIZE);
+		this.world = new ClientWorld(new FakeSave(0), 0, TITLE_WORLD_SIZE);
 		this.player = new ClientPlayer(new Camera(), this, false);
 		this.player.changeWorld(this.world, this.save);
 
 		if (NEW_TITLE) {
 			this.player.setNoClip(true);
-			this.player.move(0, 20, 0);
+			this.player.forceMove(0, 15, 0);
 		}
 
 //		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
@@ -259,17 +313,13 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void initGameAudio() {
 		long start = System.currentTimeMillis();
-		//TODO everything
+		MusicSystem.init();
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
-	private static final float SKY_CHANGE_RATE = 17.0f;
-
 	private void render() {
 		long time = System.nanoTime();
-		float zeitGrellheit = sin((float) this.time / 9216.0f);
-		float lighting = MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
-		this.world.assertSkylight((byte) MathsUtils.clamp(MathsUtils.floor(SKY_CHANGE_RATE * zeitGrellheit + 7.5f), 0, 10));
+		float lighting = this.getLighting();
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();
@@ -358,10 +408,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	private void handleKeybinds() {
-		/*if (Keybinds.RUN.hasBeenPressed()) {
-			System.out.println(this.world.chunks.size());
-		}*/
-
 		if (!this.timerSwitch.isOn()) {
 			this.currentScreen.handleKeybinds();
 
@@ -388,7 +434,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void setWorld(ClientWorld world) {
-		this.timerSwitch.switchOn(6500);
+		this.activateLoadScreen();
 		this.world.destroy();
 		this.world = world;
 	}
@@ -416,14 +462,21 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		if (this.save.spawnLocPos != null) {
 			this.spawnLoc = this.save.spawnLocPos;
 		} else {
-			// TODO match player spawn
-			this.spawnLoc = new Pos(0, this.world.getHeight(0, 0) + 1, 0);
+			this.spawnLoc = null;
 		}
 
-		if (this.save.lastSavePos != null) {
-			this.player.changeWorld(this.world, this.save.lastSavePos, this.save);
+		if (this.save.lastSavePos != null && this.spawnLoc != null) {
+			this.player.changeWorld(this.world, this.save, this.save.lastSavePos);
 		} else {
-			this.player.changeWorld(this.world, this.save);
+			ChunkPos spawnChunk = this.world.getSpawnPos();
+			this.world.chunkLoad(spawnChunk);
+
+			this.world.scheduleForChunk(GameplayWorld.key(spawnChunk.x, spawnChunk.z), c -> {
+				int x = (c.x << 4) + 8;
+				int z = (c.z << 4) + 8;
+				this.spawnLoc = new Pos(x, c.getHeight(x & 0xF, z & 0xF) + 1, z);
+				this.player.changeWorld(this.world, this.save, this.spawnLoc);
+			}, "changePlayerWorld");
 		}
 
 		this.player.dev = this.save.loadedDevMode;
@@ -435,7 +488,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov), this.window.aspect, 0.01f, 250.0f);
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+	}
+
+	public int getFOV() {
+		return this.fov;
+	}
+
+	public void sprintFOV(float correctSprintFOV) {
+		this.correctSprintFOV = correctSprintFOV;
 	}
 
 	public float getWindowAspect() {
@@ -466,7 +527,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void activateLoadScreen() {
-		this.timerSwitch.switchOn(2000);
+		this.timerSwitch.switchOn(1000);
 	}
 
 	public void switchScreen(Screen screen) {

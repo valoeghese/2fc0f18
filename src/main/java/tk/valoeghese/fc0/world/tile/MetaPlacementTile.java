@@ -4,7 +4,7 @@ import it.unimi.dsi.fastutil.bytes.Byte2ObjectArrayMap;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 
 import java.util.List;
 import java.util.function.Function;
@@ -40,7 +40,7 @@ public class MetaPlacementTile extends Tile {
 	}
 
 	@Override
-	public void onPlace(World world, TilePos pos) {
+	public void onPlace(TileAccess world, TilePos pos) {
 		world.writeMeta(pos.x, pos.y, pos.z, (byte) Game2fc.RANDOM.nextInt(this.metaBound));
 	}
 }

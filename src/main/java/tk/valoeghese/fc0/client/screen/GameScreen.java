@@ -1,4 +1,4 @@
-package tk.valoeghese.fc0.client.render.screen;
+package tk.valoeghese.fc0.client.screen;
 
 import org.joml.Math;
 import tk.valoeghese.fc0.client.Client2fc;
@@ -7,11 +7,15 @@ import tk.valoeghese.fc0.client.render.Shaders;
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.*;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
+import tk.valoeghese.fc0.client.sound.MusicPiece;
+import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
-import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.util.RaycastResult;
+import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.gen.generator.CityGenerator;
+import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.Inventory;
 import tk.valoeghese.fc0.world.player.Item;
@@ -22,6 +26,9 @@ import valoeghese.scalpel.Window;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
+
+import java.util.List;
+import java.util.Optional;
 
 import static org.joml.Math.cos;
 import static org.joml.Math.sin;
@@ -37,6 +44,7 @@ public class GameScreen extends Screen {
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
 		this.cityWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
+		this.heightmapWidget = new Text("missingno", -0.92f, 0.38f, 1.0f);
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
@@ -50,6 +58,7 @@ public class GameScreen extends Screen {
 	public final Text coordsWidget;
 	public final Text lightingWidget;
 	private final Text cityWidget;
+	public final Text heightmapWidget;
 	private final Text.Moveable kingdomWidget;
 	private final ResizableRect healthBar;
 	private final ResizableRect unhealthBar;
@@ -83,6 +92,7 @@ public class GameScreen extends Screen {
 			this.coordsWidget.render();
 			this.lightingWidget.render();
 			this.cityWidget.render();
+			this.heightmapWidget.render();
 		}
 
 		if (player.dev != this.abilityCaches[0] || player.isNoClip() != this.abilityCaches[1]) {
@@ -132,7 +142,7 @@ public class GameScreen extends Screen {
 
 	public void onShowDebug(boolean showDebug) {
 		if (showDebug) {
-			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.38f);
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.28f);
 		} else {
 			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.78f);
 		}
@@ -142,11 +152,11 @@ public class GameScreen extends Screen {
 	public void handleMouseInput(double dx, double dy) {
 		Camera camera = this.game.getPlayer().getCamera();
 
-		if (Math.abs(dx) > 1.5f) {
+		if (Math.abs(dx) > 1.0f) {
 			camera.rotateYaw((float) (dx) / 100.0f);
 		}
 
-		if (Math.abs(dy) > 1.5f) {
+		if (Math.abs(dy) > 1.0f) {
 			camera.rotatePitch((float) (dy) / 60.0f);
 		}
 	}
@@ -190,7 +200,10 @@ public class GameScreen extends Screen {
 		boolean fb = Keybinds.MOVE_BACKWARDS.isPressed() || Keybinds.MOVE_FORWARDS.isPressed();
 
 		if (Keybinds.RUN.isPressed()) {
-			slowness /= 1.48; // nerfed from previous versions
+			slowness /= 1.42;
+			this.game.sprintFOV(player.getVelocity().squaredLength() > 0.001f ? 1.08f : 1.0f);
+		} else {
+			this.game.sprintFOV(1.0f);
 		}
 
 		if (player.isSwimming()) {
@@ -204,6 +217,14 @@ public class GameScreen extends Screen {
 
 		if (player.isNoClip()) {
 			slowness *= 0.42;
+		}
+
+		TilePos below = player.getTilePos().down();
+
+		if (player.getWorld().isInWorld(below)) {
+			if (player.getWorld().readTile(below) == Tile.ICE.id) {
+				slowness *= 1.5f; // bc more slippery so will get faster anyway
+			}
 		}
 
 		if (Keybinds.MOVE_BACKWARDS.isPressed()) {
@@ -246,7 +267,7 @@ public class GameScreen extends Screen {
 		GameplayWorld<?> world = this.game.getWorld();
 
 		if (Keybinds.DESTROY.hasBeenPressed()) {
-			TilePos pos = player.rayCast(10.0).pos;
+			TilePos pos = player.rayCast(10.0, false).pos;
 
 			if (world.isInWorld(pos)) {
 				byte tileId = world.readTile(pos);
@@ -266,27 +287,30 @@ public class GameScreen extends Screen {
 
 		if (Keybinds.INTERACT.hasBeenPressed()) {
 			if (selectedItem != null && selectedItem.isTile()) {
-				RaycastResult result = player.rayCast(10.0);
+				RaycastResult result = player.rayCast(10.0, true);
 
 				if (result.face != null) {
 					TilePos pos = result.face.apply(result.pos);
+					TilePos playerPos = player.getTilePos();
 
-					if (world.isInWorld(pos)) {
-						Tile tile = selectedItem.tileValue();
+					if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
+						if (world.isInWorld(pos)) {
+							Tile tile = selectedItem.tileValue();
 
-						if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
-							if (!player.dev) {
-								selectedItem.decrement();
+							if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
+								if (!player.dev) {
+									selectedItem.decrement();
+								}
+
+								if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
+									world.writeTile(pos, Tile.CACTUS.id);
+								} else {
+									world.writeTile(pos, tile.id);
+									world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
+								}
+
+								tile.onPlace(world, pos);
 							}
-
-							if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
-								world.writeTile(pos, Tile.CACTUS.id);
-							} else {
-								world.writeTile(pos, tile.id);
-								world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
-							}
-
-							tile.onPlace(world, pos);
 						}
 					}
 				}
@@ -327,24 +351,14 @@ public class GameScreen extends Screen {
 	}
 
 	@Override
+	public Optional<MusicSettings> getMusic() {
+		ChunkPos playerChunkPos = this.game.getPlayer().getTilePos().toChunkPos();
+		return this.game.getWorld().getChunk(playerChunkPos.x, playerChunkPos.z) == null ? Optional.empty() : GAME_MUSIC;
+	}
+
+	@Override
 	public void handleEscape(Window window) {
-		this.game.saveWorld();
-		this.game.getWorld().destroy();
-		this.game.save = null;
-
-		ClientWorld world = new ClientWorld(null, 0, Client2fc.TITLE_WORLD_SIZE);
-		this.game.setWorld(world);
-		ClientPlayer player = this.game.getPlayer();
-		player.changeWorld(world, this.game.save);
-		player.getCamera().setPitch(0);
-		player.getCamera().setYaw(PI);
-
-		if (NEW_TITLE) {
-			player.setNoClip(true);
-			player.move(0, 20, 0);
-		}
-
-		this.game.switchScreen(this.game.titleScreen);
+		this.game.switchScreen(this.game.pauseScreen);
 	}
 
 	@Override
@@ -365,4 +379,19 @@ public class GameScreen extends Screen {
 		this.kingdomWidget.changeText(text, -Text.widthOf(text.toCharArray()), 0.7f);
 		this.kingdomShowTime = 1.0f;
 	}
+
+	private static List<MusicPiece> pickMusic() {
+		Client2fc game = Client2fc.getInstance();
+		TilePos position = game.getPlayer().getTilePos();
+
+		if (CityGenerator.isInCity(game.getWorld(), position.x, position.z, Generator.OVERWORLD_CITY_SIZE)) {
+			return TOWN_MUSIC;
+		} else {
+			return GRASSLAND_MUSIC;
+		}
+	}
+
+	private static final List<MusicPiece> TOWN_MUSIC = List.of(MusicPiece.TOWN_CLAV, MusicPiece.TOWN_HARPSICHORD);
+	private static final List<MusicPiece> GRASSLAND_MUSIC = List.of(MusicPiece.FOREST_RILL);
+	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 600 + 300, 5 * 600 + 300, 0.4f));
 }

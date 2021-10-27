@@ -1,7 +1,8 @@
 package tk.valoeghese.fc0.client.render.tile;
 
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
-import tk.valoeghese.fc0.client.world.RenderedChunk;
+import tk.valoeghese.fc0.client.world.ClientChunk;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.List;
@@ -20,10 +21,10 @@ public interface TileRenderer {
 	 * @param z the local chunk z
 	 * @param meta the meta value of the tile
 	 */
-	void addFaces(Tile instance, List<ChunkMesh.RenderedTileFace> layer, byte[] tiles, RenderedChunk chunk, int x, int y, int z, byte meta);
+	void addFaces(Tile instance, List<ChunkMesh.RenderedTileFace> layer, byte[] tiles, ClientChunk chunk, int x, int y, int z, byte meta);
 
 	/**
-	 * @see tk.valoeghese.fc0.world.Chunk#index
+	 * @see Chunk#index
 	 */
 	static int index(int x, int y, int z) {
 		return (x << 11) | (z << 7) | y;

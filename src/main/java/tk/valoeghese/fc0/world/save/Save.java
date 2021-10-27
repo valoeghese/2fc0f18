@@ -1,11 +1,15 @@
 package tk.valoeghese.fc0.world.save;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.util.ReadiableThread;
+import tk.valoeghese.fc0.util.Synchronise;
 import tk.valoeghese.fc0.util.maths.Pos;
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkAccess;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.player.Item;
@@ -19,8 +23,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class Save {
+public class Save implements SaveLike {
 	// client specific stuff is here. will need to change on server
 	public Save(String name, long seed) {
 		this.parentDir = new File("./saves/" + name);
@@ -29,7 +36,6 @@ public class Save {
 		this.saveDat = new File(this.parentDir, "save.gsod");
 
 		boolean devMode = false;
-		byte skyLight = 0;
 		int hp = 100;
 		int maxHp = 100;
 
@@ -47,7 +53,6 @@ public class Save {
 				devMode = playerData.readBoolean(6);
 				hp = playerData.readInt(7);
 				maxHp = playerData.readInt(8);
-				skyLight = mainData.readByte(2);
 			} catch (Exception ignored) {
 				//ignored.printStackTrace();
 				// @reason compat between save versions
@@ -67,11 +72,12 @@ public class Save {
 		}
 
 		this.loadedDevMode = devMode;
-		this.loadedSkyLight = skyLight;
 		this.loadedHP = hp;
 		this.loadedMaxHP = maxHp;
 	}
 
+	@Synchronise
+	private final Long2ObjectArrayMap<Chunk> saving = new Long2ObjectArrayMap<>();
 	private final File parentDir;
 	private final File saveDat;
 	private final long seed;
@@ -79,126 +85,143 @@ public class Save {
 	public final Pos lastSavePos;
 	@Nullable
 	public final Pos spawnLocPos;
-	private static ReadiableThread thread;
-	private static final Object lock = new Object();
 	@Nullable
 	public final Item[] loadedInventory;
 	public final boolean loadedDevMode;
-	public final byte loadedSkyLight;
 	public final int loadedHP;
 	public final int loadedMaxHP;
+
+	// count stuff and the executor
+	private static ExecutorService saveExecutor = Executors.newSingleThreadExecutor();
+	private static int count = 0;
+	private static final Object COUNT_LOCK = new Object();
+	private static final Object READ_WRITE_LOCK = new Object();
 
 	public long getSeed() {
 		return this.seed;
 	}
 
 	public static boolean isThreadAlive() {
-		return thread.isAlive();
+		synchronized (COUNT_LOCK) {
+			return count > 0;
+		}
 	}
 
+	@Override
 	public void writeChunks(Iterator<? extends Chunk> chunks) {
-		synchronized (lock) {
-			try {
-				while (thread != null && !thread.isReady()) {
-					lock.wait();
-				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+		synchronized (COUNT_LOCK) {
+			count++;
+		}
+
+		LongList keys = new LongArrayList();
+		synchronized (this.saving) {
+			while (chunks.hasNext()) {
+				Chunk c = chunks.next();
+				long key = GameplayWorld.key(c.x, c.z);
+				this.saving.put(key, c);
+				keys.add(key);
 			}
 		}
 
-		thread = new ReadiableThread(() -> {
-			while (chunks.hasNext()) {
-				Chunk c = chunks.next();
-
-				if (c != null) {
-					this.saveChunk(c);
-				}
+		saveExecutor.submit(() -> {
+			synchronized (READ_WRITE_LOCK) {
+				this.writeChunksOfKeys(keys);
 			}
 
 			try {
-				Thread.sleep(5); // pls fix save loading bugs
+				Thread.sleep(5); // pls fix save loading bugs TODO can I remove this now?
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			synchronized (lock) {
-				ReadiableThread.setReady();
-				lock.notifyAll();
+			synchronized (COUNT_LOCK) {
+				count--;
 			}
 		});
-
-		thread.start();
 	}
 
-	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
-		Iterator<? extends Chunk> chunks = world.getChunks();
+	// ONLY RUN THIS ON THE EXECUTOR
+	private void writeChunksOfKeys(LongList keys) {
+		for (long key : keys) {
+			// TODO this is terrible code! I should not be writing this many synchronised blocks. I should be making my own queued thread implementation. But I don't care, because I'd have to rewrite half this code
+			// should I synchronise the whole method on this instead? Or even less?
+			synchronized (this.saving) {
+				@Nullable Chunk c = this.saving.remove(key);
 
-		synchronized (lock) {
-			try {
-				while (thread != null && !thread.isReady()) {
-					lock.wait();
+				// if null it's probably retrieved or my dumbass code is trying to save a nonexistant chunk
+				if (c != null) {
+					this.saveChunk(c);
 				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
+	public void writeForClient(Player player, GameplayWorld world, Iterator<Item> inventory, int invSize, Pos playerPos, Pos spawnPos, long time) {
+		synchronized (COUNT_LOCK) {
+			count++;
+		}
+
+		// Copied and pasted from the other method
+		LongList keys = new LongArrayList();
+		synchronized (this.saving) {
+			Iterator<? extends Chunk> chunks = world.getChunks();
+
+			while (chunks.hasNext()) {
+				Chunk c = chunks.next();
+				long key = GameplayWorld.key(c.x, c.z);
+				this.saving.put(key, c);
+				keys.add(key);
 			}
 		}
 
-		thread = new ReadiableThread(() -> {
+		saveExecutor.submit(() -> {
 			System.out.println("Saving Chunks");
 
-			while (chunks.hasNext()) {
-				Chunk c = chunks.next();
+			synchronized (READ_WRITE_LOCK) {
+				this.writeChunksOfKeys(keys);
 
-				if (c != null) {
-					this.saveChunk(c);
+				try {
+					this.saveDat.createNewFile();
+					BinaryData data = new BinaryData();
+					DataSection mainData = new DataSection();
+					mainData.writeLong(this.seed);
+					mainData.writeLong(time);
+					data.put("data", mainData);
+
+					// the "self" player, for the client version, is the only player stored
+					DataSection clientPlayerData = new DataSection();
+					clientPlayerData.writeDouble(playerPos.getX());
+					clientPlayerData.writeDouble(playerPos.getY());
+					clientPlayerData.writeDouble(playerPos.getZ());
+					clientPlayerData.writeDouble(spawnPos.getX());
+					clientPlayerData.writeDouble(spawnPos.getY());
+					clientPlayerData.writeDouble(spawnPos.getZ());
+					clientPlayerData.writeBoolean(player.dev);
+					clientPlayerData.writeInt(player.getHealth());
+					clientPlayerData.writeInt(player.getMaxHealth());
+					data.put("player", clientPlayerData);
+
+					DataSection clientPlayerInventory = new DataSection();
+					this.storeInventory(clientPlayerInventory, inventory, invSize);
+					data.put("playerInventory", clientPlayerInventory);
+
+					data.writeGzipped(this.saveDat);
+				} catch (IOException e) {
+					throw new UncheckedIOException("Error writing save data", e);
 				}
 			}
 
 			try {
-				this.saveDat.createNewFile();
-				BinaryData data = new BinaryData();
-				DataSection mainData = new DataSection();
-				mainData.writeLong(this.seed);
-				mainData.writeLong(time);
-				mainData.writeByte(world.getSkyLight());
-				data.put("data", mainData);
-
-				// the "self" player, for the client version, is the only player stored
-				DataSection clientPlayerData = new DataSection();
-				clientPlayerData.writeDouble(playerPos.getX());
-				clientPlayerData.writeDouble(playerPos.getY());
-				clientPlayerData.writeDouble(playerPos.getZ());
-				clientPlayerData.writeDouble(spawnPos.getX());
-				clientPlayerData.writeDouble(spawnPos.getY());
-				clientPlayerData.writeDouble(spawnPos.getZ());
-				clientPlayerData.writeBoolean(player.dev);
-				clientPlayerData.writeInt(player.getHealth());
-				clientPlayerData.writeInt(player.getMaxHealth());
-				data.put("player", clientPlayerData);
-
-				DataSection clientPlayerInventory = new DataSection();
-				this.storeInventory(clientPlayerInventory, inventory, invSize);
-				data.put("playerInventory", clientPlayerInventory);
-
-				data.writeGzipped(this.saveDat);
-			} catch (IOException e) {
-				throw new UncheckedIOException("Error writing save data", e);
-			}
-
-			try {
-				Thread.sleep(5); // pls fix save loading bugs
+				Thread.sleep(5); // pls fix save loading bugs TODO can I remove this
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 
-			synchronized (lock) {
-				ReadiableThread.setReady();
-				lock.notifyAll();
+			synchronized (COUNT_LOCK) {
+				count--;
 			}
 		});
-
-		thread.start();
 	}
 
 	private void storeInventory(DataSection playerInventoryData, Iterator<Item> inventory, int size) {
@@ -236,38 +259,49 @@ public class Save {
 		return result;
 	}
 
-	public <T extends Chunk> T getOrCreateChunk(WorldGen worldGen, ChunkAccess parent, int x, int z, WorldGen.ChunkConstructor<T> constructor) {
-		synchronized (lock) {
-			try {
-				while (thread != null && !thread.isReady()) {
-					lock.wait();
+	@Override
+	public <T extends Chunk> void loadChunk(WorldGen worldGen, ChunkLoadingAccess<T> parent, int x, int z, WorldGen.ChunkConstructor<T> constructor, ChunkLoadStatus status) {
+		long key = GameplayWorld.key(x, z);
+
+		synchronized (this.saving) {
+			T potentialChunk = (T)this.saving.remove(key);
+
+			if (potentialChunk != null) {
+				Game2fc.getInstance().runLater(() -> parent.addUpgradedChunk(potentialChunk, status));
+				return;
+			}
+		}
+
+		File folder = new File(this.parentDir, x + "/" + z);
+		File file = new File(folder, "c" + x + "." + z + ".gsod");
+
+		// don't generate in R_W_LOCK but do ALL file operations there including exists() just in case tm
+		synchronized (READ_WRITE_LOCK) {
+			if (file.exists()) {
+				try {
+					saveExecutor.submit(() -> {
+						T chunk = Chunk.read((GameplayWorld<T>) parent, constructor, BinaryData.readGzipped(file));
+						Game2fc.getInstance().runLater(() -> parent.addUpgradedChunk(chunk, status));
+					});
+					return;
+				} catch (Exception e) {
+					System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
+					file.renameTo(new File(file.getParentFile(), "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
+					// and generate
 				}
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
 			}
 		}
 
-		File file = new File(this.parentDir, "c" + x + "." + z + ".gsod");
-
-		if (file.exists()) {
-			try {
-				return Chunk.read(parent, constructor, BinaryData.readGzipped(file));
-			} catch (Exception e) {
-				System.err.println("Error loading chunk at " + x + ", " + z + "! Possible corruption? Regenerating Chunk.");
-				file.renameTo(new File(this.parentDir, "CORRUPTED_" + Game2fc.RANDOM.nextInt() + "c" + x + "." + z + ".gsod"));
-				Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-				return worldGen.generateChunk(constructor, parent, x, z, genRand);
-			}
-		} else {
-			Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
-			return worldGen.generateChunk(constructor, parent, x, z, genRand);
-		}
+		Random genRand = new Random(parent.getSeed() + 134 * x + -529 * z);
+		parent.addUpgradedChunk(worldGen.generateChunk(constructor, parent, x, z, genRand), status);
 	}
 
 	private void saveChunk(Chunk chunk) {
 		// only save modified chunks
 		if (chunk.isDirty()) {
-			File file = new File(this.parentDir, "c" + chunk.x + "." + chunk.z + ".gsod");
+			File folder = new File(this.parentDir, chunk.x + "/" + chunk.z);
+			folder.mkdirs();
+			File file = new File(folder, "c" + chunk.x + "." + chunk.z + ".gsod");
 
 			try {
 				file.createNewFile();
@@ -277,6 +311,20 @@ public class Save {
 			} catch (IOException e) {
 				throw new UncheckedIOException("Error writing chunk! " + chunk.getPos().toString(), e);
 			}
+		}
+	}
+
+	public static void shutdown() {
+		System.out.println("Shutting Down Save Thread");
+		saveExecutor.shutdown();
+
+		try {
+			if (!saveExecutor.awaitTermination(500, TimeUnit.MILLISECONDS)) {
+				System.out.println("...Taking too long! Forcing Save Thread Shutdown");
+				System.exit(0);
+			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }

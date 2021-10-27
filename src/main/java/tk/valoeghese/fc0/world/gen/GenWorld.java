@@ -1,43 +1,45 @@
 package tk.valoeghese.fc0.world.gen;
 
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.chunk.TileWriter;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
 
-public interface GenWorld extends SeedWorld {
+public interface GenWorld extends SeedWorld, TileWriter {
+	/**
+	 * Gets a means of access for chunks at the given location. Unloaded chunks will be loaded and have the modifications retroactively applied.<br/>
+	 * Either returns a {@linkplain tk.valoeghese.fc0.world.chunk.Chunk chunk} or {@linkplain tk.valoeghese.fc0.world.chunk.OverflowChunk overflow chunk}.
+	 */
+	TileWriter getDelayedLoadChunk(int x, int z);
+
+	@Override
+	default void writeTile(int x, int y, int z, byte tile) {
+		// removed canPlaceAt check for more direct writing. any "canPlaceAt" stuff should be done directly in the generator.
+		this.getDelayedLoadChunk(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
+	}
+
+	@Override
+	default void writeMeta(int x, int y, int z, byte meta) {
+		this.getDelayedLoadChunk(x >> 4, z >> 4).writeMeta(x & 0xF, y, z & 0xF, meta);
+	}
+
+	@Override
+	default byte readTile(int x, int y, int z) {
+		return this.getDelayedLoadChunk(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
+	}
+
+	@Override
+	default byte readMeta(int x, int y, int z) {
+		return this.getDelayedLoadChunk(x >> 4, z >> 4).readMeta(x & 0xF, y, z & 0xF);
+	}
+
 	boolean isInWorld(int x, int y, int z);
-	@Nullable
-	Chunk getChunk(int x, int z);
 	double sampleNoise(double x, double y);
 
-	default byte readTile(int x, int y, int z) {
-		return this.getChunk(x >> 4, z >> 4).readTile(x & 0xF, y, z & 0xF);
-	}
+	int getHeight(int x, int z, Predicate<Tile> solid);
 
-	default void wgWriteTile(int x, int y, int z, byte tile) {
-		this.getChunk(x >> 4, z >> 4).writeTile(x & 0xF, y, z & 0xF, tile);
-	}
-
-	default int getHeight(int x, int z, Predicate<Tile> solid) {
-		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
-	}
-
-	default void writeMeta(int x, int y, int z, byte meta) {
-		this.getChunk(x >> 4, z >> 4).writeMeta(x & 0xF, y, z & 0xF, meta);
-	}
-
-	default byte readMeta(int x, int y, int z) {
-		return this.getChunk(x >> 4, z >> 4).readMeta(x & 0xF, y, z & 0xF);
-	}
-
-	default Kingdom getKingdom(int x, int z) {
-		return this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
-	}
-
-	default int getKingdomId(int x, int z) {
-		return this.getChunk(x >> 4, z >> 4).getKingdomId(x & 0xF, z & 0xF);
-	}
+	@Nullable
+	Kingdom getKingdom(int x, int z);
 }

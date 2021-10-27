@@ -1,16 +1,16 @@
 package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
-import tk.valoeghese.fc0.world.Chunk;
-import tk.valoeghese.fc0.world.ChunkAccess;
-import tk.valoeghese.fc0.world.ChunkLoadStatus;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 
-public class ClientChunk extends Chunk implements RenderedChunk {
-	public ClientChunk(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
+public class ClientChunk extends Chunk {
+	public ClientChunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		super(parent, x, z, tiles, meta, kingdoms);
 	}
 
@@ -69,14 +69,12 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public boolean renderHeight(int y) {
 		return (y >= 0 && y < WORLD_HEIGHT) ? this.heightsToRender.contains(y) : false;
 	}
 
-	@Override
 	public Tile north(int x, int y) {
-		Chunk chunk = this.getChunk(this.x, this.z + 1);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z + 1);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -85,9 +83,8 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public Tile south(int x, int y) {
-		Chunk chunk = this.getChunk(this.x, this.z - 1);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z - 1);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -96,9 +93,8 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public Tile east(int z, int y) {
-		Chunk chunk = this.getChunk(this.x + 1, this.z);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x + 1, this.z);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -107,9 +103,8 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	@Override
 	public Tile west(int z, int y) {
-		Chunk chunk = this.getChunk(this.x - 1, this.z);
+		Chunk chunk = this.getGameplayWorld().getChunk(this.x - 1, this.z);
 
 		if (chunk == null) {
 			return Tile.AIR;
@@ -124,7 +119,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		}
 	}
 
-	private void lebronJames() {
+	private void undirty() {
 		if (this.dirtyForRender && this.mesh != null) {
 			this.dirtyForRender = false;
 			this.mesh.buildMesh(this.tiles, this.meta);
@@ -136,7 +131,7 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 			this.mesh = new ChunkMesh(this, this.x, this.z);
 		}
 
-		this.lebronJames();
+		this.undirty();
 
 		return this.mesh;
 	}
@@ -158,13 +153,12 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 		super.refreshLighting();
 
 		if (this.status == ChunkLoadStatus.RENDER) { // Is this necessary?
-			this.dirtyForRender = true;
+			this.dirtyForRender = true; // TODO Use shadaers for lighting instead?????
 		}
 	}
 
-	@Override
 	public float getRenderLightingFactor(int x, int y, int z) {
-		if (y < 0 || y > World.WORLD_HEIGHT) {
+		if (y < 0 || y > TileAccess.WORLD_HEIGHT) {
 			return 0.1f;
 		}
 
@@ -172,14 +166,14 @@ public class ClientChunk extends Chunk implements RenderedChunk {
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			Chunk c = this.getGameplayWorld().getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
 				return 0.1f;
 			}
 			return renderLighting(c.getLightLevel(isPrevChunk ? 15 : 0, y, z));
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			Chunk c = this.getGameplayWorld().getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
 				return 0.1f;

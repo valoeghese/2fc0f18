@@ -1,9 +1,10 @@
 package tk.valoeghese.fc0.world.gen.generator;
 
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.world.GameplayWorld;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -53,16 +54,16 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 						// write road if at a road location
 						if (isNear(centre, north, x, z) || isNear(centre, east, x, z)
 								|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
-							world.wgWriteTile(x, y, z, Tile.AIR.id);
-							world.wgWriteTile(x, y - 1, z, Tile.GRASS.id);
+							world.writeTile(x, y, z, Tile.AIR.id);
+							world.writeTile(x, y - 1, z, Tile.GRASS.id);
 							world.writeMeta(x, y - 1, z, (byte) 2);
 						} else {
 							// generate paths at path locations
 							double path = PATH_NOISE.sample((double) x / 400.0, (double) z / 400.0);
 
 							if (path > 0 && path < 0.019) {
-								world.wgWriteTile(x, y, z, Tile.AIR.id);
-								world.wgWriteTile(x, y - 1, z, Tile.GRASS.id);
+								world.writeTile(x, y, z, Tile.AIR.id);
+								world.writeTile(x, y - 1, z, Tile.GRASS.id);
 								world.writeMeta(x, y - 1, z, (byte) 2);
 							}
 						}
@@ -82,12 +83,12 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 								|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
 							for (int yo = 4; yo < height; ++yo) {
 								int y = startY + yo;
-								world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+								world.writeTile(x, y, z, Tile.STONE_BRICKS.id);
 							}
 						} else { // write wall
 							for (int yo = 0; yo < height; ++yo) {
 								int y = startY + yo;
-								world.wgWriteTile(x, y, z, Tile.STONE_BRICKS.id);
+								world.writeTile(x, y, z, Tile.STONE_BRICKS.id);
 							}
 						}
 					}
@@ -108,11 +109,11 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 								for (int zoo = -5; zoo < 5; ++zoo) {
 									int zz = z + zoo;
-									world.wgWriteTile(xx, y, zz, Tile.PLANKS.id);
+									world.writeTile(xx, y, zz, Tile.PLANKS.id);
 
 									if (xedge || zoo == -5 || zoo == 4) {
 										for (int yy = 0; yy < wallHeight; ++yy) {
-											world.wgWriteTile(xx, y + yy, zz, Tile.BRICKS.id);
+											world.writeTile(xx, y + yy, zz, Tile.BRICKS.id);
 										}
 									}
 								}
@@ -134,7 +135,7 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 										if (yy > -1 || zoo == l || zoo == h || xoo == l || xoo == h) {
 											if (world.isInWorld(finalX, finalY, finalZ)) {
-												world.wgWriteTile(finalX, finalY, finalZ, Tile.STONE_BRICKS.id);
+												world.writeTile(finalX, finalY, finalZ, Tile.STONE_BRICKS.id);
 											}
 										}
 									}
@@ -143,19 +144,19 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 							// Pillars
 							for (int yy = 0; yy < houseHeight; ++yy) {
-								if (y + yy < World.WORLD_HEIGHT) {
-									world.wgWriteTile(x - 6, y + yy, z - 6, Tile.LOG.id);
-									world.wgWriteTile(x + 5, y + yy, z + 5, Tile.LOG.id);
-									world.wgWriteTile(x + 5, y + yy, z - 6, Tile.LOG.id);
-									world.wgWriteTile(x - 6, y + yy, z + 5, Tile.LOG.id);
+								if (y + yy < TileAccess.WORLD_HEIGHT) {
+									world.writeTile(x - 6, y + yy, z - 6, Tile.LOG.id);
+									world.writeTile(x + 5, y + yy, z + 5, Tile.LOG.id);
+									world.writeTile(x + 5, y + yy, z - 6, Tile.LOG.id);
+									world.writeTile(x - 6, y + yy, z + 5, Tile.LOG.id);
 								}
 							}
 						}
 
 						if ((roadsX && xo < 2) || (roadsZ && zo < 3)) {
 							// Generate City Roads
-							world.wgWriteTile(x, y, z, Tile.AIR.id);
-							world.wgWriteTile(x, y - 1, z, Tile.GRASS.id);
+							world.writeTile(x, y, z, Tile.AIR.id);
+							world.writeTile(x, y - 1, z, Tile.GRASS.id);
 							world.writeMeta(x, y - 1, z, (byte) 2);
 						}
 					}
@@ -165,9 +166,14 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 	}
 
 	private static boolean isNear(Vec2i locA, Vec2i locB, int x, int y) {
-		float m = (float) (locB.getY() - locA.getY()) / (float) (locB.getX() - locA.getX());
-		float targetY = m * x + locA.getY() - m * locA.getX();
-		return Math.abs(y - targetY) < 5;
+		return MathsUtils.distanceLineBetween(locA.getX(), locA.getY(), locB.getX(), locB.getY(), x, y) < 5;
+	}
+
+	public static boolean isInCity(TileAccess world, int x, int z, int size) {
+		Kingdom kingdom = world.getKingdom(x, z);
+		Vec2i centre = kingdom.getCityCentre();
+		int dist = centre.manhattan(x, z);
+		return dist < size + 5;
 	}
 
 	private static final Noise PATH_NOISE = new Noise(new Random(69420));

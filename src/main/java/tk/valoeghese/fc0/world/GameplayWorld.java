@@ -4,10 +4,18 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongSet;
 import tk.valoeghese.fc0.Game2fc;
+import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2f;
+import tk.valoeghese.fc0.world.chunk.Chunk;
+import tk.valoeghese.fc0.world.chunk.OverflowChunk;
+import tk.valoeghese.fc0.world.chunk.TileWriter;
+import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.entity.Entity;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -15,7 +23,10 @@ import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.save.ChunkLoadingAccess;
+import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.save.SaveLike;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -23,72 +34,47 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
-public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkAccess {
-	public GameplayWorld(@Nullable Save save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
+import static org.joml.Math.sin;
+import static tk.valoeghese.fc0.Game2fc.SKY_CHANGE_RATE;
+
+public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T> {
+	public GameplayWorld(SaveLike save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		this.worldGen = new WorldGen.Earth(seed, 0);
 		this.seed = seed;
 
 		this.chunks = new Long2ObjectArrayMap<>();
+		this.overflowChunks = new Long2ObjectArrayMap<>();
 		this.genRand = new Random(seed);
 		this.constructor = constructor;
 		this.save = save;
-
-		this.skyLight = save == null ? 0 : save.loadedSkyLight;
 
 		this.minBound = (-size + 1) << 4;
 		this.maxBound = size << 4;
 
 		RANDOM.setSeed(seed);
-		this.spawnChunk = save == null ? new ChunkPos(0, 0) : this.searchForSpawn();
+		this.spawnChunk = new ChunkPos(0, 0);
+		this.updateSkylight();
 	}
 
 	private final int minBound;
 	private final int maxBound;
 	private final ChunkPos spawnChunk;
-	private final Long2ObjectMap<T> chunks;
+	protected final Long2ObjectMap<T> chunks;
+	private final Long2ObjectMap<OverflowChunk> overflowChunks;
 	private final Random genRand;
 	private final long seed;
 	private final GenWorld genWorld = new GeneratorWorldAccess();
 	private final WorldGen.ChunkConstructor<T> constructor;
-	@Nullable
-	private final Save save;
-	private final ExecutorService chunkSaveExecutor = Executors.newSingleThreadExecutor();
+	private final SaveLike save;
 	private final WorldGen worldGen;
-	private byte skyLight;
 	private List<Entity> entities = new ArrayList<>();
 	private Int2ObjectMap<Kingdom> kingdomIdMap = new Int2ObjectArrayMap<>();
-
-	private ChunkPos searchForSpawn() {
-		int startCX = RANDOM.nextInt(16) - 8;
-		int startCZ = RANDOM.nextInt(16) - 8;
-		int chunkX = startCX;
-		int chunkZ = startCZ;
-		int height = 0;
-
-		for (int xo = 0; xo < 4; ++xo) {
-			int x = startCX + 2 * xo;
-
-			for (int zo = 0; zo < 4; ++zo) {
-				int z = startCZ + 2 * zo;
-
-				Chunk c = this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
-				int y = c.getHeight(0, 0);
-
-				if (y > 51) {
-					return new ChunkPos(x, z);
-				} else if (y > height) {
-					height = y;
-					chunkX = x;
-					chunkZ = z;
-				}
-			}
-		}
-
-		return new ChunkPos(chunkX, chunkZ);
-	}
+	private final LongSet loading = new LongArraySet();
+	private float skylight = -1.0f;
 
 	// Note: If a kingdom is generated in two locations
 	// It could change the Voronoi location and thus city loc
@@ -97,57 +83,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	// meh
 	@Override
 	public Kingdom kingdomById(int kingdom, int x, int z) {
-		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this, id, Voronoi.sample(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed)));
+		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this, id, Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed, 0.5f)));
 	}
 
 	public Kingdom kingdomById(Vec2f sample) {
 		return this.kingdomIdMap.computeIfAbsent(sample.id(), id -> new Kingdom(this, id, sample));
-	}
-
-	private T getOrCreateChunk(int x, int z) {
-		T result = this.accessChunk(x, z);
-
-		if (result != null) {
-			return result;
-		}
-
-		if (this.save == null) {
-			this.genRand.setSeed(seed + 134 * x + -529 * z);
-			return this.worldGen.generateChunk(this.constructor, this, x, z, this.genRand);
-		} else {
-			return this.save.getOrCreateChunk(this.worldGen, this, x, z, this.constructor);
-		}
-	}
-
-	public void generateSpawnChunks(ChunkPos around) {
-		// TODO fix
-		/*long time = System.currentTimeMillis();
-
-		if (this.save != null) {
-			System.out.println("Generating World Spawn.");
-		}
-
-		for (int cx = around.x + -3; cx <= around.x + 3; ++cx) {
-			for (int cz = around.z + -3; cz <= around.z + 3; ++cz) {
-				this.loadChunk(cx, cz, ChunkLoadStatus.TICK);
-			}
-		}
-
-		if (this.save != null) {
-			System.out.println("Generated World Spawn in " + (System.currentTimeMillis() - time) + "ms.");
-		}*/
-	}
-
-	public void assertSkylight(byte skyLight) {
-		if (skyLight != this.skyLight) {
-			this.skyLight = skyLight;
-
-			for (Chunk chunk : this.chunks.values()) {
-				if (chunk.status.isFull()) {
-					chunk.assertSkylightSingle(skyLight);
-				}
-			}
-		}
 	}
 
 	public Iterator<T> getChunks() {
@@ -165,66 +105,131 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	@Nullable
-	public Chunk loadChunk(int x, int z, ChunkLoadStatus status) {
+	public boolean loadChunk(int x, int z, ChunkLoadStatus status) {
 		if (status == ChunkLoadStatus.UNLOADED) {
 			throw new RuntimeException("Cannot load a chunk with status \"Unloaded\"");
 		}
 
 		if (!this.isInWorld(x << 4, 50, z << 4)) {
-			return null;
+			return false;
 		}
 
-		T result = this.getOrCreateChunk(x, z);
+		T existing = this.getChunk(x, z);
+
+		if (existing == null) {
+			long key = key(x, z);
+
+			if (!this.loading.contains(key)) {
+				this.loading.add(key);
+				this.save.loadChunk(this.worldGen, this, x, z, this.constructor, status);
+			}
+		} else {
+			this.addUpgradedChunk(existing, status);
+		}
+		return true;
+	}
+
+	@Override
+	@Nullable
+	public T getChunk(int x, int z) {
+		return this.chunks.get(key(x, z));
+	}
+
+	@Nullable
+	public T getChunk(ChunkPos pos) {
+		return this.chunks.get(key(pos.x, pos.z));
+	}
+
+	@Override
+	public TileWriter getDelayedLoadChunk(int x, int z) {
+		Chunk result = this.getChunk(x, z);
+
+		if (result == null) {
+			// this is possible because operations on the DelayedLoadChunk SHOULD be on the main thread
+			// SHOULD
+			// because population is on the main thread and I think we only use it there
+			long key = key(x, z);
+			OverflowChunk overflow = this.overflowChunks.get(key);
+
+			if (overflow == null) {
+				overflow = new OverflowChunk(x, z);
+				this.overflowChunks.put(key, overflow);
+				this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
+			}
+
+			return overflow;
+		} else {
+			return result;
+		}
+	}
+
+	@Override
+	public void scheduleForChunk(long chunkPos, Consumer<Chunk> callback, String taskName) {
+		long timeout = System.currentTimeMillis() + 5000; // 5 second timeout
+		AtomicReference<Runnable> r = new AtomicReference<>();
+
+		r.set(() -> {
+			if (Game2fc.getInstance().getWorld() == GameplayWorld.this) {
+				if (this.chunks.containsKey(chunkPos)) {
+					callback.accept(this.chunks.get(chunkPos));
+				} else {
+					if (System.currentTimeMillis() < timeout) {
+						Game2fc.getInstance().runLater(r.get());
+					} else {
+						throw new RuntimeException("TASK " + taskName + " FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
+					}
+				}
+			} else {
+				System.out.println("Cancelled task " + taskName + " due to world change.");
+			}
+		});
+
+		Game2fc.getInstance().runLater(r.get());
+	}
+	@Override
+	public void addUpgradedChunk(final T chunk, ChunkLoadStatus status) {
+		long key = key(chunk.x, chunk.z);
+		OverflowChunk overflow = this.overflowChunks.remove(key);
+
+		if (overflow != null) {
+			chunk.addOverflow(overflow);
+		}
+
+		// make populate able to access the full chunk.
+		this.chunks.put(key(chunk.x, chunk.z), (T)chunk);
+
+		// TODO is this necessary?
+		if (chunk.status == ChunkLoadStatus.UNLOADED) {
+			chunk.status = chunk.populated ? ChunkLoadStatus.POPULATE : ChunkLoadStatus.GENERATE;
+		}
 
 		switch (status) {
 		case GENERATE:
 			break;
 		case RENDER: // actual specific RENDER case handling only happens client side
 		case TICK: // render chunks are also ticking chunks
-			if (!result.status.isFull()) {
-				result.computeHeightmap();
-			}
-
-			if (result.needsLightingCalcOnLoad) {
-				result.setSkylight(this.skyLight); // just in case
-				result.updateLighting();
-				result.needsLightingCalcOnLoad = false;
-			} else if (!result.status.isFull()) { // if otherwise loading from older to a full status, make sure skyLight is correct
-				result.assertSkylight(this.skyLight);
+			if (chunk.needsLightingCalcOnLoad) {
+				chunk.updateLighting();
+				chunk.needsLightingCalcOnLoad = false;
 			}
 		case POPULATE: // ticking chunks are also populated
-			if (!result.populated) {
-				result.populated = true;
-				this.genRand.setSeed(this.seed + 134 * result.x + -529 * result.z + 127);
-				this.worldGen.populateChunk(this.genWorld, result, this.genRand);
+			if (!chunk.populated) {
+				chunk.populated = true;
+				this.genRand.setSeed(this.seed + 134 * chunk.x + -529 * chunk.z + 127);
+				this.worldGen.populateChunk(this.genWorld, chunk, this.genRand);
+				chunk.computeHeightmap();
 			}
 			break;
 		}
 
-		result.status = result.status.upgrade(status);
-
-		if (result != null) {
-			this.chunks.put(key(x, z), result);
-		}
-
-		return result;
-	}
-
-	@Nullable
-	private T accessChunk(int x, int z) {
-		return this.chunks.get(key(x, z));
-	}
-
-	@Override
-	@Nullable
-	public Chunk getChunk(int x, int z) {
-		return this.loadChunk(x, z, ChunkLoadStatus.POPULATE);
+		chunk.status = chunk.status.upgrade(status);
+		this.loading.remove(key);
 	}
 
 	@Nullable
 	@Override
 	public Chunk getRenderChunk(int x, int z) {
-		Chunk c = this.accessChunk(x, z);
+		Chunk c = this.getChunk(x, z);
 
 		if (c == null) {
 			return null;
@@ -237,14 +242,20 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return null;
 	}
 
+	@Nullable
 	@Override
-	public void writeTile(int x, int y, int z, byte tile) {
-		LoadableWorld.super.wgWriteTile(x, y, z, tile);
-	}
+	public Chunk getFullChunk(int x, int z) {
+		Chunk c = this.getChunk(x, z);
 
-	@Override
-	public void wgWriteTile(int x, int y, int z, byte tile) {
-		this.genWorld.wgWriteTile(x, y, z, tile);
+		if (c == null) {
+			return null;
+		}
+
+		if (c.status.isFull()) {
+			return c;
+		}
+
+		return null;
 	}
 
 	@Override
@@ -257,21 +268,23 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		TilePos pos = player.getTilePos();
 		ChunkPos cPos = pos.toChunkPos();
 
-		if (player.chunk != null) {
-			if (cPos.equals(player.chunk.getPos())) {
+		if (player.lastChunkloadChunk != null) {
+			if (cPos.equals(player.lastChunkloadChunk)) {
 				return;
 			}
 		}
 
+		// chunk load first since updateChunkOf should avoid null chunks where possible (unless you're leaving the world in which case the game will probably break anyway)
+		player.lastChunkloadChunk = cPos;
+		this.chunkLoad(cPos);
+
 		if (this.isInWorld(pos.x, 50, pos.z)) {
 			// ensure rendered
-			this.loadChunk(cPos.x, cPos.z, ChunkLoadStatus.RENDER).updateChunkOf(player);
+			this.scheduleForChunk(key(cPos.x, cPos.z), c -> c.updateChunkOf(player), "updatePlayerChunk");
 		} else if (player.chunk != null) {
 			player.chunk.removePlayer(player);
 			player.chunk = null;
 		}
-
-		this.chunkLoad(cPos);
 	}
 
 	@Override
@@ -280,7 +293,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		// prepare chunks to remove
 		for (Chunk c : this.chunks.values()) {
-			if (c.getPos().manhattan(centrePos) > CHUNK_LOAD_DIST) {
+			// We keep chunks for a longer distance than we load them because we are based
+			if (c != null && c.getPos().manhattan(centrePos) > CHUNK_KEEP_DIST) {
 				// prepare for chunk remove on-thread
 				this.onChunkRemove(c);
 				toWrite.add(c);
@@ -289,39 +303,32 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			}
 		}
 
+		// order chunks to load
+		OrderedList<ChunkPos> render = new OrderedList<>(centrePos::manhattan);
+		List<ChunkPos> tick = new ArrayList<>();
+
 		// read new chunks
-		for (int cx = centrePos.x - CHUNK_LOAD_DIST; cx <= centrePos.x + CHUNK_LOAD_DIST; ++cx) {
-			for (int cz = centrePos.z - CHUNK_LOAD_DIST; cz <= centrePos.z + CHUNK_LOAD_DIST; ++cz) {
+		for (int cx = centrePos.x - CHUNK_TICK_DIST; cx <= centrePos.x + CHUNK_TICK_DIST; ++cx) {
+			for (int cz = centrePos.z - CHUNK_TICK_DIST; cz <= centrePos.z + CHUNK_TICK_DIST; ++cz) {
 				int dist = centrePos.manhattan(cx, cz);
 
-				if (dist > CHUNK_LOAD_DIST) {
+				if (dist > CHUNK_TICK_DIST) {
 					continue;
 				}
 
-				switch (dist) {
-				case CHUNK_LOAD_DIST:
-					this.loadChunk(cx, cz, ChunkLoadStatus.GENERATE);
-					break;
-				case CHUNK_LOAD_DIST - 1:
-					this.loadChunk(cx, cz, ChunkLoadStatus.POPULATE);
-					break;
-				case CHUNK_LOAD_DIST - 2:
-					this.loadChunk(cx, cz, ChunkLoadStatus.TICK);
-					break;
-				default:
-					this.loadChunk(cx, cz, ChunkLoadStatus.RENDER);
-					break;
-				}
+				(dist == CHUNK_TICK_DIST ? tick : render).add(new ChunkPos(cx, cz));
 			}
 		}
 
-		if (this.save != null) {
-			// write unnecessary chunks off-thread
-			this.chunkSaveExecutor.execute(() -> {
-				synchronized (this.save) {
-					this.save.writeChunks(toWrite.iterator());
-				}
-			});
+		for (ChunkPos pos : render) {
+			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.RENDER);
+		}
+		for (ChunkPos pos : tick) {
+			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.TICK);
+		}
+
+		if (!toWrite.isEmpty()) {
+			this.save.writeChunks(toWrite.iterator());
 		}
 	}
 
@@ -336,8 +343,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		for (Chunk c : this.chunks.values()) {
 			c.destroy();
 		}
-
-		this.chunkSaveExecutor.shutdown();
 	}
 
 	@Override
@@ -355,8 +360,31 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this;
 	}
 
-	public byte getSkyLight() {
-		return this.skyLight;
+	@Override
+	public int getHeight(int x, int z, Predicate<Tile> solid) {
+		return this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
+	}
+
+	@Override
+	public Kingdom getKingdom(int x, int z) {
+		return this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
+	}
+
+	@Override
+	public int getKingdomId(int x, int z) {
+		return this.getChunk(x >> 4, z >> 4).getKingdomId(x & 0xF, z & 0xF);
+	}
+
+	// TODO when lighting is a shader, don't rebuild the model every time
+	public boolean updateSkylight() {
+		float newSkylight = 0.125f * (float) (int) (8 * Game2fc.getInstance().getLighting());
+		boolean result = newSkylight != this.skylight;
+		this.skylight = newSkylight;
+		return result;
+	}
+
+	public float getSkyLight() {
+		return this.skylight;
 	}
 
 	public List<Entity> getEntities(int x, int z, int radius) {
@@ -381,23 +409,19 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			return GameplayWorld.this.isInWorld(x, y, z);
 		}
 
-		@Nullable
 		@Override
-		public Chunk getChunk(int x, int z) {
-			Chunk result = GameplayWorld.this.loadChunk(x, z, ChunkLoadStatus.GENERATE);
-
-			/*if (result != null) {
-				System.out.println(result.getPos());
-			}*/
-
-			return result;
+		public TileWriter getDelayedLoadChunk(int x, int z) {
+			return GameplayWorld.this.getDelayedLoadChunk(x, z);
 		}
 
 		@Override
-		public void wgWriteTile(int x, int y, int z, byte tile) {
-			if (Tile.BY_ID[tile].canPlaceAt(this, x, y, z)) {
-				GenWorld.super.wgWriteTile(x, y, z, tile);
-			}
+		public int getHeight(int x, int z, Predicate<Tile> solid) {
+			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
+		}
+
+		@Override
+		public Kingdom getKingdom(int x, int z) {
+			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getKingdom(x & 0xF, z & 0xF);
 		}
 
 		@Override
@@ -420,7 +444,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
-	private static final int CHUNK_RENDER_DIST = 4;
-	private static final int CHUNK_LOAD_DIST = CHUNK_RENDER_DIST + 3;
+	private static final int CHUNK_TICK_DIST = 6;
+	private static final int CHUNK_KEEP_DIST = CHUNK_TICK_DIST + 2;
 	private static final Random RANDOM = new Random();
 }

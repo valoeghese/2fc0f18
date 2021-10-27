@@ -3,9 +3,10 @@ package tk.valoeghese.fc0.world.gen;
 import tk.valoeghese.fc0.util.Pair;
 import tk.valoeghese.fc0.util.noise.Noise;
 import tk.valoeghese.fc0.util.noise.RidgedNoise;
-import tk.valoeghese.fc0.world.Chunk;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.ChunkAccess;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
@@ -38,14 +39,15 @@ public abstract class WorldGen {
 	private final double plane;
 
 	public <T extends Chunk> T generateChunk(ChunkConstructor<T> constructor, ChunkAccess parent, int chunkX, int chunkZ, Random rand) {
-		byte[] tiles = new byte[16 * 16 * World.WORLD_HEIGHT];
+		byte[] tiles = new byte[16 * 16 * TileAccess.WORLD_HEIGHT];
 		byte[] meta = new byte[tiles.length];
 
 		double[] noise = generateNoise(chunkX, chunkZ);
 		shapeChunk(chunkX, chunkZ, noise, tiles, meta);
 		carveCaves(chunkX, chunkZ, noise, tiles, meta);
 
-		return constructor.create(parent, chunkX, chunkZ, tiles, meta, null);
+		// TODO not cast like this. This is bad code. Should I just do away with the gajillion interfaces?
+		return constructor.create((GameplayWorld<T>) parent, chunkX, chunkZ, tiles, meta, null);
 	}
 
 	private double[] generateNoise(int chunkX, int chunkZ) {
@@ -84,8 +86,8 @@ public abstract class WorldGen {
 
 				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
 
-				if (height >= World.WORLD_HEIGHT) {
-					height = World.WORLD_HEIGHT - 1;
+				if (height >= TileAccess.WORLD_HEIGHT) {
+					height = TileAccess.WORLD_HEIGHT - 1;
 				}
 
 				int depth = zone.surface == Tile.SAND.id ? 2 : 1;
@@ -191,8 +193,10 @@ public abstract class WorldGen {
 		} else {
 			if (humidity < -0.2) {
 				return EcoZone.DESERT;
+			} else if (humidity < 0.165) {
+				return EcoZone.TROPICAL_STEPPE;
 			} else if (humidity < 0.2) {
-				return EcoZone.TROPICAL_GRASSLAND;
+				return EcoZone.TROPICAL_RAINFOREST_EDGE;
 			} else {
 				return EcoZone.TROPICAL_RAINFOREST;
 			}
@@ -206,9 +210,10 @@ public abstract class WorldGen {
 	protected double sampleRidge(double x, double y) {
 		return this.ridges.sample(x, y, this.plane);
 	}
+
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
-		T create(ChunkAccess parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);
+		T create(GameplayWorld<T> parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);
 	}
 
 	/**

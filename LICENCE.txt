@@ -1,0 +1,18 @@
+2fc0f18 Delegating Open Source Licence (Copyright 2fc0f18 Contributors, 2020 & 2021).
+
+0. DEFINITIONS
+
+Official 2fc0f18 repository: https://github.com/valoeghese/2fc0f18
+
+2fc0f18 contributors: The developers who have made git commits to the official 2fc0f18 repository. i.e. Mekal "Valoeghese" Covic, Supercoder7979, hYdos, mackycheese21, and ramidzkh.
+
+The code: The content, in the form of java source files and gradle scripts, in the official 2fc0f18 repository.
+
+The assets: The content, in the form of image files, OGG Vorbis sound files, paint.net files, and data files, in the official 2fc0f18 repository. This includes ANYTHING in the src/main/resources directory of the official 2fc0f18 repository.
+
+1. MAIN BODY
+
+The assets are ALL RIGHTS RESERVED to Mekal "Valoeghese" Covic.
+  
+For 2fc0f18 contributors, the code is under the MIT Licence.
+For anyone who is not a 2fc0f18 contributor, however, the code is under the GNU GPLv3 Licence.

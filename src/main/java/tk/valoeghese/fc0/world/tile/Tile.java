@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
-import tk.valoeghese.fc0.world.World;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.player.Item;
@@ -15,18 +15,18 @@ import java.util.Random;
 import java.util.function.Function;
 
 public class Tile {
-	public Tile(String textureName, int id, float iota) {
+	public Tile(String textureName, int id, float natureness) {
 		BY_ID[id] = this;
 		this.id = (byte) id;
-		this.iota = iota;
+		this.natureness = natureness;
 		this.textureName = textureName;
 	}
 
 	public final byte id;
 	protected int u;
 	protected int v;
-	// TODO use this (funni unstability magic system)
-	public final float iota;
+
+	public final float natureness;
 	private boolean opaque = true;
 	private boolean opaqueToLight = true;
 	private boolean render = true;
@@ -141,6 +141,9 @@ public class Tile {
 		return this.cross;
 	}
 
+	/**
+	 * @return whether the tile should render on the main mesh.
+	 */
 	public boolean shouldRender() {
 		return this.render;
 	}
@@ -153,7 +156,7 @@ public class Tile {
 		return this.translucent;
 	}
 
-	public void onPlace(World world, TilePos pos) {}
+	public void onPlace(TileAccess world, TilePos pos) {}
 
 	public boolean isSolid() {
 		return this.solid;
@@ -181,14 +184,14 @@ public class Tile {
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile("stone", 0, 0.0f).dontRender().noCollision();
 	public static final Tile STONE = new Tile("stone", 1, 0.0f).sustainsGeneration().setName("stone");
-	public static final Tile GRASS = new GrassTile("grass", 2, 0.0f).sustainsGeneration().setName("grass");
-	public static final Tile LEAVES = new LeavesTile("leaves", 3, 0.0f).cutout().noCollision().setName("leaves");
+	public static final Tile GRASS = new GrassTile("grass", 2, 0.5f).sustainsGeneration().setName("grass");
+	public static final Tile LEAVES = new LeavesTile("leaves", 3, 2.0f).cutout().noCollision().setName("leaves");
 	public static final Tile LOG = new ColumnTile("log", 4, 0.0f).setName("log");
 	public static final Tile WATER = new WaterTile("water", 5, 0.0f).dontRender().noCollision();
 	public static final Tile SAND = new Tile("sand", 6, 0.0f).sustainsGeneration().setName("sand");
-	public static final Tile DAISY = new PlantTile("daisy", 7, 0.0f, t -> t == GRASS).cross().noCollision().setName("daisy");
-	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.0f, t -> t == SAND).cross().noCollision().setName("cactus");
-	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 0.0f, t -> t == GRASS).cross().noCollision().setName("tallgrass");
+	public static final Tile DAISY = new PlantTile("daisy", 7, 1.5f, t -> t == GRASS).cross().noCollision().setName("daisy");
+	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.5f, t -> t == SAND).cross().noCollision().setName("cactus");
+	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 1.0f, t -> t == GRASS).cross().noCollision().setName("tallgrass");
 	public static final Tile BRICKS = new Tile("bricks", 10, 0.0f).setName("bricks");
 	public static final Tile STONE_BRICKS = new Tile("stone_bricks", 11, 0.0f).setName("stone_bricks");
 	public static final Tile ICE = new IceTile("ice", 12, 0.0f).translucent().setName("ice");
@@ -198,6 +201,6 @@ public class Tile {
 	public static final Tile PLANKS = new MetaPlacementTile(Arrays.asList("planks", "planks_2"), 15, 0.0f).setName("planks");
 	public static final Tile COAL = new Tile("coal", 16, 0.0f).setName("coal");
 	public static final Tile MAGNETITE = new Tile("magnetite", 17, 0.0f).sustainsGeneration().setName("magnetite");
-	public static final Tile BRUNNERA = new PlantTile("brunnera", 18, 0.0f, t -> t == GRASS).cross().noCollision().setName("brunnera");
-	public static final Tile DANDELION = new PlantTile("dandelion", 19, 0.0f, t -> t == GRASS).cross().noCollision().setName("dandelion");
+	public static final Tile BRUNNERA = new PlantTile("brunnera", 18, 1.5f, t -> t == GRASS).cross().noCollision().setName("brunnera");
+	public static final Tile DANDELION = new PlantTile("dandelion", 19, 1.5f, t -> t == GRASS).cross().noCollision().setName("dandelion");
 }

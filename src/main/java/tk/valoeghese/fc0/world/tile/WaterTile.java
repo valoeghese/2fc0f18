@@ -3,8 +3,8 @@ package tk.valoeghese.fc0.world.tile;
 import javax.annotation.Nullable;
 
 public class WaterTile extends Tile {
-	public WaterTile(String textureName, int id, float iota) {
-		super(textureName, id, iota);
+	public WaterTile(String textureName, int id, float natureness) {
+		super(textureName, id, natureness);
 	}
 
 	@Override

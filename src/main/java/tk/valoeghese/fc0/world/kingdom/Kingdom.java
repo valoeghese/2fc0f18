@@ -41,7 +41,7 @@ public final class Kingdom {
 	}
 
 	public Vec2f neighbourKingdomVec(int xoff, int yoff, int seed) {
-		return Voronoi.sampleGrid(xoff + this.gridLoc.getX(), yoff + this.gridLoc.getY(), seed);
+		return Voronoi.sampleVoronoiGrid(xoff + this.gridLoc.getX(), yoff + this.gridLoc.getY(), seed);
 	}
 
 	private void addPhonemes(List<String> onsetPre, List<String> codePre, Random rand) {
