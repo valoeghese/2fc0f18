@@ -86,7 +86,7 @@ public class Textures {
 //			System.exit(-3);
 //		}
 //
-//		return result;
+		return result;
 	}
 
 	// TODO move a bunch of this mipmap stuff to scalpel
