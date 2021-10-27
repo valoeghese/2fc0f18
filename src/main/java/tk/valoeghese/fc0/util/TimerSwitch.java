@@ -10,7 +10,7 @@ public final class TimerSwitch {
 	}
 
 	public void update() {
-		this.on = System.currentTimeMillis() >= this.time;
+		this.on = System.currentTimeMillis() < this.time;
 	}
 
 	public boolean isOn() {

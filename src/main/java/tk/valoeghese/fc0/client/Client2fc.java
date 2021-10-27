@@ -124,6 +124,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.initGameRendering();
 		this.initGameAudio();
+		this.activateLoadScreen(); // keep it on while chunkloading is happening TODO make it so we don't have to do this
 
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
@@ -133,7 +134,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 				// do 2 queued tasks per tick
 				this.runNextQueued(3);
-
 				this.updateNextLighting();
 //				System.out.println(this.getLightingQueueSize());
 				this.tick();
@@ -173,7 +173,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		if (this.timerSwitch.isOn()) {
 			this.timerSwitch.update();
 
-			if (!this.timerSwitch.isOn()) { // TODO this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug
+			if (!this.timerSwitch.isOn()) { // TODO this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
 				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
 					this.activateLoadScreen();
 				}
@@ -434,7 +434,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void setWorld(ClientWorld world) {
-		this.timerSwitch.switchOn(6500);
+		this.activateLoadScreen();
 		this.world.destroy();
 		this.world = world;
 	}
@@ -527,7 +527,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void activateLoadScreen() {
-		this.timerSwitch.switchOn(2000);
+		this.timerSwitch.switchOn(1000);
 	}
 
 	public void switchScreen(Screen screen) {

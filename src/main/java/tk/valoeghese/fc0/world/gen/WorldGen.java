@@ -127,8 +127,8 @@ public abstract class WorldGen {
 		} else {
 			if (humidity < -0.2) {
 				return EcoZone.DESERT;
-			} else if (humidity < 0.19) {
-				return EcoZone.TROPICAL_GRASSLAND;
+			} else if (humidity < 0.165) {
+				return EcoZone.TROPICAL_STEPPE;
 			} else if (humidity < 0.2) {
 				return EcoZone.TROPICAL_RAINFOREST_EDGE;
 			} else {

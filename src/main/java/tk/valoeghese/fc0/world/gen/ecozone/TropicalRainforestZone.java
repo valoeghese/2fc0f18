@@ -7,8 +7,8 @@ import tk.valoeghese.fc0.world.gen.generator.TreeGeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 public class TropicalRainforestZone extends EcoZone {
-	TropicalRainforestZone(int density) {
-		super("tropical_rainforest");
+	TropicalRainforestZone(String name, int density) {
+		super(name);
 
 		this.addGenerator(Generator.SCATTERED_ORE, ScatteredOreGenerator.EXTRA_COAL);
 		int grassDensity = (int)((double)density * 1.5);
