@@ -73,7 +73,10 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 					for (int zo = -thickness; zo <= thickness; ++zo) {
 						if (MathsUtils.manhattan(0, 0, xo, zo) <= thickness) {
 							int worldZ = z + zo;
-							writeTile(world, worldX, worldY, worldZ, Tile.LEAVES.id);
+
+							if (world.isInWorld(worldX, worldY, worldZ)  && canLeavesReplace(world.readTile(worldX, worldY, worldZ))) {
+								writeTile(world, worldX, worldY, worldZ, Tile.LEAVES.id);
+							}
 						}
 					}
 				}
@@ -95,7 +98,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 
 					int totalY = y + height + yo;
 
-					if (world.isInWorld(totalX, totalY, totalZ)) {
+					if (world.isInWorld(totalX, totalY, totalZ) && canLeavesReplace(world.readTile(totalX, totalY, totalZ))) {
 						writeTile(world, totalX, totalY, totalZ, Tile.LEAVES.id);
 					}
 				}
@@ -114,10 +117,14 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 
 				int totalZ = zo + z;
 
-				if (world.isInWorld(totalX, finalCrossY, totalZ)) {
+				if (world.isInWorld(totalX, finalCrossY, totalZ) && canLeavesReplace(world.readTile(totalX, finalCrossY, totalZ))) {
 					writeTile(world, totalX, finalCrossY, totalZ, Tile.LEAVES.id);
 				}
 			}
 		}
+	}
+
+	private static boolean canLeavesReplace(byte tileId) {
+		return tileId == Tile.GRASS.id || tileId == Tile.STONE.id || tileId == Tile.LEAVES.id || Tile.BY_ID[tileId].isCross();
 	}
 }
