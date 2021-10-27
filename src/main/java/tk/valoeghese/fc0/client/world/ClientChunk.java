@@ -16,6 +16,7 @@ public class ClientChunk extends Chunk {
 
 	protected ChunkMesh mesh;
 	public boolean dirtyForRender = true;
+	public long lastMeshBuild = System.currentTimeMillis() - 10000; // just in case tm
 
 	@Override
 	public void writeMeta(int x, int y, int z, byte meta) {
@@ -116,6 +117,7 @@ public class ClientChunk extends Chunk {
 	void rebuildMesh() {
 		if (this.mesh != null) {
 			this.mesh.buildMesh(this.tiles, this.meta);
+			this.lastMeshBuild = System.currentTimeMillis();
 		}
 	}
 
@@ -123,6 +125,7 @@ public class ClientChunk extends Chunk {
 		if (this.dirtyForRender && this.mesh != null) {
 			this.dirtyForRender = false;
 			this.mesh.buildMesh(this.tiles, this.meta);
+			this.lastMeshBuild = System.currentTimeMillis();
 		}
 	}
 

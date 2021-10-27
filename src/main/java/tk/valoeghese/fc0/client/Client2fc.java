@@ -46,6 +46,9 @@ import valoeghese.scalpel.util.ALUtils;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -239,14 +242,29 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		// TODO update lighting instead of rebuilding meshes
 		if (this.world != null) {
 			if (this.world.updateSkylight()) {
-				for (ClientChunk chunk : this.world.getChunksForRendering()) {
-					chunk.dirtyForRender = true;
-				}
+				Iterator<ClientChunk> renderChunks = new ArrayList<>(this.world.getChunksForRendering()).iterator();
+				staggerLightingUpdate(renderChunks, System.currentTimeMillis());
 			}
 		}
 
 		// Music System
 		MusicSystem.tick(this.currentScreen);
+	}
+
+	private void staggerLightingUpdate(Iterator<ClientChunk> renderChunks, long startTimeMillis) {
+		int i = 3;
+
+		while (i --> 0 && renderChunks.hasNext()) {
+			ClientChunk chunk = renderChunks.next();
+
+			if (chunk.lastMeshBuild - startTimeMillis < 0) {
+				chunk.dirtyForRender = true;
+			}
+		}
+
+		if (renderChunks.hasNext()) {
+			runLater(() -> staggerLightingUpdate(renderChunks, startTimeMillis));
+		}
 	}
 
 	private void initGameRendering() {

@@ -1,16 +1,15 @@
 package tk.valoeghese.fc0.client.render;
 
 import org.lwjgl.BufferUtils;
-import valoeghese.scalpel.GeneratedAtlas;
-import valoeghese.scalpel.util.ResourceLoader;
-import valoeghese.scalpel.util.TextureLoader;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.tile.Tile;
+import valoeghese.scalpel.GeneratedAtlas;
+import valoeghese.scalpel.util.ResourceLoader;
+import valoeghese.scalpel.util.TextureLoader;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
