@@ -67,9 +67,9 @@ public class PauseScreen extends Screen {
 		if (Keybinds.DESTROY.hasBeenPressed()) {
 			float[] mousePositions = this.game.getWindow().getSelectedPositions();
 
-			if (this.continueOption.isCursorSelecting(mousePositions[0], mousePositions[1], 0.07f)) {
+			if (this.continueOption.isCursorSelecting(mousePositions[0], mousePositions[1])) {
 				this.game.switchScreen(this.game.gameScreen);
-			} else if (this.saveExitOption.isCursorSelecting(mousePositions[0], mousePositions[1], 0.07f)) {
+			} else if (this.saveExitOption.isCursorSelecting(mousePositions[0], mousePositions[1])) {
 				this.game.saveWorld();
 				this.game.getWorld().destroy();
 				this.game.save = null;

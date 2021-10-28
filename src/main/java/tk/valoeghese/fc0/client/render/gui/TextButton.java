@@ -5,9 +5,9 @@ import valoeghese.scalpel.gui.GUICollection;
 
 public class TextButton extends GUICollection<GUI> {
 	public TextButton(String text, float xOffset, float yOffset, float xSize, float ySize) {
-		ButtonRect rect = new ButtonRect(Textures.SIMPLE_BUTTON, xSize, ySize);
-		rect.setPosition(xOffset, yOffset);
-		this.guis.add(rect);
+		this.button = new ButtonRect(Textures.SIMPLE_BUTTON, xSize, ySize);
+		this.button.setPosition(xOffset, yOffset);
+		this.guis.add(this.button);
 
 		float textSize = ySize * 10;
 		Text.Moveable textGUI = new Text.Moveable(text,
@@ -15,5 +15,11 @@ public class TextButton extends GUICollection<GUI> {
 				yOffset,
 				textSize);
 		this.guis.add(textGUI);
+	}
+
+	private final ButtonRect button;
+
+	public boolean isCursorSelecting(float x, float y) {
+		return this.button.isCursorSelecting(x, y);
 	}
 }
