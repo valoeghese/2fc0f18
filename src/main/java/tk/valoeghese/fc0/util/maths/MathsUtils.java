@@ -23,6 +23,10 @@ public class MathsUtils {
 		return i < low ? low : (i > high ? high : i);
 	}
 
+	public static float clamp(float f, float low, float high) {
+		return f < low ? low : (f > high ? high : f);
+	}
+
 	public static int sign(double d) {
 		if (d == 0) {
 			return 0;

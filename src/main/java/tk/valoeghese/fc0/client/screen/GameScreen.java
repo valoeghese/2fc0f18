@@ -336,9 +336,13 @@ public class GameScreen extends Screen {
 			}
 
 			if (Keybinds.ADD_TIME.hasBeenPressed()) {
-				Client2fc.getInstance().time += 200;
+				this.game.time += 200;
 			}
-		}
+
+			if (Keybinds.HIDE_WORLD.hasBeenPressed()) {
+				this.game.renderWorld = !this.game.renderWorld;
+			}
+ 		}
 
 		if (Keybinds.DEV_MODE.hasBeenPressed()) {
 			player.toggleDev();

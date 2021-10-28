@@ -1,7 +1,10 @@
 package tk.valoeghese.fc0.client;
 
+import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
+import org.lwjgl.opengl.GL33;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
@@ -11,7 +14,7 @@ import tk.valoeghese.fc0.client.render.entity.EntityRenderer;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
-import tk.valoeghese.fc0.client.render.model.ChunkMesh;
+import tk.valoeghese.fc0.client.render.model.SquareModel;
 import tk.valoeghese.fc0.client.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.screen.GameScreen;
 import tk.valoeghese.fc0.client.screen.PauseScreen;
@@ -40,6 +43,7 @@ import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 import valoeghese.scalpel.Camera;
+import valoeghese.scalpel.Model;
 import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.Window;
 import valoeghese.scalpel.util.ALUtils;
@@ -48,15 +52,14 @@ import valoeghese.scalpel.util.GLUtils;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
+import static org.joml.Math.cos;
 import static org.joml.Math.sin;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static tk.valoeghese.fc0.client.render.Textures.ENTITY_ATLAS;
-import static tk.valoeghese.fc0.client.render.Textures.TILE_ATLAS;
+import static tk.valoeghese.fc0.client.render.Textures.*;
 
 public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Runnable, GLFWCursorPosCallbackI {
 	public Client2fc() {
@@ -96,6 +99,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private boolean showDebug = false;
 	private final TimerSwitch timerSwitch = new TimerSwitch();
 	private GUI setupGUI;
+	private Model sun;
+	public boolean renderWorld = true;
 
 	public static Client2fc getInstance() {
 		return instance;
@@ -127,7 +132,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.initGameRendering();
 		this.initGameAudio();
-		this.activateLoadScreen(); // keep it on while chunkloading is happening TODO make it so we don't have to do this
+		this.activateLoadScreen(); // keep it on while chunkloading is happening to hide our distributed chunk-adding TODO make it so we don't have to do this
 
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
@@ -304,6 +309,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.switchScreen(this.titleScreen);
 
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
+		this.sun = new SquareModel(GL33.GL_DYNAMIC_DRAW, Shaders.terrain);
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
 	}
@@ -337,7 +343,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void render() {
 		long time = System.nanoTime();
-		float lighting = this.getLighting();
+		float lighting = this.calculateLighting();
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();
@@ -362,24 +368,26 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			this.world.updateChunksForRendering();
 
-			for (ClientChunk chunk : this.world.getChunksForRendering()) {
-				chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
+			if (renderWorld) {
+				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+					chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
+				}
+
+				GLUtils.enableBlend();
+
+				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+					chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
+				}
+
+				Shaders.terrain.uniformInt("waveMode", 1);
+
+				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+					chunk.getOrCreateMesh().renderWater(this.player.getCamera());
+				}
+
+				Shaders.terrain.uniformInt("waveMode", 0);
+				GLUtils.disableBlend();
 			}
-
-			GLUtils.enableBlend();
-
-			for (ClientChunk chunk : this.world.getChunksForRendering()) {
-				chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
-			}
-
-			Shaders.terrain.uniformInt("waveMode", 1);
-
-			for (ClientChunk chunk : this.world.getChunksForRendering()) {
-				chunk.getOrCreateMesh().renderWater(this.player.getCamera());
-			}
-
-			Shaders.terrain.uniformInt("waveMode", 0);
-			GLUtils.disableBlend();
 
 			// render entities
 			GLUtils.bindTexture(ENTITY_ATLAS);
@@ -391,6 +399,23 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 					//renderer.getOrCreateModel();
 				}
 			}
+
+			// Render The Sun
+			GLUtils.bindTexture(THE_SUN);
+			float yaw = this.player.getCamera().getYaw();
+			float NINETY_DEGREES = (float) Math.toRadians(90);
+
+			Shaders.terrain.uniformMat4f("view", new Matrix4f()
+					.rotate(new AxisAngle4f(yaw, 0.0f, 1.0f, 0.0f))
+					.rotate(new AxisAngle4f(this.player.getCamera().getPitch(), -sin(yaw - NINETY_DEGREES), 0.0f, cos(yaw - NINETY_DEGREES)))
+			);
+
+			float skyAngle = this.calculateSkyAngle();
+			Shaders.terrain.uniformFloat("lighting", MathsUtils.clamp(lighting, 0.5f, 1.0f));
+			this.sun.render(new Matrix4f()
+					.scale(16.0f)
+					.rotate(new AxisAngle4f(skyAngle - PI,1.0f, 0.0f, 0.0f))
+					.translate(new Vector3f(0, 0, 10.0f)));
 
 			// bind shader
 			Shaders.gui.bind();
@@ -455,6 +480,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.activateLoadScreen();
 		this.world.destroy();
 		this.world = world;
+		this.renderWorld = true;
 	}
 
 	public void saveWorld() {
@@ -570,4 +596,5 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private static Client2fc instance;
 	public static final int TITLE_WORLD_SIZE = 1000;
 	public static final boolean NEW_TITLE = true;
+	private static final Matrix4f IDENTITY = new Matrix4f();
 }

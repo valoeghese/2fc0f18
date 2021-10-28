@@ -125,6 +125,6 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 	}
 
 	private static boolean canLeavesReplace(byte tileId) {
-		return tileId == Tile.GRASS.id || tileId == Tile.STONE.id || tileId == Tile.LEAVES.id || Tile.BY_ID[tileId].isCross();
+		return tileId == Tile.AIR.id || tileId == Tile.GRASS.id || tileId == Tile.STONE.id || tileId == Tile.LEAVES.id || Tile.BY_ID[tileId].isCross();
 	}
 }

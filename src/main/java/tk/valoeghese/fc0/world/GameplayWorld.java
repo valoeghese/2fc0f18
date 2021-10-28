@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.longs.LongSet;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
-import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2f;
 import tk.valoeghese.fc0.world.chunk.Chunk;
@@ -24,8 +23,6 @@ import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.ChunkLoadingAccess;
-import tk.valoeghese.fc0.world.save.FakeSave;
-import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.save.SaveLike;
 import tk.valoeghese.fc0.world.tile.Tile;
 
@@ -39,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static org.joml.Math.sin;
-import static tk.valoeghese.fc0.Game2fc.SKY_CHANGE_RATE;
 
 public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T> {
 	public GameplayWorld(SaveLike save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
@@ -383,7 +379,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	// TODO when lighting is a shader, don't rebuild the model every time
 	public boolean updateSkylight() {
-		float newSkylight = 0.125f * (float) (int) (8 * Game2fc.getInstance().getLighting());
+		float newSkylight = 0.125f * (float) (int) (8 * Game2fc.getInstance().calculateLighting());
 		boolean result = newSkylight != this.skylight;
 		this.skylight = newSkylight;
 		return result;

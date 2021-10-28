@@ -8,6 +8,7 @@ import tk.valoeghese.fc0.world.player.Player;
 
 import java.util.*;
 
+import static org.joml.Math.PI;
 import static org.joml.Math.sin;
 
 public class Game2fc<W extends TileAccess, P extends Player> {
@@ -22,12 +23,26 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
 	public static final float SKY_CHANGE_RATE = 17.0f;
+	private static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
 
-	public float getLighting() {
+	/**
+	 * @return the sky angle between 0.0f and (float)2pi.
+	 */
+	public float calculateSkyAngle() {
+		return ((float)this.time % SKY_ROTATION_RATE) / 9216.0f;
+	}
+
+	/**
+	 * @return the lighting coefficient, between 0.125f and 1.15f
+	 */
+	public float calculateLighting() {
 		float zeitGrellheit = SKY_CHANGE_RATE * sin((float) this.time / 9216.0f);
 		return MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
 	}
 
+	/**
+	 * @return the game's current world.
+	 */
 	public W getWorld() {
 		return this.world;
 	}
