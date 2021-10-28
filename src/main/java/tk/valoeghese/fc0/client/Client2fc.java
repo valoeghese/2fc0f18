@@ -409,11 +409,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 					.rotate(new AxisAngle4f(this.player.getCamera().getPitch(), -sin(yaw - NINETY_DEGREES), 0.0f, cos(yaw - NINETY_DEGREES)))
 			);
 
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_COLOR, GL_ONE);
 			float skyAngle = this.calculateSkyAngle();
+			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
 			this.sun.render(new Matrix4f()
 					.scale(16.0f)
 					.rotate(new AxisAngle4f(skyAngle - PI,1.0f, 0.0f, 0.0f))
 					.translate(new Vector3f(0, 0, 10.0f)));
+			GLUtils.disableBlend();
 
 			// bind shader
 			Shaders.gui.bind();
@@ -524,10 +528,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.player.dev = this.save.loadedDevMode;
 	}
 
-	/*public void generateSpawnChunks() {
-		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
-	}*/
-
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
 		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
@@ -590,7 +590,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	public static final float PI = (float) Math.PI;
 	public static final float HALF_PI = PI / 2;
-	private static final int TICK_DELTA = 100 / 20;
+	private static final int TICK_DELTA = 1000 / 20;
 	private static Client2fc instance;
 	public static final int TITLE_WORLD_SIZE = 1000;
 	public static final boolean NEW_TITLE = true;

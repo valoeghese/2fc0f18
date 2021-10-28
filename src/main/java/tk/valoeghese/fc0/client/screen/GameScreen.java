@@ -152,11 +152,11 @@ public class GameScreen extends Screen {
 	public void handleMouseInput(double dx, double dy) {
 		Camera camera = this.game.getPlayer().getCamera();
 
-		if (Math.abs(dx) > 1.0f) {
+		if (Math.abs(dx) > 0.333f) {
 			camera.rotateYaw((float) (dx) / 100.0f);
 		}
 
-		if (Math.abs(dy) > 1.0f) {
+		if (Math.abs(dy) > 0.333f) {
 			camera.rotatePitch((float) (dy) / 60.0f);
 		}
 	}
