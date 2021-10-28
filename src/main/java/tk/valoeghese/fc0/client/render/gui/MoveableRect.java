@@ -2,21 +2,27 @@ package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.Client2fc;
 
-public class MoveableSquare extends GUI {
-	public MoveableSquare(int texture, float size) {
+public class MoveableRect extends GUI {
+	public MoveableRect(int texture, float size) {
+		this(texture, size, size);
+	}
+
+	public MoveableRect(int texture, float sizeX, float sizeY) {
 		super(texture);
 
 		this.protoVertices = new float[][]{
-				{-size, size},
-				{-size, -size},
-				{size, size},
-				{size, -size}
+				{-sizeX, sizeY},
+				{-sizeX, -sizeY},
+				{sizeX, sizeY},
+				{sizeX, -sizeY}
 		};
 
-		this.size = size;
+		this.sizeX = sizeX;
+		this.sizeY = sizeY;
 	}
 
-	protected final float size;
+	protected final float sizeX;
+	protected final float sizeY;
 	protected final float[][] protoVertices;
 
 	public void setPosition(float xOffset, float yOffset) {

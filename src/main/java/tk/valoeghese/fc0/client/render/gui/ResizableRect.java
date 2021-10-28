@@ -1,6 +1,6 @@
 package tk.valoeghese.fc0.client.render.gui;
 
-public class ResizableRect extends MoveableSquare {
+public class ResizableRect extends MoveableRect {
 	public ResizableRect(int texture) {
 		super(texture, 0.0f);
 	}

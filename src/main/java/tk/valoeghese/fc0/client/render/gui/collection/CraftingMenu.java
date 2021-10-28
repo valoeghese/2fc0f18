@@ -2,7 +2,7 @@ package tk.valoeghese.fc0.client.render.gui.collection;
 
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.Textures;
-import tk.valoeghese.fc0.client.render.gui.ButtonSquare;
+import tk.valoeghese.fc0.client.render.gui.ButtonRect;
 import tk.valoeghese.fc0.client.render.gui.ItemGUI;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import valoeghese.scalpel.gui.GUICollection;
@@ -87,7 +87,7 @@ public class CraftingMenu extends GUICollection<CraftingMenu.Craftable> implemen
 
 			this.itemGUI = new ItemGUI(xOffset, yOffset, 0.06f);
 			this.nameGUI = new Text("tile.missingno", xOffset + 0.14f, yOffset - 0.02f, 0.8f);
-			this.button = new ButtonSquare(Textures.CRAFT, 0.06f);
+			this.button = new ButtonRect(Textures.CRAFT, 0.06f);
 			this.button.setPosition(xOffset + buttonXOff, yOffset);
 
 			this.output = output;
@@ -95,7 +95,7 @@ public class CraftingMenu extends GUICollection<CraftingMenu.Craftable> implemen
 
 		final ItemGUI itemGUI;
 		final Text nameGUI;
-		final ButtonSquare button;
+		final ButtonRect button;
 		final Item output;
 
 		public boolean isCursorSelecting(float x, float y) {

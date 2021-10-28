@@ -22,17 +22,20 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Textures {
-	private static int load(String name, boolean fallbackToNull) {
+	private static int load(String name) {
 		try {
 			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
 		} catch (IOException e) {
 			e.printStackTrace();
+			return MISSINGNO;
+		}
+	}
 
-			if (fallbackToNull) {
-				return 0;
-			} else {
-				throw new UncheckedIOException("Error loading Texture " + name, e);
-			}
+	private static int loadImportant(String name) {
+		try {
+			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
+		} catch (IOException e) {
+			throw new UncheckedIOException("Error loading vital Texture " + name, e);
 		}
 	}
 
@@ -257,18 +260,21 @@ public class Textures {
 	public static int TILE_ATLAS = 0;
 	public static int ITEM_ATLAS = 0;
 	public static int ENTITY_ATLAS = 0;
+
+	public static final int MISSINGNO = loadImportant("missingno");
 	// Overlays
-	public static final int WATER_OVERLAY = load("overlay/water_overlay", true);
-	public static final int DEATH_OVERLAY = load("overlay/death_overlay", true);
-	public static final int DIM = load("overlay/dim", false);
+	public static final int WATER_OVERLAY = load("overlay/water_overlay");
+	public static final int DEATH_OVERLAY = load("overlay/death_overlay");
+	public static final int DIM = load("overlay/dim");
 	// GUI
-	public static final int FONT_ATLAS = load("gui/font_atlas", false);
-	public static final int SELECTED = load("gui/selected", true);
-	public static final int CRAFT = load("gui/craft", true);
-	public static final int ENTER = load("gui/enter", true);
-	public static final int CRAFTING = load("gui/crafting", false);
-	public static final int HEALTH = load("gui/stat/health", true);
+	public static final int FONT_ATLAS = loadImportant("gui/font_atlas");
+	public static final int SELECTED = load("gui/selected");
+	public static final int CRAFT = load("gui/craft");
+	public static final int ENTER = load("gui/enter");
+	public static final int CRAFTING = load("gui/crafting");
+	public static final int HEALTH = load("gui/stat/health");
+	public static final int SIMPLE_BUTTON = load("gui/button");
 	// OTHER
-	public static final int STARTUP = load("startup", false);
-	public static final int THE_SUN = load("the_sun", true);
+	public static final int STARTUP = loadImportant("startup");
+	public static final int THE_SUN = load("the_sun");
 }

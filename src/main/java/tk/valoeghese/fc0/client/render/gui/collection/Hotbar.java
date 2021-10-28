@@ -3,7 +3,7 @@ package tk.valoeghese.fc0.client.render.gui.collection;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.ItemGUI;
-import tk.valoeghese.fc0.client.render.gui.MoveableSquare;
+import tk.valoeghese.fc0.client.render.gui.MoveableRect;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import valoeghese.scalpel.gui.GUICollection;
 import valoeghese.scalpel.gui.PseudoGUI;
@@ -22,13 +22,13 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
 
-		this.selected = new MoveableSquare(Textures.SELECTED, 0.08f);
+		this.selected = new MoveableRect(Textures.SELECTED, 0.08f);
 		this.selected.setPosition(0.8f, 0.87f);
 	}
 
 	private final Inventory parent;
 	public boolean updating = false;
-	public final MoveableSquare selected;
+	public final MoveableRect selected;
 
 	@Override
 	public void render() {

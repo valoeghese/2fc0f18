@@ -2,9 +2,13 @@ package tk.valoeghese.fc0.client.render.gui;
 
 import tk.valoeghese.fc0.client.Client2fc;
 
-public class ButtonSquare extends MoveableSquare {
-	public ButtonSquare(int texture, float size) {
+public class ButtonRect extends MoveableRect {
+	public ButtonRect(int texture, float size) {
 		super(texture, size);
+	}
+
+	public ButtonRect(int texture, float sizeX, float sizeY) {
+		super(texture, sizeX, sizeY);
 	}
 
 	private float x0;
@@ -18,10 +22,10 @@ public class ButtonSquare extends MoveableSquare {
 
 		float aspect = 1f / Client2fc.getInstance().getWindowAspect();
 
-		this.x0 = xOffset - aspect * this.size;
-		this.y0 = yOffset - 0.06f;
-		this.x1 = xOffset + aspect * 0.06f;
-		this.y1 = yOffset + 0.06f;
+		this.x0 = xOffset - aspect * this.sizeX;
+		this.y0 = yOffset - this.sizeY;
+		this.x1 = xOffset + aspect * this.sizeX;
+		this.y1 = yOffset + this.sizeY;
 	}
 
 	public boolean isCursorSelecting(float x, float y) {

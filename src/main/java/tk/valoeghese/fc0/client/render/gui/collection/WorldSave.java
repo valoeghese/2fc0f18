@@ -1,7 +1,7 @@
 package tk.valoeghese.fc0.client.render.gui.collection;
 
 import tk.valoeghese.fc0.client.render.Textures;
-import tk.valoeghese.fc0.client.render.gui.ButtonSquare;
+import tk.valoeghese.fc0.client.render.gui.ButtonRect;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import valoeghese.scalpel.gui.GUICollection;
 import valoeghese.scalpel.gui.PseudoGUI;
@@ -32,11 +32,11 @@ public class WorldSave extends GUICollection<WorldSave.WorldSaveEntry> {
 	static class WorldSaveEntry implements PseudoGUI {
 		public WorldSaveEntry(String text, float yOffset) {
 			this.text = new Text(text, -0.5f, yOffset, 1.2f);
-			this.entryButton = new ButtonSquare(Textures.ENTER, 0.1f);
+			this.entryButton = new ButtonRect(Textures.ENTER, 0.1f);
 			this.entryButton.setPosition(0.5f, yOffset);
 		}
 
-		private final ButtonSquare entryButton;
+		private final ButtonRect entryButton;
 		private final Text text;
 
 		private boolean isCursorSelecting(float x, float y) {

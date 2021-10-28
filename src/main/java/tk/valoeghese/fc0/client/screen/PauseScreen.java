@@ -3,7 +3,7 @@ package tk.valoeghese.fc0.client.screen;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Textures;
-import tk.valoeghese.fc0.client.render.gui.ButtonText;
+import tk.valoeghese.fc0.client.render.gui.TextButton;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
@@ -26,21 +26,23 @@ public class PauseScreen extends Screen {
 		super(game);
 
 		this.overlay = new Overlay(Textures.DIM);
-		this.continueOption = new ButtonText(
+		this.continueOption = new TextButton(
 				"Continue",
-				-0.67f*Text.widthOf("Continue".toCharArray()),
+				0.0f,
 				0.3f,
-				1.5f);
-		this.saveExitOption = new ButtonText(
+				0.5f,
+				0.15f);
+		this.saveExitOption = new TextButton(
 				"Save and Exit",
-				-0.67f*Text.widthOf("Save and Exit".toCharArray()),
+				0.0f,
 				-0.3f,
-				1.5f);
+				0.5f,
+				0.15f);
 	}
 
 	private final Overlay overlay;
-	private final ButtonText continueOption;
-	private final ButtonText saveExitOption;
+	private final TextButton continueOption;
+	private final TextButton saveExitOption;
 
 	@Override
 	public void onFocus() {
