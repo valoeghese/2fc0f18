@@ -5,10 +5,12 @@ import tk.valoeghese.fc0.client.Client2fc;
 public class ButtonRect extends MoveableRect {
 	public ButtonRect(int texture, float size) {
 		super(texture, size);
+		this.z = 0.998f;
 	}
 
 	public ButtonRect(int texture, float sizeX, float sizeY) {
 		super(texture, sizeX, sizeY);
+		this.z = 0.998f;
 	}
 
 	private float x0;
