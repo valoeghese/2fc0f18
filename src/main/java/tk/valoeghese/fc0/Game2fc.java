@@ -22,7 +22,7 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 	private final Queue<Runnable> later = new LinkedList<>();
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
-	public static final float SKY_CHANGE_RATE = 17.0f;
+	private static final float SKY_LIGHTING_CHANGE_RATE = 15.0f;
 	private static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
 
 	/**
@@ -36,7 +36,7 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 	 * @return the lighting coefficient, between 0.125f and 1.15f
 	 */
 	public float calculateLighting() {
-		float zeitGrellheit = SKY_CHANGE_RATE * sin((float) this.time / 9216.0f);
+		float zeitGrellheit = SKY_LIGHTING_CHANGE_RATE * sin((float) this.time / 9216.0f);
 		return MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
 	}
 

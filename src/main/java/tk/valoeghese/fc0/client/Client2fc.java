@@ -403,7 +403,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// Render The Sun
 			GLUtils.bindTexture(THE_SUN);
 			float yaw = this.player.getCamera().getYaw();
-			float NINETY_DEGREES = (float) Math.toRadians(90);
 
 			Shaders.terrain.uniformMat4f("view", new Matrix4f()
 					.rotate(new AxisAngle4f(yaw, 0.0f, 1.0f, 0.0f))
@@ -411,7 +410,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			);
 
 			float skyAngle = this.calculateSkyAngle();
-			Shaders.terrain.uniformFloat("lighting", MathsUtils.clamp(lighting, 0.5f, 1.0f));
 			this.sun.render(new Matrix4f()
 					.scale(16.0f)
 					.rotate(new AxisAngle4f(skyAngle - PI,1.0f, 0.0f, 0.0f))
@@ -597,4 +595,5 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public static final int TITLE_WORLD_SIZE = 1000;
 	public static final boolean NEW_TITLE = true;
 	private static final Matrix4f IDENTITY = new Matrix4f();
+	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 }
