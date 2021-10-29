@@ -17,7 +17,8 @@ import tk.valoeghese.fc0.client.render.gui.collection.Hotbar;
 import tk.valoeghese.fc0.client.render.model.SquareModel;
 import tk.valoeghese.fc0.client.screen.CraftingScreen;
 import tk.valoeghese.fc0.client.screen.GameScreen;
-import tk.valoeghese.fc0.client.screen.PauseScreen;
+import tk.valoeghese.fc0.client.screen.OptionsMenuScreen;
+import tk.valoeghese.fc0.client.screen.PauseMenuScreen;
 import tk.valoeghese.fc0.client.screen.Screen;
 import tk.valoeghese.fc0.client.screen.TitleScreen;
 import tk.valoeghese.fc0.client.screen.YouDiedScreen;
@@ -28,7 +29,6 @@ import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
 import tk.valoeghese.fc0.util.TimerSwitch;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
-import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Pos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2i;
@@ -89,6 +89,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public Screen titleScreen;
 	public Screen craftingScreen;
 	public Screen pauseScreen;
+	public Screen optionsScreen;
 	private Screen currentScreen;
 	private Screen youDiedScreen;
 	@Nullable
@@ -132,7 +133,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.initGameRendering();
 		this.initGameAudio();
-		this.activateLoadScreen(); // keep it on while chunkloading is happening to hide our distributed chunk-adding TODO make it so we don't have to do this
+		this.activateLoadScreen(); // keep it on while chunkloading is happening to hide our distributed chunk-adding
 
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
@@ -143,12 +144,26 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 				// do 2 queued tasks per tick
 				this.runNextQueued(3);
 				this.updateNextLighting();
-//				System.out.println(this.getLightingQueueSize());
-				this.tick();
+
+				if (this.timerSwitch.isOn()) {
+					this.timerSwitch.update();
+
+					if (!this.timerSwitch.isOn()) { // this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
+						if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
+							this.activateLoadScreen();
+						}
+					}
+				} else {
+					this.handleKeybinds();
+				}
+
+				if (!this.currentScreen.isPauseScreen()) {
+					this.tick();
+				}
 			}
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			this.render();
+			this.render(1.0f - ((float)(this.nextUpdate - timeMillis) / (float)TICK_DELTA));
 			this.window.swapBuffers();
 			glfwPollEvents();
 
@@ -176,18 +191,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			} else {
 				this.player.getCamera().rotateYaw(0.002f);
 			}
-		}
-
-		if (this.timerSwitch.isOn()) {
-			this.timerSwitch.update();
-
-			if (!this.timerSwitch.isOn()) { // TODO this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
-				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
-					this.activateLoadScreen();
-				}
-			}
-		} else {
-			this.handleKeybinds();
 		}
 
 		super.tick();
@@ -304,7 +307,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
-		this.pauseScreen = new PauseScreen(this);
+		this.pauseScreen = new PauseMenuScreen(this, this.gameScreen);
+		this.optionsScreen = new OptionsMenuScreen(this, this.pauseScreen);
 		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
@@ -341,7 +345,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
-	private void render() {
+	private void render(float tickDelta) {
 		long time = System.nanoTime();
 		float lighting = this.calculateLighting();
 
@@ -353,6 +357,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shader.unbind();
 		} else {
 			glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
+
+			// update camera
+			this.player.updateCameraPos(tickDelta);
 
 			// bind shader
 			Shaders.terrain.bind();
@@ -415,7 +422,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
 			this.sun.render(new Matrix4f()
 					.scale(16.0f)
-					.rotate(new AxisAngle4f(skyAngle - PI,1.0f, 0.0f, 0.0f))
+					.rotate(new AxisAngle4f(skyAngle - PI + 8.0f * PI,1.0f, 0.0f, 0.0f))
 					.translate(new Vector3f(0, 0, 10.0f)));
 			GLUtils.disableBlend();
 

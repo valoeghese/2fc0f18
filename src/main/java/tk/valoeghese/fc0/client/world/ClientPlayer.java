@@ -3,6 +3,8 @@ package tk.valoeghese.fc0.client.world;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
+import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.save.SaveLike;
 import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -33,27 +35,9 @@ public class ClientPlayer extends Player  {
 		return this.camera;
 	}
 
-	@Override
-	public void setPos(Pos pos) {
-		super.setPos(pos);
-		this.camera.setPos((float) -pos.getX(), (float) -pos.getY() - 1.8f, (float) -pos.getZ());
-	}
-
-	@Override
-	public void forceMove(double x, double y, double z) {
-		super.forceMove(x, y, z);
-		this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
-	}
-
-	@Override
-	public boolean move(double x, double y, double z) {
-		boolean result = super.move(x, y, z);
-
-		if (result) {
-			this.camera.translateScene(new Vector3f((float) -x, (float) -y, (float) -z));
-		}
-
-		return result;
+	public void updateCameraPos(float tickDelta) {
+		Pos interpolated = new Pos(this.pos, this.nextPos, tickDelta);
+		this.camera.setPos((float) -interpolated.getX(), (float) -interpolated.getY() - 1.8f, (float) -interpolated.getZ());
 	}
 
 	public RaycastResult rayCast(double maxDistance, boolean bridgeBlocks) {

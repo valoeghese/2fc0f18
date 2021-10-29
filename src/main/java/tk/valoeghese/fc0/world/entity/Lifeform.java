@@ -65,8 +65,8 @@ public abstract class Lifeform extends Entity {
 		double aval = -this.velocity.getY();
 		int val = (int) (aval * aval * 36);
 
-		if (val > 3) {
-			this.damage((val - 3) * 5);
+		if (val > 10) {
+			this.damage(val / 2);
 		}
 
 		super.hitGround();

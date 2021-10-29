@@ -1,16 +1,17 @@
-package tk.valoeghese.fc0.client.render.gui;
+package tk.valoeghese.fc0.client.render.gui.button;
 
 import tk.valoeghese.fc0.client.Client2fc;
+import tk.valoeghese.fc0.client.render.gui.MoveableRect;
 
-public class ButtonRect extends MoveableRect {
+public class ButtonRect extends MoveableRect implements Button{
 	public ButtonRect(int texture, float size) {
 		super(texture, size);
-		this.z = 0.998f;
+		this.z = 0.9989f;
 	}
 
 	public ButtonRect(int texture, float sizeX, float sizeY) {
 		super(texture, sizeX, sizeY);
-		this.z = 0.998f;
+		this.z = 0.9989f;
 	}
 
 	private float x0;
@@ -30,6 +31,7 @@ public class ButtonRect extends MoveableRect {
 		this.y1 = yOffset + this.sizeY;
 	}
 
+	@Override
 	public boolean isCursorSelecting(float x, float y) {
 		if (!this.vertexArrays.isEmpty()) {
 			if (y > this.y0 && y < this.y1) {

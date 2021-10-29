@@ -5,6 +5,14 @@ public class Pos {
 		this(other.x, other.y, other.z);
 	}
 
+	public Pos(Pos first, Pos second, double lerp) {
+		this(
+			MathsUtils.lerp(first.x, second.x, lerp),
+			MathsUtils.lerp(first.y, second.y, lerp),
+			MathsUtils.lerp(first.z, second.z, lerp)
+		);
+	}
+
 	public Pos(double x, double y, double z) {
 		this.x = x;
 		this.y = y;

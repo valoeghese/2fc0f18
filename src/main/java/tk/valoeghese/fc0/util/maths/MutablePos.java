@@ -39,6 +39,14 @@ public class MutablePos extends Pos {
 		return this.set(other.x, other.y, other.z);
 	}
 
+	public MutablePos set(Pos first, Pos second, double lerp) {
+		return this.set(
+				MathsUtils.lerp(first.x, second.x, lerp),
+				MathsUtils.lerp(first.y, second.y, lerp),
+				MathsUtils.lerp(first.z, second.z, lerp)
+		);
+	}
+
 	public MutablePos set(double x, double y, double z) {
 		this.x = x;
 		this.y = y;

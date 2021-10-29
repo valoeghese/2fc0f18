@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.world.player;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
+import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.LoadableWorld;
@@ -143,6 +144,10 @@ public class Player extends Lifeform {
 		this.world.updateChunkOf(this);
 	}
 
+	public TilePos getNextTilePos() {
+		return new TilePos(this.nextPos);
+	}
+
 	public void setNoClip(boolean noClip) {
 		this.noClip = noClip;
 	}
@@ -150,14 +155,14 @@ public class Player extends Lifeform {
 	// getters
 
 	public float getHorizontalSlowness() {
-		return 82.0f;
+		return 18.0f;
 	}
 
 	public double getJumpStrength() {
-		return 8.0 / 30.0;
+		return 14.0 / 30.0;
 	}
 
 	public double getUpwardsSwimStrength() {
-		return 11.0 / 30.0;
+		return 50.0 / 30.0;
 	}
 }

@@ -267,7 +267,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void updateChunkOf(Player player) {
-		TilePos pos = player.getTilePos();
+		TilePos pos = player.getNextTilePos();
 		ChunkPos cPos = pos.toChunkPos();
 
 		if (player.lastChunkloadChunk != null) {

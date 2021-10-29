@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.render;
 
 import org.lwjgl.BufferUtils;
+import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -277,4 +278,6 @@ public class Textures {
 	// OTHER
 	public static final int STARTUP = loadImportant("startup");
 	public static final int THE_SUN = load("the_sun");
+
+	public static final Overlay DIMMING_OVERLAY = new Overlay(Textures.DIM);
 }

@@ -25,4 +25,8 @@ public abstract class Screen {
 	public Optional<MusicSettings> getMusic() {
 		return Optional.empty();
 	}
+
+	public boolean isPauseScreen() {
+		return false;
+	}
 }

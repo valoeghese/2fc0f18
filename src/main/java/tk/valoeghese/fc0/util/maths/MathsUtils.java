@@ -5,6 +5,14 @@ public class MathsUtils {
 		// NO-OP
 	}
 
+	public static float lerp(float min, float max, float progress) {
+		return min + progress * (max - min);
+	}
+
+	public static double lerp(double min, double max, double progress) {
+		return min + progress * (max - min);
+	}
+
 	public static float clampMap(float value, float min, float max, float newmin, float newmax) {
 		value -= min;
 		value /= (max - min);

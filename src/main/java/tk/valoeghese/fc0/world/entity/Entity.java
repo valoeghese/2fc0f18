@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 public abstract class Entity {
 	protected Entity(float height) {
 		this.pos = new MutablePos(0 ,0, 0);
+		this.nextPos = new MutablePos(0, 0, 0);
 		this.velocity = new MutablePos(0, 0, 0);
 		this.height = height;
 	}
@@ -24,28 +25,31 @@ public abstract class Entity {
 	}
 
 	protected final MutablePos pos;
+	protected final MutablePos nextPos;
 	protected final MutablePos velocity;
 	protected final float height;
 	protected GameplayWorld world;
 	protected boolean noClip = false;
 	protected boolean falling = false;
-	protected double friction = 0.85;
+	protected double friction = 0.75;
 
 	public void tick() {
+		this.pos.set(this.nextPos);
+
 		TilePos below = this.getTilePos().down();
 
 		if (!this.noClip && this.world.isInWorld(below)) {
 			byte tile = this.world.readTile(below);
 
 			if (tile != Tile.AIR.id) {
-				this.friction = 0.85;
+				this.friction = 0.75;
 				this.friction /= Tile.BY_ID[tile].getFrictionConstant();
 				this.friction = Math.min(1.0, this.friction);
 			}
 		}
 
-		if (!this.noClip) {
-			this.velocity.offsetY(this.isSwimming() ? -0.01f : -0.02f);
+		if (!this.noClip) { // -0.01, -0.02 originally
+			this.velocity.offsetY(this.isSwimming() ? -0.04f : -0.08f);
 		}
 
 		this.velocity.mul(this.friction, this.noClip ? 0.96 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
@@ -62,15 +66,15 @@ public abstract class Entity {
 	}
 
 	public void forceMove(double x, double y, double z) {
-		this.pos.offset(x, y, z);
+		this.nextPos.offset(x, y, z);
 	}
 
 	public boolean move(double x, double y, double z) {
 		if (this.world.getChunk(this.getTilePos().toChunkPos()) == null) {
 			return false;
 		} else {
-			Pos next = this.pos.ofAdded(x, y, z);
-			Pos test = this.pos.ofAdded(x + MathsUtils.sign(x) * 0.06, y, z + MathsUtils.sign(z) * 0.06);
+			Pos next = this.nextPos.ofAdded(x, y, z);
+			Pos test = this.nextPos.ofAdded(x + MathsUtils.sign(x) * 0.04, y, z + MathsUtils.sign(z) * 0.04);
 
 			if (!this.noClip) {
 				TilePos tilePos = new TilePos(test);
@@ -91,7 +95,7 @@ public abstract class Entity {
 				}
 			}
 
-			this.pos.set(next);
+			this.nextPos.set(next);
 			return true;
 		}
 	}
@@ -100,6 +104,7 @@ public abstract class Entity {
 
 	public void setPos(Pos pos) {
 		this.pos.set(pos);
+		this.nextPos.set(pos);
 	}
 
 	public void addVelocity(double x, double y, double z) {
