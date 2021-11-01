@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.longs.LongArraySet;
 import it.unimi.dsi.fastutil.longs.LongSet;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.OrderedList;
+import tk.valoeghese.fc0.util.Synchronise;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
 import tk.valoeghese.fc0.util.maths.Vec2f;
@@ -44,6 +45,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 		this.chunks = new Long2ObjectArrayMap<>();
 		this.overflowChunks = new Long2ObjectArrayMap<>();
+		this.scheduledTasks = new Long2ObjectArrayMap<>();
+
 		this.genRand = new Random(seed);
 		this.constructor = constructor;
 		this.save = save;
@@ -58,9 +61,14 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	private final int minBound;
 	private final int maxBound;
+
+	// Chunk Stuff
 	private final ChunkPos spawnChunk;
 	protected final Long2ObjectMap<T> chunks;
 	private final Long2ObjectMap<OverflowChunk> overflowChunks;
+	@Synchronise
+	private final Long2ObjectMap<List<ScheduledTask>> scheduledTasks;
+
 	private final Random genRand;
 	private final long seed;
 	private final GenWorld genWorld = new GeneratorWorldAccess();
@@ -161,33 +169,22 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Override
 	public void scheduleForChunk(long chunkPos, Consumer<Chunk> callback, String taskName) {
-		long timeout = System.currentTimeMillis() + 5000; // 5 second timeout
 		Chunk chunk = this.chunks.get(chunkPos);
 
-		if (chunk == null) {
-			AtomicReference<Runnable> r = new AtomicReference<>();
-
-			r.set(() -> {
-				if (Game2fc.getInstance().getWorld() == GameplayWorld.this) {
-					if (this.chunks.containsKey(chunkPos)) {
-						callback.accept(this.chunks.get(chunkPos));
-					} else {
-						if (System.currentTimeMillis() < timeout) {
-							Game2fc.getInstance().runLater(r.get());
-						} else {
-							throw new RuntimeException("TASK " + taskName + " FOR CHUNK " + chunkPos + " FAILED: TIMEOUT (5 SECONDS) PASSED, CHUNK NOT YET LOADED.");
-						}
-					}
-				} else {
-					System.out.println("Cancelled task " + taskName + " due to world change.");
-				}
-			});
-
-			Game2fc.getInstance().runLater(r.get());
-		} else {
-			callback.accept(chunk);
+		// in case a task is scheduled off thread. Otherwise we might have a race condition where some code is not called.
+		// Currently we only do this from the main thread but this is a future precaution for potential use offthread.
+		synchronized (this.scheduledTasks) {
+			if (chunk == null) {
+				this.scheduledTasks.computeIfAbsent(chunkPos, n -> new ArrayList<>()).add(new ScheduledTask(callback, taskName, System.currentTimeMillis() + 5000 /*5 seconds too long*/));
+				return; // Early Return so the callback accept is not in the synchronise block
+			}
 		}
+
+		// if already loaded, just run it (should this be forced on main thread by scheduling if not??)
+		callback.accept(chunk);
 	}
+
+	// this is only done on main thread.
 	@Override
 	public void addUpgradedChunk(final T chunk, ChunkLoadStatus status) {
 		long key = key(chunk.x, chunk.z);
@@ -224,8 +221,27 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			break;
 		}
 
+		// upgrade just in case :tm:
 		chunk.status = chunk.status.upgrade(status);
 		this.loading.remove(key);
+
+		synchronized (this.scheduledTasks) {
+			List<ScheduledTask> tasks = this.scheduledTasks.remove(key);
+
+			if (tasks != null) {
+				long execStartTime = System.currentTimeMillis();
+
+				for (ScheduledTask task : tasks) {
+					if (execStartTime > task.tooLongTime) {
+						// yeah giving a number for a chunk and not specifying it's a key could be confusing to users
+						// whatever it's simple enough to understand each chunk position has a different number, it's fine
+						// plus who's actually going to report this issue lol no one reads console unless they're a dev
+						System.out.println("Scheduled Chunk Task " + task.name + " at chunk " + key + " took too long (greater than 5 seconds) before starting execution!");
+					}
+					task.task.accept(chunk);
+				}
+			}
+		}
 	}
 
 	@Nullable
@@ -300,6 +316,8 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				// prepare for chunk remove on-thread
 				this.onChunkRemove(c);
 				toWrite.add(c);
+				// I mean, scheduled tasks shouldn't have an entry at the key at this point, and neither should overflows have an entry
+				// so remove(key) should not be necessary for those maps
 				this.chunks.remove(key(c.x, c.z));
 				c.status = ChunkLoadStatus.UNLOADED;
 			}
@@ -446,10 +464,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
-	private static int chunkTickDist = 8;
-	private static int chunkKeepDist = chunkTickDist + 2;
-	private static final Random RANDOM = new Random();
-
 	public static int getChunkTickDist() {
 		return chunkTickDist;
 	}
@@ -458,4 +472,10 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		GameplayWorld.chunkTickDist = chunkTickDist;
 		chunkKeepDist = chunkTickDist + 2;
 	}
+
+	private static int chunkTickDist = 8;
+	private static int chunkKeepDist = chunkTickDist + 2;
+	private static final Random RANDOM = new Random();
+
+	private static record ScheduledTask(Consumer<Chunk> task, String name, long tooLongTime) {}
 }

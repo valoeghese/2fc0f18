@@ -9,4 +9,9 @@ public class Server2fc extends Game2fc<ServerWorld, Player> implements Runnable 
 	public void run() {
 
 	}
+
+	@Override
+	public boolean isMainThread() {
+		return true; // TODO
+	}
 }

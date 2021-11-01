@@ -76,15 +76,17 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 	}
 
+	private long clientThreadId;
 	private Matrix4f projection;
 	private final Matrix4f guiProjection;
 	private long nextUpdate = 0;
 	private GUI waterOverlay;
 	private int fov;
 	private float sprintFOV = 1.0f;
-	private float correctSprintFOV = 1.0f;
+	private float nextSprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
+
 	public GameScreen gameScreen;
 	public Screen titleScreen;
 	public Screen craftingScreen;
@@ -92,6 +94,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public Screen optionsScreen;
 	private Screen currentScreen;
 	private Screen youDiedScreen;
+
 	@Nullable
 	public Save save = null;
 	private final Window window;
@@ -103,12 +106,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private Model sun;
 	public boolean renderWorld = true;
 
-	public static Client2fc getInstance() {
-		return instance;
+	@Override
+	public boolean isMainThread() {
+		return Thread.currentThread().getId() == this.clientThreadId;
 	}
 
 	@Override
 	public void run() {
+		this.clientThreadId = Thread.currentThread().getId();
+
 		this.setupGUI = new Overlay(Textures.STARTUP);
 		Shaders.loadShaders();
 		Shaders.gui.uniformFloat("opacity", 1.0f);
@@ -141,8 +147,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
 
-				// do 2 queued tasks per tick
-				this.runNextQueued(3);
+				// do 4 queued tasks per tick
+				this.runNextQueued(4);
 				this.updateNextLighting();
 
 				if (this.timerSwitch.isOn()) {
@@ -183,11 +189,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Override
 	protected void tick() {
 		// TODO move screen dependent logic to a Screen::tick method
-		// TODO fix the todo by updating scalpel probably
+		// TODO fix the todo by using scalpel client stuff probably
 
 		if (this.currentScreen == this.titleScreen) {
 			if (NEW_TITLE) {
-				this.player.forceMove(0, 0, 0.01f);
+				this.player.forceMove(0, 0, 0.025f);
 			} else {
 				this.player.getCamera().rotateYaw(0.002f);
 			}
@@ -230,10 +236,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		}
 
 		// Smooth Sprint FOV
-		if (this.sprintFOV > this.correctSprintFOV + 0.001f) {
+		if (this.sprintFOV > this.nextSprintFOV + 0.001f) {
 			this.sprintFOV -= 0.01f;
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
-		} else if (this.sprintFOV < this.correctSprintFOV - 0.001f) {
+		} else if (this.sprintFOV < this.nextSprintFOV - 0.001f) {
 			this.sprintFOV += 0.01f;
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
 		}
@@ -545,7 +551,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void sprintFOV(float correctSprintFOV) {
-		this.correctSprintFOV = correctSprintFOV;
+		this.nextSprintFOV = correctSprintFOV;
 	}
 
 	public float getWindowAspect() {
@@ -595,10 +601,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		return this.showDebug;
 	}
 
+	public static Client2fc getInstance() {
+		return instance;
+	}
+
+	private static Client2fc instance;
+
 	public static final float PI = (float) Math.PI;
 	public static final float HALF_PI = PI / 2;
 	private static final int TICK_DELTA = 1000 / 20;
-	private static Client2fc instance;
 	public static final int TITLE_WORLD_SIZE = 1000;
 	public static final boolean NEW_TITLE = true;
 	private static final Matrix4f IDENTITY = new Matrix4f();

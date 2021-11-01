@@ -11,7 +11,7 @@ import java.util.*;
 import static org.joml.Math.PI;
 import static org.joml.Math.sin;
 
-public class Game2fc<W extends TileAccess, P extends Player> {
+public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	protected Game2fc() {
 		instance = this;
 	}
@@ -105,6 +105,8 @@ public class Game2fc<W extends TileAccess, P extends Player> {
 		this.player.tick();
 		++this.time;
 	}
+
+	public abstract boolean isMainThread();
 
 	public static Game2fc getInstance() {
 		return instance;
