@@ -76,6 +76,7 @@ public abstract class Chunk implements TileAccess {
 		}
 	}
 
+	// mostly values saved. TODO sort the fields properly
 	protected byte[] tiles;
 	protected byte[] meta;
 	protected byte[] blockLighting;
@@ -86,6 +87,7 @@ public abstract class Chunk implements TileAccess {
 	private final int[] heightmap = new int[16 * 16]; // heightmap of opaque blocks for lighting calculations
 	public final int x;
 	public final int z;
+
 	private final ChunkPos pos;
 	public final int startX;
 	public final int startZ;
@@ -96,7 +98,7 @@ public abstract class Chunk implements TileAccess {
 	public boolean populated = false;
 	public ChunkLoadStatus status = ChunkLoadStatus.GENERATE;
 	public boolean needsLightingCalcOnLoad = true; // false if the chunk has ever been in the TICKING stage before.
-	public boolean render = false;
+
 	// whether the chunk will have to save. Can be caused by an entity, meta, lighting, or tile change.
 	// players are stored separately so don't count
 	private boolean dirty = false;

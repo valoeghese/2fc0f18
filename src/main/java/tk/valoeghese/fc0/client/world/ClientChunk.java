@@ -2,21 +2,30 @@ package tk.valoeghese.fc0.client.world;
 
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
-import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
 
 public class ClientChunk extends Chunk {
-	public ClientChunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
+	public ClientChunk(GameplayWorld<ClientChunk> parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		super(parent, x, z, tiles, meta, kingdoms);
 	}
 
 	protected ChunkMesh mesh;
 	public boolean dirtyForRender = true;
 	public long lastMeshBuild = System.currentTimeMillis() - 10000; // just in case tm
+	private int neighbourUpdates = 0;
+
+	public boolean render = false;
+	public boolean preRender = false;
+
+	boolean receiveUpdateFromNeighour(int flag) {
+		this.neighbourUpdates |= flag;
+		return this.neighbourUpdates >= MAX_UPDATES;
+	}
 
 	@Override
 	public void writeMeta(int x, int y, int z, byte meta) {
@@ -42,13 +51,13 @@ public class ClientChunk extends Chunk {
 		super.writeTile(x, y, z, tile);
 
 		if (x == 0) {
-			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x - 1, this.z);
+			ClientChunk chunk = ((ClientWorld) this.parent).getRenderChunk(this.x - 1, this.z);
 
 			if (chunk != null) {
 				chunk.dirtyForRender = true;
 			}
 		} else if (x == 15) {
-			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x + 1, this.z);
+			ClientChunk chunk = ((ClientWorld) this.parent).getRenderChunk(this.x + 1, this.z);
 
 			if (chunk != null) {
 				chunk.dirtyForRender = true;
@@ -56,13 +65,13 @@ public class ClientChunk extends Chunk {
 		}
 
 		if (z == 0) {
-			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z - 1);
+			ClientChunk chunk = ((ClientWorld) this.parent).getRenderChunk(this.x, this.z - 1);
 
 			if (chunk != null) {
 				chunk.dirtyForRender = true;
 			}
 		} else if (z == 15) {
-			ClientChunk chunk = (ClientChunk) this.getRenderChunk(this.x, this.z + 1);
+			ClientChunk chunk = ((ClientWorld) this.parent).getRenderChunk(this.x, this.z + 1);
 
 			if (chunk != null) {
 				chunk.dirtyForRender = true;
@@ -71,9 +80,10 @@ public class ClientChunk extends Chunk {
 	}
 
 	public boolean renderHeight(int y) {
-		return (y >= 0 && y < WORLD_HEIGHT) ? this.heightsToRender.contains(y) : false;
+		return y >= 0 && y < WORLD_HEIGHT && this.heightsToRender.contains(y);
 	}
 
+	// is z + 1 or z - 1 north? In MC it's z - 1, but I intended on having z + 1 be north in 2fc. However it might be the opposite of what I expect
 	public Tile north(int x, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z + 1);
 
@@ -139,11 +149,6 @@ public class ClientChunk extends Chunk {
 		return this.mesh;
 	}
 
-	@Nullable
-	public Chunk getRenderChunk(int x, int z) {
-		return this.parent.getRenderChunk(x, z);
-	}
-
 	@Override
 	public void destroy() {
 		if (this.mesh != null) {
@@ -193,4 +198,6 @@ public class ClientChunk extends Chunk {
 		float base = (0.045584f * level + 0.316228f);
 		return base * base;
 	}
+
+	private static final int MAX_UPDATES = 0b1111;
 }

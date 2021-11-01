@@ -1,13 +1,9 @@
 package tk.valoeghese.fc0.client.world;
 
-import tk.valoeghese.fc0.Game2fc;
-import tk.valoeghese.fc0.client.Client2fc;
-import tk.valoeghese.fc0.util.OrderedList;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.GameplayWorld;
-import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.save.SaveLike;
 
 import javax.annotation.Nullable;
@@ -15,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 
@@ -27,25 +22,88 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	private final List<ClientChunk> toAddToQueue = new ArrayList<>(); // changed to regular array list from ordered list as ordering is now done on the chunkload end.
 	private final Set<ChunkPos> toAddToQueuePositions = new HashSet<>();
 
+	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
+	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
+	private boolean offRenderTick = false;
+
 	private void addToToAddToQueue(ClientChunk chunk) {
 		if (chunk != null && this.toAddToQueuePositions.add(chunk.getPos())) { // if did not already contain, add to queue
 			this.toAddToQueue.add(chunk);
 		}
 	}
 
-	private final Queue<ClientChunk> toAddForRendering = new LinkedList<>();
-	private final List<ClientChunk> chunksForRendering = new ArrayList<>();
-	private boolean ncTick = false; // I think this variable just exists to make rendering not lag the game by batching half as often
+	@Nullable
+	public ClientChunk getRenderChunk(int x, int z) {
+		ClientChunk c = this.getChunk(x, z);
+
+		if (c == null) {
+			return null;
+		}
+
+		if (c.preRender) {
+			return c;
+		}
+
+		return null;
+	}
 
 	@Override
 	public void addUpgradedChunk(final ClientChunk chunk, ChunkLoadStatus status) {
 		super.addUpgradedChunk(chunk, status);
 
 		if (status == ChunkLoadStatus.RENDER) {
-			if (!chunk.render) {
-				chunk.render = true;
-				this.addToToAddToQueue(chunk);
+			if (!chunk.preRender) {
+				chunk.preRender = true;
+
+				// check which surrounding chunks are already loaded and thus meshing will work properly
+				if (this.getChunk(chunk.x, chunk.z + 1) != null) { // our chunk is relatively -z from +z chunk, so use that flag
+					chunk.receiveUpdateFromNeighour(0b100);
+				}
+				if (this.getChunk(chunk.x + 1, chunk.z) != null) {
+					chunk.receiveUpdateFromNeighour(0b1000);
+				}
+				if (this.getChunk(chunk.x, chunk.z - 1) != null) {
+					chunk.receiveUpdateFromNeighour(0b1);
+				}
+				if (this.getChunk(chunk.x - 1, chunk.z) != null) {
+					if (chunk.receiveUpdateFromNeighour(0b10)) { // if this is true, the final update, then may as well queue it
+						chunk.render = true;
+						this.addToToAddToQueue(chunk);
+					}
+				}
 			}
+		}
+
+		this.updateNeighbours(chunk.getPos());
+	}
+
+	private void updateNeighbours(final ChunkPos pos) {
+		ClientChunk neighbour = this.getRenderChunk(pos.x, pos.z + 1);
+
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b1)) {
+			neighbour.render = true;
+			this.addToToAddToQueue(neighbour);
+		}
+
+		neighbour = this.getRenderChunk(pos.x + 1, pos.z);
+
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b10)) {
+			neighbour.render = true;
+			this.addToToAddToQueue(neighbour);
+		}
+
+		neighbour = this.getRenderChunk(pos.x, pos.z - 1);
+
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b100)) {
+			neighbour.render = true;
+			this.addToToAddToQueue(neighbour);
+		}
+
+		neighbour = this.getRenderChunk(pos.x - 1, pos.z);
+
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b1000)) {
+			neighbour.render = true;
+			this.addToToAddToQueue(neighbour);
 		}
 	}
 
@@ -54,9 +112,9 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	}
 
 	public void updateChunksForRendering() {
-		this.ncTick = !this.ncTick;
+		this.offRenderTick = !this.offRenderTick;
 
-		if (this.ncTick) {
+		if (this.offRenderTick) {
 			while (!this.toAddToQueue.isEmpty()) {
 				ClientChunk c = this.toAddToQueue.remove(0);
 				this.toAddToQueuePositions.remove(c.getPos());
@@ -83,7 +141,7 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	protected void onChunkRemove(Chunk c) {
 		c.destroy();
 
-		if (c.render) {
+		if (((ClientChunk) c).render) {
 			if (this.toAddToQueuePositions.contains(c.getPos())) {
 				this.toAddToQueue.remove(c);
 				this.toAddToQueuePositions.remove(c.getPos());

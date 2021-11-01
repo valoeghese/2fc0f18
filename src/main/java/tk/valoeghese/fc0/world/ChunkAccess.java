@@ -19,12 +19,7 @@ public interface ChunkAccess extends SeedWorld {
 	@Nullable
 	Chunk getChunk(int x, int z);
 	/**
-	 * Gets the chunk at RENDER stage, if it exists.
-	 */
-	@Nullable
-	Chunk getRenderChunk(int x, int z);
-	/**
-	 * Gets the chunk at TICK stage, if it exists.
+	 * Gets the chunk at LIGHT stage, if it exists.
 	 */
 	@Nullable
 	Chunk getFullChunk(int x, int z);

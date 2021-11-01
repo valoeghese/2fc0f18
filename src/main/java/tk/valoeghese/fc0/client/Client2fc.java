@@ -147,8 +147,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
 
-				// do 4 queued tasks per tick
-				this.runNextQueued(4);
+				// do 6 queued tasks per tick
+				this.runNextQueued(6);
 				this.updateNextLighting();
 
 				if (this.timerSwitch.isOn()) {

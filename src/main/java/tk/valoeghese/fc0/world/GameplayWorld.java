@@ -246,22 +246,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 
 	@Nullable
 	@Override
-	public Chunk getRenderChunk(int x, int z) {
-		Chunk c = this.getChunk(x, z);
-
-		if (c == null) {
-			return null;
-		}
-
-		if (c.render) {
-			return c;
-		}
-
-		return null;
-	}
-
-	@Nullable
-	@Override
 	public Chunk getFullChunk(int x, int z) {
 		Chunk c = this.getChunk(x, z);
 
