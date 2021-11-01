@@ -53,7 +53,7 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-stb:${project.lwjgl_version}:${project.ext.natives}"
     // my libraries
     implementation 'com.github.valoeghese:SOD-java:2.1.1-gradle'
-    implementation 'com.github.valoeghese:Scalpel:1.1.4'
+    implementation "com.github.valoeghese:Scalpel:${project.scalpel_version}"
 
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
 }
