@@ -155,7 +155,7 @@ public class Player extends Lifeform {
 	// getters
 
 	public float getHorizontalSlowness() {
-		return 18.0f;
+		return 14.0f;
 	}
 
 	public double getJumpStrength() {
