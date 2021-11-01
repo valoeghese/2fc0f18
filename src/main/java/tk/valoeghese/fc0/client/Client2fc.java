@@ -105,6 +105,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private GUI setupGUI;
 	private Model sun;
 	public boolean renderWorld = true;
+	private float freezeInterpolation; // interpolation at game pause time
 
 	@Override
 	public boolean isMainThread() {
@@ -169,7 +170,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			}
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			this.render(1.0f - ((float)(this.nextUpdate - timeMillis) / (float)TICK_DELTA));
+			this.render(this.currentScreen.isPauseScreen() ? this.freezeInterpolation : 1.0f - ((float)(this.nextUpdate - timeMillis) / (float)TICK_DELTA));
 			this.window.swapBuffers();
 			glfwPollEvents();
 
@@ -243,15 +244,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.sprintFOV += 0.01f;
 			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
 		}
-
-//		int n = 0;
-//		int count = 0;
-//		for (ClientChunk chunk : this.world.getChunksForRendering()) {
-//			count++;
-//			if (this.world.hasChunk(chunk)) n++;
-//		}
-//
-//		System.out.println((float) n / (float) count);
 
 		// TODO update lighting instead of rebuilding meshes
 		if (this.world != null) {
@@ -337,7 +329,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.player.forceMove(0, 15, 0);
 		}
 
-//		this.world.generateSpawnChunks(this.player.getTilePos().toChunkPos());
 		this.player.getCamera().rotateYaw((float) Math.PI);
 
 		CraftingManager.addCraftingRecipes();
@@ -586,6 +577,14 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public void switchScreen(Screen screen) {
+		if (this.currentScreen != null) {
+			if (screen.isPauseScreen()) {
+				this.freezeInterpolation = 1.0f - ((float) (this.nextUpdate - System.currentTimeMillis()) / (float) TICK_DELTA);
+			} else if (this.currentScreen.isPauseScreen()) {
+				this.nextUpdate = System.currentTimeMillis() + TICK_DELTA - (int) (this.freezeInterpolation * TICK_DELTA);
+			}
+		}
+
 		this.currentScreen = screen;
 		this.currentScreen.onFocus();
 	}

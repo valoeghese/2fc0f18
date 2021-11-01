@@ -57,16 +57,16 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 
 				// check which surrounding chunks are already loaded and thus meshing will work properly
 				if (this.getChunk(chunk.x, chunk.z + 1) != null) { // our chunk is relatively -z from +z chunk, so use that flag
-					chunk.receiveUpdateFromNeighour(0b100);
+					chunk.receiveUpdateFromNeighbour(0b100);
 				}
 				if (this.getChunk(chunk.x + 1, chunk.z) != null) {
-					chunk.receiveUpdateFromNeighour(0b1000);
+					chunk.receiveUpdateFromNeighbour(0b1000);
 				}
 				if (this.getChunk(chunk.x, chunk.z - 1) != null) {
-					chunk.receiveUpdateFromNeighour(0b1);
+					chunk.receiveUpdateFromNeighbour(0b1);
 				}
 				if (this.getChunk(chunk.x - 1, chunk.z) != null) {
-					if (chunk.receiveUpdateFromNeighour(0b10)) { // if this is true, the final update, then may as well queue it
+					if (chunk.receiveUpdateFromNeighbour(0b10)) { // if this is true, the final update, then may as well queue it
 						chunk.render = true;
 						this.addToToAddToQueue(chunk);
 					}
@@ -80,28 +80,28 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 	private void updateNeighbours(final ChunkPos pos) {
 		ClientChunk neighbour = this.getRenderChunk(pos.x, pos.z + 1);
 
-		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b1)) {
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighbour(0b1)) {
 			neighbour.render = true;
 			this.addToToAddToQueue(neighbour);
 		}
 
 		neighbour = this.getRenderChunk(pos.x + 1, pos.z);
 
-		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b10)) {
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighbour(0b10)) {
 			neighbour.render = true;
 			this.addToToAddToQueue(neighbour);
 		}
 
 		neighbour = this.getRenderChunk(pos.x, pos.z - 1);
 
-		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b100)) {
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighbour(0b100)) {
 			neighbour.render = true;
 			this.addToToAddToQueue(neighbour);
 		}
 
 		neighbour = this.getRenderChunk(pos.x - 1, pos.z);
 
-		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighour(0b1000)) {
+		if (neighbour != null && !neighbour.render && neighbour.receiveUpdateFromNeighbour(0b1000)) {
 			neighbour.render = true;
 			this.addToToAddToQueue(neighbour);
 		}

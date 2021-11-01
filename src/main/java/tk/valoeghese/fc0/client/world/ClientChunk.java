@@ -22,7 +22,7 @@ public class ClientChunk extends Chunk {
 	public boolean render = false;
 	public boolean preRender = false;
 
-	boolean receiveUpdateFromNeighour(int flag) {
+	boolean receiveUpdateFromNeighbour(int flag) {
 		this.neighbourUpdates |= flag;
 		return this.neighbourUpdates >= MAX_UPDATES;
 	}
