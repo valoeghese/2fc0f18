@@ -1,6 +1,7 @@
 package tk.valoeghese.fc0.client.screen;
 
 import org.joml.Math;
+import tk.valoeghese.fc0.BrandAndVersion;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Shaders;
@@ -38,8 +39,10 @@ public class GameScreen extends Screen {
 	public GameScreen(Client2fc game) {
 		super(game);
 
-		this.version = new Text(getInstance().language.translate("gui.version"), -0.92f, 0.9f, 1.7f);
-		this.crosshair = new Crosshair();
+		this.version = new Text("2fc0f18-" + BrandAndVersion.getVersion().orElse(getInstance().language.translate("gui.version")) + BrandAndVersion.getBrand().orElse(""), -0.92f, 0.9f, 1.7f);
+		this.crosshair = new MoveableRect(Textures.CROSSHAIR, 0.04f);
+		this.crosshair.setPosition(0, 0);
+
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
 		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
 		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
@@ -52,7 +55,7 @@ public class GameScreen extends Screen {
 		this.unhealthBar = new ResizableRect(0);
 	}
 
-	private final GUI crosshair;
+	private final MoveableRect crosshair;
 	private final GUI version;
 	public final Text biomeWidget;
 	public final Text coordsWidget;

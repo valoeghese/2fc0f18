@@ -275,6 +275,7 @@ public class Textures {
 	public static final int CRAFTING = load("gui/crafting");
 	public static final int HEALTH = load("gui/stat/health");
 	public static final int SIMPLE_BUTTON = load("gui/button");
+	public static final int CROSSHAIR = load("gui/crosshair");
 	// OTHER
 	public static final int STARTUP = loadImportant("startup");
 	public static final int THE_SUN = load("the_sun");

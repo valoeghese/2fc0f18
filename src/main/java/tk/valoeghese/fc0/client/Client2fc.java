@@ -5,6 +5,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.opengl.GL33;
+import tk.valoeghese.fc0.BrandAndVersion;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
 import tk.valoeghese.fc0.client.keybind.MousebindManager;
@@ -67,7 +68,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		instance = this;
 		// initialise Graphics and Audio systems
 		GLUtils.initGLFW();
-		this.window = new Window("2fc0f18", 640 * 2, 360 * 2);
+		this.window = new Window(BrandAndVersion.isModded() ? "2fc0f18" : "2fc0f18 (" + BrandAndVersion.getBrand() + ")", 640 * 2, 360 * 2);
 		GLUtils.initGL(this.window);
 		ALUtils.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");

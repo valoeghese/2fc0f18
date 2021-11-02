@@ -27,6 +27,7 @@ switch (org.gradle.internal.os.OperatingSystem.current()) {
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://repo.eclipse.org/content/groups/releases/' }
 }
 
 dependencies {
@@ -56,4 +57,7 @@ dependencies {
     implementation "com.github.valoeghese:Scalpel:${project.scalpel_version}"
 
     compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+
+    // JGit (Eclipse License)
+    testImplementation "org.eclipse.jgit:org.eclipse.jgit:5.13.0.202109080827-r"
 }
