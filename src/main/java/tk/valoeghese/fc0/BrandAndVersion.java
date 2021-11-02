@@ -3,8 +3,8 @@ package tk.valoeghese.fc0;
 import java.util.Optional;
 
 public final class BrandAndVersion {
-	private static Optional<String> brand;
-	private static Optional<String> version;
+	private static Optional<String> brand = Optional.empty();
+	private static Optional<String> version = Optional.empty();
 
 	public static Optional<String> getBrand() {
 		return brand;
