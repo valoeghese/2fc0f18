@@ -22,7 +22,11 @@ public class ClientChunk extends Chunk {
 	public boolean render = false;
 	public boolean preRender = false;
 
-	boolean receiveUpdateFromNeighbour(int flag) {
+	/**
+	 * @param flag the flag for the neighbour, which depends on the direction from this chunk to that.
+	 * @return whether all neighbours are loaded
+	 */
+	boolean markNeighbourLoaded(int flag) {
 		this.neighbourUpdates |= flag;
 		return this.neighbourUpdates >= MAX_UPDATES;
 	}

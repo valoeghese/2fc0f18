@@ -249,7 +249,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		// TODO update lighting instead of rebuilding meshes
 		if (this.world != null) {
 			if (this.world.updateSkylight()) {
-				Iterator<ClientChunk> renderChunks = new ArrayList<>(this.world.getChunksForRendering()).iterator();
+				Iterator<ClientChunk> renderChunks = new ArrayList<>(this.world.getRenderingChunks()).iterator();
 				staggerLightingUpdate(renderChunks, System.currentTimeMillis());
 			}
 		}
@@ -371,22 +371,20 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// render world
 			GLUtils.bindTexture(TILE_ATLAS);
 
-			this.world.updateChunksForRendering();
-
 			if (renderWorld) {
-				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+				for (ClientChunk chunk : this.world.getRenderingChunks()) {
 					chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
 				}
 
 				GLUtils.enableBlend();
 
-				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+				for (ClientChunk chunk : this.world.getRenderingChunks()) {
 					chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
 				}
 
 				Shaders.terrain.uniformInt("waveMode", 1);
 
-				for (ClientChunk chunk : this.world.getChunksForRendering()) {
+				for (ClientChunk chunk : this.world.getRenderingChunks()) {
 					chunk.getOrCreateMesh().renderWater(this.player.getCamera());
 				}
 
