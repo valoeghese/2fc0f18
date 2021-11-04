@@ -2,5 +2,5 @@
 
 A project originally created in 2020, now open sourced with a questionable open source license, and slowly getting optimised from what it was back then.
 
-![](https://raw.githubusercontent.com/valoeghese/2fc0f18/master/images/taters_and_birds.png)
-![](https://raw.githubusercontent.com/valoeghese/2fc0f18/master/images/corrupt_forest.png)
+![](https://raw.githubusercontent.com/valoeghese/2fc0f18/master/images/2fc0f18_hill.png)
+![](https://raw.githubusercontent.com/valoeghese/2fc0f18/master/images/2fc0f18_desert.png)
