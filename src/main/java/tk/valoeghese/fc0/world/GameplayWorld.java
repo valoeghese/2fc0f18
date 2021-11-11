@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -206,7 +205,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		case GENERATE:
 			break;
 		case RENDER: // actual specific RENDER case handling only happens client side
-		case TICK: // render chunks are also ticking chunks
+		case LIGHTING: // render chunks are also ticking chunks
 			if (chunk.needsLightingCalcOnLoad) {
 				chunk.updateLighting();
 				chunk.needsLightingCalcOnLoad = false;
@@ -219,6 +218,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 				chunk.computeHeightmap();
 			}
 			break;
+		}
+
+		// if moving to a full status
+		if (status.isFull() && !chunk.status.isFull()) {
+			chunk.onChunkLightingPhase();
 		}
 
 		// upgrade just in case :tm:
@@ -328,7 +332,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.RENDER);
 		}
 		for (ChunkPos pos : tick) {
-			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.TICK);
+			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.LIGHTING);
 		}
 
 		if (!toWrite.isEmpty()) {
@@ -416,6 +420,11 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		@Override
 		public TileWriter getDelayedLoadChunk(int x, int z) {
 			return GameplayWorld.this.getDelayedLoadChunk(x, z);
+		}
+
+		@Override
+		public void writeTile(int x, int y, int z, byte tile) {
+			((Chunk) this.getDelayedLoadChunk(x >> 4, z >> 4)).discreetlyWriteTile(x & 0xF, y, z & 0xF, tile);
 		}
 
 		@Override

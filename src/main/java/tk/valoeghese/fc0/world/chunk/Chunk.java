@@ -42,22 +42,6 @@ public abstract class Chunk implements TileAccess {
 		this.startZ = z << 4;
 		this.pos = new ChunkPos(x, z);
 
-		for (int y = 0; y < WORLD_HEIGHT; ++y) {
-			boolean check = true;
-
-			for (int checx = 0; checx < 16; ++checx) {
-				for (int checz = 0; checz < 16; ++checz) {
-					Tile tile = Tile.BY_ID[this.readTile(checx, y, checz)];
-					this.natureness += tile.natureness;
-
-					if (check && tile.dontOptimiseOut()) {
-						this.heightsToRender.add(y);
-						check = false;
-					}
-				}
-			}
-		}
-
 		long seed = parent.getSeed();
 
 		if (kingdoms == null) {
@@ -114,6 +98,38 @@ public abstract class Chunk implements TileAccess {
 	@Override
 	public double sampleNoise(double x, double y) {
 		return 0;
+	}
+
+	public void computeHeightmap() {
+		for (int bx = 0; bx < 16; ++bx) {
+			for (int bz = 0; bz < 16; ++bz) {
+				for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
+					if (Tile.BY_ID[this.readTile(bx, by, bz)].isOpaqueToLight()) {
+						this.heightmap[bx * 16 + bz] = by;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public void onChunkLightingPhase() {
+		// compute natureness and heights to render
+		for (int y = 0; y < WORLD_HEIGHT; ++y) {
+			boolean check = true;
+
+			for (int checx = 0; checx < 16; ++checx) {
+				for (int checz = 0; checz < 16; ++checz) {
+					Tile tile = Tile.BY_ID[this.readTile(checx, y, checz)];
+					this.natureness += tile.natureness;
+
+					if (check && tile.dontOptimiseOut()) {
+						this.heightsToRender.add(y);
+						check = false;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -384,17 +400,18 @@ public abstract class Chunk implements TileAccess {
 		return false;
 	}
 
-	public void computeHeightmap() {
-		for (int bx = 0; bx < 16; ++bx) {
-			for (int bz = 0; bz < 16; ++bz) {
-				for (int by = WORLD_HEIGHT - 1; by >= 0; --by) {
-					if (Tile.BY_ID[this.readTile(bx, by, bz)].isOpaqueToLight()) {
-						this.heightmap[bx * 16 + bz] = by;
-						break;
-					}
-				}
-			}
+	/**
+	 * writeTile without updating heightmap or anything else. Still marks dirty.
+	 */
+	public void discreetlyWriteTile(int x, int y, int z, byte tile) {
+		int i = index(x, y, z);
+
+		if (this.tiles[i] == tile) {
+			return;
 		}
+
+		this.dirty = true;
+		this.tiles[i] = tile;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ public enum ChunkLoadStatus {
 	UNLOADED(-1, false),
 	GENERATE(0, false),
 	POPULATE(1, false),
-	TICK(2, true),
+	LIGHTING(2, true),
 	RENDER(3, true);
 
 	ChunkLoadStatus(int i, boolean full) {
