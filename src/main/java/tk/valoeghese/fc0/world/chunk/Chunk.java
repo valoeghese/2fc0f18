@@ -400,20 +400,6 @@ public abstract class Chunk implements TileAccess {
 		return false;
 	}
 
-	/**
-	 * writeTile without updating heightmap or anything else. Still marks dirty.
-	 */
-	public void discreetlyWriteTile(int x, int y, int z, byte tile) {
-		int i = index(x, y, z);
-
-		if (this.tiles[i] == tile) {
-			return;
-		}
-
-		this.dirty = true;
-		this.tiles[i] = tile;
-	}
-
 	@Override
 	public void writeTile(int x, int y, int z, byte tile) {
 		int i = index(x, y, z);
@@ -422,35 +408,40 @@ public abstract class Chunk implements TileAccess {
 		if (tile != oldTile) {
 			this.dirty = true;
 
-			Tile oldTileO = Tile.BY_ID[this.tiles[i]]; // O for object
-			Tile newTileO = Tile.BY_ID[tile];
-			this.natureness -= oldTileO.natureness;
-			this.tiles[i] = tile;
-			this.natureness += newTileO.natureness;
-
-			if (Tile.BY_ID[tile].dontOptimiseOut()) {
-				this.heightsToRender.add(y);
+			// if not full, do it discreetly.
+			// should I swap this around for a positive if chekc for microoptimisation or does the compilr optimise this
+			if (!this.status.isFull()) {
+				this.tiles[i] = tile;
 			} else {
-				// Remove a y level from a height to render if everything at the same y is invisible.
-				search:
-				{
-					for (int checx = 0; checx < 16; ++checx) {
-						for (int checz = 0; checz < 16; ++checz) {
-							if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
-								break search;
+				Tile oldTileO = Tile.BY_ID[this.tiles[i]]; // O for object
+				Tile newTileO = Tile.BY_ID[tile];
+				this.natureness -= oldTileO.natureness;
+				this.tiles[i] = tile;
+				this.natureness += newTileO.natureness;
+
+				if (Tile.BY_ID[tile].dontOptimiseOut()) {
+					this.heightsToRender.add(y);
+				} else {
+					// Remove a y level from a height to render if everything at the same y is invisible.
+					search:
+					{
+						for (int checx = 0; checx < 16; ++checx) {
+							for (int checz = 0; checz < 16; ++checz) {
+								if (Tile.BY_ID[this.readTile(checx, y, checz)].dontOptimiseOut()) {
+									break search;
+								}
 							}
 						}
+
+						this.heightsToRender.remove(y);
 					}
-
-					this.heightsToRender.remove(y);
 				}
-			}
 
-			// Modify Heightmap
+				// Modify Heightmap
 
-			boolean hasUpdatedLighting = false;
+				boolean hasUpdatedLighting = false;
 
-			if (this.status.isFull()) {
+
 				int horizontalLoc = x * 16 + z;
 				int height = this.heightmap[horizontalLoc];
 
@@ -516,7 +507,7 @@ public abstract class Chunk implements TileAccess {
 	@Override
 	public int getHeight(int x, int z, Predicate<Tile> solid) {
 		for (int y = 127; y >= 0; --y) {
-			if (this.heightsToRender.contains(y)) {
+			if (!this.status.isFull() || this.heightsToRender.contains(y)) {
 				if (solid.test(Tile.BY_ID[this.readTile(x, y, z)])) {
 					return y;
 				}

@@ -423,11 +423,6 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		}
 
 		@Override
-		public void writeTile(int x, int y, int z, byte tile) {
-			((Chunk) this.getDelayedLoadChunk(x >> 4, z >> 4)).discreetlyWriteTile(x & 0xF, y, z & 0xF, tile);
-		}
-
-		@Override
 		public int getHeight(int x, int z, Predicate<Tile> solid) {
 			return GameplayWorld.this.getChunk(x >> 4, z >> 4).getHeight(x & 0xF, z & 0xF, solid);
 		}
