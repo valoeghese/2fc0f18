@@ -10,7 +10,7 @@ The code: The content, in the form of java source files and gradle scripts, in t
 
 The assets: The content, in the form of image files, OGG Vorbis sound files, paint.net files, and data files, in the official 2fc0f18 repository. This includes ANYTHING in the src/main/resources directory of the official 2fc0f18 repository.
 
-Release: an available copy of 2fc0f18. This includes every commit to the official 2fc0f18 repository.
+Release: an available copy of 2fc0f18. This includes but is not limited to every commit on the official 2fc0f18 repository.
 
 1. MAIN BODY
 
