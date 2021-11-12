@@ -287,33 +287,37 @@ public class GameScreen extends Screen {
 		}
 
 		if (Keybinds.INTERACT.hasBeenPressed()) {
-			if (selectedItem != null && selectedItem.isTile()) {
-				RaycastResult result = player.rayCast(10.0, true);
+			if (selectedItem != null) {
+				if (selectedItem.isTile()) {
+					RaycastResult result = player.rayCast(10.0, true);
 
-				if (result.face != null) {
-					TilePos pos = result.face.apply(result.pos);
-					TilePos playerPos = player.getTilePos();
+					if (result.face != null) {
+						TilePos pos = result.face.apply(result.pos);
+						TilePos playerPos = player.getTilePos();
 
-					if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
-						if (world.isInWorld(pos)) {
-							Tile tile = selectedItem.tileValue();
+						if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
+							if (world.isInWorld(pos)) {
+								Tile tile = selectedItem.tileValue();
 
-							if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
-								if (!player.dev) {
-									selectedItem.decrement();
+								if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
+									if (!player.dev) {
+										selectedItem.decrement();
+									}
+
+									if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
+										world.writeTile(pos, Tile.CACTUS.id);
+									} else {
+										world.writeTile(pos, tile.id);
+										world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
+									}
+
+									tile.onPlace(world, pos);
 								}
-
-								if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
-									world.writeTile(pos, Tile.CACTUS.id);
-								} else {
-									world.writeTile(pos, tile.id);
-									world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
-								}
-
-								tile.onPlace(world, pos);
 							}
 						}
 					}
+				} else {
+					selectedItem.onItemUse(player);
 				}
 			}
 		}

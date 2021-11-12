@@ -48,6 +48,16 @@ public abstract class Lifeform extends Entity {
 		return (this.health -= amount);
 	}
 
+	public int heal(int amount) {
+		this.health += amount;
+
+		if (this.health > this.maxHealth) {
+			this.health = this.maxHealth;
+		}
+
+		return this.health;
+	}
+
 	public boolean isAlive() {
 		return this.health > 0;
 	}

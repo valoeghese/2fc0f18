@@ -1,5 +1,6 @@
 package tk.valoeghese.fc0.world.player;
 
+import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import javax.annotation.Nullable;
@@ -115,5 +116,9 @@ public class Item {
 		} else {
 			return new String[] {this.ingredientItemValue.toString(), String.valueOf(this.count)};
 		}
+	}
+
+	public void onItemUse(Player player) {
+		this.ingredientItemValue.onItemUse(this, player);
 	}
 }
