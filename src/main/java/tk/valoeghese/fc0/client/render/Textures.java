@@ -119,6 +119,7 @@ public class Textures {
 		int result = TextureLoader.textureARGB(atlas.image);
 
 		if (mipmap_128 != null) {
+			System.out.println("Adding generated mipmaps for atlas \"" + atlas.name + "\"");
 			// mipmapping
 			ByteBuffer buffer_128 = imageBuffer(mipmap_128);
 			ByteBuffer buffer_64 = imageBuffer(mipmap_64);
@@ -127,6 +128,9 @@ public class Textures {
 			glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA8, mipmap_128.getWidth(), mipmap_128.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_128);
 			glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA8, mipmap_64.getWidth(), mipmap_64.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_64);
 			glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA8, mipmap_32.getWidth(), mipmap_32.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_32);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			mipmap_128 = null;
 			mipmap_32 = null;
