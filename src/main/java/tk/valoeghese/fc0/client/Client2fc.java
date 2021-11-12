@@ -311,7 +311,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
-		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
+		this.waterOverlay = new Overlay(Textures.waterOverlay);
 		this.sun = new SquareModel(GL33.GL_DYNAMIC_DRAW, Shaders.terrain);
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");

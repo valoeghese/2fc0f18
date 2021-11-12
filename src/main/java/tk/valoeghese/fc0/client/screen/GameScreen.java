@@ -40,7 +40,7 @@ public class GameScreen extends Screen {
 		super(game);
 
 		this.version = new Text("2fc0f18-" + BrandAndVersion.getVersion().orElse(getInstance().language.translate("gui.version")) + BrandAndVersion.getBrand().orElse(""), -0.92f, 0.9f, 1.7f);
-		this.crosshair = new MoveableRect(Textures.CROSSHAIR, 0.04f);
+		this.crosshair = new MoveableRect(Textures.crosshair, 0.04f);
 		this.crosshair.setPosition(0, 0);
 
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
@@ -51,7 +51,7 @@ public class GameScreen extends Screen {
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
-		this.healthBar = new ResizableRect(Textures.HEALTH);
+		this.healthBar = new ResizableRect(Textures.health);
 		this.unhealthBar = new ResizableRect(0);
 	}
 
@@ -248,18 +248,16 @@ public class GameScreen extends Screen {
 			} else if (Keybinds.NO_CLIP_DOWN.isPressed()) {
 				player.addVelocity(0.0, -0.02, 0.0);
 			}
-		} else {
-			if (Keybinds.JUMP.isPressed()) {
-				long time = System.currentTimeMillis();
+		} else if (Keybinds.JUMP.isPressed()) {
+			long time = System.currentTimeMillis();
 
-				if (player.isSwimming() && time > player.lockSwim) {
-					player.addVelocity(0.0f, player.getUpwardsSwimStrength() * 0.03f, 0.0f);
-				} else {
-					player.lockSwim = time + 18;
+			if (player.isSwimming() && time > player.lockSwim) {
+				player.addVelocity(0.0f, player.getUpwardsSwimStrength() * 0.03f, 0.0f);
+			} else {
+				player.lockSwim = time + 18;
 
-					if (player.isOnGround()) {
-						player.addVelocity(0.0f, player.getJumpStrength(), 0.0f);
-					}
+				if (player.isOnGround()) {
+					player.addVelocity(0.0f, player.getJumpStrength(), 0.0f);
 				}
 			}
 		}
@@ -324,10 +322,6 @@ public class GameScreen extends Screen {
 		if (player.getTilePos().y < -20) {
 			player.setPos(this.game.spawnLoc);
 		}
-
-		/*if (Keybinds.SET_SPAWN.hasBeenPressed()) {
-			this.game.spawnLoc = player.getPos();
-		}*/
 
 		if (Keybinds.NO_CLIP.hasBeenPressed()) {
 			player.setNoClip(!player.isNoClip());

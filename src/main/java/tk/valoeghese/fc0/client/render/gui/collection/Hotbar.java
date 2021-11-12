@@ -22,7 +22,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
 
-		this.selected = new MoveableRect(Textures.SELECTED, 0.08f);
+		this.selected = new MoveableRect(Textures.selected, 0.08f);
 		this.selected.setPosition(0.8f, 0.87f);
 	}
 

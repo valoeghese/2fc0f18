@@ -32,7 +32,7 @@ public class WorldSave extends GUICollection<WorldSave.WorldSaveEntry> {
 	static class WorldSaveEntry implements PseudoGUI {
 		public WorldSaveEntry(String text, float yOffset) {
 			this.text = new Text(text, -0.5f, yOffset, 1.2f);
-			this.entryButton = new ButtonRect(Textures.ENTER, 0.1f);
+			this.entryButton = new ButtonRect(Textures.enter, 0.1f);
 			this.entryButton.setPosition(0.5f, yOffset);
 		}
 

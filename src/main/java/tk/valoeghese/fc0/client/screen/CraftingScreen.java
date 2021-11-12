@@ -19,7 +19,7 @@ public class CraftingScreen extends Screen {
 	public CraftingScreen(Client2fc game) {
 		super(game);
 
-		this.craftingOverlay = new Overlay(Textures.CRAFTING);
+		this.craftingOverlay = new Overlay(Textures.crafting);
 		this.menu = new CraftingMenu(game.getPlayer().getInventory());
 		Hotbar.addUpdateSubscriber(this.menu);
 	}

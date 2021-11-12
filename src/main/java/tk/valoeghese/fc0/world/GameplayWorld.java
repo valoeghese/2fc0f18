@@ -332,7 +332,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.RENDER);
 		}
 		for (ChunkPos pos : tick) {
-			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.LIGHTING);
+			this.loadChunk(pos.x, pos.z, ChunkLoadStatus.LIGHTING); // Needs to be lighting to ensure outer render chunks are lit properly
 		}
 
 		if (!toWrite.isEmpty()) {

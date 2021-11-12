@@ -1,5 +1,7 @@
 package tk.valoeghese.fc0.client.render;
 
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import org.lwjgl.BufferUtils;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.util.maths.Vec2i;
@@ -23,6 +25,37 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Textures {
+	public Textures() {
+		this.ids = new IntArraySet();
+		this.waterOverlay = load("overlay/water_overlay");
+		this.deathOverlay = load("overlay/death_overlay");
+		this.fontAtlas = loadImportant("gui/font_atlas");
+		this.selected = load("gui/selected");
+		this.craft = load("gui/craft");
+		this.enter = load("gui/enter");
+		this.crafting = load("gui/crafting");
+		this.health = load("gui/stat/health");
+		this.simpleButton = load("gui/button");
+		this.crosshair = load("gui/crosshair");
+	}
+
+	private final IntSet ids;
+
+	public final int waterOverlay;
+	public final int deathOverlay;
+	public final int fontAtlas;
+	public final int selected;
+	public final int craft;
+	public final int enter;
+	public final int crafting;
+	public final int health;
+	public final int simpleButton;
+	public final int crosshair;
+
+	// OTHER
+
+	public final int THE_SUN = load("the_sun");
+
 	private static int load(String name) {
 		try {
 			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
@@ -263,22 +296,10 @@ public class Textures {
 	public static int ENTITY_ATLAS = 0;
 
 	public static final int MISSINGNO = loadImportant("missingno");
-	// Overlays
-	public static final int WATER_OVERLAY = load("overlay/water_overlay");
-	public static final int DEATH_OVERLAY = load("overlay/death_overlay");
-	public static final int DIM = load("overlay/dim");
-	// GUI
-	public static final int FONT_ATLAS = loadImportant("gui/font_atlas");
-	public static final int SELECTED = load("gui/selected");
-	public static final int CRAFT = load("gui/craft");
-	public static final int ENTER = load("gui/enter");
-	public static final int CRAFTING = load("gui/crafting");
-	public static final int HEALTH = load("gui/stat/health");
-	public static final int SIMPLE_BUTTON = load("gui/button");
-	public static final int CROSSHAIR = load("gui/crosshair");
-	// OTHER
+	// Hardcoded, Required Overlays
+	public static final int DIM = loadImportant("overlay/dim");
 	public static final int STARTUP = loadImportant("startup");
-	public static final int THE_SUN = load("the_sun");
+	// GUI
 
 	public static final Overlay DIMMING_OVERLAY = new Overlay(Textures.DIM);
 }
