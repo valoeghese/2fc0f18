@@ -23,9 +23,13 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Textures {
+	private static BufferedImage localImage(String name) throws IOException {
+		return ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png"));
+	}
+
 	private static int load(String name) {
 		try {
-			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
+			return TextureLoader.textureARGB(localImage(name));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return MISSINGNO;
@@ -34,7 +38,7 @@ public class Textures {
 
 	private static int loadImportant(String name) {
 		try {
-			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
+			return TextureLoader.textureARGB(localImage(name));
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error loading vital Texture " + name, e);
 		}
