@@ -51,8 +51,13 @@ import valoeghese.scalpel.util.ALUtils;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -75,6 +80,22 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		// setup shaders, world, projections, etc
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+
+		// load preferences
+		File properties = new File("preferences.txt");
+
+		try {
+			if (!properties.createNewFile()) {
+				try (FileReader reader = new FileReader(properties)) {
+					this.preferences.load(reader);
+				} catch (IOException e) {
+					System.err.println("Error Reading Preferences File! Proceeding with reset preferences.");
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot create preferences.txt!", e);
+		}
 	}
 
 	private long clientThreadId;
@@ -87,6 +108,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private float nextSprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
+	private final Properties preferences = new Properties();
 
 	public GameScreen gameScreen;
 	public Screen titleScreen;
@@ -307,7 +329,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
 		this.pauseScreen = new PauseMenuScreen(this, this.gameScreen);
-		this.optionsScreen = new OptionsMenuScreen(this, this.pauseScreen);
+		this.optionsScreen = new OptionsMenuScreen(this, this.pauseScreen, this.preferences);
 		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
@@ -559,6 +581,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Nullable
 	public Hotbar getHotbarRenderer() {
 		return this.gameScreen == null ? null : this.gameScreen.hotbarRenderer;
+	}
+
+	public String getProperty(String key, String defaultValue) {
+		return this.preferences.getProperty(key, defaultValue);
 	}
 
 	@Override

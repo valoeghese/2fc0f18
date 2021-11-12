@@ -456,7 +456,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return chunkTickDist;
 	}
 
-	public static void setChunkTickDist(int chunkTickDist) {
+	public static void setChunkloadDistance(int chunkTickDist) {
 		GameplayWorld.chunkTickDist = chunkTickDist;
 		chunkKeepDist = chunkTickDist + 2;
 	}
