@@ -316,15 +316,15 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		List<ChunkPos> tick = new ArrayList<>();
 
 		// read new chunks
-		for (int cx = centrePos.x - chunkTickDist; cx <= centrePos.x + chunkTickDist; ++cx) {
-			for (int cz = centrePos.z - chunkTickDist; cz <= centrePos.z + chunkTickDist; ++cz) {
+		for (int cx = centrePos.x - chunkLoadDist; cx <= centrePos.x + chunkLoadDist; ++cx) {
+			for (int cz = centrePos.z - chunkLoadDist; cz <= centrePos.z + chunkLoadDist; ++cz) {
 				int dist = centrePos.manhattan(cx, cz);
 
-				if (dist > chunkTickDist) {
+				if (dist > chunkLoadDist) {
 					continue;
 				}
 
-				(dist == chunkTickDist ? tick : render).add(new ChunkPos(cx, cz));
+				(dist == chunkLoadDist ? tick : render).add(new ChunkPos(cx, cz));
 			}
 		}
 
@@ -452,17 +452,17 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return (((long) x & 0x7FFFFFFF) << 32L) | ((long) z & 0x7FFFFFFF);
 	}
 
-	public static int getChunkTickDist() {
-		return chunkTickDist;
+	public static int getChunkloadDistance() {
+		return chunkLoadDist;
 	}
 
 	public static void setChunkloadDistance(int chunkTickDist) {
-		GameplayWorld.chunkTickDist = chunkTickDist;
+		GameplayWorld.chunkLoadDist = chunkTickDist;
 		chunkKeepDist = chunkTickDist + 2;
 	}
 
-	private static int chunkTickDist = 8;
-	private static int chunkKeepDist = chunkTickDist + 2;
+	private static int chunkLoadDist = 8;
+	private static int chunkKeepDist = chunkLoadDist + 2;
 	private static final Random RANDOM = new Random();
 
 	private static record ScheduledTask(Consumer<Chunk> task, String name, long tooLongTime) {}

@@ -20,11 +20,11 @@ public class OptionsMenuScreen extends MenuScreen {
 		GameplayWorld.setChunkloadDistance(Integer.parseInt(this.preferred.getProperty("chunkloadDistance", "8")));
 
 		if (this.preferred.contains("chunkloadDistance")) {
-			System.out.println("Setting chunkload distance from preferences " + GameplayWorld.getChunkTickDist());
+			System.out.println("Setting chunkload distance from preferences " + GameplayWorld.getChunkloadDistance());
 		}
 
 		TextButton chunkLoadDist = new TextButton(
-				"Chunkload Distance: " + switch (GameplayWorld.getChunkTickDist()) {
+				"Chunkload Distance: " + switch (GameplayWorld.getChunkloadDistance()) {
 					case 6 -> "Near";
 					case 8 -> "Normal";
 					case 10 -> "Far";
@@ -40,7 +40,7 @@ public class OptionsMenuScreen extends MenuScreen {
 		this.addButton(chunkLoadDist, () -> {
 			this.reChunkLoad = true;
 			this.dirty = true;
-			switch (GameplayWorld.getChunkTickDist()) {
+			switch (GameplayWorld.getChunkloadDistance()) {
 			case 6:
 			default:
 				GameplayWorld.setChunkloadDistance(8);
