@@ -87,7 +87,7 @@ public class CraftingMenu extends GUICollection<CraftingMenu.Craftable> implemen
 
 			this.itemGUI = new ItemGUI(xOffset, yOffset, 0.06f);
 			this.nameGUI = new Text("tile.missingno", xOffset + 0.14f, yOffset - 0.02f, 0.8f);
-			this.button = new ButtonRect(Textures.craft, 0.06f);
+			this.button = new ButtonRect(Textures.CRAFT, 0.06f);
 			this.button.setPosition(xOffset + buttonXOff, yOffset);
 
 			this.output = output;

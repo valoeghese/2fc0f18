@@ -16,7 +16,7 @@ public class YouDiedScreen extends Screen {
 	public YouDiedScreen(Client2fc game) {
 		super(game);
 
-		this.overlay = new Overlay(Textures.deathOverlay);
+		this.overlay = new Overlay(Textures.DEATH_OVERLAY);
 		this.title = new Text(YOU_DIED, -1.25f*Text.widthOf(YOU_DIED.toCharArray()), 0.5f, 2.5f);
 		this.subtitle = new Text(TUTORIAL, -0.5f*Text.widthOf(TUTORIAL.toCharArray()), 0.3f, 1.0f);
 	}

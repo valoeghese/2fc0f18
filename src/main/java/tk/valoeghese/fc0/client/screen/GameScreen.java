@@ -40,7 +40,7 @@ public class GameScreen extends Screen {
 		super(game);
 
 		this.version = new Text("2fc0f18-" + BrandAndVersion.getVersion().orElse(getInstance().language.translate("gui.version")) + BrandAndVersion.getBrand().orElse(""), -0.92f, 0.9f, 1.7f);
-		this.crosshair = new MoveableRect(Textures.crosshair, 0.04f);
+		this.crosshair = new MoveableRect(Textures.CROSSHAIR, 0.04f);
 		this.crosshair.setPosition(0, 0);
 
 		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
@@ -51,7 +51,7 @@ public class GameScreen extends Screen {
 		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
-		this.healthBar = new ResizableRect(Textures.health);
+		this.healthBar = new ResizableRect(Textures.HEALTH);
 		this.unhealthBar = new ResizableRect(0);
 	}
 

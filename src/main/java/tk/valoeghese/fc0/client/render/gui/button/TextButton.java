@@ -7,7 +7,7 @@ import valoeghese.scalpel.gui.GUICollection;
 
 public class TextButton extends GUICollection<GUI> implements Button {
 	public TextButton(String text, float xOffset, float yOffset, float height, float buttonWidth) {
-		this.button = new ButtonRect(Textures.simpleButton, buttonWidth, height);
+		this.button = new ButtonRect(Textures.SIMPLE_BUTTON, buttonWidth, height);
 		this.button.setPosition(xOffset + 0.02f, yOffset + height * 0.25f);
 		this.guis.add(this.button);
 

@@ -4,7 +4,7 @@ import tk.valoeghese.fc0.client.render.Textures;
 
 public class Text extends GUI {
 	public Text(String value, float xOffset, float yOffset, float size) {
-		super(Textures.fontAtlas);
+		super(Textures.FONT_ATLAS);
 
 		this.xOffset = xOffset;
 		this.yOffset = yOffset;
