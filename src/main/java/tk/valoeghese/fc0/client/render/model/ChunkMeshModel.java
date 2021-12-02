@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.client.render.model;
 
-import tk.valoeghese.fc0.client.render.Shaders;
 import valoeghese.scalpel.scene.Model;
 import valoeghese.scalpel.scene.VertexBufferBuilder;
 import valoeghese.scalpel.scene.VertexFormat;
@@ -26,7 +25,7 @@ public final class ChunkMeshModel extends Model {
 	}
 
 	public void addTriangle(int i0, int i1, int i2) {
-		this.tri(i0 , i1, i2);
+		this.tri(i0, i1, i2);
 	}
 
 	public static VertexFormat TERRAIN_FORMAT = new VertexFormat.Builder()

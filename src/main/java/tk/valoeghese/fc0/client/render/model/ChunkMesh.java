@@ -12,6 +12,7 @@ import valoeghese.scalpel.scene.VertexBufferBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class ChunkMesh {
 	public ChunkMesh(ClientChunk chunk, int x, int z) {
@@ -217,7 +218,7 @@ public class ChunkMesh {
 				vertices.pos(this.pos.x, -SIZE + this.pos.y, SIZE + this.pos.z).uv(endU, startV).add(this.lighting).next(); // br
 				break;
 			case 1:
-				i = vertices.pos(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z).uv(startU, endV ).add(this.lighting).next(); // tl
+				i = vertices.pos(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z).uv(startU, endV).add(this.lighting).next(); // tl
 				vertices.pos(-SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
 				vertices.pos(SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z).uv(endU, endV).add(this.lighting).next(); // tr
 				vertices.pos(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z).uv(endU, startV).add(this.lighting).next(); // br
