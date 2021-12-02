@@ -70,7 +70,6 @@ public class ChunkMesh {
 							}
 
 							if (!tileDown.isOpaque(waterLayer, instance)) { // 0.85f
-								int faceAxis = 4;
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y, z + 0.5f),
 										4,

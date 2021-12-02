@@ -183,7 +183,7 @@ public class ClientChunk extends Chunk {
 			if (c == null) {
 				return 0;
 			}
-			return c.getLightLevel(isPrevChunk ? 15 : 0, y, z);
+			return c.getPackedLightLevel(isPrevChunk ? 15 : 0, y, z);
 		} else if ((isPrevChunk = z < 0) || z > 15) {
 			ClientChunk c = (ClientChunk) this.getGameplayWorld().getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
