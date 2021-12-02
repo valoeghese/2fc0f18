@@ -3,16 +3,13 @@ package tk.valoeghese.fc0.client.render.model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.render.Shaders;
-import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
-import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.scene.VertexBufferBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class ChunkMesh {
 	public ChunkMesh(ClientChunk chunk, int x, int z) {
@@ -58,10 +55,10 @@ public class ChunkMesh {
 						} else if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y + 1, z)]];
 							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y - 1, z)]];
-							Tile tileWest = x == 0 ? this.chunk.west(z, y) : Tile.BY_ID[tiles[index(x - 1, y, z)]];
-							Tile tileEast = x == 15 ? this.chunk.east(z, y) : Tile.BY_ID[tiles[index(x + 1, y, z)]];
-							Tile tileSouth = z == 0 ? this.chunk.south(x, y) : Tile.BY_ID[tiles[index(x, y, z - 1)]];
-							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[tiles[index(x, y, z + 1)]];
+							Tile tileSouth = x == 0 ? this.chunk.south(z, y) : Tile.BY_ID[tiles[index(x - 1, y, z)]];
+							Tile tileNorth = x == 15 ? this.chunk.north(z, y) : Tile.BY_ID[tiles[index(x + 1, y, z)]];
+							Tile tileWest = z == 0 ? this.chunk.west(x, y) : Tile.BY_ID[tiles[index(x, y, z - 1)]];
+							Tile tileEast = z == 15 ? this.chunk.east(x, y) : Tile.BY_ID[tiles[index(x, y, z + 1)]];
 
 							if (!tileUp.isOpaque(waterLayer, instance)) { // 0.95f
 								layer.add(new RenderedTileFace(
@@ -82,7 +79,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileNorth.isOpaque(waterLayer, instance)) { // 1.05f
+							if (!tileEast.isOpaque(waterLayer, instance)) { // 1.05f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
 										2,
@@ -91,7 +88,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileSouth.isOpaque(waterLayer, instance)) { // 0.75f
+							if (!tileWest.isOpaque(waterLayer, instance)) { // 0.75f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z),
 										5,
@@ -100,7 +97,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileEast.isOpaque(waterLayer, instance)) { // 0.9f
+							if (!tileNorth.isOpaque(waterLayer, instance)) { // 0.9f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
@@ -109,7 +106,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileWest.isOpaque(waterLayer, instance)) { // 0.9f
+							if (!tileSouth.isOpaque(waterLayer, instance)) { // 0.9f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,

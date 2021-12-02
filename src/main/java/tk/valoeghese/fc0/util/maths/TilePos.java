@@ -1,7 +1,5 @@
 package tk.valoeghese.fc0.util.maths;
 
-import java.util.Objects;
-
 public class TilePos {
 	public TilePos(int x, int y, int z) {
 		this.x = x;

@@ -88,7 +88,7 @@ public class ClientChunk extends Chunk {
 	}
 
 	// is z + 1 or z - 1 north? In MC it's z - 1, but I intended on having z + 1 be north in 2fc. However it might be the opposite of what I expect
-	public Tile north(int x, int y) {
+	public Tile east(int x, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z + 1);
 
 		if (chunk == null) {
@@ -98,7 +98,7 @@ public class ClientChunk extends Chunk {
 		}
 	}
 
-	public Tile south(int x, int y) {
+	public Tile west(int x, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x, this.z - 1);
 
 		if (chunk == null) {
@@ -108,7 +108,7 @@ public class ClientChunk extends Chunk {
 		}
 	}
 
-	public Tile east(int z, int y) {
+	public Tile north(int z, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x + 1, this.z);
 
 		if (chunk == null) {
@@ -118,7 +118,7 @@ public class ClientChunk extends Chunk {
 		}
 	}
 
-	public Tile west(int z, int y) {
+	public Tile south(int z, int y) {
 		Chunk chunk = this.getGameplayWorld().getChunk(this.x - 1, this.z);
 
 		if (chunk == null) {
