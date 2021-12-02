@@ -30,27 +30,27 @@ void main() {
         lightPass = 1;
     } else {
         // 0-1 for block and sky base values
-        float blockLight = float(packedLight >> 7) / 15.0f;
-        float skyLight = skylight * float((packedLight >> 3) & 0xF) / 15.0f; // have fun with skyLight and skylight being different
+        float blockLight = float(packedLight >> 7) / 15.0;
+        float skyLight = skylight * float((packedLight >> 3) & 0xF) / 15.0; // have fun with skyLight and skylight being different
         int face = packedLight & 7;
-        float lightMultiplier;
+        float lightMultiplier = 0;
 
         switch (face) {
         case 0:// east
         case 3:// west
-            lightMultiplier = 0.9f;
+            lightMultiplier = 0.9;
             break;
         case 1:// up
-            lightMultiplier = 0.95f;
+            lightMultiplier = 0.95;
             break;
         case 2:// north
-            lightMultiplier = 1.05f;
+            lightMultiplier = 1.05;
             break;
         case 4:// down
-            lightMultiplier = 0.85f;
+            lightMultiplier = 0.85;
             break;
         case 5:// south
-            lightMultiplier = 0.75f;
+            lightMultiplier = 0.75;
             break;
         }
 
