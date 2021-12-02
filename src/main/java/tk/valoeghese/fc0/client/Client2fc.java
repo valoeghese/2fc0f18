@@ -439,10 +439,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			glBlendFunc(GL_SRC_COLOR, GL_ONE);
 			float skyAngle = this.calculateSkyAngle();
 			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
-			this.sun.render(new Matrix4f()
+			Shaders.terrain.uniformMat4f("transform", new Matrix4f()
 					.scale(16.0f)
 					.rotate(new AxisAngle4f(skyAngle - PI + 8.0f * PI,1.0f, 0.0f, 0.0f))
 					.translate(new Vector3f(0, 0, 10.0f)));
+			this.sun.render();
 			GLUtils.disableBlend();
 
 			// bind shader
