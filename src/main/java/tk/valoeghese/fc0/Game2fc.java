@@ -8,8 +8,7 @@ import tk.valoeghese.fc0.world.player.Player;
 
 import java.util.*;
 
-import static org.joml.Math.PI;
-import static org.joml.Math.sin;
+import static org.joml.Math.*;
 
 public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	protected Game2fc() {
@@ -20,7 +19,6 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	protected W world;
 	protected P player;
 	private final Queue<Runnable> later = new LinkedList<>();
-	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
 	private static final float SKY_LIGHTING_CHANGE_RATE = 10.5f;
 	private static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
@@ -47,30 +45,6 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 		return this.world;
 	}
 
-	protected int getLightingQueueSize() {
-		synchronized (this.toUpdateLighting) {
-			return this.toUpdateLighting.size();
-		}
-	}
-
-	protected void updateNextLighting() {
-		List<Chunk> c = new ArrayList<>();
-
-		synchronized (this.toUpdateLighting) {
-			int count = Math.min(9, toUpdateLighting.size());
-
-			for (int i = 0; i < count; ++i) {
-				c.add(this.toUpdateLighting.remove());
-			}
-		}
-
-		for (Chunk chunk : c) {
-			if (chunk.status != ChunkLoadStatus.UNLOADED) {
-				chunk.refreshLighting();
-			}
-		}
-	}
-
 	protected void runNextQueued(int count) {
 		List<Runnable> tasks = new ArrayList<>();
 
@@ -90,14 +64,6 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	public void runLater(Runnable task) {
 		synchronized (this.later) {
 			this.later.add(task);
-		}
-	}
-
-	public void needsLightingUpdate(Chunk c) {
-		synchronized (this.toUpdateLighting) {
-			if (!this.toUpdateLighting.contains(c)) {
-				this.toUpdateLighting.add(c);
-			}
 		}
 	}
 

@@ -223,7 +223,7 @@ public abstract class Chunk implements TileAccess {
 			Game2fc game = Game2fc.getInstance();
 
 			for (Chunk c : updated) {
-				game.needsLightingUpdate(c);
+				c.refreshLighting();
 			}
 		});
 	}
@@ -241,7 +241,7 @@ public abstract class Chunk implements TileAccess {
 			Game2fc game = Game2fc.getInstance();
 
 			for (Chunk c : updated) {
-				game.needsLightingUpdate(c);
+				c.refreshLighting();
 			}
 		});
 	}
