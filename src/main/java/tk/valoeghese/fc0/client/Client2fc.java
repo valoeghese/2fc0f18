@@ -44,9 +44,9 @@ import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 import valoeghese.scalpel.Camera;
-import valoeghese.scalpel.Model;
 import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.Window;
+import valoeghese.scalpel.scene.Model;
 import valoeghese.scalpel.util.ALUtils;
 import valoeghese.scalpel.util.GLUtils;
 
@@ -433,6 +433,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 					.rotate(new AxisAngle4f(yaw, 0.0f, 1.0f, 0.0f))
 					.rotate(new AxisAngle4f(this.player.getCamera().getPitch(), -sin(yaw - NINETY_DEGREES), 0.0f, cos(yaw - NINETY_DEGREES)))
 			);
+			Shaders.terrain.uniformFloat("skylight", -1.0f); // this makes it ignore lighting calculations
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_COLOR, GL_ONE);
