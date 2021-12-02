@@ -367,7 +367,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void render(float tickDelta) {
 		long time = System.nanoTime();
-		float skyLight = this.calculateSkyLighting();
+		float skylight = this.calculateSkyLighting();
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();
@@ -376,7 +376,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.setupGUI.render();
 			Shader.unbind();
 		} else {
-			glClearColor(0.35f * skyLight, 0.55f * skyLight, 0.95f * skyLight, 1.0f);
+			glClearColor(0.35f * skylight, 0.55f * skylight, 0.95f * skylight, 1.0f);
 
 			// update camera
 			this.player.updateCameraPos(tickDelta);
@@ -385,7 +385,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.terrain.bind();
 			// time and stuff
 			Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-			Shaders.terrain.uniformFloat("skylight", skyLight);
+			Shaders.terrain.uniformFloat("skylight", skylight);
 			// projection
 			Shaders.terrain.uniformMat4f("projection", this.projection);
 			// defaults
@@ -451,7 +451,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// defaults
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 			// render gui
-			this.renderGUI(skyLight);
+			this.renderGUI(skylight);
 			// unbind shader
 			GLUtils.bindTexture(0);
 

@@ -26,14 +26,14 @@ void main() {
     gl_Position = projection * view * transform * vec4(pos, 1.0); // set the final vertex position based on the raw position
     uvPass = rawUV;
 
-    if (lightMultiplier < 0) {
+    if (skylight < 0) {
         lightPass = 1;
     } else {
         // 0-1 for block and sky base values
         float blockLight = float(packedLight >> 7) / 15.0;
         float skyLight = skylight * float((packedLight >> 3) & 0xF) / 15.0; // have fun with skyLight and skylight being different
         int face = packedLight & 7;
-        float lightMultiplier = 0;
+        float lightMultiplier;
 
         switch (face) {
         case 0:// east
