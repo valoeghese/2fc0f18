@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec2 uvPass;
-in int lightPass;
+flat in int lightPass;
 
 out vec4 fragmentColour;
 

@@ -262,47 +262,27 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		// Smooth Sprint FOV
 		if (this.sprintFOV > this.nextSprintFOV + 0.001f) {
 			this.sprintFOV -= 0.01f;
-			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.getAspect(), 0.01f, 250.0f);
 		} else if (this.sprintFOV < this.nextSprintFOV - 0.001f) {
 			this.sprintFOV += 0.01f;
-			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.getAspect(), 0.01f, 250.0f);
 		}
-
-		// TODO update lighting instead of rebuilding meshes
+		
 		if (this.world != null) {
-			if (this.world.updateSkylight()) {
-				Iterator<ClientChunk> renderChunks = new ArrayList<>(this.world.getRenderingChunks()).iterator();
-				staggerLightingUpdate(renderChunks, System.currentTimeMillis());
-			}
+			this.world.updateSkylight(); // this is only used for ingame stuff, not spawning. Do I even need to have the world cache this anymore?
 		}
 
 		// Music System
 		MusicSystem.tick(this.currentScreen);
 	}
 
-	private void staggerLightingUpdate(Iterator<ClientChunk> renderChunks, long startTimeMillis) {
-		int i = 3;
-
-		while (i --> 0 && renderChunks.hasNext()) {
-			ClientChunk chunk = renderChunks.next();
-
-			if (chunk.lastMeshBuild - startTimeMillis < 0) {
-				chunk.dirtyForRender = true;
-			}
-		}
-
-		if (renderChunks.hasNext()) {
-			runLater(() -> staggerLightingUpdate(renderChunks, startTimeMillis));
-		}
-	}
-
 	private void initGameRendering() {
 		long start = System.currentTimeMillis();
-		glfwSetKeyCallback(this.window.id, KeybindManager.INSTANCE);
-		glfwSetMouseButtonCallback(this.window.id, MousebindManager.INSTANCE);
+		glfwSetKeyCallback(this.window.getHandle(), KeybindManager.INSTANCE);
+		glfwSetMouseButtonCallback(this.window.getHandle(), MousebindManager.INSTANCE);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
-		glfwSetCursorPosCallback(this.window.id, this);
+		glfwSetCursorPosCallback(this.window.getHandle(), this);
 
 		// load in the atlases!
 		Textures.loadGeneratedAtlases();
@@ -322,8 +302,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			}
 		}
 
-		this.prevYPos = this.window.height / 2.0f;
-		this.prevXPos = this.window.width / 2.0f;
+		this.prevYPos = this.window.getHeight() / 2.0f;
+		this.prevXPos = this.window.getWidth() / 2.0f;
 
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
@@ -573,7 +553,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public long getWindowId() {
-		return this.window.id;
+		return this.window.getHandle();
 	}
 
 	public Window getWindow() {

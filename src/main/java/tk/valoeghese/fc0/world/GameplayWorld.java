@@ -383,9 +383,9 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 		return this.getChunk(x >> 4, z >> 4).getKingdomId(x & 0xF, z & 0xF);
 	}
 
-	// TODO when lighting is a shader, don't rebuild the model every time
+	// only used for ingame calculations involving skylight. Not rendering.
 	public boolean updateSkylight() {
-		float newSkylight = 0.125f * (float) (int) (8 * Game2fc.getInstance().calculateSkyLighting());
+		float newSkylight = Game2fc.getInstance().calculateSkyLighting();
 		boolean result = newSkylight != this.skylight;
 		this.skylight = newSkylight;
 		return result;
