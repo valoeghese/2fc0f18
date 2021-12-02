@@ -4,7 +4,7 @@ layout (location = 1) in vec2 rawUV;
 layout (location = 2) in int packedLight;
 
 out vec2 uvPass;
-out float lightPass;
+out int lightPass;
 
 uniform mat4 transform;
 uniform mat4 view;
