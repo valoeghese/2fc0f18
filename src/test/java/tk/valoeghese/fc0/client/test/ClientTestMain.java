@@ -28,7 +28,7 @@ public class ClientTestMain {
 				ObjectId head = repository.resolve("HEAD");
 				String branch = repository.getBranch();
 				BrandAndVersion.setVersion(branch + "@" + Integer.toHexString(head.hashCode()));
-				System.out.println("[Dev] Successfully Read Local GIT Repository in " + (System.nanoTime() - time) + " ms.");
+				System.out.println("[Dev] Successfully Read Local GIT Repository in " + (System.nanoTime() - time) + " ns.");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
