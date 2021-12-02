@@ -336,8 +336,12 @@ public class GameScreen extends Screen {
 				player.addDevItems();
 			}
 
-			if (Keybinds.ADD_TIME.hasBeenPressed()) {
+			if (Keybinds.ADD_TIME.isPressed()) {
 				this.game.time += 200;
+			}
+
+			if (Keybinds.REMOVE_TIME.isPressed()) {
+				this.game.time -= 200;
 			}
 
 			if (Keybinds.HIDE_WORLD.hasBeenPressed()) {

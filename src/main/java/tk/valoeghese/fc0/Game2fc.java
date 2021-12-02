@@ -22,7 +22,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	private final Queue<Runnable> later = new LinkedList<>();
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
-	private static final float SKY_LIGHTING_CHANGE_RATE = 13.5f;
+	private static final float SKY_LIGHTING_CHANGE_RATE = 10.5f;
 	private static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
 
 	/**

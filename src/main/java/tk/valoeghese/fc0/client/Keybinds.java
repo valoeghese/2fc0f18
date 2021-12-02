@@ -32,6 +32,7 @@ public final class Keybinds {
 	public static final Keybind DEV_MODE = new Keybind("dev_mode", GLFW_KEY_F1, false);
 	public static final Keybind DEV_ITEMS = new Keybind("dev_items", GLFW_KEY_F8, false);
 	public static final Keybind HIDE_DEBUG = new Keybind("hide_debug", GLFW_KEY_TAB, false);
+	public static final Keybind REMOVE_TIME = new Keybind("remove_time", GLFW_KEY_F2, false);
 	public static final Keybind ADD_TIME = new Keybind("add_time", GLFW_KEY_F3, false);
 	public static final Keybind HIDE_WORLD = new Keybind("hide_world", GLFW_KEY_F4, false);
 }
