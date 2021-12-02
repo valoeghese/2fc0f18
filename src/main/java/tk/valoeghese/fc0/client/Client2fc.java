@@ -370,6 +370,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.terrain.uniformMat4f("projection", this.projection);
 			// defaults
 			Shaders.terrain.uniformInt("waveMode", 0);
+			Shaders.terrain.uniformMat4f("view", this.player.getCamera().getView());
 			// render world
 			GLUtils.bindTexture(TILE_ATLAS);
 
