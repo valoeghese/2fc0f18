@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 
 public class SquareModel extends Model {
 	public SquareModel() {
-		this(GL_STATIC_DRAW, 0.0f, 0.0f, 1.0f, 1.0f);
+		this(0.0f, 0.0f, 1.0f, 1.0f);
 	}
 
 	protected SquareModel(float startU, float startV, float endU, float endV) {
