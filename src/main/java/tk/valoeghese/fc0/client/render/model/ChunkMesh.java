@@ -2,10 +2,12 @@ package tk.valoeghese.fc0.client.render.model;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import tk.valoeghese.fc0.client.render.Shaders;
 import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
+import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.scene.VertexBufferBuilder;
 
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ public class ChunkMesh {
 							layer.add(
 									new RenderedCrossTileFace(new Vector3f(x, y, z),
 											instance,
-											0.95f * this.chunk.getRenderLightingFactor(x, y, z),
+											this.chunk.getPackedLightLevel(x, y, z),
 											meta));
 						} else if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y + 1, z)]];
@@ -60,57 +62,58 @@ public class ChunkMesh {
 							Tile tileSouth = z == 0 ? this.chunk.south(x, y) : Tile.BY_ID[tiles[index(x, y, z - 1)]];
 							Tile tileNorth = z == 15 ? this.chunk.north(x, y) : Tile.BY_ID[tiles[index(x, y, z + 1)]];
 
-							if (!tileUp.isOpaque(waterLayer, instance)) {
+							if (!tileUp.isOpaque(waterLayer, instance)) { // 0.95f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 1f, z + 0.5f),
 										1,
 										instance,
-										0.95f * this.chunk.getRenderLightingFactor(x, y + 1, z),
+										this.chunk.getPackedLightLevel(x, y + 1, z),
 										meta));
 							}
 
-							if (!tileDown.isOpaque(waterLayer, instance)) {
+							if (!tileDown.isOpaque(waterLayer, instance)) { // 0.85f
+								int faceAxis = 4;
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y, z + 0.5f),
 										4,
 										instance,
-										0.85f * this.chunk.getRenderLightingFactor(x, y - 1, z),
+										this.chunk.getPackedLightLevel(x, y - 1, z),
 										meta));
 							}
 
-							if (!tileNorth.isOpaque(waterLayer, instance)) {
+							if (!tileNorth.isOpaque(waterLayer, instance)) { // 1.05f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
 										2,
 										instance,
-										1.05f * this.chunk.getRenderLightingFactor(x, y, z + 1),
+										this.chunk.getPackedLightLevel(x, y, z + 1),
 										meta));
 							}
 
-							if (!tileSouth.isOpaque(waterLayer, instance)) {
+							if (!tileSouth.isOpaque(waterLayer, instance)) { // 0.75f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z),
 										5,
 										instance,
-										0.75f * this.chunk.getRenderLightingFactor(x, y, z - 1),
+										this.chunk.getPackedLightLevel(x, y, z - 1),
 										meta));
 							}
 
-							if (!tileEast.isOpaque(waterLayer, instance)) {
+							if (!tileEast.isOpaque(waterLayer, instance)) { // 0.9f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
 										instance,
-										0.9f * this.chunk.getRenderLightingFactor(x + 1, y, z),
+										this.chunk.getPackedLightLevel(x + 1, y, z),
 										meta));
 							}
 
-							if (!tileWest.isOpaque(waterLayer, instance)) {
+							if (!tileWest.isOpaque(waterLayer, instance)) { // 0.9f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,
 										instance,
-										0.9f * this.chunk.getRenderLightingFactor(x - 1, y, z),
+										this.chunk.getPackedLightLevel(x - 1, y, z),
 										meta));
 							}
 						}
@@ -130,16 +133,19 @@ public class ChunkMesh {
 		this.water = new ChunkMeshModel(waterFaces);
 	}
 
-	public void renderSolidTerrain(Camera camera){
-		camera.render(this.solid, this.transform);
+	public void renderSolidTerrain() {
+		Shaders.terrain.uniformMat4f("transform", this.transform);
+		this.solid.render();
 	}
 
-	public void renderTranslucentTerrain(Camera camera) {
-		camera.render(this.translucent, this.transform);
+	public void renderTranslucentTerrain() {
+		Shaders.terrain.uniformMat4f("transform", this.transform);
+		this.translucent.render();
 	}
 
-	public void renderWater(Camera camera) {
-		camera.render(this.water, this.transform);
+	public void renderWater() {
+		Shaders.terrain.uniformMat4f("transform", this.transform);
+		this.water.render();
 	}
 
 	private static int index(int x, int y, int z) { // @see Chunk.index
@@ -183,7 +189,7 @@ public class ChunkMesh {
 			this.u = tile.getU(faceAxis, meta);
 			this.v = tile.getV(faceAxis, meta);
 			this.f = faceAxis;
-			this.lighting = light;
+			this.lighting = light | faceAxis;
 		}
 
 		protected final Vector3f pos;

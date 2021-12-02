@@ -169,31 +169,34 @@ public class ClientChunk extends Chunk {
 		}
 	}
 
-	public float getRenderLightingFactor(int x, int y, int z) {
+	public int getPackedLightLevel(int x, int y, int z) {
 		if (y < 0 || y > TileAccess.WORLD_HEIGHT) {
-			return 0.1f;
+			return 0;
 		}
 
 		boolean isPrevChunk;
 
 		// Check if this is out of chunk
 		if ((isPrevChunk = x < 0) || x > 15) {
-			Chunk c = this.getGameplayWorld().getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
+			ClientChunk c = (ClientChunk) this.getGameplayWorld().getChunk(isPrevChunk ? this.x - 1 : this.x + 1, this.z);
 
 			if (c == null) {
-				return 0.1f;
+				return 0;
 			}
-			return renderLighting(c.getLightLevel(isPrevChunk ? 15 : 0, y, z));
+			return c.getLightLevel(isPrevChunk ? 15 : 0, y, z);
 		} else if ((isPrevChunk = z < 0) || z > 15) {
-			Chunk c = this.getGameplayWorld().getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
+			ClientChunk c = (ClientChunk) this.getGameplayWorld().getChunk(this.x, isPrevChunk ? this.z - 1 : this.z + 1);
 
 			if (c == null) {
-				return 0.1f;
+				return 0;
 			}
-			return renderLighting(c.getLightLevel(x, y, isPrevChunk ? 15 : 0));
+			return c.getPackedLightLevel(x, y, isPrevChunk ? 15 : 0);
 		}
 
-		return renderLighting(this.getLightLevel(x, y, z));
+		int i = index(x, y, z);
+		int result = (int)this.blockLighting[i] << 4;
+		result = (result | this.skyLighting[i]) << 3;
+		return result;
 	}
 
 	// Maps from [0,15] to approximately [root(0.1),1], then squares it

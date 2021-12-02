@@ -1,7 +1,7 @@
 #version 330 core
 layout (location = 0) in vec3 rawPos;
 layout (location = 1) in vec2 rawUV;
-layout (location = 2) in float light;
+layout (location = 2) in int packedLight;
 
 out vec2 uvPass;
 out float lightPass;
@@ -11,7 +11,7 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform int time;
 uniform int waveMode;
-uniform float lighting;
+uniform float skylight;
 
 float wave1Y(float, float);
 
@@ -25,7 +25,38 @@ void main() {
 
     gl_Position = projection * view * transform * vec4(pos, 1.0); // set the final vertex position based on the raw position
     uvPass = rawUV;
-    lightPass = light * lighting; // todo change light direction in code based on time of day
+
+    if (lightMultiplier < 0) {
+        lightPass = 1;
+    } else {
+        // 0-1 for block and sky base values
+        float blockLight = float(packedLight >> 7) / 15.0f;
+        float skyLight = skylight * float((packedLight >> 3) & 0xF) / 15.0f; // have fun with skyLight and skylight being different
+        int face = packedLight & 7;
+        float lightMultiplier;
+
+        switch (face) {
+        case 0:// east
+        case 3:// west
+            lightMultiplier = 0.9f;
+            break;
+        case 1:// up
+            lightMultiplier = 0.95f;
+            break;
+        case 2:// north
+            lightMultiplier = 1.05f;
+            break;
+        case 4:// down
+            lightMultiplier = 0.85f;
+            break;
+        case 5:// south
+            lightMultiplier = 0.75f;
+            break;
+        }
+
+        lightPass = max(blockLight, skyLight) * lightMultiplier;
+        // todo change light direction in code based on time of day
+    }
 }
 
 // todo make waves not bad

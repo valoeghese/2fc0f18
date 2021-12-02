@@ -33,9 +33,9 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	}
 
 	/**
-	 * @return the lighting coefficient, between 0.125f and 1.15f
+	 * @return the sky lighting coefficient, between 0.125f and 1.15f
 	 */
-	public float calculateLighting() {
+	public float calculateSkyLighting() {
 		float zeitGrellheit = 0.1f + SKY_LIGHTING_CHANGE_RATE * sin((float) this.time / 9216.0f);
 		return MathsUtils.clampMap(zeitGrellheit, -1, 1, 0.125f, 1.15f);
 	}

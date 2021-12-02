@@ -367,7 +367,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void render(float tickDelta) {
 		long time = System.nanoTime();
-		float lighting = this.calculateLighting();
+		float skyLight = this.calculateSkyLighting();
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();
@@ -376,7 +376,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.setupGUI.render();
 			Shader.unbind();
 		} else {
-			glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
+			glClearColor(0.35f * skyLight, 0.55f * skyLight, 0.95f * skyLight, 1.0f);
 
 			// update camera
 			this.player.updateCameraPos(tickDelta);
@@ -385,7 +385,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.terrain.bind();
 			// time and stuff
 			Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-			Shaders.terrain.uniformFloat("lighting", 1.0f); // We Update chunk lighting to change lighting now.
+			Shaders.terrain.uniformFloat("skylight", skyLight);
 			// projection
 			Shaders.terrain.uniformMat4f("projection", this.projection);
 			// defaults
@@ -395,19 +395,19 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			if (renderWorld) {
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
-					chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
+					chunk.getOrCreateMesh().renderSolidTerrain();
 				}
 
 				GLUtils.enableBlend();
 
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
-					chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
+					chunk.getOrCreateMesh().renderTranslucentTerrain();
 				}
 
 				Shaders.terrain.uniformInt("waveMode", 1);
 
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
-					chunk.getOrCreateMesh().renderWater(this.player.getCamera());
+					chunk.getOrCreateMesh().renderWater();
 				}
 
 				Shaders.terrain.uniformInt("waveMode", 0);
@@ -451,7 +451,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// defaults
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 			// render gui
-			this.renderGUI(lighting);
+			this.renderGUI(skyLight);
 			// unbind shader
 			GLUtils.bindTexture(0);
 
