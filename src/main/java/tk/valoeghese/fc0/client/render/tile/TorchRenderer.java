@@ -2,9 +2,10 @@ package tk.valoeghese.fc0.client.render.tile;
 
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.render.model.ChunkMesh;
-import tk.valoeghese.fc0.client.render.model.ExternallyEditableModel;
+import tk.valoeghese.fc0.client.render.model.ChunkMeshModel;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
+import valoeghese.scalpel.scene.VertexBufferBuilder;
 
 import java.util.List;
 
@@ -70,7 +71,7 @@ public enum TorchRenderer implements TileRenderer {
 		}
 
 		@Override
-		public void addTo(ExternallyEditableModel model) {
+		public void addTo(ChunkMeshModel model, VertexBufferBuilder vertices) {
 			final float startU = (this.u / 16.0f);
 			final float startV = (this.v / 16.0f);
 //			final float endU = startU + 0.0625f;
@@ -85,22 +86,22 @@ public enum TorchRenderer implements TileRenderer {
 			switch (this.f % 3) {
 			case 0:
 			default:
-				i = model.addVertex(this.pos.x, SIZE + this.pos.y, -horizontalSize + this.pos.z, startU, endV, this.l); // tl
-				model.addVertex(this.pos.x, -SIZE + this.pos.y, -horizontalSize + this.pos.z, startU, startV, this.l); // bl
-				model.addVertex(this.pos.x, SIZE + this.pos.y, horizontalSize + this.pos.z, hendU, endV, this.l); // tr
-				model.addVertex(this.pos.x, -SIZE + this.pos.y, horizontalSize + this.pos.z, hendU, startV, this.l); // br
+				i = vertices.pos(this.pos.x, SIZE + this.pos.y, -horizontalSize + this.pos.z).uv(startU, endV).add(this.lighting).next(); // tl
+				vertices.pos(this.pos.x, -SIZE + this.pos.y, -horizontalSize + this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
+				vertices.pos(this.pos.x, SIZE + this.pos.y, horizontalSize + this.pos.z).uv(hendU, endV).add(this.lighting).next(); // tr
+				vertices.pos(this.pos.x, -SIZE + this.pos.y, horizontalSize + this.pos.z).uv(hendU, startV).add(this.lighting).next(); // br
 				break;
 			case 1:
-				i = model.addVertex(-horizontalSize + this.pos.x, this.pos.y, horizontalSize + this.pos.z, startU, hendV , this.l); // tl
-				model.addVertex(-horizontalSize + this.pos.x, this.pos.y, -horizontalSize + this.pos.z, startU, startV, this.l); // bl
-				model.addVertex(horizontalSize + this.pos.x, this.pos.y, horizontalSize + this.pos.z, hendU, hendV, this.l); // tr
-				model.addVertex(horizontalSize + this.pos.x, this.pos.y, -horizontalSize + this.pos.z, hendU, startV, this.l); // br
+				i = vertices.pos(-horizontalSize + this.pos.x, this.pos.y, horizontalSize + this.pos.z).uv(startU, hendV ).add(this.lighting).next(); // tl
+				vertices.pos(-horizontalSize + this.pos.x, this.pos.y, -horizontalSize + this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
+				vertices.pos(horizontalSize + this.pos.x, this.pos.y, horizontalSize + this.pos.z).uv(hendU, hendV).add(this.lighting).next(); // tr
+				vertices.pos(horizontalSize + this.pos.x, this.pos.y, -horizontalSize + this.pos.z).uv(hendU, startV).add(this.lighting).next(); // br
 				break;
 			case 2:
-				i = model.addVertex(-horizontalSize + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, this.l); // tl
-				model.addVertex(-horizontalSize + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, this.l); // bl
-				model.addVertex(horizontalSize + this.pos.x, SIZE + this.pos.y, this.pos.z, hendU, endV, this.l); // tr
-				model.addVertex(horizontalSize + this.pos.x, -SIZE + this.pos.y, this.pos.z, hendU, startV, this.l); // br
+				i = vertices.pos(-horizontalSize + this.pos.x, SIZE + this.pos.y, this.pos.z).uv(startU, endV).add(this.lighting).next(); // tl
+				vertices.pos(-horizontalSize + this.pos.x, -SIZE + this.pos.y, this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
+				vertices.pos(horizontalSize + this.pos.x, SIZE + this.pos.y, this.pos.z).uv(hendU, endV).add(this.lighting).next(); // tr
+				vertices.pos(horizontalSize + this.pos.x, -SIZE + this.pos.y, this.pos.z).uv(hendU, startV).add(this.lighting).next(); // br
 				break;
 			}
 

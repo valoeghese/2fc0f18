@@ -6,6 +6,7 @@ import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.client.render.tile.TileRenderer;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.world.tile.Tile;
+import valoeghese.scalpel.scene.VertexBufferBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,30 +147,30 @@ public class ChunkMesh {
 	}
 
 	static class RenderedCrossTileFace extends RenderedTileFace {
-		RenderedCrossTileFace(Vector3f offset, Tile tile, float light, byte meta) {
+		RenderedCrossTileFace(Vector3f offset, Tile tile, int light, byte meta) {
 			super(offset.sub(-0.5f, -0.5f, -0.5f), 1, tile, light, meta);
 		}
 
 		@Override
-		public void addTo(ExternallyEditableModel model) {
+		public void addTo(ChunkMeshModel model, VertexBufferBuilder vertices) {
 			final float startU = (this.u / 16.0f);
 			final float startV = (this.v / 16.0f);
 			final float endU = startU + 0.0625f;
 			final float endV = startV + 0.0625f;
 
 			// square 1
-			int i = model.addVertex(this.pos.x - SIZE, this.pos.y - SIZE, this.pos.z - SIZE, startU, startV, this.l);
-			model.addVertex(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z - SIZE, startU, endV, this.l);
-			model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z + SIZE, endU, startV, this.l);
-			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z + SIZE, endU, endV, this.l);
+			int i = vertices.pos(this.pos.x - SIZE, this.pos.y - SIZE, this.pos.z - SIZE).uv(startU, startV).add(this.lighting).next();
+			vertices.pos(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z - SIZE).uv(startU, endV).add(this.lighting).next();
+			vertices.pos(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z + SIZE).uv(endU, startV).add(this.lighting).next();
+			vertices.pos(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z + SIZE).uv(endU, endV).add(this.lighting).next();
 
 			model.addTriangle(i, i + 1, i + 3);
 			model.addTriangle(i, i + 2, i + 3);
 
-			i = model.addVertex(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE, startU, startV, this.l);
-			model.addVertex(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z - SIZE, startU, endV, this.l);
-			model.addVertex(this.pos.x - SIZE, this.pos.y - SIZE, this.pos.z + SIZE, endU, startV, this.l);
-			model.addVertex(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z + SIZE, endU, endV, this.l);
+			i = vertices.pos(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE).uv(startU, startV).add(this.lighting).next();
+			vertices.pos(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z - SIZE).uv(startU, endV).add(this.lighting).next();
+			vertices.pos(this.pos.x - SIZE, this.pos.y - SIZE, this.pos.z + SIZE).uv(endU, startV).add(this.lighting).next();
+			vertices.pos(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z + SIZE).uv(endU, endV).add(this.lighting).next();
 
 			model.addTriangle(i, i + 1, i + 3);
 			model.addTriangle(i, i + 2, i + 3);
@@ -177,23 +178,23 @@ public class ChunkMesh {
 	}
 
 	public static class RenderedTileFace {
-		public RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, float light, byte meta) {
+		public RenderedTileFace(Vector3f offset, int faceAxis, Tile tile, int light, byte meta) {
 			this.pos = offset;
 			this.u = tile.getU(faceAxis, meta);
 			this.v = tile.getV(faceAxis, meta);
 			this.f = faceAxis;
-			this.l = light;
+			this.lighting = light;
 		}
 
 		protected final Vector3f pos;
 		protected int u;
 		protected int v;
 		protected int f;
-		protected float l;
+		protected int lighting;
 
 		public static final float SIZE = 0.5f;
 
-		public void addTo(ExternallyEditableModel model) {
+		public void addTo(ChunkMeshModel model, VertexBufferBuilder vertices) {
 			final float startU = (this.u / 16.0f);
 			final float startV = (this.v / 16.0f);
 			final float endU = startU + 0.0625f;
@@ -204,22 +205,22 @@ public class ChunkMesh {
 			switch (this.f % 3) {
 			case 0:
 			default:
-				i = model.addVertex(this.pos.x, SIZE + this.pos.y, -SIZE + this.pos.z, startU, endV, this.l); // tl
-				model.addVertex(this.pos.x, -SIZE + this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
-				model.addVertex(this.pos.x, SIZE + this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
-				model.addVertex(this.pos.x, -SIZE + this.pos.y, SIZE + this.pos.z, endU, startV, this.l); // br
+				i = vertices.pos(this.pos.x, SIZE + this.pos.y, -SIZE + this.pos.z).uv(startU, endV).add(this.lighting).next(); // tl
+				vertices.pos(this.pos.x, -SIZE + this.pos.y, -SIZE + this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
+				vertices.pos(this.pos.x, SIZE + this.pos.y, SIZE + this.pos.z).uv(endU, endV).add(this.lighting).next(); // tr
+				vertices.pos(this.pos.x, -SIZE + this.pos.y, SIZE + this.pos.z).uv(endU, startV).add(this.lighting).next(); // br
 				break;
 			case 1:
-				i = model.addVertex(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, startU, endV , this.l); // tl
-				model.addVertex(-SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, startU, startV, this.l); // bl
-				model.addVertex(SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z, endU, endV, this.l); // tr
-				model.addVertex(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z, endU, startV, this.l); // br
+				i = vertices.pos(-SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z).uv(startU, endV ).add(this.lighting).next(); // tl
+				vertices.pos(-SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
+				vertices.pos(SIZE + this.pos.x, this.pos.y, SIZE + this.pos.z).uv(endU, endV).add(this.lighting).next(); // tr
+				vertices.pos(SIZE + this.pos.x, this.pos.y, -SIZE + this.pos.z).uv(endU, startV).add(this.lighting).next(); // br
 				break;
 			case 2:
-				i = model.addVertex(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, startU, endV, this.l); // tl
-				model.addVertex(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, startU, startV, this.l); // bl
-				model.addVertex(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z, endU, endV, this.l); // tr
-				model.addVertex(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z, endU, startV, this.l); // br
+				i = vertices.pos(-SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z).uv(startU, endV).add(this.lighting).next(); // tl
+				vertices.pos(-SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z).uv(startU, startV).add(this.lighting).next(); // bl
+				vertices.pos(SIZE + this.pos.x, SIZE + this.pos.y, this.pos.z).uv(endU, endV).add(this.lighting).next(); // tr
+				vertices.pos(SIZE + this.pos.x, -SIZE + this.pos.y, this.pos.z).uv(endU, startV).add(this.lighting).next(); // br
 				break;
 			}
 

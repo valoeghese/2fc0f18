@@ -1,30 +1,37 @@
 package tk.valoeghese.fc0.client.render.model;
 
 import tk.valoeghese.fc0.client.render.Shaders;
-import valoeghese.scalpel.Model;
+import valoeghese.scalpel.scene.Model;
+import valoeghese.scalpel.scene.VertexBufferBuilder;
+import valoeghese.scalpel.scene.VertexFormat;
 
 import java.util.List;
 
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+import static org.lwjgl.opengl.GL11.GL_INT;
 import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 
-public final class ChunkMeshModel extends Model implements ExternallyEditableModel {
+public final class ChunkMeshModel extends Model {
 	public ChunkMeshModel(List<ChunkMesh.RenderedTileFace> tileFaces) {
-		super(GL_DYNAMIC_DRAW, Shaders.terrain);
+		super(GL_DYNAMIC_DRAW);
+
+		this.setVertexFormat(TERRAIN_FORMAT);
+		VertexBufferBuilder vertices = new VertexBufferBuilder();
 
 		for (ChunkMesh.RenderedTileFace face : tileFaces) {
-			face.addTo(this);
+			face.addTo(this, vertices);
 		}
 
-		this.generateBuffers();
+		this.genVertexArrays(vertices.getBuffer().flip());
 	}
 
-	@Override
 	public void addTriangle(int i0, int i1, int i2) {
 		this.tri(i0 , i1, i2);
 	}
 
-	@Override
-	public int addVertex(float x, float y, float z, float u, float v, float light) {
-		return this.vertex(x, y, z, u, v, light);
-	}
+	public static VertexFormat TERRAIN_FORMAT = new VertexFormat.Builder()
+			.add(GL_FLOAT, 3) // pos
+			.add(GL_FLOAT, 2) // UV
+			.add(GL_INT, 1) // Lighting
+			.build();
 }
