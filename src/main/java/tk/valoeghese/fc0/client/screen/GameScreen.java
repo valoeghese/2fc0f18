@@ -327,7 +327,7 @@ public class GameScreen extends Screen {
 			player.setPos(this.game.spawnLoc);
 		}
 
-		if (Keybinds.NO_CLIP.hasBeenPressed()) {
+		if (Keybinds.NO_CLIP.hasBeenPressed() && Client2fc.getInstance().allowsNoClip()) {
 			player.setNoClip(!player.isNoClip());
 		}
 
@@ -349,7 +349,7 @@ public class GameScreen extends Screen {
 			}
  		}
 
-		if (Keybinds.DEV_MODE.hasBeenPressed()) {
+		if (Keybinds.DEV_MODE.hasBeenPressed() && Client2fc.getInstance().allowsDev()) {
 			player.toggleDev();
 		}
 

@@ -68,7 +68,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static tk.valoeghese.fc0.client.render.Textures.*;
 
 public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Runnable, GLFWCursorPosCallbackI {
-	public Client2fc() {
+	public Client2fc(boolean allowsDev, boolean allowsNoClip) {
 		long time = System.currentTimeMillis();
 		instance = this;
 		// initialise Graphics and Audio systems
@@ -96,6 +96,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		} catch (IOException e) {
 			throw new UncheckedIOException("Cannot create preferences.txt!", e);
 		}
+
+		this.allowsDev = allowsDev;
+		this.allowsNoClip = allowsNoClip;
 	}
 
 	private long clientThreadId;
@@ -108,7 +111,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private float nextSprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
+
+	// properties
 	private final Properties preferences = new Properties();
+	private final boolean allowsDev;
+	private final boolean allowsNoClip;
 
 	public GameScreen gameScreen;
 	public Screen titleScreen;
@@ -129,6 +136,20 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private Model sun;
 	public boolean renderWorld = true;
 	private float freezeInterpolation; // interpolation at game pause time
+
+	/**
+	 * @return whether the player is allowed to enter dev mode.
+	 */
+	public boolean allowsDev() {
+		return this.allowsDev;
+	}
+
+	/**
+	 * @return whether the player is allowed to enter no-clip mode.
+	 */
+	public boolean allowsNoClip() {
+		return this.allowsNoClip;
+	}
 
 	@Override
 	public boolean isMainThread() {
