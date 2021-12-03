@@ -179,12 +179,12 @@ public class Text extends GUI {
 								bronk = true; // now it's allowed to break
 								continue checker; // next column
 							}
-
-							if (bronk) {
-								proportions[u][v] = (float) (du + 1) / 15.0f;
-								break checker; // stop
-							}
 						}
+					}
+
+					if (bronk) {
+						proportions[u][v] = (float) (du + 1) / 15.0f;
+						break checker; // stop
 					}
 				}
 
