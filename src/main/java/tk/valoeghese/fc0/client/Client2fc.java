@@ -73,7 +73,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		instance = this;
 		// initialise Graphics and Audio systems
 		GLUtils.initGLFW();
-		this.window = new Window(BrandAndVersion.isModded() ? "2fc0f18 (" + BrandAndVersion.getBrand() + ")" : "2fc0f18", 640 * 2, 360 * 2);
+		this.window = new Window2fc(BrandAndVersion.isModded() ? "2fc0f18 (" + BrandAndVersion.getBrand() + ")" : "2fc0f18", 640 * 2, 360 * 2);
 		GLUtils.initGL(this.window);
 		ALUtils.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
@@ -559,7 +559,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.getAspect(), 0.01f, 250.0f);
 	}
 
 	public int getFOV() {
@@ -642,4 +642,16 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public static final boolean NEW_TITLE = true;
 	private static final Matrix4f IDENTITY = new Matrix4f();
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
+
+	private class Window2fc extends valoeghese.scalpel.Window {
+		public Window2fc(String title, int width, int height) {
+			super(title, width, height);
+		}
+
+		@Override
+		public void invoke(long window, int width, int height) {
+			super.invoke(window, width, height);
+			Client2fc.this.projection = new Matrix4f().perspective((float) Math.toRadians(Client2fc.this.fov * Client2fc.this.sprintFOV), Client2fc.this.window.getAspect(), 0.01f, 250.0f);
+		}
+	}
 }
