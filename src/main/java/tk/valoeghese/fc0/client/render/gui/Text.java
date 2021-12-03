@@ -183,7 +183,7 @@ public class Text extends GUI {
 					}
 
 					if (bronk) {
-						proportions[u][v] = (float) (du + 1) / 15.0f;
+						proportions[u][v] = 0.5f * (float) (du + 1) / 15.0f;
 						break checker; // stop
 					}
 				}
@@ -198,7 +198,7 @@ public class Text extends GUI {
 				}
 				// if gone the whole way and has been full
 				else if (bronk && proportions[u][v] == 0.0f) {
-					proportions[u][v] = 16.0f / 15.0f; // max size
+					proportions[u][v] = 0.5f * 16.0f / 15.0f; // max size
 				}
 			}
 		}
