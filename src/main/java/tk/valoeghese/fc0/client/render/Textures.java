@@ -3,6 +3,7 @@ package tk.valoeghese.fc0.client.render;
 import org.lwjgl.BufferUtils;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
+import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -14,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -296,7 +298,20 @@ public class Textures {
 	public static final int DEATH_OVERLAY = load("overlay/death_overlay");
 	public static final int DIM = load("overlay/dim");
 	// GUI
-	public static final int FONT_ATLAS = loadImportant("gui/font_atlas");
+	private static BufferedImage FONT_ATLAS_IMAGE;
+	public static final int FONT_ATLAS;
+
+	static {
+		try {
+			FONT_ATLAS_IMAGE = localImage("gui/font_atlas");
+		} catch (IOException e) {
+			throw new UncheckedIOException("Exception loading Font Atlas", e);
+		}
+
+		FONT_ATLAS = TextureLoader.textureARGB(FONT_ATLAS_IMAGE);
+		Text.calculateProportions(FONT_ATLAS_IMAGE);
+	}
+
 	public static final int SELECTED = load("gui/selected");
 	public static final int CRAFT = load("gui/craft");
 	public static final int ENTER = load("gui/enter");
