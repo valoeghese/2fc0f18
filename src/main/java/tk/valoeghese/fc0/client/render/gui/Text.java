@@ -6,6 +6,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.Buffer;
 import java.util.Arrays;
 
@@ -150,8 +151,20 @@ public class Text extends GUI {
 	 * Calulates (or re-calculates) distance proportions of text.
 	 */
 	public static void calculateProportions(BufferedImage image) {
+		final boolean debug = false; // Created when upgrading the font renderer to debug issues with the upgraded version. Instead of calculating proportions for alphabetic characters, dumps an image. Please note this will result in alphanumeric characters not being located correctly in-game.
+		BufferedImage debugImage = null;
+		String debugFileStr = null;
+
 		for (int u = 0; u < 16; ++u) {
 			for (int v = 0; v < 16; ++v) {
+				if (debug) {
+					char c = (char)((v * 16) + u + 32);
+					if (Character.isAlphabetic(c) && c <= 'z') {
+						debugFileStr = c + "_uv.png";
+						debugImage = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+					}
+				}
+
 				int checkU = u << 4;
 				int startV = v << 4;
 				boolean bronk = false; // whether to be allowed to bronk (break)
@@ -159,20 +172,32 @@ public class Text extends GUI {
 				checker:
 				for (int du = 0; du < 16; ++du, ++checkU) {
 					for (int dv = 0; dv < 16; ++dv) {
-						if ((image.getRGB(checkU, 255 - (startV + dv)) & 0xFF000000) != 0) {
-							bronk = true; // now it's allowed to break
-							continue checker; // next column
-						}
+						if (debugImage != null) {
+							debugImage.setRGB(du, 15 - dv, image.getRGB(checkU, 255 - (startV + dv)));
+						} else {
+							if ((image.getRGB(checkU, 255 - (startV + dv)) & 0xFF000000) != 0) {
+								bronk = true; // now it's allowed to break
+								continue checker; // next column
+							}
 
-						if (bronk) {
-							proportions[u][v] = (float) (du + 1) / 15.0f;
-							break checker; // stop
+							if (bronk) {
+								proportions[u][v] = (float) (du + 1) / 15.0f;
+								break checker; // stop
+							}
 						}
 					}
 				}
 
+				if (debugImage != null) {
+					try {
+						ImageIO.write(debugImage, "png", new File("saves/" + debugFileStr));
+					} catch (IOException e) {
+						throw new UncheckedIOException("Error Debugging Font Renderer", e);
+					}
+					debugImage = null;
+				}
 				// if gone the whole way and has been full
-				if (bronk && proportions[u][v] == 0.0f) {
+				else if (bronk && proportions[u][v] == 0.0f) {
 					proportions[u][v] = 16.0f / 15.0f; // max size
 				}
 			}
@@ -207,5 +232,5 @@ public class Text extends GUI {
 		}
 	}
 
-	private static final float STEP = 0.03f;
+	private static final float STEP = 0.05f;
 }
