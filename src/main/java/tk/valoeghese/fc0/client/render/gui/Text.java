@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.Buffer;
+import java.util.Arrays;
 
 public class Text extends GUI {
 	public Text(String value, float xOffset, float yOffset, float size) {
@@ -149,36 +150,32 @@ public class Text extends GUI {
 	 * Calulates (or re-calculates) distance proportions of text.
 	 */
 	public static void calculateProportions(BufferedImage image) {
-		BufferedImage bi = new BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB);
-
 		for (int u = 0; u < 16; ++u) {
 			for (int v = 0; v < 16; ++v) {
 				int checkU = u << 4;
 				int startV = v << 4;
+				boolean bronk = false; // whether to be allowed to bronk (break)
 
 				checker:
 				for (int du = 0; du < 16; ++du, ++checkU) {
 					for (int dv = 0; dv < 16; ++dv) {
-						int irgb = image.getRGB(checkU, 255 - (startV + dv));
-						bi.setRGB(checkU, 255 - (startV + dv), irgb);
-						if ((irgb >> 24) > 0) {
-							//bi.setRGB(checkU, 255-startV-dv, 0xFFFFFFFF);
-							//continue checker; // next column
-						} else {
-							//bi.setRGB(checkU, 255-startV-dv, 0xFF000000);
+						if ((image.getRGB(checkU, 255 - (startV + dv)) >> 24) > 0) {
+							bronk = true; // now it's allowed to break
+							continue checker; // next column
 						}
 
-						//proportions[u][v] = (float)(du + 1) / 15.0f;
-						//break checker; // stop
+						if (bronk) {
+							proportions[u][v] = (float) (du + 1) / 15.0f;
+							break checker; // stop
+						}
 					}
 				}
-			}
-		}
 
-		try {
-			ImageIO.write(bi, "png", new File("test.png"));
-		} catch (IOException e) {
-			throw new RuntimeException("awuvweagh w", e);
+				// if gone the whole way
+				if (bronk && proportions[u][v] == 0) {
+					proportions[u][v] = 16.0f / 15.0f; // max size
+				}
+			}
 		}
 	}
 
