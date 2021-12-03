@@ -159,7 +159,7 @@ public class Text extends GUI {
 				checker:
 				for (int du = 0; du < 16; ++du, ++checkU) {
 					for (int dv = 0; dv < 16; ++dv) {
-						if ((image.getRGB(checkU, 255 - (startV + dv)) >> 24) > 0) {
+						if ((image.getRGB(checkU, 255 - (startV + dv)) & 0xFF000000) != 0) {
 							bronk = true; // now it's allowed to break
 							continue checker; // next column
 						}
@@ -171,8 +171,8 @@ public class Text extends GUI {
 					}
 				}
 
-				// if gone the whole way
-				if (bronk && proportions[u][v] == 0) {
+				// if gone the whole way and has been full
+				if (bronk && proportions[u][v] == 0.0f) {
 					proportions[u][v] = 16.0f / 15.0f; // max size
 				}
 			}
