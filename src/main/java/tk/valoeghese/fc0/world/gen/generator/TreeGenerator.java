@@ -105,7 +105,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 			}
 		}
 
-		int finalCrossY = y + height + 2;
+		int finalCrossY = y + height + 1;
 
 		for (int xo = -1; xo < 2; ++xo) {
 			int totalX = xo + x;

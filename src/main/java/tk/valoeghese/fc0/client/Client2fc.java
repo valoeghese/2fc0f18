@@ -180,7 +180,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Override
 	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z, float volume) {
 		double dx = this.player.getX() - x;
-		double dy = this.player.getY() - y;
+		double dy = this.player.getY() + 1.8 - y;
 		double dz = this.player.getZ() - z;
 		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float) (dx), (float)  (dy), (float) (dz), volume);
 	}
@@ -372,6 +372,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.sun = new SquareModel();
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
+
+		//System.out.println(this.player.getCamera().getView());
 	}
 
 	private void init() {
@@ -717,12 +719,12 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			buffer.order( ByteOrder.nativeOrder() );
 
 			Matrix4f view = this.getView();
-			buffer.putFloat(view.m01());
-			buffer.putFloat(view.m02());
-			buffer.putFloat(view.m03());
-			buffer.putFloat(view.m11());
+			buffer.putFloat(view.m02()); // look
 			buffer.putFloat(view.m12());
-			buffer.putFloat(view.m13());
+			buffer.putFloat(view.m22());
+			buffer.putFloat(view.m01()); // up
+			buffer.putFloat(view.m11());
+			buffer.putFloat(view.m21());
 			buffer.flip();
 
 			AL10.alListenerfv(AL10.AL_ORIENTATION, buffer.asFloatBuffer());

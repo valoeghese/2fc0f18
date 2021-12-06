@@ -39,6 +39,7 @@ public class ClientPlayer extends Player  {
 	}
 
 	public RaycastResult rayCast(double maxDistance, boolean bridgeBlocks) {
+		// By p0nki, hydos, valoeghese
 		Pos toUse = this.pos.ofAdded(0, 1.8, 0);
 		TilePos feetTilePos = this.getTilePos().down();
 		TilePos bridgePos = null;
