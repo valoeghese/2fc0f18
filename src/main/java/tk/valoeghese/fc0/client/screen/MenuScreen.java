@@ -3,7 +3,9 @@ package tk.valoeghese.fc0.client.screen;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.Keybinds;
 import tk.valoeghese.fc0.client.render.Textures;
+import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.gui.button.Button;
+import tk.valoeghese.fc0.client.render.gui.button.TextButton;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.world.sound.SoundEffect;
 import valoeghese.scalpel.Window;
@@ -54,8 +56,10 @@ public abstract class MenuScreen extends Screen {
 			float[] mousePositions = this.game.getWindow().getSelectedPositions();
 
 			for (Map.Entry<Button, Runnable> actionableButtons : this.buttons.entrySet()) {
-				if (actionableButtons.getKey().isCursorSelecting(mousePositions)) {
-					this.game.playSound(SoundEffect.BUTTON_CLICK);
+				Button button = actionableButtons.getKey();
+
+				if (button.isCursorSelecting(mousePositions)) {
+					this.game.playSound((button instanceof TextButton && ((TextButton) button).getText().matches(".*(Continue|Exit|Back).*")) ? SoundEffect.BUTTON_OK : SoundEffect.BUTTON_CLICK);
 					actionableButtons.getValue().run();
 					break;
 				}

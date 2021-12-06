@@ -42,6 +42,10 @@ public class TextButton extends GUICollection<GUI> implements Button {
 				this.textGUI.getYOffset());
 	}
 
+	public String getText() {
+		return this.textGUI.getText();
+	}
+
 	public static float buttonWidth(String text, float baseWidth, float height) {
 		float textOffset = Text.widthOf(text.toCharArray()) / (height * 15);
 		return baseWidth * textOffset;

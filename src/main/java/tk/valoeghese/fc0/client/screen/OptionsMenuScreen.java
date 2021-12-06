@@ -4,6 +4,7 @@ import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.Textures;
 import tk.valoeghese.fc0.client.render.gui.button.TextButton;
 import tk.valoeghese.fc0.world.GameplayWorld;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 import valoeghese.scalpel.Window;
 
 import java.io.FileWriter;
@@ -84,7 +85,9 @@ public class OptionsMenuScreen extends MenuScreen {
 				-0.3f,
 				0.1f,
 				BUTTON_WIDTH
-		), () -> this.handleEscape(this.game.getWindow()));
+		), () -> {
+			this.handleEscape(this.game.getWindow());
+		});
 	}
 
 	@Override
