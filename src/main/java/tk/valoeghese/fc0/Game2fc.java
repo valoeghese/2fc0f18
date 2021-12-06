@@ -7,6 +7,7 @@ import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.sound.SoundEffect;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static org.joml.Math.PI;
@@ -112,7 +113,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	}
 
 	public abstract boolean isMainThread();
-	public abstract void playSound(SoundEffect effect, double x, double y, double z);
+	public abstract void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z);
 
 	public static Game2fc getInstance() {
 		return instance;

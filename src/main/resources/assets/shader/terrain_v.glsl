@@ -61,7 +61,5 @@ void main() {
 
 // todo make waves not bad
 float wave1Y(float x, float z) {
-    float xSample = 0.07 * (float(time) * 0.01 + x);
-    float zSample = 0.07 * (float(time + 10) * 0.01 + z);
-    return -abs(sin(xSample) + sin(zSample));
+    return sin(float(time) * 0.02);
 }

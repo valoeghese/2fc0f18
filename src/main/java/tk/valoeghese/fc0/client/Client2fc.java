@@ -42,6 +42,7 @@ import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.sound.SoundEffect;
@@ -177,11 +178,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	@Override
-	public void playSound(SoundEffect effect, double x, double y, double z) {
+	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z) {
 		double dx = this.player.getX() - x;
 		double dy = this.player.getY() - y;
 		double dz = this.player.getZ() - z;
-		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float)dx, (float)dy, (float)dz);
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float) (dx), (float)  (dy), (float)  (dz));
 	}
 
 	public void playSound(SoundEffect effect) {

@@ -6,11 +6,8 @@ import valoeghese.scalpel.audio.AudioBuffer;
 import valoeghese.scalpel.util.ALUtils;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 public abstract class ClientSoundEffect extends SoundEffect {
 	public ClientSoundEffect(String name) {

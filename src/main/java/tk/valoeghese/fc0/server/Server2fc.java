@@ -5,6 +5,8 @@ import tk.valoeghese.fc0.server.world.ServerWorld;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.sound.SoundEffect;
 
+import javax.annotation.Nullable;
+
 public class Server2fc extends Game2fc<ServerWorld, Player> implements Runnable {
 	@Override
 	public void run() {
@@ -12,7 +14,7 @@ public class Server2fc extends Game2fc<ServerWorld, Player> implements Runnable 
 	}
 
 	@Override
-	public void playSound(SoundEffect effect, double x, double y, double z) {
+	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z) {
 		// TODO
 	}
 
