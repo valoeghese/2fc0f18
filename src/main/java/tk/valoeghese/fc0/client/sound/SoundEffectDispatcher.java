@@ -7,7 +7,7 @@ import java.util.Random;
 public class SoundEffectDispatcher {
 	/**
 	 * Creates a new manager for playing sound effects.
-	 * @param cap the maximum number of simultaneous sound effects. The higher the cap, the more audio sources are generated in memory, however!
+	 * @param cap the maximum number of possible simultaneous sound effects. The higher the cap, the more audio sources are generated in memory, however!
 	 */
 	public SoundEffectDispatcher(int cap) {
 		this.sources = new AudioSource[cap];

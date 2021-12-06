@@ -35,7 +35,7 @@ public class SoundEffect {
 
 	public static final SoundEffect WOOD_PLACE = Game2fc.getInstance().createSoundEffect("wood_place", "holz3", "holz2");
 	public static final SoundEffect WOOD_STEP = Game2fc.getInstance().createSoundEffect("wood_step", "step1");
-	public static final SoundEffect WOOD_BREAK = Game2fc.getInstance().createSoundEffect("wood_break", "holz1, holz2");
+	public static final SoundEffect WOOD_BREAK = Game2fc.getInstance().createSoundEffect("wood_break", "holz1", "holz2");
 
 	public static final SoundEffect PLING = Game2fc.getInstance().createSoundEffect("pling", "pling");
 

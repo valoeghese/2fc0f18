@@ -22,8 +22,8 @@ public abstract class ClientSoundEffect extends SoundEffect {
 	protected AudioBuffer createBuffer(String s) {
 		try {
 			return ALUtils.createBuffer(s);
-		} catch (IOException e) {
-			throw new UncheckedIOException("Exception Loading Sound Effect " + Client2fc.getInstance().language.translate(this.translationKey), e);
+		} catch (NullPointerException | IOException e) {
+			throw new RuntimeException("Exception Loading Sound Effect " + Client2fc.getInstance().language.translate(this.translationKey), e);
 		}
 	}
 

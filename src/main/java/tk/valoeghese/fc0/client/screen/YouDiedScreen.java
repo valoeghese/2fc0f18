@@ -7,6 +7,7 @@ import tk.valoeghese.fc0.client.render.gui.Overlay;
 import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 import valoeghese.scalpel.Window;
 import valoeghese.scalpel.util.GLUtils;
 
@@ -44,6 +45,7 @@ public class YouDiedScreen extends Screen {
 			ClientPlayer player = this.game.getPlayer();
 			player.setHealth(player.getMaxHealth());
 			player.setPos(this.game.spawnLoc);
+			this.game.playSound(SoundEffect.BUTTON_CLICK);
 			this.game.switchScreen(this.game.gameScreen);
 			//this.game.activateLoadScreen(); TODO readd this
 		}

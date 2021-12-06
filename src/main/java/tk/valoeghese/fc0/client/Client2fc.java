@@ -1,6 +1,5 @@
 package tk.valoeghese.fc0.client;
 
-import io.netty.buffer.ByteBuf;
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -61,7 +60,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.Properties;
 import java.util.Random;
 import java.util.function.Function;
@@ -186,6 +184,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float)dx, (float)dy, (float)dz);
 	}
 
+	public void playSound(SoundEffect effect) {
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, 0, 0, 0);
+	}
+
 	@Override
 	public void run() {
 		this.clientThreadId = Thread.currentThread().getId();
@@ -255,8 +257,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.world.destroy();
 		this.window.destroy();
+		this.soundEffectDispatcher.destroy();
 		MusicSystem.shutdown();
-		ALUtils.shutdown();
+		ALUtils.shutdown(); // destroys all audio buffers
 		Chunk.shutdown(); // may System.exit from here or Save#shutDown so put any further tasks that need to execute either before these or in the force shutdown
 		Save.shutdown();
 	}
@@ -375,7 +378,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.setFOV(64);
 
 		this.world = new ClientWorld(new FakeSave(0), 0, TITLE_WORLD_SIZE);
-		this.player = new ClientPlayer(new Camera(), this, false);
+		this.player = new ClientPlayer(new Camera2fc(), this, false);
 		this.player.changeWorld(this.world, this.save);
 
 		if (NEW_TITLE) {
@@ -670,7 +673,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private static final Matrix4f IDENTITY = new Matrix4f();
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 
-	private class Window2fc extends valoeghese.scalpel.Window {
+	private class Window2fc extends Window {
 		public Window2fc(String title, int width, int height) {
 			super(title, width, height);
 		}
@@ -710,7 +713,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		private void rotateListener() {
 			ByteBuffer buffer = ByteBuffer.allocateDirect(6 * 4);
 			buffer.order( ByteOrder.nativeOrder() );
-			
+
 			Matrix4f view = this.getView();
 			buffer.putFloat(view.m01());
 			buffer.putFloat(view.m02());
