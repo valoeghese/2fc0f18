@@ -5,6 +5,7 @@ import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 
 import java.util.*;
 
@@ -104,6 +105,10 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	protected void tick() {
 		this.player.tick();
 		++this.time;
+	}
+
+	public SoundEffect createSoundEffect(String name, String... resources) {
+		return new SoundEffect(name);
 	}
 
 	public abstract boolean isMainThread();

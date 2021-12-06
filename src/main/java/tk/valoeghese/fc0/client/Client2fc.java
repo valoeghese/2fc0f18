@@ -23,6 +23,7 @@ import tk.valoeghese.fc0.client.screen.PauseMenuScreen;
 import tk.valoeghese.fc0.client.screen.Screen;
 import tk.valoeghese.fc0.client.screen.TitleScreen;
 import tk.valoeghese.fc0.client.screen.YouDiedScreen;
+import tk.valoeghese.fc0.client.sound.ClientSoundEffect;
 import tk.valoeghese.fc0.client.sound.MusicSystem;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
@@ -42,6 +43,7 @@ import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 import tk.valoeghese.fc0.world.tile.Tile;
 import valoeghese.scalpel.Camera;
 import valoeghese.scalpel.Shader;
@@ -154,6 +156,21 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Override
 	public boolean isMainThread() {
 		return Thread.currentThread().getId() == this.clientThreadId;
+	}
+
+	@Override
+	public void invoke(long window, double xpos, double ypos) {
+		double dx = xpos - this.prevXPos;
+		double dy = ypos - this.prevYPos;
+
+		this.currentScreen.handleMouseInput(dx, dy);
+		this.prevYPos = ypos;
+		this.prevXPos = xpos;
+	}
+
+	@Override
+	public SoundEffect createSoundEffect(String name, String... resources) {
+		return ClientSoundEffect.create(name, resources);
 	}
 
 	@Override
@@ -363,6 +380,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private void initGameAudio() {
 		long start = System.currentTimeMillis();
 		MusicSystem.init();
+
+		for (SoundEffect effect : SoundEffect.getSoundEffects()) {
+			effect.initialise();
+		}
+
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
@@ -589,16 +611,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	public String getProperty(String key, String defaultValue) {
 		return this.preferences.getProperty(key, defaultValue);
-	}
-
-	@Override
-	public void invoke(long window, double xpos, double ypos) {
-		double dx = xpos - this.prevXPos;
-		double dy = ypos - this.prevYPos;
-
-		this.currentScreen.handleMouseInput(dx, dy);
-		this.prevYPos = ypos;
-		this.prevXPos = xpos;
 	}
 
 	public void activateLoadScreen() {
