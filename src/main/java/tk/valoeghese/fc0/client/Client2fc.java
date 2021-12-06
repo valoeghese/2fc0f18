@@ -1,10 +1,11 @@
 package tk.valoeghese.fc0.client;
 
+import io.netty.buffer.ByteBuf;
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
-import org.lwjgl.opengl.GL33;
+import org.lwjgl.openal.AL10;
 import tk.valoeghese.fc0.BrandAndVersion;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
@@ -25,6 +26,7 @@ import tk.valoeghese.fc0.client.screen.TitleScreen;
 import tk.valoeghese.fc0.client.screen.YouDiedScreen;
 import tk.valoeghese.fc0.client.sound.ClientSoundEffect;
 import tk.valoeghese.fc0.client.sound.MusicSystem;
+import tk.valoeghese.fc0.client.sound.SoundEffectDispatcher;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
@@ -57,8 +59,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.util.Properties;
 import java.util.Random;
 import java.util.function.Function;
@@ -127,6 +130,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private Screen currentScreen;
 	private Screen youDiedScreen;
 
+	private SoundEffectDispatcher soundEffectDispatcher;
+
 	@Nullable
 	public Save save = null;
 	private final Window window;
@@ -171,6 +176,14 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Override
 	public SoundEffect createSoundEffect(String name, String... resources) {
 		return ClientSoundEffect.create(name, resources);
+	}
+
+	@Override
+	public void playSound(SoundEffect effect, double x, double y, double z) {
+		double dx = this.player.getX() - x;
+		double dy = this.player.getY() - y;
+		double dz = this.player.getZ() - z;
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float)dx, (float)dy, (float)dz);
 	}
 
 	@Override
@@ -263,7 +276,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		super.tick();
 
-		EcoZone zone = this.world.getEcozone(this.player.getX(), this.player.getZ());
+		EcoZone zone = this.world.getEcozone(this.player.getTileX(), this.player.getTileZ());
 
 		if (this.currentScreen == this.gameScreen) {
 			TilePos tilePos = this.player.getTilePos();
@@ -385,6 +398,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			effect.initialise();
 		}
 
+		this.soundEffectDispatcher = new SoundEffectDispatcher(16);
+
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
@@ -441,7 +456,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// render entities
 			GLUtils.bindTexture(ENTITY_ATLAS);
 
-			for (Entity entity : this.world.getEntities(this.player.getX(), this.player.getZ(), 20)) {
+			for (Entity entity : this.world.getEntities(this.player.getTileX(), this.player.getTileZ(), 20)) {
 				EntityRenderer renderer = entity.getRenderer();
 
 				if (renderer != null) {
@@ -664,6 +679,48 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		public void invoke(long window, int width, int height) {
 			super.invoke(window, width, height);
 			Client2fc.this.projection = new Matrix4f().perspective((float) Math.toRadians(Client2fc.this.fov * Client2fc.this.sprintFOV), Client2fc.this.window.getAspect(), 0.01f, 250.0f);
+		}
+	}
+
+	private static class Camera2fc extends Camera {
+		@Override
+		public void rotatePitch(float pitch) {
+			super.rotatePitch(pitch);
+			this.rotateListener();
+		}
+
+		@Override
+		public void rotateYaw(float yaw) {
+			super.rotateYaw(yaw);
+			this.rotateListener();
+		}
+
+		@Override
+		public void setPitch(float f) {
+			super.setPitch(f);
+			this.rotateListener();
+		}
+
+		@Override
+		public void setYaw(float f) {
+			super.setYaw(f);
+			this.rotateListener();
+		}
+
+		private void rotateListener() {
+			ByteBuffer buffer = ByteBuffer.allocateDirect(6 * 4);
+			buffer.order( ByteOrder.nativeOrder() );
+			
+			Matrix4f view = this.getView();
+			buffer.putFloat(view.m01());
+			buffer.putFloat(view.m02());
+			buffer.putFloat(view.m03());
+			buffer.putFloat(view.m11());
+			buffer.putFloat(view.m12());
+			buffer.putFloat(view.m13());
+			buffer.flip();
+
+			AL10.alListenerfv(AL10.AL_ORIENTATION, buffer.asFloatBuffer());
 		}
 	}
 }

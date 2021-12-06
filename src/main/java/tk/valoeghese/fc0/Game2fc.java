@@ -112,6 +112,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	}
 
 	public abstract boolean isMainThread();
+	public abstract void playSound(SoundEffect effect, double x, double y, double z);
 
 	public static Game2fc getInstance() {
 		return instance;

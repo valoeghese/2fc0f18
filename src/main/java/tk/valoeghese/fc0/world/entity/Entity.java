@@ -162,12 +162,24 @@ public abstract class Entity {
 		return this.world;
 	}
 
-	public int getX() {
+	public int getTileX() {
 		return MathsUtils.floor(this.pos.getX());
 	}
 
-	public int getZ() {
+	public int getTileZ() {
 		return MathsUtils.floor(this.pos.getZ());
+	}
+
+	public double getX() {
+		return this.pos.getX();
+	}
+
+	public double getY() {
+		return this.pos.getY();
+	}
+
+	public double getZ() {
+		return this.pos.getZ();
 	}
 
 	public Pos getPos() {
