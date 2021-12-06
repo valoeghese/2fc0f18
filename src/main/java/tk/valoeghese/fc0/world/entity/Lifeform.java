@@ -58,7 +58,7 @@ public abstract class Lifeform extends Entity {
 			Tile on = Tile.BY_ID[this.world.readTile(new TilePos(this.pos).down())];
 
 			if (on.isSolid()) {
-				Game2fc.getInstance().playSound(null, on.getSounds().getStepSound(), this.getX(), this.getY(), this.getZ());
+				Game2fc.getInstance().playSound(null, on.getSounds().getStepSound(), this.getX(), this.getY(), this.getZ(), 0.4f);
 			}
 		}
 		return super.move(x, y, z);

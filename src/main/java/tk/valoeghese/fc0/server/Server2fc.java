@@ -14,7 +14,7 @@ public class Server2fc extends Game2fc<ServerWorld, Player> implements Runnable 
 	}
 
 	@Override
-	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z) {
+	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z, float volume) {
 		// TODO
 	}
 

@@ -7,7 +7,7 @@ public enum SoundFX {
 	WOOD(SoundEffect.WOOD_BREAK, SoundEffect.WOOD_PLACE, SoundEffect.WOOD_STEP),
 	GRAIN(SoundEffect.GRAIN, SoundEffect.GRAIN, SoundEffect.GRAIN),
 	ICE(SoundEffect.PLING, SoundEffect.PLING, SoundEffect.STONE_STEP),
-	PLANT(SoundEffect.PLANT, SoundEffect.PLANT, SoundEffect.PLANT);
+	PLANT(SoundEffect.PLANT, SoundEffect.PLANT, SoundEffect.PLANT_STEP);
 
 
 	SoundFX(SoundEffect breakSound, SoundEffect placeSound, SoundEffect stepSound) {

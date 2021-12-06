@@ -9,7 +9,7 @@ flat out float lightPass;
 uniform mat4 transform;
 uniform mat4 view;
 uniform mat4 projection;
-uniform int time;
+uniform float time;
 uniform int waveMode;
 uniform float skylight;
 
@@ -20,7 +20,7 @@ void main() {
 
     if (waveMode > 0) {
         vec4 initialPos = transform * vec4(rawPos, 1.0);
-        pos.y = pos.y + 0.1 * wave1Y(initialPos.x, initialPos.z) - 0.05;
+        pos.y = pos.y + 0.15 * wave1Y(initialPos.x, initialPos.z) - 0.05;
     }
 
     gl_Position = projection * view * transform * vec4(pos, 1.0); // set the final vertex position based on the raw position
@@ -59,7 +59,8 @@ void main() {
     }
 }
 
-// todo make waves not bad
 float wave1Y(float x, float z) {
-    return sin(float(time) * 0.02);
+    float xSample = 0.035* (float(time) + x);
+    float zSample = 0.035 * (float(time + 10) + z);
+    return -abs(sin(xSample) + sin(zSample));
 }

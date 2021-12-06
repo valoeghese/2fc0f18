@@ -275,7 +275,7 @@ public class GameScreen extends Screen {
 
 				if (tileId != Tile.WATER.id) {
 					Tile tile = Tile.BY_ID[tileId];
-					this.game.playSound(null, tile.getSounds().getBreakSound(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
+					this.game.playSound(null, tile.getSounds().getBreakSound(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 1.0f);
 
 					if (!player.dev && tile.shouldRender()) {
 						inventory.addItem(tile.getDrop(RANDOM, world.readMeta(pos)));
@@ -301,7 +301,7 @@ public class GameScreen extends Screen {
 								Tile tile = selectedItem.tileValue();
 
 								if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
-									this.game.playSound(null, tile.getSounds().getPlaceSound(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5);
+									this.game.playSound(null, tile.getSounds().getPlaceSound(), pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 1.0f);
 
 									if (!player.dev) {
 										selectedItem.decrement();

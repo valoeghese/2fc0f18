@@ -25,7 +25,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
 	private static final float SKY_LIGHTING_CHANGE_RATE = 10.5f;
-	private static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
+	protected static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
 
 	/**
 	 * @return the sky angle between 0.0f and (float)2pi.
@@ -113,7 +113,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	}
 
 	public abstract boolean isMainThread();
-	public abstract void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z);
+	public abstract void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z, float volume);
 
 	public static Game2fc getInstance() {
 		return instance;

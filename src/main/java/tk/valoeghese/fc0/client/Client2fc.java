@@ -178,15 +178,15 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	@Override
-	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z) {
+	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z, float volume) {
 		double dx = this.player.getX() - x;
 		double dy = this.player.getY() - y;
 		double dz = this.player.getZ() - z;
-		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float) (dx), (float)  (dy), (float)  (dz));
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float) (dx), (float)  (dy), (float) (dz), volume);
 	}
 
 	public void playSound(SoundEffect effect) {
-		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, 0, 0, 0);
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, 0, 0, 0, 1.0f);
 	}
 
 	@Override
@@ -426,7 +426,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// bind shader
 			Shaders.terrain.bind();
 			// time and stuff
-			Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
+			Shaders.terrain.uniformFloat("time", (this.time % Game2fc.SKY_ROTATION_RATE) + tickDelta);
 			Shaders.terrain.uniformFloat("skylight", skylight);
 			// projection
 			Shaders.terrain.uniformMat4f("projection", this.projection);
@@ -481,6 +481,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_COLOR, GL_ONE);
 			float skyAngle = this.calculateSkyAngle();
+
 			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
 			Shaders.terrain.uniformMat4f("transform", new Matrix4f()
 					.scale(16.0f)

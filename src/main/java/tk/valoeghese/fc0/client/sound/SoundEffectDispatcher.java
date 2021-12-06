@@ -20,11 +20,12 @@ public class SoundEffectDispatcher {
 	private volatile int currentIndex; // just in case (is this necessary? maybe network thread and game thread will both try play sounds...)
 	private final AudioSource[] sources;
 
-	public void playSound(ClientSoundEffect effect, float dx, float dy, float dz) {
+	public void playSound(ClientSoundEffect effect, float dx, float dy, float dz, float volume) {
 		AudioSource source = this.sources[this.currentIndex++];
 		if (this.currentIndex == this.sources.length) this.currentIndex = 0;
 
 		source.setPosition(dx, dy, dz);
+		source.setGain(volume);
 		source.attachBufferData(effect.getBuffer(RANDOM));
 		source.play();
 	}

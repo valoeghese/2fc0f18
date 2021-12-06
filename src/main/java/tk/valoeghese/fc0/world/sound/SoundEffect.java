@@ -45,5 +45,6 @@ public class SoundEffect {
 
 	// anything powdery/grainy i.e. just sand lol
 	public static final SoundEffect GRAIN = Game2fc.getInstance().createSoundEffect("grain", "grain1", "grain2");
-	public static final SoundEffect PLANT = Game2fc.getInstance().createSoundEffect("plant", "plant");
+	public static final SoundEffect PLANT = Game2fc.getInstance().createSoundEffect("plant", "plant1");
+	public static final SoundEffect PLANT_STEP = Game2fc.getInstance().createSoundEffect("plant", "plant2", "plant3");
 }
