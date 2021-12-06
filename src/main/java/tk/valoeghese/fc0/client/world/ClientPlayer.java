@@ -3,8 +3,6 @@ package tk.valoeghese.fc0.client.world;
 import org.joml.Vector3f;
 import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.util.maths.MathsUtils;
-import tk.valoeghese.fc0.world.GameplayWorld;
-import tk.valoeghese.fc0.world.save.SaveLike;
 import valoeghese.scalpel.Camera;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.RaycastResult;
@@ -113,17 +111,17 @@ public class ClientPlayer extends Player  {
 
 					// yandere dev level if statement. I approve.
 					if (nx == -1) {
-						face = Face.WEST;
+						face = Face.SOUTH;
 					} else if (nx == 1) {
-						face = Face.EAST;
+						face = Face.NORTH;
 					} else if (ny == -1) {
 						face = Face.DOWN;
 					} else if (ny == 1) {
 						face = Face.UP;
 					} else if (nz == -1) {
-						face = Face.SOUTH;
+						face = Face.WEST;
 					} else if (nz == 1) {
-						face = Face.NORTH;
+						face = Face.EAST;
 					}
 
 					if (face == null) {

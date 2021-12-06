@@ -44,15 +44,20 @@ import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
 import tk.valoeghese.fc0.world.tile.Tile;
 import valoeghese.scalpel.Camera;
-import valoeghese.scalpel.Model;
 import valoeghese.scalpel.Shader;
 import valoeghese.scalpel.Window;
+import valoeghese.scalpel.scene.Model;
 import valoeghese.scalpel.util.ALUtils;
 import valoeghese.scalpel.util.GLUtils;
 
 import javax.annotation.Nullable;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -63,18 +68,37 @@ import static org.lwjgl.opengl.GL11.*;
 import static tk.valoeghese.fc0.client.render.Textures.*;
 
 public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Runnable, GLFWCursorPosCallbackI {
-	public Client2fc() {
+	public Client2fc(boolean allowsDev, boolean allowsNoClip) {
 		long time = System.currentTimeMillis();
 		instance = this;
 		// initialise Graphics and Audio systems
 		GLUtils.initGLFW();
-		this.window = new Window(BrandAndVersion.isModded() ? "2fc0f18 (" + BrandAndVersion.getBrand() + ")" : "2fc0f18", 640 * 2, 360 * 2);
+		this.window = new Window2fc(BrandAndVersion.isModded() ? "2fc0f18 (" + BrandAndVersion.getBrand() + ")" : "2fc0f18", 640 * 2, 360 * 2);
 		GLUtils.initGL(this.window);
 		ALUtils.initAL();
 		System.out.println("Setup GL/AL in " + (System.currentTimeMillis() - time) + "ms");
 
 		// setup shaders, world, projections, etc
 		this.guiProjection = new Matrix4f().ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
+
+		// load preferences
+		File properties = new File("preferences.txt");
+
+		try {
+			if (!properties.createNewFile()) {
+				try (FileReader reader = new FileReader(properties)) {
+					this.preferences.load(reader);
+				} catch (IOException e) {
+					System.err.println("Error Reading Preferences File! Proceeding with reset preferences.");
+					e.printStackTrace();
+				}
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException("Cannot create preferences.txt!", e);
+		}
+
+		this.allowsDev = allowsDev;
+		this.allowsNoClip = allowsNoClip;
 	}
 
 	private long clientThreadId;
@@ -87,6 +111,11 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private float nextSprintFOV = 1.0f;
 	public Pos spawnLoc = Pos.ZERO;
 	public Language language = Language.EN_GB;
+
+	// properties
+	private final Properties preferences = new Properties();
+	private final boolean allowsDev;
+	private final boolean allowsNoClip;
 
 	public GameScreen gameScreen;
 	public Screen titleScreen;
@@ -107,6 +136,20 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private Model sun;
 	public boolean renderWorld = true;
 	private float freezeInterpolation; // interpolation at game pause time
+
+	/**
+	 * @return whether the player is allowed to enter dev mode.
+	 */
+	public boolean allowsDev() {
+		return this.allowsDev;
+	}
+
+	/**
+	 * @return whether the player is allowed to enter no-clip mode.
+	 */
+	public boolean allowsNoClip() {
+		return this.allowsNoClip;
+	}
 
 	@Override
 	public boolean isMainThread() {
@@ -240,47 +283,27 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		// Smooth Sprint FOV
 		if (this.sprintFOV > this.nextSprintFOV + 0.001f) {
 			this.sprintFOV -= 0.01f;
-			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.getAspect(), 0.01f, 250.0f);
 		} else if (this.sprintFOV < this.nextSprintFOV - 0.001f) {
 			this.sprintFOV += 0.01f;
-			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+			this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.getAspect(), 0.01f, 250.0f);
 		}
-
-		// TODO update lighting instead of rebuilding meshes
+		
 		if (this.world != null) {
-			if (this.world.updateSkylight()) {
-				Iterator<ClientChunk> renderChunks = new ArrayList<>(this.world.getRenderingChunks()).iterator();
-				staggerLightingUpdate(renderChunks, System.currentTimeMillis());
-			}
+			this.world.updateSkylight(); // this is only used for ingame stuff, not spawning. Do I even need to have the world cache this anymore?
 		}
 
 		// Music System
 		MusicSystem.tick(this.currentScreen);
 	}
 
-	private void staggerLightingUpdate(Iterator<ClientChunk> renderChunks, long startTimeMillis) {
-		int i = 3;
-
-		while (i --> 0 && renderChunks.hasNext()) {
-			ClientChunk chunk = renderChunks.next();
-
-			if (chunk.lastMeshBuild - startTimeMillis < 0) {
-				chunk.dirtyForRender = true;
-			}
-		}
-
-		if (renderChunks.hasNext()) {
-			runLater(() -> staggerLightingUpdate(renderChunks, startTimeMillis));
-		}
-	}
-
 	private void initGameRendering() {
 		long start = System.currentTimeMillis();
-		glfwSetKeyCallback(this.window.id, KeybindManager.INSTANCE);
-		glfwSetMouseButtonCallback(this.window.id, MousebindManager.INSTANCE);
+		glfwSetKeyCallback(this.window.getHandle(), KeybindManager.INSTANCE);
+		glfwSetMouseButtonCallback(this.window.getHandle(), MousebindManager.INSTANCE);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0.3f, 0.5f, 0.9f, 1.0f);
-		glfwSetCursorPosCallback(this.window.id, this);
+		glfwSetCursorPosCallback(this.window.getHandle(), this);
 
 		// load in the atlases!
 		Textures.loadGeneratedAtlases();
@@ -300,19 +323,19 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			}
 		}
 
-		this.prevYPos = this.window.height / 2.0f;
-		this.prevXPos = this.window.width / 2.0f;
+		this.prevYPos = this.window.getHeight() / 2.0f;
+		this.prevXPos = this.window.getWidth() / 2.0f;
 
 		this.gameScreen = new GameScreen(this);
 		this.titleScreen = new TitleScreen(this);
 		this.craftingScreen = new CraftingScreen(this);
 		this.pauseScreen = new PauseMenuScreen(this, this.gameScreen);
-		this.optionsScreen = new OptionsMenuScreen(this, this.pauseScreen);
+		this.optionsScreen = new OptionsMenuScreen(this, this.pauseScreen, this.preferences);
 		this.youDiedScreen = new YouDiedScreen(this);
 		this.switchScreen(this.titleScreen);
 
 		this.waterOverlay = new Overlay(Textures.WATER_OVERLAY);
-		this.sun = new SquareModel(GL33.GL_DYNAMIC_DRAW, Shaders.terrain);
+		this.sun = new SquareModel();
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
 	}
@@ -345,7 +368,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	private void render(float tickDelta) {
 		long time = System.nanoTime();
-		float lighting = this.calculateLighting();
+		float skylight = this.calculateSkyLighting();
 
 		if (this.timerSwitch.isOn()) {
 			Shaders.gui.bind();
@@ -354,7 +377,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			this.setupGUI.render();
 			Shader.unbind();
 		} else {
-			glClearColor(0.35f * lighting, 0.55f * lighting, 0.95f * lighting, 1.0f);
+			glClearColor(0.35f * skylight, 0.55f * skylight, 0.95f * skylight, 1.0f);
 
 			// update camera
 			this.player.updateCameraPos(tickDelta);
@@ -363,29 +386,30 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.terrain.bind();
 			// time and stuff
 			Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
-			Shaders.terrain.uniformFloat("lighting", 1.0f); // We Update chunk lighting to change lighting now.
+			Shaders.terrain.uniformFloat("skylight", skylight);
 			// projection
 			Shaders.terrain.uniformMat4f("projection", this.projection);
 			// defaults
 			Shaders.terrain.uniformInt("waveMode", 0);
+			Shaders.terrain.uniformMat4f("view", this.player.getCamera().getView());
 			// render world
 			GLUtils.bindTexture(TILE_ATLAS);
 
 			if (renderWorld) {
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
-					chunk.getOrCreateMesh().renderSolidTerrain(this.player.getCamera());
+					chunk.getOrCreateMesh().renderSolidTerrain();
 				}
 
 				GLUtils.enableBlend();
 
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
-					chunk.getOrCreateMesh().renderTranslucentTerrain(this.player.getCamera());
+					chunk.getOrCreateMesh().renderTranslucentTerrain();
 				}
 
 				Shaders.terrain.uniformInt("waveMode", 1);
 
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
-					chunk.getOrCreateMesh().renderWater(this.player.getCamera());
+					chunk.getOrCreateMesh().renderWater();
 				}
 
 				Shaders.terrain.uniformInt("waveMode", 0);
@@ -411,15 +435,17 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 					.rotate(new AxisAngle4f(yaw, 0.0f, 1.0f, 0.0f))
 					.rotate(new AxisAngle4f(this.player.getCamera().getPitch(), -sin(yaw - NINETY_DEGREES), 0.0f, cos(yaw - NINETY_DEGREES)))
 			);
+			Shaders.terrain.uniformFloat("skylight", -1.0f); // this makes it ignore lighting calculations
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_COLOR, GL_ONE);
 			float skyAngle = this.calculateSkyAngle();
 			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
-			this.sun.render(new Matrix4f()
+			Shaders.terrain.uniformMat4f("transform", new Matrix4f()
 					.scale(16.0f)
 					.rotate(new AxisAngle4f(skyAngle - PI + 8.0f * PI,1.0f, 0.0f, 0.0f))
 					.translate(new Vector3f(0, 0, 10.0f)));
+			this.sun.render();
 			GLUtils.disableBlend();
 
 			// bind shader
@@ -429,7 +455,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// defaults
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 			// render gui
-			this.renderGUI(lighting);
+			this.renderGUI(skylight);
 			// unbind shader
 			GLUtils.bindTexture(0);
 
@@ -533,7 +559,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 	public void setFOV(int newFOV) {
 		this.fov = newFOV;
-		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.aspect, 0.01f, 250.0f);
+		this.projection = new Matrix4f().perspective((float) Math.toRadians(this.fov * this.sprintFOV), this.window.getAspect(), 0.01f, 250.0f);
 	}
 
 	public int getFOV() {
@@ -549,7 +575,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	public long getWindowId() {
-		return this.window.id;
+		return this.window.getHandle();
 	}
 
 	public Window getWindow() {
@@ -559,6 +585,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Nullable
 	public Hotbar getHotbarRenderer() {
 		return this.gameScreen == null ? null : this.gameScreen.hotbarRenderer;
+	}
+
+	public String getProperty(String key, String defaultValue) {
+		return this.preferences.getProperty(key, defaultValue);
 	}
 
 	@Override
@@ -612,4 +642,16 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public static final boolean NEW_TITLE = true;
 	private static final Matrix4f IDENTITY = new Matrix4f();
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
+
+	private class Window2fc extends valoeghese.scalpel.Window {
+		public Window2fc(String title, int width, int height) {
+			super(title, width, height);
+		}
+
+		@Override
+		public void invoke(long window, int width, int height) {
+			super.invoke(window, width, height);
+			Client2fc.this.projection = new Matrix4f().perspective((float) Math.toRadians(Client2fc.this.fov * Client2fc.this.sprintFOV), Client2fc.this.window.getAspect(), 0.01f, 250.0f);
+		}
+	}
 }

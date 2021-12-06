@@ -6,10 +6,10 @@ import tk.valoeghese.fc0.util.maths.TilePos;
 import java.util.function.UnaryOperator;
 
 public enum Face implements UnaryOperator<TilePos> {
-	NORTH(0, 0, 1),
-	SOUTH(0, 0, -1),
-	EAST(1, 0, 0),
-	WEST(-1, 0, 0),
+	EAST(0, 0, 1),
+	WEST(0, 0, -1),
+	NORTH(1, 0, 0),
+	SOUTH(-1, 0, 0),
 	UP(0, 1, 0),
 	DOWN(0, -1, 0);
 
@@ -46,14 +46,14 @@ public enum Face implements UnaryOperator<TilePos> {
 
 	public Face reverse() {
 		switch (this) {
-		case NORTH:
-			return SOUTH;
-		case SOUTH:
-			return NORTH;
 		case EAST:
 			return WEST;
 		case WEST:
 			return EAST;
+		case NORTH:
+			return SOUTH;
+		case SOUTH:
+			return NORTH;
 		case UP:
 			return DOWN;
 		case DOWN:

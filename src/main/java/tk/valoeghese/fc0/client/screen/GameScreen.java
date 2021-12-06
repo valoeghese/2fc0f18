@@ -248,18 +248,16 @@ public class GameScreen extends Screen {
 			} else if (Keybinds.NO_CLIP_DOWN.isPressed()) {
 				player.addVelocity(0.0, -0.02, 0.0);
 			}
-		} else {
-			if (Keybinds.JUMP.isPressed()) {
-				long time = System.currentTimeMillis();
+		} else if (Keybinds.JUMP.isPressed()) {
+			long time = System.currentTimeMillis();
 
-				if (player.isSwimming() && time > player.lockSwim) {
-					player.addVelocity(0.0f, player.getUpwardsSwimStrength() * 0.03f, 0.0f);
-				} else {
-					player.lockSwim = time + 18;
+			if (player.isSwimming() && time > player.lockSwim) {
+				player.addVelocity(0.0f, player.getUpwardsSwimStrength() * 0.03f, 0.0f);
+			} else {
+				player.lockSwim = time + 18;
 
-					if (player.isOnGround()) {
-						player.addVelocity(0.0f, player.getJumpStrength(), 0.0f);
-					}
+				if (player.isOnGround()) {
+					player.addVelocity(0.0f, player.getJumpStrength(), 0.0f);
 				}
 			}
 		}
@@ -289,33 +287,37 @@ public class GameScreen extends Screen {
 		}
 
 		if (Keybinds.INTERACT.hasBeenPressed()) {
-			if (selectedItem != null && selectedItem.isTile()) {
-				RaycastResult result = player.rayCast(10.0, true);
+			if (selectedItem != null) {
+				if (selectedItem.isTile()) {
+					RaycastResult result = player.rayCast(10.0, true);
 
-				if (result.face != null) {
-					TilePos pos = result.face.apply(result.pos);
-					TilePos playerPos = player.getTilePos();
+					if (result.face != null) {
+						TilePos pos = result.face.apply(result.pos);
+						TilePos playerPos = player.getTilePos();
 
-					if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
-						if (world.isInWorld(pos)) {
-							Tile tile = selectedItem.tileValue();
+						if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
+							if (world.isInWorld(pos)) {
+								Tile tile = selectedItem.tileValue();
 
-							if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
-								if (!player.dev) {
-									selectedItem.decrement();
+								if (tile.canPlaceAt(world, pos.x, pos.y, pos.z)) {
+									if (!player.dev) {
+										selectedItem.decrement();
+									}
+
+									if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
+										world.writeTile(pos, Tile.CACTUS.id);
+									} else {
+										world.writeTile(pos, tile.id);
+										world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
+									}
+
+									tile.onPlace(world, pos);
 								}
-
-								if (player.dev && tile.id == Tile.DAISY.id && world.readTile(pos.down()) == Tile.SAND.id) {
-									world.writeTile(pos, Tile.CACTUS.id);
-								} else {
-									world.writeTile(pos, tile.id);
-									world.writeMeta(pos.x, pos.y, pos.z, selectedItem.getMeta());
-								}
-
-								tile.onPlace(world, pos);
 							}
 						}
 					}
+				} else {
+					selectedItem.onItemUse(player);
 				}
 			}
 		}
@@ -325,11 +327,7 @@ public class GameScreen extends Screen {
 			player.setPos(this.game.spawnLoc);
 		}
 
-		/*if (Keybinds.SET_SPAWN.hasBeenPressed()) {
-			this.game.spawnLoc = player.getPos();
-		}*/
-
-		if (Keybinds.NO_CLIP.hasBeenPressed()) {
+		if (Keybinds.NO_CLIP.hasBeenPressed() && Client2fc.getInstance().allowsNoClip()) {
 			player.setNoClip(!player.isNoClip());
 		}
 
@@ -338,8 +336,12 @@ public class GameScreen extends Screen {
 				player.addDevItems();
 			}
 
-			if (Keybinds.ADD_TIME.hasBeenPressed()) {
+			if (Keybinds.ADD_TIME.isPressed()) {
 				this.game.time += 200;
+			}
+
+			if (Keybinds.REMOVE_TIME.isPressed()) {
+				this.game.time -= 200;
 			}
 
 			if (Keybinds.HIDE_WORLD.hasBeenPressed()) {
@@ -347,7 +349,7 @@ public class GameScreen extends Screen {
 			}
  		}
 
-		if (Keybinds.DEV_MODE.hasBeenPressed()) {
+		if (Keybinds.DEV_MODE.hasBeenPressed() && Client2fc.getInstance().allowsDev()) {
 			player.toggleDev();
 		}
 

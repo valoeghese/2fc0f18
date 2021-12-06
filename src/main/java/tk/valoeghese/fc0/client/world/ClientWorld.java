@@ -71,6 +71,9 @@ public class ClientWorld extends GameplayWorld<ClientChunk> {
 		this.updateNeighbours(chunk.getPos());
 	}
 
+	// when a chunk loads check all surrounding chunks
+	// if those chunks now have all sides covered they can render
+	// should I make it require LIGHTING?
 	private void updateNeighbours(final ChunkPos pos) {
 		ClientChunk neighbour = this.getRenderChunk(pos.x, pos.z + 1);
 

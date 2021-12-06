@@ -1,7 +1,9 @@
 package tk.valoeghese.fc0.client.render;
 
 import org.lwjgl.BufferUtils;
+import tk.valoeghese.fc0.client.Client2fc;
 import tk.valoeghese.fc0.client.render.gui.Overlay;
+import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.player.ItemType;
 import tk.valoeghese.fc0.world.tile.Tile;
@@ -13,6 +15,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -23,9 +26,13 @@ import java.util.function.Consumer;
 import static org.lwjgl.opengl.GL33.*;
 
 public class Textures {
+	private static BufferedImage localImage(String name) throws IOException {
+		return ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png"));
+	}
+
 	private static int load(String name) {
 		try {
-			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
+			return TextureLoader.textureARGB(localImage(name));
 		} catch (IOException e) {
 			e.printStackTrace();
 			return MISSINGNO;
@@ -34,7 +41,7 @@ public class Textures {
 
 	private static int loadImportant(String name) {
 		try {
-			return TextureLoader.textureARGB(ImageIO.read(ResourceLoader.loadURL("assets/texture/" + name + ".png")));
+			return TextureLoader.textureARGB(localImage(name));
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error loading vital Texture " + name, e);
 		}
@@ -119,6 +126,7 @@ public class Textures {
 		int result = TextureLoader.textureARGB(atlas.image);
 
 		if (mipmap_128 != null) {
+			System.out.println("Adding generated mipmaps for atlas \"" + atlas.name + "\"");
 			// mipmapping
 			ByteBuffer buffer_128 = imageBuffer(mipmap_128);
 			ByteBuffer buffer_64 = imageBuffer(mipmap_64);
@@ -127,6 +135,13 @@ public class Textures {
 			glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA8, mipmap_128.getWidth(), mipmap_128.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_128);
 			glTexImage2D(GL_TEXTURE_2D, 2, GL_RGBA8, mipmap_64.getWidth(), mipmap_64.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_64);
 			glTexImage2D(GL_TEXTURE_2D, 3, GL_RGBA8, mipmap_32.getWidth(), mipmap_32.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer_32);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 3);
+
+			if (mipmapping) {
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+			}
+
 			glBindTexture(GL_TEXTURE_2D, 0);
 			mipmap_128 = null;
 			mipmap_32 = null;
@@ -198,9 +213,7 @@ public class Textures {
 			}
 
 			GeneratedAtlas.ImageEntry[] entries_ = images.toArray(GeneratedAtlas.ImageEntry[]::new);
-			mipmap_128 = scaledAtlas(name, entries_, 1);
-			mipmap_64 = scaledAtlas(name, entries_, 2);
-			mipmap_32 = scaledAtlas(name, entries_, 3);
+			mipmap_128 = null; // don't mipmap items
 			return new GeneratedAtlas(name, entries_);
 		} catch (IOException e) {
 			throw new UncheckedIOException("Error generating Item Texture Atlas" + name, e);
@@ -208,6 +221,8 @@ public class Textures {
 	}
 
 	public static void loadGeneratedAtlases() {
+		mipmapping = "true".equals(Client2fc.getInstance().getProperty("mipmapping", "true"));
+
 		// tile atlas
 		TILE_ATLAS_OBJ = loadAtlas("tile", entries -> {
 			entries.add("missingno");
@@ -252,10 +267,25 @@ public class Textures {
 		ITEM_ATLAS = load(ITEM_ATLAS_OBJ);
 	}
 
+	public static boolean isMipmappingMipmappables() {
+		return mipmapping;
+	}
+
+	public static boolean toggleMipmapping() {
+		int newMode = (mipmapping = !mipmapping) ? GL_NEAREST_MIPMAP_NEAREST : GL_NEAREST;
+
+		// flip entities here too when those are added
+		glBindTexture(GL_TEXTURE_2D, TILE_ATLAS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, newMode);
+		glBindTexture(GL_TEXTURE_2D, 0); // do I really need to keep unbinding textures or is it just an expensive waste? (is it even expensive?)
+
+		return mipmapping;
+	}
+
+	private static boolean mipmapping;
 	private static BufferedImage mipmap_128; // cache
 	private static BufferedImage mipmap_64; // cache 2
 	private static BufferedImage mipmap_32; // cache 3
-
 	public static GeneratedAtlas TILE_ATLAS_OBJ;
 	public static GeneratedAtlas ITEM_ATLAS_OBJ;
 	public static int TILE_ATLAS = 0;
@@ -268,7 +298,20 @@ public class Textures {
 	public static final int DEATH_OVERLAY = load("overlay/death_overlay");
 	public static final int DIM = load("overlay/dim");
 	// GUI
-	public static final int FONT_ATLAS = loadImportant("gui/font_atlas");
+	private static BufferedImage FONT_ATLAS_IMAGE;
+	public static final int FONT_ATLAS;
+
+	static {
+		try {
+			FONT_ATLAS_IMAGE = localImage("gui/font_atlas");
+		} catch (IOException e) {
+			throw new UncheckedIOException("Exception loading Font Atlas", e);
+		}
+
+		FONT_ATLAS = TextureLoader.textureARGB(FONT_ATLAS_IMAGE);
+		Text.calculateProportions(FONT_ATLAS_IMAGE);
+	}
+
 	public static final int SELECTED = load("gui/selected");
 	public static final int CRAFT = load("gui/craft");
 	public static final int ENTER = load("gui/enter");

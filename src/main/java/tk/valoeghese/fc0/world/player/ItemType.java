@@ -25,6 +25,9 @@ public class ItemType {
 	private int u = 0;
 	private int v = 0;
 
+	protected void onItemUse(Item item, Player player) {
+	}
+
 	public final void requestUV(Function<String, Vec2i> uvSupplier) {
 		Vec2i uv = uvSupplier.apply(this.textureName);
 		this.u = uv.getX();
@@ -53,5 +56,5 @@ public class ItemType {
 	public static final ItemType[] BY_ID = new ItemType[128];
 	// An ID of negative one symbolises a delegate item.
 	public static final ItemType TORCH = new ItemType("torch", -1).setName("torch");
-	public static final ItemType POMELO = new ItemType("pomelo", 0).setName("pomelo");
+	public static final ItemType POMELO = new Food("pomelo", 0).heals(5).setName("pomelo");
 }
