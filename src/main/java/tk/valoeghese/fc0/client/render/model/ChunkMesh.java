@@ -55,10 +55,10 @@ public class ChunkMesh {
 						} else if (instance.shouldRender() || waterLayer) {
 							Tile tileUp = y == 127 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y + 1, z)]];
 							Tile tileDown = y == 0 ? Tile.AIR : Tile.BY_ID[tiles[index(x, y - 1, z)]];
-							Tile tileSouth = x == 0 ? this.chunk.south(z, y) : Tile.BY_ID[tiles[index(x - 1, y, z)]];
-							Tile tileNorth = x == 15 ? this.chunk.north(z, y) : Tile.BY_ID[tiles[index(x + 1, y, z)]];
-							Tile tileWest = z == 0 ? this.chunk.west(x, y) : Tile.BY_ID[tiles[index(x, y, z - 1)]];
-							Tile tileEast = z == 15 ? this.chunk.east(x, y) : Tile.BY_ID[tiles[index(x, y, z + 1)]];
+							Tile tileNorth = x == 0 ? this.chunk.north(z, y) : Tile.BY_ID[tiles[index(x - 1, y, z)]];
+							Tile tileSouth = x == 15 ? this.chunk.south(z, y) : Tile.BY_ID[tiles[index(x + 1, y, z)]];
+							Tile tileEast = z == 0 ? this.chunk.east(x, y) : Tile.BY_ID[tiles[index(x, y, z - 1)]];
+							Tile tileWest = z == 15 ? this.chunk.west(x, y) : Tile.BY_ID[tiles[index(x, y, z + 1)]];
 
 							if (!tileUp.isOpaque(waterLayer, instance)) { // 0.95f
 								layer.add(new RenderedTileFace(
@@ -78,25 +78,25 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileEast.isOpaque(waterLayer, instance)) { // 1.05f
+							if (!tileWest.isOpaque(waterLayer, instance)) { // 1.05f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z + 1f),
-										2,
+										5,
 										instance,
 										this.chunk.getPackedLightLevel(x, y, z + 1),
 										meta));
 							}
 
-							if (!tileWest.isOpaque(waterLayer, instance)) { // 0.75f
+							if (!tileEast.isOpaque(waterLayer, instance)) { // 0.75f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 0.5f, y + 0.5f, z),
-										5,
+										2,
 										instance,
 										this.chunk.getPackedLightLevel(x, y, z - 1),
 										meta));
 							}
 
-							if (!tileNorth.isOpaque(waterLayer, instance)) { // 0.9f
+							if (!tileSouth.isOpaque(waterLayer, instance)) { // 0.9f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x + 1f, y + 0.5f, z + 0.5f),
 										0,
@@ -105,7 +105,7 @@ public class ChunkMesh {
 										meta));
 							}
 
-							if (!tileSouth.isOpaque(waterLayer, instance)) { // 0.9f
+							if (!tileNorth.isOpaque(waterLayer, instance)) { // 0.9f
 								layer.add(new RenderedTileFace(
 										new Vector3f(x, y + 0.5f, z + 0.5f),
 										3,
@@ -168,6 +168,9 @@ public class ChunkMesh {
 			vertices.pos(this.pos.x + SIZE, this.pos.y + SIZE, this.pos.z + SIZE).uv(endU, endV).add(this.lighting).next();
 
 			model.addTriangle(i, i + 1, i + 3);
+			model.addTriangle(i, i + 3, i + 2);
+			// double up -- should I just separate cross models and not cull for them instead?
+			model.addTriangle(i, i + 3, i + 1);
 			model.addTriangle(i, i + 2, i + 3);
 
 			i = vertices.pos(this.pos.x + SIZE, this.pos.y - SIZE, this.pos.z - SIZE).uv(startU, startV).add(this.lighting).next();
@@ -176,6 +179,9 @@ public class ChunkMesh {
 			vertices.pos(this.pos.x - SIZE, this.pos.y + SIZE, this.pos.z + SIZE).uv(endU, endV).add(this.lighting).next();
 
 			model.addTriangle(i, i + 1, i + 3);
+			model.addTriangle(i, i + 3, i + 2);
+			// double up
+			model.addTriangle(i, i + 3, i + 1);
 			model.addTriangle(i, i + 2, i + 3);
 		}
 	}
@@ -227,8 +233,13 @@ public class ChunkMesh {
 				break;
 			}
 
-			model.addTriangle(i, i + 1, i + 3);
-			model.addTriangle(i, i + 2, i + 3);
+			if (this.f < 3) {
+				model.addTriangle(i, i + 3, i + 1);
+				model.addTriangle(i, i + 2, i + 3);
+			} else {
+				model.addTriangle(i, i + 1, i + 3);
+				model.addTriangle(i, i + 3, i + 2);
+			}
 		}
 	}
 

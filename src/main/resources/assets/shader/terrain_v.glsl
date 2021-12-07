@@ -36,21 +36,21 @@ void main() {
         float lightMultiplier;
 
         switch (face) {
-        case 0: // north
-        case 3: // south
+        case 0: // south
+        case 3: // north
             lightMultiplier = 0.9;
             break;
         case 1: // up
             lightMultiplier = 0.95;
             break;
         case 2: // east
-            lightMultiplier = 1.05;
+            lightMultiplier = 0.75;
             break;
         case 4: // down
             lightMultiplier = 0.85;
             break;
         case 5: // west
-            lightMultiplier = 0.75;
+            lightMultiplier = 1.05;
             break;
         }
 

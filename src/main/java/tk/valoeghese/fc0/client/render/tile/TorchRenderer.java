@@ -38,14 +38,14 @@ public enum TorchRenderer implements TileRenderer {
 
 		layer.add(new Face(
 				new Vector3f(x, y, z + 0.5f * 0.25f),
-				2,
+				5,
 				instance,
 				getPackedLightLevel,
 				meta));
 
 		layer.add(new Face(
 				new Vector3f(x, y, z - 0.5f * 0.25f),
-				5,
+				2,
 				instance,
 				getPackedLightLevel,
 				meta));
@@ -105,8 +105,13 @@ public enum TorchRenderer implements TileRenderer {
 				break;
 			}
 
-			model.addTriangle(i, i + 1, i + 3);
-			model.addTriangle(i, i + 2, i + 3);
+			if (this.f < 3) {
+				model.addTriangle(i, i + 3, i + 1);
+				model.addTriangle(i, i + 2, i + 3);
+			} else {
+				model.addTriangle(i, i + 1, i + 3);
+				model.addTriangle(i, i + 3, i + 2);
+			}
 		}
 	}
 }

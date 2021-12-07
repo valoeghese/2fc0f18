@@ -439,6 +439,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			GLUtils.bindTexture(TILE_ATLAS);
 
 			if (renderWorld) {
+				glEnable(GL_CULL_FACE);
+
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
 					chunk.getOrCreateMesh().renderSolidTerrain();
 				}
@@ -457,6 +459,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 				Shaders.terrain.uniformInt("waveMode", 0);
 				GLUtils.disableBlend();
+				glDisable(GL_CULL_FACE);
 			}
 
 			// render entities

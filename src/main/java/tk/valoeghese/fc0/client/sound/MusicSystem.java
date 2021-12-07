@@ -83,7 +83,7 @@ public class MusicSystem {
 			float duration = (float) lengthSamples / (float) AL11.alGetBufferi(piece.soundBuffer, AL11.AL_FREQUENCY);
 
 			nextTime = System.currentTimeMillis() + (long) (duration * 1000) + settings.selectDelay(Client2fc.RANDOM);
-			targetGain = settings.gain();
+			targetGain = settings.gain() * 0.67f; // TODO volume slider
 
 			musicSource.attachBufferData(piece);
 			musicSource.play();
