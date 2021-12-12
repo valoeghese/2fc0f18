@@ -88,6 +88,9 @@ public abstract class Lifeform extends Entity {
 
 	@Override
 	public void hitGround() {
+		Tile on = Tile.BY_ID[this.world.readTile(new TilePos(this.pos).down())];
+		Game2fc.getInstance().playSound(null, on.getSounds().getStepSound(), this.getX(), this.getY(), this.getZ(), 0.4f);
+
 		double aval = -this.velocity.getY();
 		int val = (int) (aval * aval * 36);
 

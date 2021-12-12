@@ -56,12 +56,17 @@ public abstract class Entity {
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
-		if (Math.abs(this.velocity.getY()) > 0.03) {
+		if (Math.abs(this.velocity.getY()) > 0.08) { // -0.0783 is normal while standing
+			System.out.println(this.velocity.getY());
 			this.falling = true;
 		}
 
 		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
-			this.hitGround();
+			this.velocity.setY(0.0);
+
+			if (this.falling) {
+				this.hitGround();
+			}
 		}
 	}
 
@@ -197,6 +202,5 @@ public abstract class Entity {
 
 	public void hitGround() {
 		this.falling = false;
-		this.velocity.setY(0.0);
 	}
 }
