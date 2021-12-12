@@ -43,7 +43,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 	}
 
 	public void setSelectedSlot(int slot) {
-		this.selected.setPosition(0.8f, 0.87f - (0.14f * slot));
+		this.selected.setPosition(0.8f, 0.75f - (0.14f * slot));
 		float windowAspect = Client2fc.getInstance().getWindowAspect();
 
 		for (HotbarUpdateSubscriber subscriber : UPDATE_SUBSCRIBERS) {

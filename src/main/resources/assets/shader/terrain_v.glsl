@@ -12,6 +12,7 @@ uniform mat4 projection;
 uniform float time;
 uniform int waveMode;
 uniform float skylight;
+uniform float skyAngle;
 
 float wave1Y(float, float);
 
@@ -33,28 +34,28 @@ void main() {
         float blockLight = float(packedLight >> 7) / 15.0;
         float skyLight = skylight * float((packedLight >> 3) & 0xF) / 15.0; // have fun with skyLight and skylight being different
         int face = packedLight & 7;
-        float lightMultiplier;
+        float skyAngleLightMultiplier;
 
         switch (face) {
         case 0: // south
         case 3: // north
-            lightMultiplier = 0.925;
+            skyAngleLightMultiplier = 0.93;
             break;
         case 1: // up
-            lightMultiplier = 0.95;
+            skyAngleLightMultiplier = 0.075 * sin(skyAngle) + 0.925; // was 0.95 in fixed, then 0.96 briefly but in no runs
             break;
         case 2: // east
-            lightMultiplier = 0.85;
+            skyAngleLightMultiplier = 0.075 * cos(skyAngle) + 0.925; // was 0.85 in fixed
             break;
         case 4: // down
-            lightMultiplier = 0.9;
+            skyAngleLightMultiplier = 0.9;
             break;
         case 5: // west
-            lightMultiplier = 1.0;
+            skyAngleLightMultiplier = 0.075 * cos(skyAngle - 3.141592) + 0.925; // was 1.0 in fixed
             break;
         }
 
-        lightPass = max(blockLight, skyLight) * lightMultiplier;
+        lightPass = max(blockLight, skyLight * skyAngleLightMultiplier);
         // todo change light direction in code based on time of day
     }
 }

@@ -478,7 +478,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			// bind shader
 			Shaders.terrain.bind();
-			// time and stuff
+			// time and stuff (to anyone not used to gl, shader needs to be bound for uniform changes. this note is here because I forgot this at one point (luckily resolved the problem before even launching debug) and wanted to make sure I don't forget it again)
+			float skyAngle = this.calculateSkyAngle();
+			Shaders.terrain.uniformFloat("skyAngle", skyAngle);
 			Shaders.terrain.uniformFloat("time", (this.time % Game2fc.SKY_ROTATION_RATE) + tickDelta);
 			Shaders.terrain.uniformFloat("skylight", skylight);
 			// projection
@@ -536,9 +538,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_COLOR, GL_ONE);
-			float skyAngle = this.calculateSkyAngle();
 
-			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
+			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick (including sky angle stuff)
 			Shaders.terrain.uniformMat4f("transform", new Matrix4f()
 					.scale(16.0f)
 					.rotate(new AxisAngle4f(skyAngle - PI + 8.0f * PI,1.0f, 0.0f, 0.0f))
