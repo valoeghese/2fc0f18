@@ -52,9 +52,9 @@ public class GameScreen extends Screen {
 		this.cityWidget = this.debugWidget("missingno", 1.0f);
 		this.heightmapWidget = this.debugWidget("missingno", 1.0f);
 
-		this.profilerWidget = new Text("missingno", 0.92f, 0.9f, FONT_SCALE);
+		this.profilerWidget = new Text("missingno", 0.74f, 0.9f, FONT_SCALE);
 
-		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, FONT_SCALE);
+		this.modesWidget = new Text.Moveable("", -0.96f, 0.9f - 0.1f * FONT_SCALE * 1.7f, FONT_SCALE);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 		this.healthBar = new ResizableRect(Textures.HEALTH);
@@ -82,7 +82,7 @@ public class GameScreen extends Screen {
 	private float currentHealthProportions = 0;
 
 	private Text debugWidget(String startText, float size) {
-		Text result = new Text(startText, -0.92f, 0.9f + this.offset, FONT_SCALE * size);
+		Text result = new Text(startText, -0.96f, 0.9f + this.offset, FONT_SCALE * size);
 		this.offset -= 0.1 * FONT_SCALE;
 		return result;
 	}
@@ -163,7 +163,7 @@ public class GameScreen extends Screen {
 		if (showDebug) {
 			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.9f + this.offset);
 		} else {
-			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.9f - FONT_SCALE * 1.7f);
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.9f - 0.1f * FONT_SCALE * 1.7f);
 		}
 	}
 

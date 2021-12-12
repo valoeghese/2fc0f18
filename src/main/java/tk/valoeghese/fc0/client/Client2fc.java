@@ -236,26 +236,29 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			long timeMillis = System.currentTimeMillis();
 
 			if (timeMillis >= nextHalfSecond) { // profilers per half second
+				nextHalfSecond = timeMillis + 500;
 				this.fphsProfiler.next();
 				this.tphsProfiler.next();
 
-				this.gameScreen.profilerWidget.changeText(
-						new StringBuilder()
-								.append("FPS: ")
-								.append(String.format("%.1f", this.fphsProfiler.getAverageRate() * 2))
-								.append(" (")
-								.append(this.fphsProfiler.getMax() * 2)
-								.append("/")
-								.append(this.fphsProfiler.getMin() * 2)
-								.append(")")
-								.append("\nTPS: ")
-								.append(String.format("%.1f", this.tphsProfiler.getAverageRate() * 2))
-								.append(" (")
-								.append(this.tphsProfiler.getMax() * 2)
-								.append("/")
-								.append(this.tphsProfiler.getMin() * 2)
-								.append(")")
-								.toString());
+				if (this.currentScreen == this.gameScreen) {
+					this.gameScreen.profilerWidget.changeText(
+							new StringBuilder()
+									.append("FPS: ")
+									.append(String.format("%.1f", this.fphsProfiler.getAverageRate() * 2))
+									.append(" (")
+									.append(this.fphsProfiler.getMax() * 2)
+									.append("/")
+									.append(this.fphsProfiler.getMin() * 2)
+									.append(")")
+									.append("\nTPS: ")
+									.append(String.format("%.1f", this.tphsProfiler.getAverageRate() * 2))
+									.append(" (")
+									.append(this.tphsProfiler.getMax() * 2)
+									.append("/")
+									.append(this.tphsProfiler.getMin() * 2)
+									.append(")")
+									.toString());
+				}
 			}
 
 			if (timeMillis >= this.nextUpdate) {

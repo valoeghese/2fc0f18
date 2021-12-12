@@ -38,19 +38,19 @@ void main() {
         switch (face) {
         case 0: // south
         case 3: // north
-            lightMultiplier = 0.9;
+            lightMultiplier = 0.925;
             break;
         case 1: // up
             lightMultiplier = 0.95;
             break;
         case 2: // east
-            lightMultiplier = 0.75;
-            break;
-        case 4: // down
             lightMultiplier = 0.85;
             break;
+        case 4: // down
+            lightMultiplier = 0.9;
+            break;
         case 5: // west
-            lightMultiplier = 1.05;
+            lightMultiplier = 1.0;
             break;
         }
 
