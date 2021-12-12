@@ -89,7 +89,7 @@ public abstract class Lifeform extends Entity {
 	@Override
 	public void hitGround() {
 		// set tick offset to delay next sound
-		this.lastFallTickOffset = (int) Game2fc.getInstance().time & 0x7;
+		this.lastFallTickOffset = (int) ((Game2fc.getInstance().time - 1) & 0x7);
 
 		// play sound
 		Tile on = Tile.BY_ID[this.world.readTile(new TilePos(this.pos).down())];

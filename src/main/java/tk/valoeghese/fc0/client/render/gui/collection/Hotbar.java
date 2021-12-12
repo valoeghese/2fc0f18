@@ -18,7 +18,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 		this.parent = parent;
 
 		for (int i = 0; i < 10; ++i) {
-			this.guis.add(new HotbarEntry(0.8f, 0.87f - (0.14f * i)));
+			this.guis.add(new HotbarEntry(0.8f, 0.75f - (0.14f * i)));
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
 

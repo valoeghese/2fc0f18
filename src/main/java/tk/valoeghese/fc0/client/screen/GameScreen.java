@@ -260,9 +260,9 @@ public class GameScreen extends Screen {
 
 		if (player.isNoClip()) {
 			if (Keybinds.JUMP.isPressed()) {
-				player.addVelocity(0.0, 0.02, 0.0);
+				player.addVelocity(0.0, 0.1, 0.0);
 			} else if (Keybinds.NO_CLIP_DOWN.isPressed()) {
-				player.addVelocity(0.0, -0.02, 0.0);
+				player.addVelocity(0.0, -0.1, 0.0);
 			}
 		} else if (Keybinds.JUMP.isPressed()) {
 			long time = System.currentTimeMillis();

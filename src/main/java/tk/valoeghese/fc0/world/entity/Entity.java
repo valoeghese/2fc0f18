@@ -38,21 +38,23 @@ public abstract class Entity {
 
 		TilePos below = this.getTilePos().down();
 
-		if (!this.noClip && this.world.isInWorld(below)) {
-			byte tile = this.world.readTile(below);
+		if (this.noClip) {
+			this.friction = 0.75;
+		} else {
+			if (this.world.isInWorld(below)) {
+				byte tile = this.world.readTile(below);
 
-			if (tile != Tile.AIR.id) {
-				this.friction = 0.75;
-				this.friction /= Tile.BY_ID[tile].getFrictionConstant();
-				this.friction = Math.min(1.0, this.friction);
+				if (tile != Tile.AIR.id) {
+					this.friction = 0.75;
+					this.friction /= Tile.BY_ID[tile].getFrictionConstant();
+					this.friction = Math.min(1.0, this.friction);
+				}
 			}
-		}
 
-		if (!this.noClip) { // -0.01, -0.02 originally
 			this.velocity.offsetY(this.isSwimming() ? -0.04f : -0.08f);
 		}
 
-		this.velocity.mul(this.friction, this.noClip ? 0.96 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
+		this.velocity.mul(this.friction, this.noClip ? 0.75 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
@@ -61,6 +63,8 @@ public abstract class Entity {
 		}
 
 		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
+			if (this.velocity.getY() < 0) this.nextPos.setY(MathsUtils.floor(this.pos.getY()));
+
 			this.velocity.setY(0.0);
 
 			if (this.falling) {
