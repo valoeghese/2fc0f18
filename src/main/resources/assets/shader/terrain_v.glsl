@@ -56,7 +56,6 @@ void main() {
         }
 
         lightPass = max(blockLight, skyLight * skyAngleLightMultiplier);
-        // todo change light direction in code based on time of day
     }
 }
 
