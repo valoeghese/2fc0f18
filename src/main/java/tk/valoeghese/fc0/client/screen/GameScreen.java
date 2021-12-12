@@ -52,7 +52,7 @@ public class GameScreen extends Screen {
 		this.cityWidget = this.debugWidget("missingno", 1.0f);
 		this.heightmapWidget = this.debugWidget("missingno", 1.0f);
 
-		this.profilerWidget = new Text("missingno", 0.69420f, 0.9f, FONT_SCALE);
+		this.profilerWidget = new Text("missingno", 0.69420f, 0.92f, FONT_SCALE);
 
 		this.modesWidget = new Text.Moveable("", -0.96f, 0.9f - 0.1f * FONT_SCALE * 1.7f, FONT_SCALE);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
