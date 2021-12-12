@@ -39,16 +39,22 @@ public class GameScreen extends Screen {
 	public GameScreen(Client2fc game) {
 		super(game);
 
-		this.version = new Text("2fc0f18-" + BrandAndVersion.getVersion().orElse(getInstance().language.translate("gui.version")) + BrandAndVersion.getBrand().orElse(""), -0.92f, 0.9f, 1.7f);
 		this.crosshair = new MoveableRect(Textures.CROSSHAIR, 0.04f);
 		this.crosshair.setPosition(0, 0);
 
-		this.biomeWidget = new Text("ecozone.missingno", -0.92f, 0.78f, 1.0f);
-		this.coordsWidget = new Text("missingno", -0.92f, 0.68f, 1.0f);
-		this.lightingWidget = new Text("missingno", -0.92f, 0.58f, 1.0f);
-		this.cityWidget = new Text("missingno", -0.92f, 0.48f, 1.0f);
-		this.heightmapWidget = new Text("missingno", -0.92f, 0.38f, 1.0f);
-		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, 1.0f);
+		this.version = this.debugWidget(
+				"2fc0f18-" + BrandAndVersion.getVersion().orElse(getInstance().language.translate("gui.version")) + BrandAndVersion.getBrand().orElse(""),
+				1.7f);
+
+		this.biomeWidget = this.debugWidget("ecozone.missingno", 1.0f);
+		this.coordsWidget = this.debugWidget("missingno", 1.0f);
+		this.lightingWidget = this.debugWidget("missingno", 1.0f);
+		this.cityWidget = this.debugWidget("missingno", 1.0f);
+		this.heightmapWidget = this.debugWidget("missingno", 1.0f);
+
+		this.profilerWidget = new Text("missingno", 0.92f, 0.9f, FONT_SCALE);
+
+		this.modesWidget = new Text.Moveable("", -0.92f, 0.78f, FONT_SCALE);
 		this.kingdomWidget = new Text.Moveable("missingno", 0, 0, 2.0f);
 		this.hotbarRenderer = new Hotbar(game.getPlayer().getInventory());
 		this.healthBar = new ResizableRect(Textures.HEALTH);
@@ -62,6 +68,9 @@ public class GameScreen extends Screen {
 	public final Text lightingWidget;
 	private final Text cityWidget;
 	public final Text heightmapWidget;
+	public final Text profilerWidget;
+	private float offset;
+
 	private final Text.Moveable kingdomWidget;
 	private final ResizableRect healthBar;
 	private final ResizableRect unhealthBar;
@@ -70,17 +79,24 @@ public class GameScreen extends Screen {
 	public Hotbar hotbarRenderer;
 	private float kingdomShowTime = 0.0f;
 	private boolean[] abilityCaches = new boolean[2];
-	private float currentHPPr = 0;
+	private float currentHealthProportions = 0;
+
+	private Text debugWidget(String startText, float size) {
+		Text result = new Text(startText, -0.92f, 0.9f + this.offset, FONT_SCALE * size);
+		this.offset -= 0.1 * FONT_SCALE;
+		return result;
+	}
 
 	@Override
 	public void renderGUI(float lighting) {
 		this.version.render();
+		this.profilerWidget.render();
 		this.crosshair.render();
 		Player player = Client2fc.getInstance().getPlayer();
 		float hpPr = (float) player.getHealth() / (float) player.getMaxHealth();
 
-		if (hpPr != this.currentHPPr) {
-			this.currentHPPr = hpPr;
+		if (hpPr != this.currentHealthProportions) {
+			this.currentHealthProportions = hpPr;
 			this.healthBar.setProportions(0f, 0.04f, 0.6f * Math.max(0f, hpPr), 0.04f);
 			this.healthBar.setPosition(0.3f, -0.8f);
 			this.unhealthBar.setProportions(0.6f * Math.min(1f, (1f - hpPr)), 0.04f, 0f, 0.04f);
@@ -145,9 +161,9 @@ public class GameScreen extends Screen {
 
 	public void onShowDebug(boolean showDebug) {
 		if (showDebug) {
-			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.28f);
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.9f + this.offset);
 		} else {
-			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.78f);
+			this.modesWidget.setOffsets(this.modesWidget.getXOffset(), 0.9f - FONT_SCALE * 1.7f);
 		}
 	}
 
@@ -406,4 +422,6 @@ public class GameScreen extends Screen {
 	private static final List<MusicPiece> TOWN_MUSIC = List.of(MusicPiece.TOWN_CLAV, MusicPiece.TOWN_HARPSICHORD);
 	private static final List<MusicPiece> GRASSLAND_MUSIC = List.of(MusicPiece.FOREST_RILL);
 	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 600 + 300, 5 * 600 + 300, 0.4f));
+
+	private static final float FONT_SCALE = 0.67f;
 }

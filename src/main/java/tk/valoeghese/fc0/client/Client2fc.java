@@ -30,6 +30,7 @@ import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
+import tk.valoeghese.fc0.util.Profiler;
 import tk.valoeghese.fc0.util.TimerSwitch;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
@@ -143,6 +144,16 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	public boolean renderWorld = true;
 	private float freezeInterpolation; // interpolation at game pause time
 
+	// profilers
+	/**
+	 * Profiler which counts frames per half second.
+	 */
+	private final Profiler fphsProfiler = new Profiler(12);
+	/**
+	 * Profiler which counts client ticks per half second.
+	 */
+	private final Profiler tphsProfiler = new Profiler(12);
+
 	/**
 	 * @return whether the player is allowed to enter dev mode.
 	 */
@@ -219,31 +230,37 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.initGameAudio();
 		this.activateLoadScreen(); // keep it on while chunkloading is happening to hide our distributed chunk-adding
 
+		long nextHalfSecond = System.currentTimeMillis() + 500;
+
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
+			if (timeMillis >= nextHalfSecond) { // profilers per half second
+				this.fphsProfiler.next();
+				this.tphsProfiler.next();
+
+				this.gameScreen.profilerWidget.changeText(
+						new StringBuilder()
+								.append("FPS: ")
+								.append(String.format("%.1f", this.fphsProfiler.getAverageRate() * 2))
+								.append(" (")
+								.append(this.fphsProfiler.getMax() * 2)
+								.append("/")
+								.append(this.fphsProfiler.getMin() * 2)
+								.append(")")
+								.append("\nTPS: ")
+								.append(String.format("%.1f", this.tphsProfiler.getAverageRate() * 2))
+								.append(" (")
+								.append(this.tphsProfiler.getMax() * 2)
+								.append("/")
+								.append(this.tphsProfiler.getMin() * 2)
+								.append(")")
+								.toString());
+			}
+
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
-
-				// do 6 queued tasks per tick
-				this.runNextQueued(6);
-				this.updateNextLighting();
-
-				if (this.timerSwitch.isOn()) {
-					this.timerSwitch.update();
-
-					if (!this.timerSwitch.isOn()) { // this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
-						if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
-							this.activateLoadScreen();
-						}
-					}
-				} else {
-					this.handleKeybinds();
-				}
-
-				if (!this.currentScreen.isPauseScreen()) {
-					this.tick();
-				}
+				this.update();
 			}
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -265,6 +282,36 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		Save.shutdown();
 	}
 
+	/**
+	 * Runs the client tick. For the game tick, see {@linkplain Client2fc#tick()}.
+	 */
+	private void update() {
+		this.tphsProfiler.increment(); // profiler
+
+		// do 6 queued tasks per client tick
+		this.runNextQueued(6);
+		this.updateNextLighting();
+
+		if (this.timerSwitch.isOn()) {
+			this.timerSwitch.update();
+
+			if (!this.timerSwitch.isOn()) { // this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
+				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
+					this.activateLoadScreen();
+				}
+			}
+		} else {
+			this.handleKeybinds();
+		}
+
+		if (!this.currentScreen.isPauseScreen()) {
+			this.tick();
+		}
+	}
+
+	/**
+	 * Runs the game tick. For the client tick, from which this is run, see {@linkplain Client2fc#update()}.
+	 */
 	@Override
 	protected void tick() {
 		// TODO move screen dependent logic to a Screen::tick method
@@ -410,6 +457,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	}
 
 	private void render(float tickDelta) {
+		this.fphsProfiler.increment();
 		long time = System.nanoTime();
 		float skylight = this.calculateSkyLighting();
 
