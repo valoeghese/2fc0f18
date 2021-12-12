@@ -38,6 +38,7 @@ public class SoundEffect {
 	public static final SoundEffect WOOD_BREAK = Game2fc.getInstance().createSoundEffect("wood_break", "holz1", "holz2");
 
 	public static final SoundEffect PLING = Game2fc.getInstance().createSoundEffect("pling", "pling");
+	public static final SoundEffect HURT = Game2fc.getInstance().createSoundEffect("hurt", "oooh");
 
 	public static final SoundEffect STONE_PLACE = Game2fc.getInstance().createSoundEffect("stone_place", "stone1");
 	public static final SoundEffect STONE_STEP = Game2fc.getInstance().createSoundEffect("stone_step", "step2");

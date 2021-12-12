@@ -57,7 +57,6 @@ public abstract class Entity {
 		this.move(0.0, 0.0, this.velocity.getZ());
 
 		if (Math.abs(this.velocity.getY()) > 0.08) { // -0.0783 is normal while standing
-			System.out.println(this.velocity.getY());
 			this.falling = true;
 		}
 
