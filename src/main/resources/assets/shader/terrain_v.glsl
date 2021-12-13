@@ -39,19 +39,19 @@ void main() {
         switch (face) {
         case 0: // south
         case 3: // north
-            skyAngleLightMultiplier = 0.93;
+            skyAngleLightMultiplier = 0.1 * sin(skyAngle) + 0.83;
             break;
         case 1: // up
-            skyAngleLightMultiplier = 0.075 * sin(skyAngle) + 0.925; // was 0.95 in fixed, then 0.96 briefly but in no runs
+            skyAngleLightMultiplier = 0.1 * sin(skyAngle) + 0.9; // 0.8-1.0 max at peak
             break;
         case 2: // east
-            skyAngleLightMultiplier = 0.075 * cos(skyAngle) + 0.925; // was 0.85 in fixed
+            skyAngleLightMultiplier = 0.1 * cos(skyAngle) + 0.9; // 0.8-1.0 max at sunrise
             break;
         case 4: // down
-            skyAngleLightMultiplier = 0.9;
+            skyAngleLightMultiplier = 0.1 * sin(skyAngle) + 0.76;
             break;
         case 5: // west
-            skyAngleLightMultiplier = 0.075 * cos(skyAngle - 3.141592) + 0.925; // was 1.0 in fixed
+            skyAngleLightMultiplier = 0.1 * cos(skyAngle - 3.141592) + 0.925; // 0.8-1.0 max at sunset
             break;
         }
 
