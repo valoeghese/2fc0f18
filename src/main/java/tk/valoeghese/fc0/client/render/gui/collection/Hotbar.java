@@ -23,7 +23,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 		}
 
 		this.selected = new MoveableRect(Textures.SELECTED, 0.08f);
-		this.selected.setPosition(0.8f, 0.87f);
+		this.selected.setPosition(0.8f, 0.75f);
 	}
 
 	private final Inventory parent;
