@@ -333,7 +333,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		EcoZone zone = this.world.getEcozone(this.player.getTileX(), this.player.getTileZ());
 
 		if (this.currentScreen == this.gameScreen) {
-			TilePos tilePos = this.player.getTilePos();
+			TilePos tilePos = this.player.getTilePos(); // this gotta be a waste of memory
 
 			if (this.player.cachedPos != tilePos) {
 				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos);

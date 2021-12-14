@@ -65,11 +65,11 @@ public abstract class Entity {
 		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
 			if (this.velocity.getY() < 0) this.nextPos.setY(MathsUtils.floor(this.pos.getY()));
 
-			this.velocity.setY(0.0);
-
 			if (this.falling) {
 				this.hitGround();
 			}
+
+			this.velocity.setY(0.0);
 		}
 	}
 
