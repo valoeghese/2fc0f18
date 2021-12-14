@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.AL10;
@@ -472,6 +473,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shader.unbind();
 		} else {
 			glClearColor(0.35f * skylight, 0.55f * skylight, 0.95f * skylight, 1.0f);
+			float tickTime = this.time + tickDelta; // tickTime (this will break at large time intervals lol)
 
 			// update camera
 			this.player.updateCameraPos(tickDelta);
@@ -481,7 +483,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// time and stuff (to anyone not used to gl, shader needs to be bound for uniform changes. this note is here because I forgot this at one point (luckily resolved the problem before even launching debug) and wanted to make sure I don't forget it again)
 			float skyAngle = this.calculateSkyAngle();
 			Shaders.terrain.uniformFloat("skyAngle", skyAngle);
-			Shaders.terrain.uniformFloat("time", (this.time % Game2fc.SKY_ROTATION_RATE) + tickDelta);
+			Shaders.terrain.uniformFloat("time", tickTime);
 			Shaders.terrain.uniformFloat("skylight", skylight);
 			// projection
 			Shaders.terrain.uniformMat4f("projection", this.projection);
@@ -553,8 +555,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.gui.uniformMat4f("projection", this.guiProjection);
 			// defaults
 			Shaders.gui.uniformFloat("lighting", 1.0f);
+			Shaders.gui.uniformFloat("time", tickTime);
 			// render gui
-			this.renderGUI(skylight);
+			this.renderGUI(skylight, tickDelta);
 			// unbind shader
 			GLUtils.bindTexture(0);
 
@@ -568,12 +571,13 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		}
 	}
 
-	private void renderGUI(float lighting) {
+	private void renderGUI(float lighting, float tickDelta) {
 		this.currentScreen.renderGUI(lighting);
 
 		if (this.player.isUnderwater()) {
 			GLUtils.enableBlend();
 			Shaders.gui.uniformFloat("lighting", lighting);
+			Shaders.gui.uniformVec3f("playerPos", new Vector3f((float)this.player.getX(tickDelta), (float)this.player.getY(tickDelta), (float)this.player.getZ(tickDelta)));
 			this.waterOverlay.render();
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 			GLUtils.disableBlend();

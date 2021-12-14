@@ -151,7 +151,7 @@ public abstract class Entity {
 	}
 
 	public boolean isUnderwater() {
-		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height, 0));
+		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height + 0.1, 0));
 
 		if (this.world.isInWorld(pos)) {
 			return this.world.readTile(pos) == Tile.WATER.id;
@@ -188,6 +188,18 @@ public abstract class Entity {
 
 	public double getZ() {
 		return this.pos.getZ();
+	}
+
+	public double getX(float tickDelta) {
+		return MathsUtils.lerp(this.pos.getX(), this.nextPos.getX(), tickDelta);
+	}
+
+	public double getY(float tickDelta) {
+		return MathsUtils.lerp(this.pos.getY(), this.nextPos.getY(), tickDelta);
+	}
+
+	public double getZ(float tickDelta) {
+		return MathsUtils.lerp(this.pos.getZ(), this.nextPos.getZ(), tickDelta);
 	}
 
 	public Pos getPos() {
