@@ -594,7 +594,7 @@ public abstract class Chunk implements TileAccess {
 
 		data.put("tiles", tiles);
 		data.put("properties", properties);
-		data.put("lighting", lighting);
+		data.put("lightingBlock", lighting);
 		data.put("lightingSky", lightingSky);
 		data.put("heightmap", heightmap);
 		data.put("kingdoms", kingdoms);
