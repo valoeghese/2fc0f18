@@ -195,7 +195,7 @@ public abstract class Chunk implements TileAccess {
 		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z));
 		chunks.add(this.retrieveLightingChunk(this.x + 1, this.z + 1));
 		chunks.add(this.retrieveLightingChunk(this.x, this.z + 1));
-		chunks.add(this.retrieveLightingChunk(this.x, this.z - 1));
+		chunks.add(this.retrieveLightingChunk(this.x - 1, this.z + 1));
 
 		lightingExecutor.execute(() -> {
 			Set<Chunk> updated = new HashSet<>();
