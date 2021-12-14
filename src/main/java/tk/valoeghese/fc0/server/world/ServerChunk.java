@@ -10,4 +10,9 @@ public class ServerChunk extends Chunk {
 	public ServerChunk(GameplayWorld parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms) {
 		super(parent, x, z, tiles, meta, kingdoms);
 	}
+
+	@Override
+	public void refreshLightingMesh() {
+		// TODO send packet thing
+	}
 }

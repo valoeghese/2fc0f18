@@ -68,7 +68,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 
 		for (Chunk chunk : c) {
 			if (chunk.status != ChunkLoadStatus.UNLOADED) {
-				chunk.refreshLighting();
+				chunk.refreshLightingMesh();
 			}
 		}
 	}
@@ -95,7 +95,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 		}
 	}
 
-	public void needsLightingUpdate(Chunk c) {
+	public void needsMeshLightingUpdate(Chunk c) {
 		synchronized (this.toUpdateLighting) {
 			if (!this.toUpdateLighting.contains(c)) {
 				this.toUpdateLighting.add(c);

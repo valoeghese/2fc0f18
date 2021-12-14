@@ -135,7 +135,7 @@ public class ClientChunk extends Chunk {
 		}
 	}
 
-	private void undirty() {
+	private void undirty() { // todo this isn't to do with the dirty boolean, but rather rendering, so maybe rename
 		if (this.dirtyForRender && this.mesh != null) {
 			this.dirtyForRender = false;
 			this.mesh.buildMesh(this.tiles, this.meta);
@@ -161,9 +161,7 @@ public class ClientChunk extends Chunk {
 	}
 
 	@Override
-	public void refreshLighting() {
-		super.refreshLighting();
-
+	public void refreshLightingMesh() {
 		if (this.status == ChunkLoadStatus.RENDER) { // Is this necessary?
 			this.dirtyForRender = true; // TODO Use shadaers for lighting instead?????
 		}

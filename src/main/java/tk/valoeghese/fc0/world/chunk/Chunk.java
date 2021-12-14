@@ -6,7 +6,6 @@ import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.util.Face;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.TilePos;
-import tk.valoeghese.fc0.world.ChunkAccess;
 import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.WorldGen;
@@ -220,28 +219,17 @@ public abstract class Chunk implements TileAccess {
 				c.dirty = true;
 			}
 
-			Game2fc game = Game2fc.getInstance();
-
+			// refresh lighting FIRST
 			for (Chunk c : updated) {
-				game.needsLightingUpdate(c);
+				System.arraycopy(c.nextBlockLighting, 0, c.blockLighting, 0, c.nextBlockLighting.length);
+				System.arraycopy(c.nextSkyLighting, 0, c.skyLighting, 0, c.nextSkyLighting.length);
 			}
-		});
-	}
 
-	public void updateSkyLighting() {
-		lightingExecutor.execute(() -> {
-			Set<Chunk> updated = new HashSet<>();
-
-			// Reset chunk lighting
-			Arrays.fill(this.nextSkyLighting, (byte) 0);
-			this.calculateBaseSkyLighting();
-			this.calculatePropagatedSkyLighting(updated);
-			this.dirty = true;
-
+			// then mark as needing a mesh rebuild
 			Game2fc game = Game2fc.getInstance();
 
 			for (Chunk c : updated) {
-				game.needsLightingUpdate(c);
+				game.needsMeshLightingUpdate(c);
 			}
 		});
 	}
@@ -289,10 +277,10 @@ public abstract class Chunk implements TileAccess {
 		}
 	}
 
-	public void refreshLighting() {
-		System.arraycopy(this.nextBlockLighting, 0, this.blockLighting, 0, this.nextBlockLighting.length);
-		System.arraycopy(this.nextSkyLighting, 0, this.skyLighting, 0, this.nextSkyLighting.length);
-	}
+	/**
+	 * On the client, this is where the chunk's mesh is rebuilt. Not sure how I'll handle it on the server. Maybe this is where it sends the updated info to the client.
+	 */
+	public abstract void refreshLightingMesh();
 
 	private boolean propagateBlockLight(Set<Chunk> updated, int x, int y, int z, int light, boolean checkOpaque) {
 		boolean isPrevChunk;
