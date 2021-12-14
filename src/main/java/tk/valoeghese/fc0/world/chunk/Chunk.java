@@ -156,7 +156,7 @@ public abstract class Chunk implements TileAccess {
 			int i = index(x, y, z);
 			byte block = this.blockLighting[i];
 			byte sky = this.skyLighting[i];
-			return "Lighting: " + Math.max(this.blockLighting[i], this.skyLighting[i]) + "(block: " + block + ", sky:" + sky + ")";
+			return "Lighting: " + this.getLightLevel(x, y, z) + " (block: " + block + ", sky:" + sky + ")";
 		} else {
 			return "Lighting: N/A (out of world)";
 		}

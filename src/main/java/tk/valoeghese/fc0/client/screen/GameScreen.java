@@ -310,7 +310,7 @@ public class GameScreen extends Screen {
 
 					if (result.face != null) {
 						TilePos pos = result.face.apply(result.pos);
-						TilePos playerPos = player.getTilePos();
+						TilePos playerPos = player.getNextTilePos();
 
 						if (!pos.equals(playerPos) && !pos.equals(playerPos.up())) { // stop player from placing blocks on themself
 							if (world.isInWorld(pos)) {
