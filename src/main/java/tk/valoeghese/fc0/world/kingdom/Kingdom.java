@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Random;
 
 public final class Kingdom {
-	public Kingdom(GameplayWorld world, int id, Vec2f voronoi) {
+	public Kingdom(long seed, int id, Vec2f voronoi) {
 		this.cityLoc = new Vec2i((int) (voronoi.getX() * SCALE), (int) (voronoi.getY() * SCALE));
 		this.gridLoc = new Vec2i(MathsUtils.floor(voronoi.getX()), MathsUtils.floor(voronoi.getY()));
 
-		Random rand = new Random(world.getSeed() ^ id);
+		Random rand = new Random(seed ^ id);
 		List<String> onsetPre = new ArrayList<>(Arrays.asList("m", "n", "p", "t", "k"));
 		List<String> codaPre = new ArrayList<>();
 

@@ -7,6 +7,7 @@ import tk.valoeghese.fc0.world.GameplayWorld;
 import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.kingdom.KingdomIDMapper;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.Random;
@@ -45,27 +46,10 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 					int y = getHeightForGeneration(world, x, z) - 1;
 
 					if (y > 51) {
-						// Generate Kingdom Roads
-						Vec2i north = gw.kingdomById(kingdom.neighbourKingdomVec(0, 1, seed)).getCityCentre();
-						Vec2i east = gw.kingdomById(kingdom.neighbourKingdomVec(1, 0, seed)).getCityCentre();
-						Vec2i south = gw.kingdomById(kingdom.neighbourKingdomVec(0, -1, seed)).getCityCentre();
-						Vec2i west = gw.kingdomById(kingdom.neighbourKingdomVec(-1, 0, seed)).getCityCentre();
-
-						// write road if at a road location
-						if (isNear(centre, north, x, z) || isNear(centre, east, x, z)
-								|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
+						if (isOnPath(gw, x, z, kingdom, centre, seed)) {
 							world.writeTile(x, y, z, Tile.AIR.id);
 							world.writeTile(x, y - 1, z, Tile.GRASS.id);
 							world.writeMeta(x, y - 1, z, (byte) 2);
-						} else {
-							// generate paths at path locations
-							double path = PATH_NOISE.sample((double) x / 400.0, (double) z / 400.0);
-
-							if (path > 0 && path < 0.019) {
-								world.writeTile(x, y, z, Tile.AIR.id);
-								world.writeTile(x, y - 1, z, Tile.GRASS.id);
-								world.writeMeta(x, y - 1, z, (byte) 2);
-							}
 						}
 					}
 				} else if (dist >= this.size) {
@@ -167,6 +151,24 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 
 	private static boolean isNear(Vec2i locA, Vec2i locB, int x, int y) {
 		return MathsUtils.distanceLineBetween(locA.getX(), locA.getY(), locB.getX(), locB.getY(), x, y) < 5;
+	}
+
+	public static boolean isOnPath(KingdomIDMapper gw, int x, int z, Kingdom kingdom, Vec2i centre, int seed) {
+		// Generate Kingdom Roads
+		Vec2i north = gw.kingdomById(kingdom.neighbourKingdomVec(0, 1, seed)).getCityCentre();
+		Vec2i east = gw.kingdomById(kingdom.neighbourKingdomVec(1, 0, seed)).getCityCentre();
+		Vec2i south = gw.kingdomById(kingdom.neighbourKingdomVec(0, -1, seed)).getCityCentre();
+		Vec2i west = gw.kingdomById(kingdom.neighbourKingdomVec(-1, 0, seed)).getCityCentre();
+
+		// write road if at a road location
+		if (isNear(centre, north, x, z) || isNear(centre, east, x, z)
+				|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
+			return true;
+		} else {
+			// generate paths at path locations
+			double path = PATH_NOISE.sample((double) x / 400.0, (double) z / 400.0);
+			return path > 0 && path < 0.019;
+		}
 	}
 
 	public static boolean isInCity(TileAccess world, int x, int z, int size) {
