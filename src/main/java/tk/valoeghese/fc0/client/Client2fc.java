@@ -262,10 +262,17 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 				}
 			}
 
-			if (timeMillis >= this.nextUpdate) {
+			long timeDiff = timeMillis - this.nextUpdate;
+			int i = 0;
+
+			while (timeDiff >= 0) {
+				timeDiff -= TICK_DELTA;
 				this.nextUpdate = timeMillis + TICK_DELTA;
 				this.update();
+				i++;
 			}
+
+			if (i > 1) System.out.println("Making up for lost tick time! Performed " + i + " ticks instead of 1.");
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this.render(this.currentScreen.isPauseScreen() ? this.freezeInterpolation : 1.0f - ((float)(this.nextUpdate - timeMillis) / (float)TICK_DELTA));
@@ -337,7 +344,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			TilePos tilePos = this.player.getTilePos(); // this gotta be a waste of memory
 
 			if (this.player.cachedPos != tilePos) {
-				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos);
+				this.player.cachedPos = tilePos;
+				this.gameScreen.coordsWidget.changeText("Local(" + (tilePos.x & 15) + ", " + (tilePos.z & 15) + ") in " + tilePos.toChunkPos().toString() + "\n" + tilePos);
 
 				if (this.player.chunk != null) { // TODO placeholder for kingdom
 					this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
@@ -473,7 +481,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shader.unbind();
 		} else {
 			glClearColor(0.35f * skylight, 0.55f * skylight, 0.95f * skylight, 1.0f);
-			float tickTime = this.time + tickDelta; // tickTime (this will break at large time intervals lol)
+			float tickTime = this.time + tickDelta; // tickTime (this will break at large time intervals but good luck if you play this for 10000 in game days (it probably won't even be noticeable THEN))
 
 			// update camera
 			this.player.updateCameraPos(tickDelta);
@@ -555,7 +563,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shaders.gui.uniformMat4f("projection", this.guiProjection);
 			// defaults
 			Shaders.gui.uniformFloat("lighting", 1.0f);
-			Shaders.gui.uniformFloat("time", tickTime);
 			// render gui
 			this.renderGUI(skylight, tickDelta);
 			// unbind shader
@@ -574,10 +581,9 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private void renderGUI(float lighting, float tickDelta) {
 		this.currentScreen.renderGUI(lighting);
 
-		if (this.player.isUnderwater()) {
+		if (this.player.isUnderwaterForRendering()) {
 			GLUtils.enableBlend();
 			Shaders.gui.uniformFloat("lighting", lighting);
-			Shaders.gui.uniformVec3f("playerPos", new Vector3f((float)this.player.getX(tickDelta), (float)this.player.getY(tickDelta), (float)this.player.getZ(tickDelta)));
 			this.waterOverlay.render();
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 			GLUtils.disableBlend();

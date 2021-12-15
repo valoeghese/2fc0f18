@@ -98,12 +98,12 @@ public abstract class Lifeform extends Entity {
 			Game2fc.getInstance().playSound(null, on.getSounds().getStepSound(), this.getX(), this.getY(), this.getZ(), 0.4f);
 		}
 
-		// deal damage based on the square of the velocity if they fell (Ek = 1/2 mv^2. Might change to linear since F = dp/dt, p = mv, and I think damage is more based on force.)
+		// deal damage based on the square of the velocity if they fell (Ek = 1/2 mv^2. Considered a change to linear since F = dp/dt, p = mv, and I think damage is more based on force, but it seemed too weak)
 		// dt would just be based on the material softness / flexibility and makes stuff more complicated if we actually handle it and this is a block game not a physics engine
 		double aval = -this.velocity.getY();
-		int val = (int) (aval * aval * 36);
+		int val = (int) (aval * aval * 40);
 
-		if (val > 10) {
+		if (val > 12) {
 			Game2fc.getInstance().playSound(null, SoundEffect.HURT, this.getX(), this.getY() + this.height, this.getZ(), 0.5f);
 			this.damage(val / 2);
 		}

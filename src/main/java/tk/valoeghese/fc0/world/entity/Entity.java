@@ -150,8 +150,18 @@ public abstract class Entity {
 		}
 	}
 
+	public boolean isUnderwaterForRendering() { // TODO use better solution
+		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height + 0.15, 0));
+
+		if (this.world.isInWorld(pos)) {
+			return this.world.readTile(pos) == Tile.WATER.id;
+		} else {
+			return false;
+		}
+	}
+
 	public boolean isUnderwater() {
-		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height + 0.1, 0));
+		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height, 0));
 
 		if (this.world.isInWorld(pos)) {
 			return this.world.readTile(pos) == Tile.WATER.id;
