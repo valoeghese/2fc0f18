@@ -23,11 +23,12 @@ import java.util.Random;
 public class TerrainTest extends PanelTest implements KingdomIDMapper {
 	public static void main(String[] args) {
 		Dummy2fc.use();
+		System.out.println(seed);
 		new TerrainTest().size(800).start();
 	}
 
 	static final long seed = new Random().nextLong();
-	static final long SCALE = 6;
+	static final long SCALE = 3;
 	static WorldGen worldGen = new WorldGen.Earth(seed, 0);
 	private static final Map<Vec2f, Kingdom> KINGDOMS = new HashMap<>();
 
