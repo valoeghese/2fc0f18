@@ -174,7 +174,7 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 		} else {
 			// generate paths at path locations
 			double path = PATH_NOISE.sample((double) x / 400.0, (double) z / 400.0);
-			return false;// path > 0 && path < 0.019;
+			return path > 0 && path < 0.019;
 		}
 	}
 
