@@ -262,17 +262,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 				}
 			}
 
-			long timeDiff = timeMillis - this.nextUpdate;
-			int i = 0;
-
-			while (timeDiff >= 0) {
-				timeDiff -= TICK_DELTA;
+			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
 				this.update();
-				i++;
 			}
-
-			if (i > 1) System.out.println("Making up for lost tick time! Performed " + i + " ticks instead of 1.");
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			this.render(this.currentScreen.isPauseScreen() ? this.freezeInterpolation : 1.0f - ((float)(this.nextUpdate - timeMillis) / (float)TICK_DELTA));
