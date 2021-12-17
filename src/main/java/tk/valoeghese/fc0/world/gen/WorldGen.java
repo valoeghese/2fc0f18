@@ -244,8 +244,8 @@ public abstract class WorldGen {
 		}
 
 		public double sampleMountains(double x, double z) {
-			double mountains = 45 + 68 * this.sampleRidge(x / 410.0, z / 410.0);
-			return mountains + 36 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
+			double mountains = 68 * this.sampleRidge(x / 510.0, z / 510.0);
+			return mountains + 36 * this.sampleRidge((x / 260.0) - 1, z / 260.0);
 		}
 	}
 }

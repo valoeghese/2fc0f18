@@ -11,4 +11,9 @@ public class RidgedNoise extends Noise {
 	public double sample(double x, double y) {
 		return 1.0 - (Math.abs(super.sample(x, y)) * 2);
 	}
+
+	@Override
+	public double sample(double x, double y, double z) {
+		return 1.0 - (Math.abs(super.sample(x, y, z)) * 2);
+	}
 }
