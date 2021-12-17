@@ -244,8 +244,7 @@ public abstract class WorldGen {
 		}
 
 		public double sampleMountains(double x, double z) {
-			double scatter = 300 * this.sampleNoise(x / 120.0, z / 120.0); // for curvature
-			double mountains = 45 + 68 * this.sampleRidge((x + scatter) / 410.0, (z - scatter) / 410.0);
+			double mountains = 45 + 68 * this.sampleRidge(x / 410.0, z / 410.0);
 			return mountains + 36 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
 		}
 	}
