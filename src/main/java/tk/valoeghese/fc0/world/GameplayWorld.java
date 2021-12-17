@@ -87,7 +87,7 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	// meh
 	@Override
 	public Kingdom kingdomById(int kingdom, int x, int z) {
-		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this.seed, id, Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed, 0.5f)));
+		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this.seed, id, Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed, Kingdom.RELAXATION)));
 	}
 
 	@Override

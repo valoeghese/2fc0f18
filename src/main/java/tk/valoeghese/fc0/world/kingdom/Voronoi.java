@@ -3,14 +3,11 @@ package tk.valoeghese.fc0.world.kingdom;
 import tk.valoeghese.fc0.util.maths.Vec2f;
 
 public final class Voronoi {
-	public static Vec2f sampleVoronoiGrid(int x, int y, int seed) {
-		float vx = x + randomfloat(x, y, seed);
-		float vy = y + randomfloat(x, y, seed + 1);
+	public static Vec2f sampleVoronoiGrid(int x, int y, int seed, float relaxation) {
+		float unrelaxation = 1.0f - relaxation;
+		float vx = x + relaxation * 0.5f + unrelaxation * randomfloat(x, y, seed);
+		float vy = y + relaxation * 0.5f + unrelaxation * randomfloat(x, y, seed + 1);
 		return new Vec2f(vx, vy);
-	}
-
-	public static int seedFromLong(long seed) {
-		return (int) (seed & 0xFFFFFFFF);
 	}
 
 	public static Vec2f sampleVoronoi(float x, float y, int seed, float relaxation) {
@@ -28,8 +25,8 @@ public final class Voronoi {
 			for (int yo = -1; yo <= 1; ++yo) {
 				int gridY = baseY + yo;
 
-				float vx = gridX + (relaxation * 0.5f + unrelaxation * randomfloat(gridX, gridY, seed));
-				float vy = gridY + (relaxation * 0.5f + unrelaxation * randomfloat(gridX, gridY, seed + 1));
+				float vx = gridX + relaxation * 0.5f + unrelaxation * randomfloat(gridX, gridY, seed);
+				float vy = gridY + relaxation * 0.5f + unrelaxation * randomfloat(gridX, gridY, seed + 1);
 				float vdist = squaredDist(x, y, vx, vy);
 
 				if (vdist < rdist) {

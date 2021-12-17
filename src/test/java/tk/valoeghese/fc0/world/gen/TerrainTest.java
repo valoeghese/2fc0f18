@@ -27,6 +27,7 @@ public class TerrainTest extends PanelTest implements KingdomIDMapper {
 	}
 
 	static final long seed = new Random().nextLong();
+	static final long SCALE = 6;
 	static WorldGen worldGen = new WorldGen.Earth(seed, 0);
 	private static final Map<Vec2f, Kingdom> KINGDOMS = new HashMap<>();
 
@@ -36,15 +37,15 @@ public class TerrainTest extends PanelTest implements KingdomIDMapper {
 	}
 
 	@Override
-	protected int getColour(int x, int z) {
-		x *= 3;
-		z *= 3;
+	protected int getColour(int x, int z) { // TODO kingdom widget thing when in city centres, 4 towns (also in worldgen), and lime->aquamarine for tree density in visualiser. also fix paths
+		x *= SCALE;
+		z *= SCALE;
 
 		float height = (float) worldGen.sampleHeight(x, z);
 
 		if (height > 51) {
 			// add kingdoms to the map
-			Kingdom k = this.kingdomById(Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) seed, 0.5f));
+			Kingdom k = this.kingdomById(Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) seed, Kingdom.RELAXATION));
 
 			Vec2i centre = k.getCityCentre(); // get city centre
 			int dist = centre.manhattan(x, z);

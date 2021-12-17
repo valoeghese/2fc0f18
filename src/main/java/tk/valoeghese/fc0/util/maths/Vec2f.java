@@ -69,6 +69,6 @@ public class Vec2f {
 	}
 
 	public int id() {
-		return this.hashCode();
+		return 29 * this.hashCode() + Float.hashCode(this.x);
 	}
 }

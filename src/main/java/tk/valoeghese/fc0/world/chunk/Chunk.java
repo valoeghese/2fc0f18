@@ -51,7 +51,7 @@ public abstract class Chunk implements TileAccess {
 
 				for (int kz = 0; kz < 16; ++kz) {
 					float sampleZ = (this.startZ + kz) / Kingdom.SCALE;
-					this.kingdoms[kx * 16 + kz] = Voronoi.sampleVoronoi(sampleX, sampleZ, (int) seed, 0.5f).id();
+					this.kingdoms[kx * 16 + kz] = Voronoi.sampleVoronoi(sampleX, sampleZ, (int) seed, Kingdom.RELAXATION).id();
 				}
 			}
 		} else {

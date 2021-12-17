@@ -1,6 +1,7 @@
 package test;
 
 import tk.valoeghese.fc0.util.maths.Vec2f;
+import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 
 import javax.swing.*;
@@ -16,7 +17,7 @@ public class VoronoiTest extends PanelTest {
 
 	@Override
 	protected int getColour(int x, int z) {
-		Vec2f val = Voronoi.sampleVoronoi((float) x / 90.0f, (float) z / 90.0f, 123, 0.5f);
+		Vec2f val = Voronoi.sampleVoronoi((float) x / 90.0f, (float) z / 90.0f, 123, Kingdom.RELAXATION);
 
 		int color = 0;
 

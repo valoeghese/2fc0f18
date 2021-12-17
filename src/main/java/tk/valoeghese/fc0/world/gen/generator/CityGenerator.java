@@ -153,21 +153,28 @@ public class CityGenerator extends Generator<NoneGeneratorSettings> {
 		return MathsUtils.distanceLineBetween(locA.getX(), locA.getY(), locB.getX(), locB.getY(), x, y) < 5;
 	}
 
-	public static boolean isOnPath(KingdomIDMapper gw, int x, int z, Kingdom kingdom, Vec2i centre, int seed) {
+	public static boolean isOnRoad(KingdomIDMapper gw, int x, int z, Kingdom kingdom, Vec2i centre, int seed) {
 		// Generate Kingdom Roads
-		Vec2i north = gw.kingdomById(kingdom.neighbourKingdomVec(0, 1, seed)).getCityCentre();
-		Vec2i east = gw.kingdomById(kingdom.neighbourKingdomVec(1, 0, seed)).getCityCentre();
-		Vec2i south = gw.kingdomById(kingdom.neighbourKingdomVec(0, -1, seed)).getCityCentre();
-		Vec2i west = gw.kingdomById(kingdom.neighbourKingdomVec(-1, 0, seed)).getCityCentre();
+		Vec2i west = gw.kingdomById(kingdom.neighbourKingdomVec(0, 1, seed)).getCityCentre();
+		Vec2i south = gw.kingdomById(kingdom.neighbourKingdomVec(1, 0, seed)).getCityCentre();
+		Vec2i east = gw.kingdomById(kingdom.neighbourKingdomVec(0, -1, seed)).getCityCentre();
+		Vec2i north = gw.kingdomById(kingdom.neighbourKingdomVec(-1, 0, seed)).getCityCentre();
+
+		boolean southside = x > centre.getX();
+		boolean westside = z > centre.getY();
 
 		// write road if at a road location
-		if (isNear(centre, north, x, z) || isNear(centre, east, x, z)
-				|| isNear(centre, south, x, z) || isNear(centre, west, x, z)) {
+		return westside && isNear(centre, west, x, z) || southside && isNear(centre, south, x, z)
+				|| !westside && isNear(centre, east, x, z) || !southside && isNear(centre, north, x, z);
+	}
+
+	public static boolean isOnPath(KingdomIDMapper gw, int x, int z, Kingdom kingdom, Vec2i centre, int seed) {
+		if (isOnRoad(gw, x, z, kingdom, centre, seed)) {
 			return true;
 		} else {
 			// generate paths at path locations
 			double path = PATH_NOISE.sample((double) x / 400.0, (double) z / 400.0);
-			return path > 0 && path < 0.019;
+			return false;// path > 0 && path < 0.019;
 		}
 	}
 
