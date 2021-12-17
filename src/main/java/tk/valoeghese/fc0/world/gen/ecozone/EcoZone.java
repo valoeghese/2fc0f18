@@ -5,6 +5,8 @@ import tk.valoeghese.fc0.world.gen.generator.Generator;
 import tk.valoeghese.fc0.world.gen.generator.GeneratorSettings;
 import tk.valoeghese.fc0.world.gen.generator.NoneGeneratorSettings;
 import tk.valoeghese.fc0.world.gen.generator.ScatteredOreGenerator;
+import tk.valoeghese.fc0.world.gen.generator.TreeGenerator;
+import tk.valoeghese.fc0.world.gen.generator.TreeGeneratorSettings;
 import tk.valoeghese.fc0.world.tile.Tile;
 
 import java.util.ArrayList;
@@ -31,9 +33,14 @@ public abstract class EcoZone {
 	public final byte beach;
 	private List<Pair<Generator, GeneratorSettings>> generators = new ArrayList<>();
 	private boolean cold = false;
+	private int treesPerChunk; // trees per chunk, for the debug view.
 
 	public <T extends GeneratorSettings> void addGenerator(Generator<T> generator, T settings) {
 		this.generators.add(new Pair<>(generator, settings));
+
+		if (generator instanceof TreeGenerator) {
+			this.treesPerChunk += ((TreeGeneratorSettings) settings).getBaseTreeCount();
+		}
 	}
 
 	protected void cold() {
@@ -46,6 +53,13 @@ public abstract class EcoZone {
 
 	public boolean isCold() {
 		return this.cold;
+	}
+
+	/**
+	 * @return the average foliage density. Used in the terrain-test debugger.
+	 */
+	public int getAverageFoliageDensity() {
+		return this.treesPerChunk;
 	}
 
 	@Override

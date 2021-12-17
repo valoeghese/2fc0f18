@@ -2,6 +2,7 @@ package tk.valoeghese.fc0.world.gen;
 
 import test.Dummy2fc;
 import test.PanelTest;
+import tk.valoeghese.fc0.util.maths.MathsUtils;
 import tk.valoeghese.fc0.util.maths.Vec2f;
 import tk.valoeghese.fc0.util.maths.Vec2i;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
@@ -69,7 +70,7 @@ public class TerrainTest extends PanelTest implements KingdomIDMapper {
 			} else {
 				// cold or not
 				if (zone.isCold()) height *= 1.2f;
-				return Color.getHSBColor(0.37f, zone.isCold() ? 0.12f : 0.69f, height > 1.0f ? 1.0f : height).getRGB();
+				return Color.getHSBColor(MathsUtils.clampMap(zone.getAverageFoliageDensity(), 0, 10, 0.3f, 0.44f), zone.isCold() ? (0.12f + 0.04f * zone.getAverageFoliageDensity()) : 0.69f, height > 1.0f ? 1.0f : height).getRGB();
 			}
 		} else {
 			height = (height / 128f) + 0.2f;
