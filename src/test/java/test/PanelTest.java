@@ -17,12 +17,16 @@ public abstract class PanelTest extends JPanel {
 		return this;
 	}
 
+	protected double scale() {
+		return 1.0;
+	}
+
 	private int size = 500;
 
 	// drag
 	private Point mousePt;
-	protected int xo = 0;
-	protected int yo = 0;
+	protected int xo, lxo = 0;
+	protected int yo, lyo = 0;
 
 	public void start() {
 		image = new BufferedImage(this.size, this.size, BufferedImage.TYPE_INT_RGB);
@@ -46,8 +50,8 @@ public abstract class PanelTest extends JPanel {
 		this.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				int dx = e.getX() + mousePt.x;
-				int dy = e.getY() + mousePt.y;
+				int dx = e.getX() - mousePt.x;
+				int dy = e.getY() - mousePt.y;
 				xo -= dx;
 				yo -= dy;
 				mousePt = e.getPoint();
@@ -72,14 +76,30 @@ public abstract class PanelTest extends JPanel {
 	static BufferedImage image;
 
 	public void redraw() {
-		image = new BufferedImage(this.size, this.size, BufferedImage.TYPE_INT_RGB);
+		BufferedImage next = new BufferedImage(this.size, this.size, BufferedImage.TYPE_INT_RGB);
+		BufferedImage current = image;
 
 		for (int x = 0; x < this.size; ++x) {
+			int actualX = x + xo;
+			int oldX = actualX - lxo;
+
 			for (int z = 0; z < this.size; ++z) {
-				image.setRGB(x, z, this.getColour(x + xo, z + yo));
+				int actualZ = z + yo;
+				int oldZ = actualZ - lyo;
+
+				if (oldX >= 0 && oldX < this.size && oldZ >= 0 && oldZ < this.size) {
+					next.setRGB(x, z, current.getRGB(oldX, oldZ));
+				} else {
+					next.setRGB(x, z, this.getColour(actualX, actualZ));
+				}
 			}
 		}
 
+		synchronized (this) {
+			this.image = next;
+			lxo = xo;
+			lyo = yo;
+		}
 		super.repaint();
 	}
 

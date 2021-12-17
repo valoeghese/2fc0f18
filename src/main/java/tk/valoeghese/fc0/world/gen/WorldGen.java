@@ -234,15 +234,19 @@ public abstract class WorldGen {
 			double continent = 43 + 20 * this.sampleNoise((x / 810.0) - 0.3, (z / 810.0) - 0.3);
 
 			// Stage two: sample mountains and hills
-			double mountainDir = 1.0 + 0.5 * this.sampleNoise(x / 720.0, z / 720.0);
-			double mountains = 45 + 68 * this.sampleRidge((x * mountainDir) / 410.0, (z / mountainDir) / 410.0);
-			mountains += 36 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
+			double mountains = this.sampleMountains(x, z);
 
 			double hills = 20 * this.sampleNoise(x / 90.0, z / 90.0) + 12 * this.sampleNoise(x / 32.0, z / 32.0);
 
 			// Stage three: bias mountains and hills
 			double bias = 0.5 + 0.5 * this.sampleNoise(x / 600.0, (z / 600.0) - 1);
 			return continent + (bias * hills) + ((1.0 - bias) * mountains);
+		}
+
+		public double sampleMountains(double x, double z) {
+			double scatter = 300 * this.sampleNoise(x / 120.0, z / 120.0); // for curvature
+			double mountains = 45 + 68 * this.sampleRidge((x + scatter) / 410.0, (z - scatter) / 410.0);
+			return mountains + 36 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
 		}
 	}
 }
