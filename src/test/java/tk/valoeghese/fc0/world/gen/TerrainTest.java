@@ -28,20 +28,18 @@ public class TerrainTest extends PanelTest implements KingdomIDMapper {
 	}
 
 	static final long seed = new Random().nextLong();
-	static final long SCALE = 3;
 	static WorldGen worldGen = new WorldGen.Earth(seed, 0);
 	private static final Map<Vec2f, Kingdom> KINGDOMS = new HashMap<>();
 
 	@Override
 	public final Kingdom kingdomById(Vec2f voronoi) {
-		return KINGDOMS.computeIfAbsent(voronoi, v -> new Kingdom(seed, v.id(), v));
+		synchronized (KINGDOMS) {
+			return KINGDOMS.computeIfAbsent(voronoi, v -> new Kingdom(seed, v.id(), v));
+		}
 	}
 
 	@Override
 	protected int getColour(int x, int z) { // TODO kingdom widget thing when in city centres, 4 towns (also in worldgen), and lime->aquamarine for tree density in visualiser. also fix paths
-		x *= SCALE;
-		z *= SCALE;
-
 		float height = (float) worldGen.sampleHeight(x, z);
 
 		if (height > 51) {

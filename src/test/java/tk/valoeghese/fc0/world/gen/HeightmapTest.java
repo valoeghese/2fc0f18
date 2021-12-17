@@ -18,7 +18,7 @@ public class HeightmapTest extends PanelTest {
 
 	@Override
 	protected int getColour(int x, int z) {
-		float height = (float) worldGen.sampleHeight(x * 4, z * 4) / 128f;
+		float height = (float) worldGen.sampleHeight(x, z) / 128f;
 		return Color.getHSBColor(0.0f, 0.0f, height > 1.0f? 1.0f:height).getRGB();
 	}
 }

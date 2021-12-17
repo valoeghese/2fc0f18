@@ -29,14 +29,13 @@ import java.util.Random;
 public class KingdomTest extends PanelTest implements KingdomIDMapper {
 	public static void main(String[] args) {
 		Dummy2fc.use();
-		new KingdomTest().size(800).start();
+		new KingdomTest().scale(6).start();
 		//IntList kingdomList = new IntArrayList(kingdoms);
 		//Collections.sort(kingdomList);
 		//System.out.println(kingdomList);
 	}
 
 	static final long seed = new Random().nextLong();
-	static final long SCALE = 6;
 	private static final Map<Vec2f, Kingdom> KINGDOMS = new HashMap<>();
 	//private static IntSet kingdoms = new IntArraySet();
 
@@ -47,9 +46,6 @@ public class KingdomTest extends PanelTest implements KingdomIDMapper {
 
 	@Override
 	protected int getColour(int x, int z) {
-		x *= SCALE;
-		z *= SCALE;
-
 		Kingdom k = this.kingdomById(Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) seed, Kingdom.RELAXATION));
 		//kingdoms.add(k.id);
 

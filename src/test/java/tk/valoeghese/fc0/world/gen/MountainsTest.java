@@ -10,14 +10,14 @@ import java.util.Random;
  */
 public class MountainsTest extends PanelTest {
 	public static void main(String[] args) {
-		new MountainsTest().start();
+		new MountainsTest().scale(6).start();
 	}
 
 	static WorldGen.Earth worldGen = new WorldGen.Earth(new Random().nextLong(), 0);
 
 	@Override
 	protected int getColour(int x, int z) {
-		float height = 0.5f + (float) worldGen.sampleMountains(x * 6, z * 6) * 0.005f;
+		float height = 0.5f + (float) worldGen.sampleMountains(x, z) * 0.005f;
 		return Color.getHSBColor(0.0f, 0.0f, height > 1.0f? 1.0f:height).getRGB();
 	}
 }
