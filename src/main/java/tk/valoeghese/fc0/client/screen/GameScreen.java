@@ -425,7 +425,7 @@ public class GameScreen extends Screen {
 		if (this.currentKingdom != null) {
 			String text = switch (this.lastPOI) {
 				case KINGDOM -> this.currentKingdom.toString();
-				case CITY -> "City of " + this.currentKingdom.getName();
+				case CITY -> this.currentKingdom.getName() + " City";
 				default ->  "Missingno";
 			};
 
