@@ -2,7 +2,6 @@ package tk.valoeghese.fc0.client;
 
 import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
 import org.lwjgl.openal.AL10;
@@ -344,10 +343,17 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 					this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
 					this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 
+					boolean showWidget = this.gameScreen.updatePOI();
+
 					Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF, tilePos.z & 0xF);
 
 					if (this.gameScreen.getCurrentKingdom() != kingdom) {
+						showWidget = true;
 						this.gameScreen.setCurrentKingdom(kingdom);
+					}
+
+					if (showWidget) {
+						this.gameScreen.showPOIWidget();
 					}
 				} else {
 					this.gameScreen.heightmapWidget.changeText("Loading");

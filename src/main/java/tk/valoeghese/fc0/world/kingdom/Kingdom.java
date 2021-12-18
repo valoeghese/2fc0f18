@@ -175,6 +175,10 @@ public final class Kingdom {
 		return sb.toString();
 	}
 
+	public String getName() {
+		return this.name;
+	}
+
 	@Override
 	public String toString() {
 		return "Kingdom of " + this.name;

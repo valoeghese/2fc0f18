@@ -71,6 +71,8 @@ public class GameScreen extends Screen {
 	public final Text profilerWidget;
 	private float offset;
 
+	private PlaceOfInterest lastPOI;
+
 	private final Text.Moveable kingdomWidget;
 	private final ResizableRect healthBar;
 	private final ResizableRect unhealthBar;
@@ -399,13 +401,37 @@ public class GameScreen extends Screen {
 		return this.currentKingdom;
 	}
 
-	public void setCurrentKingdom(Kingdom kingdom) {
-		this.currentKingdom = kingdom;
-		this.cityWidget.changeText(kingdom.debugString());
+	/**
+	 * Recalculates the stored POI.
+	 * @return if the POI changed.
+	 */
+	public boolean updatePOI() {
+		TilePos position = this.game.getPlayer().getTilePos();
+		PlaceOfInterest location = CityGenerator.isInCity(this.game.getWorld(), position.x, position.z, Generator.OVERWORLD_CITY_SIZE) ? PlaceOfInterest.CITY : PlaceOfInterest.KINGDOM;
+		boolean result = this.lastPOI != location;
+		this.lastPOI = location;
+		return result;
+	}
 
-		String text = kingdom.toString();
-		this.kingdomWidget.changeText(text, -Text.widthOf(text.toCharArray()), 0.7f);
-		this.kingdomShowTime = 1.0f;
+	public void setCurrentKingdom(@Nullable Kingdom kingdom) {
+		this.currentKingdom = kingdom;
+
+		if (kingdom != null) {
+			this.cityWidget.changeText(kingdom.debugString());
+		}
+	}
+
+	public void showPOIWidget() {
+		if (this.currentKingdom != null) {
+			String text = switch (this.lastPOI) {
+				case KINGDOM -> this.currentKingdom.toString();
+				case CITY -> "City of " + this.currentKingdom.getName();
+				default ->  "Missingno";
+			};
+
+			this.kingdomWidget.changeText(text, -Text.widthOf(text.toCharArray()), 0.7f);
+			this.kingdomShowTime = 1.0f;
+		}
 	}
 
 	private static List<MusicPiece> pickMusic() {
@@ -424,4 +450,9 @@ public class GameScreen extends Screen {
 	public static final Optional<MusicSettings> GAME_MUSIC = Optional.of(new MusicSettings(GameScreen::pickMusic, 600 + 300, 5 * 600 + 300, 0.4f));
 
 	private static final float FONT_SCALE = 0.67f;
+
+	private enum PlaceOfInterest {
+		KINGDOM,
+		CITY
+	}
 }
