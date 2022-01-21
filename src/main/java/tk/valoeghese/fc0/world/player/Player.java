@@ -120,7 +120,7 @@ public class Player extends Lifeform {
 	}
 
 	public final void forceMove(Pos pos) {
-		this.move(pos.getX(), pos.getY(), pos.getZ());
+		this.forceMove(pos.getX(), pos.getY(), pos.getZ());
 	}
 
 	public final void move(Pos pos) {

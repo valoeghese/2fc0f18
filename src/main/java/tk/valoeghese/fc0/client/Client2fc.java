@@ -4,7 +4,7 @@ import org.joml.AxisAngle4f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallbackI;
-import org.lwjgl.opengl.GL33;
+import org.lwjgl.openal.AL10;
 import tk.valoeghese.fc0.BrandAndVersion;
 import tk.valoeghese.fc0.Game2fc;
 import tk.valoeghese.fc0.client.keybind.KeybindManager;
@@ -23,11 +23,14 @@ import tk.valoeghese.fc0.client.screen.PauseMenuScreen;
 import tk.valoeghese.fc0.client.screen.Screen;
 import tk.valoeghese.fc0.client.screen.TitleScreen;
 import tk.valoeghese.fc0.client.screen.YouDiedScreen;
+import tk.valoeghese.fc0.client.sound.ClientSoundEffect;
 import tk.valoeghese.fc0.client.sound.MusicSystem;
+import tk.valoeghese.fc0.client.sound.SoundEffectDispatcher;
 import tk.valoeghese.fc0.client.world.ClientChunk;
 import tk.valoeghese.fc0.client.world.ClientPlayer;
 import tk.valoeghese.fc0.client.world.ClientWorld;
 import tk.valoeghese.fc0.language.Language;
+import tk.valoeghese.fc0.util.Profiler;
 import tk.valoeghese.fc0.util.TimerSwitch;
 import tk.valoeghese.fc0.util.maths.ChunkPos;
 import tk.valoeghese.fc0.util.maths.Pos;
@@ -40,8 +43,10 @@ import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
 import tk.valoeghese.fc0.world.player.CraftingManager;
 import tk.valoeghese.fc0.world.player.ItemType;
+import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.FakeSave;
 import tk.valoeghese.fc0.world.save.Save;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 import tk.valoeghese.fc0.world.tile.Tile;
 import valoeghese.scalpel.Camera;
 import valoeghese.scalpel.Shader;
@@ -55,8 +60,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Properties;
 import java.util.Random;
 import java.util.function.Function;
@@ -125,6 +130,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private Screen currentScreen;
 	private Screen youDiedScreen;
 
+	private SoundEffectDispatcher soundEffectDispatcher;
+
 	@Nullable
 	public Save save = null;
 	private final Window window;
@@ -136,6 +143,16 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private Model sun;
 	public boolean renderWorld = true;
 	private float freezeInterpolation; // interpolation at game pause time
+
+	// profilers
+	/**
+	 * Profiler which counts frames per half second.
+	 */
+	private final Profiler fphsProfiler = new Profiler(12);
+	/**
+	 * Profiler which counts client ticks per half second.
+	 */
+	private final Profiler tphsProfiler = new Profiler(12);
 
 	/**
 	 * @return whether the player is allowed to enter dev mode.
@@ -154,6 +171,33 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	@Override
 	public boolean isMainThread() {
 		return Thread.currentThread().getId() == this.clientThreadId;
+	}
+
+	@Override
+	public void invoke(long window, double xpos, double ypos) {
+		double dx = xpos - this.prevXPos;
+		double dy = ypos - this.prevYPos;
+
+		this.currentScreen.handleMouseInput(dx, dy);
+		this.prevYPos = ypos;
+		this.prevXPos = xpos;
+	}
+
+	@Override
+	public SoundEffect createSoundEffect(String name, String... resources) {
+		return ClientSoundEffect.create(name, resources);
+	}
+
+	@Override
+	public void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z, float volume) {
+		double dx = this.player.getX() - x;
+		double dy = this.player.getY() + 1.8 - y;
+		double dz = this.player.getZ() - z;
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, (float) (dx), (float)  (dy), (float) (dz), volume);
+	}
+
+	public void playSound(SoundEffect effect) {
+		this.soundEffectDispatcher.playSound((ClientSoundEffect) effect, 0, 0, 0, 1.0f);
 	}
 
 	@Override
@@ -186,31 +230,40 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.initGameAudio();
 		this.activateLoadScreen(); // keep it on while chunkloading is happening to hide our distributed chunk-adding
 
+		long nextHalfSecond = System.currentTimeMillis() + 500;
+
 		while (this.window.isOpen()) {
 			long timeMillis = System.currentTimeMillis();
 
+			if (timeMillis >= nextHalfSecond) { // profilers per half second
+				nextHalfSecond = timeMillis + 500;
+				this.fphsProfiler.next();
+				this.tphsProfiler.next();
+
+				if (this.currentScreen == this.gameScreen) {
+					this.gameScreen.profilerWidget.changeText(
+							new StringBuilder()
+									.append("FPS: ")
+									.append(String.format("%.1f", this.fphsProfiler.getAverageRate() * 2))
+									.append(" (")
+									.append(this.fphsProfiler.getExtendedMax())
+									.append("/")
+									.append(this.fphsProfiler.getExtendedMin())
+									.append(")")
+									.append("\nTPS: ")
+									.append(String.format("%.1f", this.tphsProfiler.getAverageRate() * 2))
+									.append(" (")
+									.append(this.tphsProfiler.getExtendedMax())
+									.append("/")
+									.append(this.tphsProfiler.getExtendedMin())
+									.append(")")
+									.toString());
+				}
+			}
+
 			if (timeMillis >= this.nextUpdate) {
 				this.nextUpdate = timeMillis + TICK_DELTA;
-
-				// do 6 queued tasks per tick
-				this.runNextQueued(6);
-				this.updateNextLighting();
-
-				if (this.timerSwitch.isOn()) {
-					this.timerSwitch.update();
-
-					if (!this.timerSwitch.isOn()) { // this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
-						if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
-							this.activateLoadScreen();
-						}
-					}
-				} else {
-					this.handleKeybinds();
-				}
-
-				if (!this.currentScreen.isPauseScreen()) {
-					this.tick();
-				}
+				this.update();
 			}
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -225,12 +278,43 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		this.world.destroy();
 		this.window.destroy();
+		this.soundEffectDispatcher.destroy();
 		MusicSystem.shutdown();
-		ALUtils.shutdown();
+		ALUtils.shutdown(); // destroys all audio buffers
 		Chunk.shutdown(); // may System.exit from here or Save#shutDown so put any further tasks that need to execute either before these or in the force shutdown
 		Save.shutdown();
 	}
 
+	/**
+	 * Runs the client tick. For the game tick, see {@linkplain Client2fc#tick()}.
+	 */
+	private void update() {
+		this.tphsProfiler.increment(); // profiler
+
+		// do 6 queued tasks per client tick
+		this.runNextQueued(6);
+		this.updateNextLighting();
+
+		if (this.timerSwitch.isOn()) {
+			this.timerSwitch.update();
+
+			if (!this.timerSwitch.isOn()) { // this is probably causing the bugs with infinite respawn loading times. Maybe a SAVE#ISTHREADALIVE bug. TODO is this fixed with the rewrite?
+				if (this.getLightingQueueSize() > 12 || Save.isThreadAlive()) {
+					this.activateLoadScreen();
+				}
+			}
+		} else {
+			this.handleKeybinds();
+		}
+
+		if (!this.currentScreen.isPauseScreen()) {
+			this.tick();
+		}
+	}
+
+	/**
+	 * Runs the game tick. For the client tick, from which this is run, see {@linkplain Client2fc#update()}.
+	 */
 	@Override
 	protected void tick() {
 		// TODO move screen dependent logic to a Screen::tick method
@@ -246,22 +330,30 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 		super.tick();
 
-		EcoZone zone = this.world.getEcozone(this.player.getX(), this.player.getZ());
+		EcoZone zone = this.world.getEcozone(this.player.getTileX(), this.player.getTileZ());
 
 		if (this.currentScreen == this.gameScreen) {
-			TilePos tilePos = this.player.getTilePos();
+			TilePos tilePos = this.player.getTilePos(); // this gotta be a waste of memory
 
 			if (this.player.cachedPos != tilePos) {
-				this.gameScreen.coordsWidget.changeText(tilePos.toChunkPos().toString() + "\n" + tilePos);
+				this.player.cachedPos = tilePos;
+				this.gameScreen.coordsWidget.changeText("Local(" + (tilePos.x & 15) + ", " + (tilePos.z & 15) + ") in " + tilePos.toChunkPos().toString() + "\n" + tilePos);
 
 				if (this.player.chunk != null) { // TODO placeholder for kingdom
 					this.gameScreen.heightmapWidget.changeText("Heightmap: " + this.player.chunk.getHeightmap(tilePos.x & 0xF, tilePos.z & 0xF));
 					this.gameScreen.lightingWidget.changeText(this.player.chunk.getLightLevelText(tilePos.x & 0xF, tilePos.y, tilePos.z & 0xF));
 
+					boolean showWidget = this.gameScreen.updatePOI();
+
 					Kingdom kingdom = this.player.chunk.getKingdom(tilePos.x & 0xF, tilePos.z & 0xF);
 
 					if (this.gameScreen.getCurrentKingdom() != kingdom) {
+						showWidget = true;
 						this.gameScreen.setCurrentKingdom(kingdom);
+					}
+
+					if (showWidget) {
+						this.gameScreen.showPOIWidget();
 					}
 				} else {
 					this.gameScreen.heightmapWidget.changeText("Loading");
@@ -338,6 +430,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.sun = new SquareModel();
 
 		System.out.println("Initialised Game Rendering in " + (System.currentTimeMillis() - start) + "ms.");
+
+		//System.out.println(this.player.getCamera().getView());
 	}
 
 	private void init() {
@@ -345,7 +439,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		this.setFOV(64);
 
 		this.world = new ClientWorld(new FakeSave(0), 0, TITLE_WORLD_SIZE);
-		this.player = new ClientPlayer(new Camera(), this, false);
+		this.player = new ClientPlayer(new Camera2fc(), this, false);
 		this.player.changeWorld(this.world, this.save);
 
 		if (NEW_TITLE) {
@@ -363,10 +457,18 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private void initGameAudio() {
 		long start = System.currentTimeMillis();
 		MusicSystem.init();
+
+		for (SoundEffect effect : SoundEffect.getSoundEffects()) {
+			effect.initialise();
+		}
+
+		this.soundEffectDispatcher = new SoundEffectDispatcher(16);
+
 		System.out.println("Initialised Game Audio in " + (System.currentTimeMillis() - start) + "ms.");
 	}
 
 	private void render(float tickDelta) {
+		this.fphsProfiler.increment();
 		long time = System.nanoTime();
 		float skylight = this.calculateSkyLighting();
 
@@ -378,14 +480,17 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			Shader.unbind();
 		} else {
 			glClearColor(0.35f * skylight, 0.55f * skylight, 0.95f * skylight, 1.0f);
+			float tickTime = this.time + tickDelta; // tickTime (this will break at large time intervals but good luck if you play this for 10000 in game days (it probably won't even be noticeable THEN))
 
 			// update camera
 			this.player.updateCameraPos(tickDelta);
 
 			// bind shader
 			Shaders.terrain.bind();
-			// time and stuff
-			Shaders.terrain.uniformInt("time", (int) System.currentTimeMillis());
+			// time and stuff (to anyone not used to gl, shader needs to be bound for uniform changes. this note is here because I forgot this at one point (luckily resolved the problem before even launching debug) and wanted to make sure I don't forget it again)
+			float skyAngle = this.calculateSkyAngle();
+			Shaders.terrain.uniformFloat("skyAngle", skyAngle);
+			Shaders.terrain.uniformFloat("time", tickTime);
 			Shaders.terrain.uniformFloat("skylight", skylight);
 			// projection
 			Shaders.terrain.uniformMat4f("projection", this.projection);
@@ -396,6 +501,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			GLUtils.bindTexture(TILE_ATLAS);
 
 			if (renderWorld) {
+				glEnable(GL_CULL_FACE);
+
 				for (ClientChunk chunk : this.world.getRenderingChunks()) {
 					chunk.getOrCreateMesh().renderSolidTerrain();
 				}
@@ -414,12 +521,13 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 				Shaders.terrain.uniformInt("waveMode", 0);
 				GLUtils.disableBlend();
+				glDisable(GL_CULL_FACE);
 			}
 
 			// render entities
 			GLUtils.bindTexture(ENTITY_ATLAS);
 
-			for (Entity entity : this.world.getEntities(this.player.getX(), this.player.getZ(), 20)) {
+			for (Entity entity : this.world.getEntities(this.player.getTileX(), this.player.getTileZ(), 20)) {
 				EntityRenderer renderer = entity.getRenderer();
 
 				if (renderer != null) {
@@ -439,8 +547,8 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_COLOR, GL_ONE);
-			float skyAngle = this.calculateSkyAngle();
-			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick
+
+			// TODO should Matrix4f calculations be cached since the sky angle only changes every tick (including sky angle stuff)
 			Shaders.terrain.uniformMat4f("transform", new Matrix4f()
 					.scale(16.0f)
 					.rotate(new AxisAngle4f(skyAngle - PI + 8.0f * PI,1.0f, 0.0f, 0.0f))
@@ -455,7 +563,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 			// defaults
 			Shaders.gui.uniformFloat("lighting", 1.0f);
 			// render gui
-			this.renderGUI(skylight);
+			this.renderGUI(skylight, tickDelta);
 			// unbind shader
 			GLUtils.bindTexture(0);
 
@@ -469,10 +577,10 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		}
 	}
 
-	private void renderGUI(float lighting) {
+	private void renderGUI(float lighting, float tickDelta) {
 		this.currentScreen.renderGUI(lighting);
 
-		if (this.player.isUnderwater()) {
+		if (this.player.isUnderwaterForRendering()) {
 			GLUtils.enableBlend();
 			Shaders.gui.uniformFloat("lighting", lighting);
 			this.waterOverlay.render();
@@ -591,16 +699,6 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		return this.preferences.getProperty(key, defaultValue);
 	}
 
-	@Override
-	public void invoke(long window, double xpos, double ypos) {
-		double dx = xpos - this.prevXPos;
-		double dy = ypos - this.prevYPos;
-
-		this.currentScreen.handleMouseInput(dx, dy);
-		this.prevYPos = ypos;
-		this.prevXPos = xpos;
-	}
-
 	public void activateLoadScreen() {
 		this.timerSwitch.switchOn(1000);
 	}
@@ -643,7 +741,7 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 	private static final Matrix4f IDENTITY = new Matrix4f();
 	private static final float NINETY_DEGREES = (float) Math.toRadians(90);
 
-	private class Window2fc extends valoeghese.scalpel.Window {
+	private class Window2fc extends Window {
 		public Window2fc(String title, int width, int height) {
 			super(title, width, height);
 		}
@@ -652,6 +750,48 @@ public class Client2fc extends Game2fc<ClientWorld, ClientPlayer> implements Run
 		public void invoke(long window, int width, int height) {
 			super.invoke(window, width, height);
 			Client2fc.this.projection = new Matrix4f().perspective((float) Math.toRadians(Client2fc.this.fov * Client2fc.this.sprintFOV), Client2fc.this.window.getAspect(), 0.01f, 250.0f);
+		}
+	}
+
+	private static class Camera2fc extends Camera {
+		@Override
+		public void rotatePitch(float pitch) {
+			super.rotatePitch(pitch);
+			this.rotateListener();
+		}
+
+		@Override
+		public void rotateYaw(float yaw) {
+			super.rotateYaw(yaw);
+			this.rotateListener();
+		}
+
+		@Override
+		public void setPitch(float f) {
+			super.setPitch(f);
+			this.rotateListener();
+		}
+
+		@Override
+		public void setYaw(float f) {
+			super.setYaw(f);
+			this.rotateListener();
+		}
+
+		private void rotateListener() {
+			ByteBuffer buffer = ByteBuffer.allocateDirect(6 * 4);
+			buffer.order( ByteOrder.nativeOrder() );
+
+			Matrix4f view = this.getView();
+			buffer.putFloat(view.m02()); // look
+			buffer.putFloat(view.m12());
+			buffer.putFloat(view.m22());
+			buffer.putFloat(view.m01()); // up
+			buffer.putFloat(view.m11());
+			buffer.putFloat(view.m21());
+			buffer.flip();
+
+			AL10.alListenerfv(AL10.AL_ORIENTATION, buffer.asFloatBuffer());
 		}
 	}
 }

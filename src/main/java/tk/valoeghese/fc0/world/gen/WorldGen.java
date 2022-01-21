@@ -84,13 +84,13 @@ public abstract class WorldGen {
 				// ridges
 				int height = (int) heightmap[x * 16 + z];
 
-				int sandHeight = (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
+				int sandDepth = this.sampleBeaches(totalX, totalZ);
 
 				if (height >= TileAccess.WORLD_HEIGHT) {
-					height = TileAccess.WORLD_HEIGHT - 1;
+					height = TileAccess.WORLD_HEIGHT - 1; // height cap
 				}
 
-				int depth = zone.surface == Tile.SAND.id ? 2 : 1;
+				int depth = zone.surface == Tile.SAND.id ? 2 : 1; // sand depth where sand is surface
 
 				for (int y = 0; y < height; ++y) {
 					byte toSet = y > height - depth - 1 ? zone.surface : Tile.STONE.id;
@@ -118,7 +118,7 @@ public abstract class WorldGen {
 				}
 
 				// add beaches
-				if (height <= 52 + sandHeight) {
+				if (height <= 52 + sandDepth) {
 					for (int y = 51; y < height; ++y) {
 						tiles[Chunk.index(x, y, z)] = zone.beach;
 					}
@@ -211,6 +211,10 @@ public abstract class WorldGen {
 		return this.ridges.sample(x, y, this.plane);
 	}
 
+	int sampleBeaches(int totalX, int totalZ) {
+		return (int) (2.1 * sand.sample(totalX / 21.0, totalZ / 21.0));
+	}
+
 	@FunctionalInterface
 	public interface ChunkConstructor<T extends Chunk> {
 		T create(GameplayWorld<T> parent, int x, int z, byte[] tiles, byte[] meta, @Nullable int[] kingdoms);
@@ -230,15 +234,18 @@ public abstract class WorldGen {
 			double continent = 43 + 20 * this.sampleNoise((x / 810.0) - 0.3, (z / 810.0) - 0.3);
 
 			// Stage two: sample mountains and hills
-			double mountainDir = 1.0 + 0.5 * this.sampleNoise(x / 720.0, z / 720.0);
-			double mountains = 45 + 68 * this.sampleRidge((x * mountainDir) / 410.0, (z / mountainDir) / 410.0);
-			mountains += 36 * this.sampleRidge((x / 290.0) - 1, z / 290.0);
+			double mountains = this.sampleMountains(x, z);
 
 			double hills = 20 * this.sampleNoise(x / 90.0, z / 90.0) + 12 * this.sampleNoise(x / 32.0, z / 32.0);
 
 			// Stage three: bias mountains and hills
 			double bias = 0.5 + 0.5 * this.sampleNoise(x / 600.0, (z / 600.0) - 1);
 			return continent + (bias * hills) + ((1.0 - bias) * mountains);
+		}
+
+		public double sampleMountains(double x, double z) {
+			double mountains = 68 * this.sampleRidge(x / 510.0, z / 510.0);
+			return mountains + 36 * this.sampleRidge((x / 260.0) - 1, z / 260.0);
 		}
 	}
 }

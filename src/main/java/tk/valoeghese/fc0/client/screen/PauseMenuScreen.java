@@ -52,8 +52,8 @@ public class PauseMenuScreen extends MenuScreen {
 		this.game.setWorld(world);
 		ClientPlayer player = this.game.getPlayer();
 		// Start at leave pos
-		int x = player.getX();
-		int z = player.getZ();
+		int x = player.getTileX();
+		int z = player.getTileZ();
 		player.getCamera().setPitch(0);
 		player.getCamera().setYaw(PI);
 

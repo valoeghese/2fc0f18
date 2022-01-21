@@ -9,9 +9,10 @@ flat out float lightPass;
 uniform mat4 transform;
 uniform mat4 view;
 uniform mat4 projection;
-uniform int time;
+uniform float time;
 uniform int waveMode;
 uniform float skylight;
+uniform float skyAngle;
 
 float wave1Y(float, float);
 
@@ -20,7 +21,7 @@ void main() {
 
     if (waveMode > 0) {
         vec4 initialPos = transform * vec4(rawPos, 1.0);
-        pos.y = pos.y + 0.1 * wave1Y(initialPos.x, initialPos.z) - 0.05;
+        pos.y = pos.y + 0.15 * wave1Y(initialPos.x, initialPos.z) - 0.05;
     }
 
     gl_Position = projection * view * transform * vec4(pos, 1.0); // set the final vertex position based on the raw position
@@ -33,35 +34,33 @@ void main() {
         float blockLight = float(packedLight >> 7) / 15.0;
         float skyLight = skylight * float((packedLight >> 3) & 0xF) / 15.0; // have fun with skyLight and skylight being different
         int face = packedLight & 7;
-        float lightMultiplier;
+        float skyAngleLightMultiplier;
 
         switch (face) {
-        case 0: // north
-        case 3: // south
-            lightMultiplier = 0.9;
+        case 0: // south
+        case 3: // north
+            skyAngleLightMultiplier = 0.9;
             break;
         case 1: // up
-            lightMultiplier = 0.95;
+            skyAngleLightMultiplier = 0.1 * sin(skyAngle) + 0.9; // 0.8-1.0 max at peak
             break;
         case 2: // east
-            lightMultiplier = 1.05;
+            skyAngleLightMultiplier = 0.1 * cos(skyAngle) + 0.9; // 0.8-1.0 max at sunrise
             break;
         case 4: // down
-            lightMultiplier = 0.85;
+            skyAngleLightMultiplier = 0.1 * sin(skyAngle - 3.141592) + 0.9;
             break;
         case 5: // west
-            lightMultiplier = 0.75;
+            skyAngleLightMultiplier = 0.1 * cos(skyAngle - 3.141592) + 0.9; // 0.8-1.0 max at sunset
             break;
         }
 
-        lightPass = max(blockLight, skyLight) * lightMultiplier;
-        // todo change light direction in code based on time of day
+        lightPass = max(blockLight, skyLight * skyAngleLightMultiplier);
     }
 }
 
-// todo make waves not bad
 float wave1Y(float x, float z) {
-    float xSample = 0.07 * (float(time) * 0.01 + x);
-    float zSample = 0.07 * (float(time + 10) * 0.01 + z);
+    float xSample = 0.035* (float(time) + x);
+    float zSample = 0.035 * (float(time + 10) + z);
     return -abs(sin(xSample) + sin(zSample));
 }

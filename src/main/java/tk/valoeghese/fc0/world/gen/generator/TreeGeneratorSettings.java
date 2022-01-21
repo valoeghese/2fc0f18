@@ -21,6 +21,10 @@ public class TreeGeneratorSettings implements GeneratorSettings {
 	private final int baseTreeHeight;
 	private final int potentialHeightIncrease;
 
+	public int getBaseTreeCount() {
+		return this.baseTreeCount;
+	}
+
 	@Override
 	public int getCount(GenWorld world, Random rand, int startX, int startZ) {
 		return this.baseTreeCount + (int) (this.treeCountVariation * world.sampleNoise(startX / 64.0, startZ / 64.0));

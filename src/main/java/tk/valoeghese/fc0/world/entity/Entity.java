@@ -38,30 +38,38 @@ public abstract class Entity {
 
 		TilePos below = this.getTilePos().down();
 
-		if (!this.noClip && this.world.isInWorld(below)) {
-			byte tile = this.world.readTile(below);
+		if (this.noClip) {
+			this.friction = 0.75;
+		} else {
+			if (this.world.isInWorld(below)) {
+				byte tile = this.world.readTile(below);
 
-			if (tile != Tile.AIR.id) {
-				this.friction = 0.75;
-				this.friction /= Tile.BY_ID[tile].getFrictionConstant();
-				this.friction = Math.min(1.0, this.friction);
+				if (tile != Tile.AIR.id) {
+					this.friction = 0.75;
+					this.friction /= Tile.BY_ID[tile].getFrictionConstant();
+					this.friction = Math.min(1.0, this.friction);
+				}
 			}
-		}
 
-		if (!this.noClip) { // -0.01, -0.02 originally
 			this.velocity.offsetY(this.isSwimming() ? -0.04f : -0.08f);
 		}
 
-		this.velocity.mul(this.friction, this.noClip ? 0.96 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
+		this.velocity.mul(this.friction, this.noClip ? 0.75 : (this.isSwimming() && this.velocity.getY() < 0 ? 0.75 : 0.98), this.friction); // swimming slowfall. also noclip is special bunny
 		this.move(this.velocity.getX(), 0.0, 0.0);
 		this.move(0.0, 0.0, this.velocity.getZ());
 
-		if (Math.abs(this.velocity.getY()) > 0.03) {
+		if (Math.abs(this.velocity.getY()) > 0.08) { // -0.0783 is normal while standing
 			this.falling = true;
 		}
 
 		if (!this.move(0.0, this.velocity.getY(), 0.0)) {
-			this.hitGround();
+			if (this.velocity.getY() < 0) this.nextPos.setY(MathsUtils.floor(this.pos.getY()));
+
+			if (this.falling) {
+				this.hitGround();
+			}
+
+			this.velocity.setY(0.0);
 		}
 	}
 
@@ -142,6 +150,16 @@ public abstract class Entity {
 		}
 	}
 
+	public boolean isUnderwaterForRendering() { // TODO use better solution
+		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height + 0.15, 0));
+
+		if (this.world.isInWorld(pos)) {
+			return this.world.readTile(pos) == Tile.WATER.id;
+		} else {
+			return false;
+		}
+	}
+
 	public boolean isUnderwater() {
 		TilePos pos = new TilePos(this.pos.ofAdded(0, this.height, 0));
 
@@ -162,12 +180,36 @@ public abstract class Entity {
 		return this.world;
 	}
 
-	public int getX() {
+	public int getTileX() {
 		return MathsUtils.floor(this.pos.getX());
 	}
 
-	public int getZ() {
+	public int getTileZ() {
 		return MathsUtils.floor(this.pos.getZ());
+	}
+
+	public double getX() {
+		return this.pos.getX();
+	}
+
+	public double getY() {
+		return this.pos.getY();
+	}
+
+	public double getZ() {
+		return this.pos.getZ();
+	}
+
+	public double getX(float tickDelta) {
+		return MathsUtils.lerp(this.pos.getX(), this.nextPos.getX(), tickDelta);
+	}
+
+	public double getY(float tickDelta) {
+		return MathsUtils.lerp(this.pos.getY(), this.nextPos.getY(), tickDelta);
+	}
+
+	public double getZ(float tickDelta) {
+		return MathsUtils.lerp(this.pos.getZ(), this.nextPos.getZ(), tickDelta);
 	}
 
 	public Pos getPos() {
@@ -185,6 +227,5 @@ public abstract class Entity {
 
 	public void hitGround() {
 		this.falling = false;
-		this.velocity.setY(0.0);
 	}
 }

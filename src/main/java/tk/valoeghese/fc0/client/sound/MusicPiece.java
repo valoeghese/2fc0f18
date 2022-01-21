@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class MusicPiece {
 	public MusicPiece(String resource) {
-		this.resource = "assets/sound/" + resource + ".ogg";
+		this.resource = "assets/sound/music/" + resource + ".ogg";
 
 		if (MusicSystem.shouldGenerateBuffers()) {
 			this.generateBuffers();

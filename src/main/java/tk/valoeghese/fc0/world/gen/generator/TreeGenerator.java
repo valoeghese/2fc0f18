@@ -96,7 +96,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 						break;
 					}
 
-					int totalY = y + height + yo;
+					int totalY = y + height + yo - 1;
 
 					if (world.isInWorld(totalX, totalY, totalZ) && canLeavesReplace(world.readTile(totalX, totalY, totalZ))) {
 						writeTile(world, totalX, totalY, totalZ, Tile.LEAVES.id);
@@ -105,7 +105,7 @@ public class TreeGenerator extends Generator<TreeGeneratorSettings> {
 			}
 		}
 
-		int finalCrossY = y + height + 2;
+		int finalCrossY = y + height + 1;
 
 		for (int xo = -1; xo < 2; ++xo) {
 			int totalX = xo + x;

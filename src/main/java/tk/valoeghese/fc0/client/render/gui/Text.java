@@ -81,6 +81,10 @@ public class Text extends GUI {
 		this.generateBuffers();
 	}
 
+	public String getText() {
+		return this.text;
+	}
+
 	private static void getUV(char c, int[] uv) {
 		int cVal = (int) c - 32; // space is at 0
 

@@ -6,6 +6,7 @@ import tk.valoeghese.fc0.client.render.gui.Text;
 import tk.valoeghese.fc0.client.render.gui.collection.WorldSave;
 import tk.valoeghese.fc0.client.sound.MusicPiece;
 import tk.valoeghese.fc0.client.sound.MusicSettings;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 import valoeghese.scalpel.Window;
 import tk.valoeghese.fc0.client.render.gui.GUI;
 import valoeghese.scalpel.util.GLUtils;
@@ -74,6 +75,7 @@ public class TitleScreen extends DelegatingScreen {
 		@Override
 		public void handleKeybinds() {
 			if (Keybinds.DESTROY.hasBeenPressed()) {
+				this.game.playSound(SoundEffect.BUTTON_CLICK);
 				this.parent.switchScreen(1);
 			}
 		}
@@ -118,6 +120,7 @@ public class TitleScreen extends DelegatingScreen {
 					++selected;
 					this.parent.switchScreen(0);
 					this.game.switchScreen(this.game.gameScreen);
+					this.game.playSound(SoundEffect.BUTTON_CLICK);
 					this.game.createWorld("save_" + selected);
 //					this.game.generateSpawnChunks();
 				}

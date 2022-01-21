@@ -11,11 +11,11 @@ import java.util.List;
 import java.util.Random;
 
 public final class Kingdom {
-	public Kingdom(GameplayWorld world, int id, Vec2f voronoi) {
+	public Kingdom(long seed, int id, Vec2f voronoi) {
 		this.cityLoc = new Vec2i((int) (voronoi.getX() * SCALE), (int) (voronoi.getY() * SCALE));
 		this.gridLoc = new Vec2i(MathsUtils.floor(voronoi.getX()), MathsUtils.floor(voronoi.getY()));
 
-		Random rand = new Random(world.getSeed() ^ id);
+		Random rand = new Random(seed ^ id);
 		List<String> onsetPre = new ArrayList<>(Arrays.asList("m", "n", "p", "t", "k"));
 		List<String> codaPre = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public final class Kingdom {
 	}
 
 	public Vec2f neighbourKingdomVec(int xoff, int yoff, int seed) {
-		return Voronoi.sampleVoronoiGrid(xoff + this.gridLoc.getX(), yoff + this.gridLoc.getY(), seed);
+		return Voronoi.sampleVoronoiGrid(xoff + this.gridLoc.getX(), yoff + this.gridLoc.getY(), seed, RELAXATION);
 	}
 
 	private void addPhonemes(List<String> onsetPre, List<String> codePre, Random rand) {
@@ -175,6 +175,10 @@ public final class Kingdom {
 		return sb.toString();
 	}
 
+	public String getName() {
+		return this.name;
+	}
+
 	@Override
 	public String toString() {
 		return "Kingdom of " + this.name;
@@ -185,5 +189,6 @@ public final class Kingdom {
 	}
 
 	public static final float SCALE = 1050.0f;
+	public static final float RELAXATION = 0.33f;
 	private static final char[] VOWELS = {'i', 'e', 'a', 'o', 'u', 'y'};
 }

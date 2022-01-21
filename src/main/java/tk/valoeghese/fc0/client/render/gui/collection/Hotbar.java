@@ -18,12 +18,12 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 		this.parent = parent;
 
 		for (int i = 0; i < 10; ++i) {
-			this.guis.add(new HotbarEntry(0.8f, 0.87f - (0.14f * i)));
+			this.guis.add(new HotbarEntry(0.8f, 0.75f - (0.14f * i)));
 			this.update(i, Client2fc.getInstance().getWindowAspect());
 		}
 
 		this.selected = new MoveableRect(Textures.SELECTED, 0.08f);
-		this.selected.setPosition(0.8f, 0.87f);
+		this.selected.setPosition(0.8f, 0.75f);
 	}
 
 	private final Inventory parent;
@@ -43,7 +43,7 @@ public class Hotbar extends GUICollection<Hotbar.HotbarEntry> {
 	}
 
 	public void setSelectedSlot(int slot) {
-		this.selected.setPosition(0.8f, 0.87f - (0.14f * slot));
+		this.selected.setPosition(0.8f, 0.75f - (0.14f * slot));
 		float windowAspect = Client2fc.getInstance().getWindowAspect();
 
 		for (HotbarUpdateSubscriber subscriber : UPDATE_SUBSCRIBERS) {

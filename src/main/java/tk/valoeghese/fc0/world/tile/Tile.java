@@ -37,6 +37,7 @@ public class Tile {
 	private int light = 0;
 	protected String translationKey = "tile.missingno";
 	private final String textureName;
+	private SoundFX sounds = SoundFX.STONE;
 
 	public int getU(int faceAxis, byte meta) {
 		return this.u;
@@ -102,6 +103,11 @@ public class Tile {
 		return this;
 	}
 
+	protected Tile soundFX(SoundFX sounds) {
+		this.sounds = sounds;
+		return this;
+	}
+
 	// End Builders
 
 	@Nullable
@@ -143,6 +149,10 @@ public class Tile {
 
 	public boolean isCross() {
 		return this.cross;
+	}
+
+	public SoundFX getSounds() {
+		return this.sounds;
 	}
 
 	/**
@@ -188,23 +198,23 @@ public class Tile {
 	public static final Tile[] BY_ID = new Tile[256];
 	public static final Tile AIR = new Tile("stone", 0, 0.0f).dontRender().noCollision();
 	public static final Tile STONE = new Tile("stone", 1, 0.0f).sustainsGeneration().setName("stone");
-	public static final Tile GRASS = new GrassTile("grass", 2, 0.5f).sustainsGeneration().setName("grass");
-	public static final Tile LEAVES = new LeavesTile("leaves", 3, 2.0f).nonOpaque().noCollision().setName("leaves");
-	public static final Tile LOG = new ColumnTile("log", 4, 0.0f).setName("log");
+	public static final Tile GRASS = new GrassTile("grass", 2, 0.5f).soundFX(SoundFX.PLANT).sustainsGeneration().setName("grass");
+	public static final Tile LEAVES = new LeavesTile("leaves", 3, 2.0f).soundFX(SoundFX.PLANT).nonOpaque().noCollision().setName("leaves");
+	public static final Tile LOG = new ColumnTile("log", 4, 0.0f).soundFX(SoundFX.WOOD).setName("log");
 	public static final Tile WATER = new WaterTile("water", 5, 0.0f).dontRender().noCollision();
-	public static final Tile SAND = new Tile("sand", 6, 0.0f).sustainsGeneration().setName("sand");
-	public static final Tile DAISY = new PlantTile("daisy", 7, 1.5f, t -> t == GRASS).cross().noCollision().setName("daisy");
-	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.5f, t -> t == SAND).cross().noCollision().setName("cactus");
-	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 1.0f, t -> t == GRASS).cross().noCollision().setName("tallgrass");
+	public static final Tile SAND = new Tile("sand", 6, 0.0f).soundFX(SoundFX.GRAIN).sustainsGeneration().setName("sand");
+	public static final Tile DAISY = new PlantTile("daisy", 7, 1.5f, t -> t == GRASS).soundFX(SoundFX.PLANT).cross().noCollision().setName("daisy");
+	public static final Tile CACTUS = new PlantTile("cactus", 8, 0.5f, t -> t == SAND).soundFX(SoundFX.PLANT).cross().noCollision().setName("cactus");
+	public static final Tile TALLGRASS = new PlantTile("tallgrass", 9, 1.0f, t -> t == GRASS).soundFX(SoundFX.PLANT).cross().noCollision().setName("tallgrass");
 	public static final Tile BRICKS = new Tile("bricks", 10, 0.0f).setName("bricks");
 	public static final Tile STONE_BRICKS = new Tile("stone_bricks", 11, 0.0f).setName("stone_bricks");
-	public static final Tile ICE = new IceTile("ice", 12, 0.0f).translucent().nonOpaque().setName("ice");
+	public static final Tile ICE = new IceTile("ice", 12, 0.0f).soundFX(SoundFX.ICE).translucent().nonOpaque().setName("ice");
 	public static final Tile GALENA = new Tile("galena", 13, 0.0f).sustainsGeneration().setName("galena");
 	// TODO proper torch texture
-	public static final Tile TORCH = new TorchTile("planks", 14, 0.0f).setName("torch").nonOpaque().noCollision().lightLevel(10);
-	public static final Tile PLANKS = new MetaPlacementTile(Arrays.asList("planks", "planks_2"), 15, 0.0f).setName("planks");
+	public static final Tile TORCH = new TorchTile("planks", 14, 0.0f).soundFX(SoundFX.WOOD).setName("torch").nonOpaque().noCollision().lightLevel(10);
+	public static final Tile PLANKS = new MetaPlacementTile(Arrays.asList("planks", "planks_2"), 15, 0.0f).soundFX(SoundFX.WOOD).setName("planks");
 	public static final Tile COAL = new Tile("coal", 16, 0.0f).setName("coal");
 	public static final Tile MAGNETITE = new Tile("magnetite", 17, 0.0f).sustainsGeneration().setName("magnetite");
-	public static final Tile BRUNNERA = new PlantTile("brunnera", 18, 1.5f, t -> t == GRASS).cross().noCollision().setName("brunnera");
-	public static final Tile DANDELION = new PlantTile("dandelion", 19, 1.5f, t -> t == GRASS).cross().noCollision().setName("dandelion");
+	public static final Tile BRUNNERA = new PlantTile("brunnera", 18, 1.5f, t -> t == GRASS).soundFX(SoundFX.PLANT).cross().noCollision().setName("brunnera");
+	public static final Tile DANDELION = new PlantTile("dandelion", 19, 1.5f, t -> t == GRASS).soundFX(SoundFX.PLANT).cross().noCollision().setName("dandelion");
 }

@@ -21,6 +21,7 @@ import tk.valoeghese.fc0.world.gen.GenWorld;
 import tk.valoeghese.fc0.world.gen.WorldGen;
 import tk.valoeghese.fc0.world.gen.ecozone.EcoZone;
 import tk.valoeghese.fc0.world.kingdom.Kingdom;
+import tk.valoeghese.fc0.world.kingdom.KingdomIDMapper;
 import tk.valoeghese.fc0.world.kingdom.Voronoi;
 import tk.valoeghese.fc0.world.player.Player;
 import tk.valoeghese.fc0.world.save.ChunkLoadingAccess;
@@ -37,7 +38,7 @@ import java.util.function.Predicate;
 
 import static org.joml.Math.sin;
 
-public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T> {
+public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, ChunkLoadingAccess<T>, KingdomIDMapper {
 	public GameplayWorld(SaveLike save, long seed, int size, WorldGen.ChunkConstructor<T> constructor) {
 		this.worldGen = new WorldGen.Earth(seed, 0);
 		this.seed = seed;
@@ -86,11 +87,12 @@ public abstract class GameplayWorld<T extends Chunk> implements LoadableWorld, C
 	// meh
 	@Override
 	public Kingdom kingdomById(int kingdom, int x, int z) {
-		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this, id, Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed, 0.5f)));
+		return this.kingdomIdMap.computeIfAbsent(kingdom, id -> new Kingdom(this.seed, id, Voronoi.sampleVoronoi(x / Kingdom.SCALE, z / Kingdom.SCALE, (int) this.seed, Kingdom.RELAXATION)));
 	}
 
+	@Override
 	public Kingdom kingdomById(Vec2f sample) {
-		return this.kingdomIdMap.computeIfAbsent(sample.id(), id -> new Kingdom(this, id, sample));
+		return this.kingdomIdMap.computeIfAbsent(sample.id(), id -> new Kingdom(this.seed, id, sample));
 	}
 
 	public Iterator<T> getChunks() {

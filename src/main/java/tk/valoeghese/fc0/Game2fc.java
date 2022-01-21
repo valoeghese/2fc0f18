@@ -5,7 +5,9 @@ import tk.valoeghese.fc0.world.chunk.Chunk;
 import tk.valoeghese.fc0.world.chunk.ChunkLoadStatus;
 import tk.valoeghese.fc0.world.TileAccess;
 import tk.valoeghese.fc0.world.player.Player;
+import tk.valoeghese.fc0.world.sound.SoundEffect;
 
+import javax.annotation.Nullable;
 import java.util.*;
 
 import static org.joml.Math.PI;
@@ -23,7 +25,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 	private final Queue<Chunk> toUpdateLighting = new LinkedList<>();
 
 	private static final float SKY_LIGHTING_CHANGE_RATE = 10.5f;
-	private static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
+	protected static final float SKY_ROTATION_RATE = (float) (9216 * PI * 4); // 4pi n
 
 	/**
 	 * @return the sky angle between 0.0f and (float)2pi.
@@ -66,7 +68,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 
 		for (Chunk chunk : c) {
 			if (chunk.status != ChunkLoadStatus.UNLOADED) {
-				chunk.refreshLighting();
+				chunk.refreshLightingMesh();
 			}
 		}
 	}
@@ -93,7 +95,7 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 		}
 	}
 
-	public void needsLightingUpdate(Chunk c) {
+	public void needsMeshLightingUpdate(Chunk c) {
 		synchronized (this.toUpdateLighting) {
 			if (!this.toUpdateLighting.contains(c)) {
 				this.toUpdateLighting.add(c);
@@ -106,7 +108,12 @@ public abstract class Game2fc<W extends TileAccess, P extends Player> {
 		++this.time;
 	}
 
+	public SoundEffect createSoundEffect(String name, String... resources) {
+		return new SoundEffect(name);
+	}
+
 	public abstract boolean isMainThread();
+	public abstract void playSound(@Nullable Player toExcept, SoundEffect effect, double x, double y, double z, float volume);
 
 	public static Game2fc getInstance() {
 		return instance;
